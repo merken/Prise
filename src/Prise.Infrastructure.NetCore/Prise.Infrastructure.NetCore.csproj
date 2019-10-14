@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <PackageId>Prise</PackageId>
+    <Version>0.0.5</Version>
+    <Authors>Maarten Merken</Authors>
+    <Company>MRKN</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
