@@ -1,9 +1,9 @@
 var target = Argument("target", "default");
 var configuration = Argument("configuration", "Release");
 var outputDir = "..\\dist";
-var semVer = "0.0.1";
-var version = "0.0.1";
-var infoVer = "0.0.1";
+var semVer = "1.0.0";
+var version = "1.0.0";
+var infoVer = "1.0.0";
 
 Task("build").Does( () =>
 { 
