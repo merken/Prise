@@ -1,8 +1,41 @@
 var target = Argument("target", "default");
 var configuration = Argument("configuration", "Release");
-var outputDir = "..\\dist";
 
-Task("build").Does( () =>
+private void CleanProject(string projectDirectory){
+    var projectFile = $"{projectDirectory}\\{projectDirectory}.csproj";
+    var bin = $"{projectDirectory}\\bin";
+    var obj = $"{projectDirectory}\\obj";
+
+    var deleteSettings = new DeleteDirectorySettings{
+        Force= true,
+        Recursive = true
+    };
+
+    var cleanSettings = new DotNetCoreCleanSettings
+    {
+        Configuration = configuration
+    };
+    if (DirectoryExists(bin))
+    {
+      DeleteDirectory(bin, deleteSettings);
+    }
+    if (DirectoryExists(obj))
+    {
+      DeleteDirectory(obj, deleteSettings);
+    }
+    DotNetCoreClean(projectFile, cleanSettings);
+}
+
+Task("clean").Does( () =>
+{ 
+  CleanProject("PluginA");
+  CleanProject("PluginB");
+  CleanProject("PluginC");
+});
+
+Task("build")
+  .IsDependentOn("clean")
+  .Does( () =>
 { 
     var settings = new DotNetCoreBuildSettings
     {
@@ -20,17 +53,20 @@ Task("publish")
   { 
     DotNetCorePublish("PluginA\\PluginA.csproj", new DotNetCorePublishSettings
     {
+        NoBuild = true,
         Configuration = configuration,
         OutputDirectory = "publish/PluginA"
     });
 
     DotNetCorePublish("PluginB\\PluginB.csproj", new DotNetCorePublishSettings
     {
+        NoBuild = true,
         Configuration = configuration,
         OutputDirectory = "publish/PluginB"
     });
     DotNetCorePublish("PluginC\\PluginC.csproj", new DotNetCorePublishSettings
     {
+        NoBuild = true,
         Configuration = configuration,
         OutputDirectory = "publish/PluginC"
     });
@@ -44,6 +80,6 @@ Task("publish")
   });
 
 Task("default")
-  .IsDependentOn("build");
+  .IsDependentOn("publish");
 
 RunTarget(target);

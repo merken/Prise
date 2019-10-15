@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Prise.Infrastructure.NetCore.Contracts;
@@ -13,6 +14,7 @@ namespace Prise.Infrastructure.NetCore
         IParameterConverter ParameterConverter { get; }
         IPluginAssemblyLoader<T> AssemblyLoader { get; }
         string PluginAssemblyName { get; }
+        bool SupportMultiplePlugins { get; }
     }
 
     public class PluginLoadOptions<T> : IPluginLoadOptions<T>
@@ -23,6 +25,7 @@ namespace Prise.Infrastructure.NetCore
         private readonly IParameterConverter parameterConverter;
         private readonly IPluginAssemblyLoader<T> assemblyLoader;
         private readonly string pluginAssemblyName;
+        private readonly bool supportMultiplePlugins;
 
         public PluginLoadOptions(
             IRootPathProvider rootPathProvider,
@@ -30,7 +33,8 @@ namespace Prise.Infrastructure.NetCore
             IParameterConverter parameterConverter,
             IResultConverter resultConverter,
             IPluginAssemblyLoader<T> assemblyLoader,
-            string pluginAssemblyName)
+            string pluginAssemblyName,
+            bool supportMultiplePlugins = false)
         {
             this.rootPathProvider = rootPathProvider;
             this.activator = activator;
@@ -38,6 +42,7 @@ namespace Prise.Infrastructure.NetCore
             this.resultConverter = resultConverter;
             this.assemblyLoader = assemblyLoader;
             this.pluginAssemblyName = pluginAssemblyName;
+            this.supportMultiplePlugins = supportMultiplePlugins;
         }
 
         public IRootPathProvider RootPathProvider => this.rootPathProvider;
@@ -46,6 +51,7 @@ namespace Prise.Infrastructure.NetCore
         public IParameterConverter ParameterConverter => this.parameterConverter;
         public IPluginAssemblyLoader<T> AssemblyLoader => this.assemblyLoader;
         public string PluginAssemblyName => this.pluginAssemblyName;
+        public bool SupportMultiplePlugins => this.supportMultiplePlugins;
     }
 
     public class PluggerOptionsBuilder<T>
@@ -56,6 +62,7 @@ namespace Prise.Infrastructure.NetCore
         internal IParameterConverter parameterConverter;
         internal IPluginAssemblyLoader<T> assemblyLoader;
         internal string pluginAssemblyName;
+        internal bool supportMultiplePlugins;
 
         internal PluggerOptionsBuilder()
         {
@@ -97,16 +104,24 @@ namespace Prise.Infrastructure.NetCore
             return this;
         }
 
-         public PluggerOptionsBuilder<T> WithPluginAssemblyName(string pluginAssemblyName)
+        public PluggerOptionsBuilder<T> SupportMultiplePlugins(bool supportMultiplePlugins = true)
+        {
+            this.supportMultiplePlugins = supportMultiplePlugins;
+            return this;
+        }
+
+        public PluggerOptionsBuilder<T> WithPluginAssemblyName(string pluginAssemblyName)
         {
             this.pluginAssemblyName = pluginAssemblyName;
             return this;
         }
 
-
-        public PluggerOptionsBuilder<T> WithDefaultOptions()
+        public PluggerOptionsBuilder<T> WithDefaultOptions(string rootPath = null)
         {
-            this.rootPathProvider = new RootPathProvider(GetLocalExecutionPath());
+            if (String.IsNullOrEmpty(rootPath))
+                rootPath = GetLocalExecutionPath();
+
+            this.rootPathProvider = new RootPathProvider(rootPath);
             this.activator = new NetCoreActivator();
             this.parameterConverter = new NewtonsoftParameterConverter();
             this.resultConverter = new BinaryFormatterResultConverter();
@@ -116,7 +131,7 @@ namespace Prise.Infrastructure.NetCore
             return this;
         }
 
-        public IPluginLoadOptions<T> Build()
+        internal IPluginLoadOptions<T> Build()
         {
             return new PluginLoadOptions<T>(
                 this.rootPathProvider,
@@ -124,7 +139,8 @@ namespace Prise.Infrastructure.NetCore
                  this.parameterConverter,
                  this.resultConverter,
                  this.assemblyLoader,
-                 this.pluginAssemblyName);
+                 this.pluginAssemblyName,
+                 this.supportMultiplePlugins);
         }
 
         private string GetLocalExecutionPath()
@@ -143,18 +159,81 @@ namespace Prise.Infrastructure.NetCore
             var optionsBuilder = new PluggerOptionsBuilder<T>().WithDefaultOptions();
 
             config?.Invoke(optionsBuilder);
+            var options = optionsBuilder.Build();
 
-            services.AddScoped<IPluginLoadOptions<T>>((s) => optionsBuilder.Build());
-            services.AddScoped<IPluginLoader<T>, SinglePluginLoader<T>>();
-            services.AddScoped<T>((s) =>
-            {
-                var loader = s.GetRequiredService<IPluginLoader<T>>();
-                var task = loader.Load();
-                task.Wait();
-                return task.Result;
-            });
+            services.AddScoped<IPluginLoadOptions<T>>((s) => options);
+
+            if (!options.SupportMultiplePlugins)
+                AddSinglePluginLoader<T>(services);
+            else
+                AddMultiPluginLoader<T>(services);
 
             return services;
+        }
+
+        public static IServiceCollection AddPriseWithCustomLoader<T, TPluginLoader>(this IServiceCollection services, Action<PluggerOptionsBuilder<T>> config = null)
+
+            where T : class
+            where TPluginLoader : class, IPluginLoader<T>
+        {
+            var optionsBuilder = new PluggerOptionsBuilder<T>().WithDefaultOptions();
+
+            config?.Invoke(optionsBuilder);
+            var options = optionsBuilder.Build();
+
+            services.AddScoped<IPluginLoadOptions<T>>((s) => options);
+
+            return services
+                .AddScoped<IPluginLoader<T>, TPluginLoader>()
+                .AddScoped<T>((s) =>
+                {
+                    var loader = s.GetRequiredService<IPluginLoader<T>>();
+                    var task = loader.Load();
+                    task.Wait();
+                    return task.Result;
+                })
+                .AddScoped<IEnumerable<T>>((s) =>
+                {
+                    var loader = s.GetRequiredService<IPluginLoader<T>>();
+                    var task = loader.LoadAll();
+                    task.Wait();
+                    return task.Result;
+                });
+        }
+
+        private static IServiceCollection AddSinglePluginLoader<T>(IServiceCollection services)
+            where T : class
+        {
+            return services
+                .AddScoped<IPluginLoader<T>, SinglePluginLoader<T>>()
+                .AddScoped<T>((s) =>
+                {
+                    var loader = s.GetRequiredService<IPluginLoader<T>>();
+                    var task = loader.Load();
+                    task.Wait();
+                    return task.Result;
+                });
+        }
+
+        private static IServiceCollection AddMultiPluginLoader<T>(IServiceCollection services)
+            where T : class
+        {
+            return services
+                .AddScoped<IPluginLoader<T>, MultiPluginLoader<T>>()
+                .AddScoped<T>((s) =>
+                {
+                    var loader = s.GetRequiredService<IPluginLoader<T>>();
+                    var task = loader.Load();
+                    task.Wait();
+                    return task.Result;
+                })
+                .AddScoped<IEnumerable<T>>((s) =>
+                {
+                    var loader = s.GetRequiredService<IPluginLoader<T>>();
+                    var task = loader.LoadAll();
+                    task.Wait();
+                    return task.Result;
+                });
         }
     }
 }

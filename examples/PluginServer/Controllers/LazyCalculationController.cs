@@ -12,20 +12,20 @@ using PluginContract;
 namespace PluginServer.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class CalculationController : ControllerBase
+    [Route("lazy")]
+    public class LazyCalculationController : ControllerBase
     {
-        private readonly ILogger<CalculationController> _logger;
+        private readonly ILogger<LazyCalculationController> _logger;
         private readonly IPluginLoader<ICalculationPlugin> _loader;
 
-        public CalculationController(ILogger<CalculationController> logger, IPluginLoader<ICalculationPlugin> loader)
+        public LazyCalculationController(ILogger<LazyCalculationController> logger, IPluginLoader<ICalculationPlugin> loader)
         {
             _logger = logger;
             _loader = loader;
         }
 
         [HttpPost]
-        public  async Task<CalculationResponseModel> Post(CalculationRequestModel requestModel)
+        public  async Task<CalculationResponseModel> Calculate(CalculationRequestModel requestModel)
         {
             // Load the plugin on-demand
             var plugin = await _loader.Load();
@@ -35,8 +35,9 @@ namespace PluginServer.Controllers
         }
 
         [HttpPost("multi")]
-        public CalculationResponseModel Postddd(CalculationRequestMultiModel requestModel)
+        public CalculationResponseModel CalculateMultiple(CalculationRequestMultiModel requestModel)
         {
+            
             return null;
         }
     }
