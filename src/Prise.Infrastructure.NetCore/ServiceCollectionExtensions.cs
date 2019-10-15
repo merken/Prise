@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Prise.Infrastructure.NetCore.Contracts;
 
@@ -188,16 +189,12 @@ namespace Prise.Infrastructure.NetCore
                 .AddScoped<T>((s) =>
                 {
                     var loader = s.GetRequiredService<IPluginLoader<T>>();
-                    var task = loader.Load();
-                    task.Wait();
-                    return task.Result;
+                    return TryAndRethrowInnerException(loader.Load());
                 })
                 .AddScoped<IEnumerable<T>>((s) =>
                 {
                     var loader = s.GetRequiredService<IPluginLoader<T>>();
-                    var task = loader.LoadAll();
-                    task.Wait();
-                    return task.Result;
+                    return TryAndRethrowInnerException(loader.LoadAll());
                 });
         }
 
@@ -209,9 +206,7 @@ namespace Prise.Infrastructure.NetCore
                 .AddScoped<T>((s) =>
                 {
                     var loader = s.GetRequiredService<IPluginLoader<T>>();
-                    var task = loader.Load();
-                    task.Wait();
-                    return task.Result;
+                    return TryAndRethrowInnerException(loader.Load());
                 });
         }
 
@@ -223,17 +218,29 @@ namespace Prise.Infrastructure.NetCore
                 .AddScoped<T>((s) =>
                 {
                     var loader = s.GetRequiredService<IPluginLoader<T>>();
-                    var task = loader.Load();
-                    task.Wait();
-                    return task.Result;
+                    return TryAndRethrowInnerException(loader.Load());
                 })
                 .AddScoped<IEnumerable<T>>((s) =>
                 {
                     var loader = s.GetRequiredService<IPluginLoader<T>>();
-                    var task = loader.LoadAll();
-                    task.Wait();
-                    return task.Result;
+                    return TryAndRethrowInnerException(loader.LoadAll());
                 });
+        }
+
+        private static T TryAndRethrowInnerException<T>(Task<T> task)
+        {
+            try
+            {
+                task.Wait();
+                return task.Result;
+            }
+            catch (AggregateException ag)
+            {
+                if (ag.InnerException != null)
+                    throw ag.InnerException;
+
+                throw new NotSupportedException("Excpected inner exception to be thrown, but was null");
+            }
         }
     }
 }

@@ -37,7 +37,7 @@ namespace Prise.Infrastructure.NetCore
                     Like; 'public static {pluginType.Name} CreatePlugin(IServiceProvider serviceProvider)");
 
             if (bootstrapper == null)
-                throw new ArgumentNullException($"The type requires dependencies, please provide a {nameof(IPluginBootstrapper)} for plugin {pluginType.Name}");
+                throw new NotSupportedException($"The type requires dependencies, please provide a {nameof(IPluginBootstrapper)} for plugin {pluginType.Name}");
 
             var serviceProvider = CreateServiceProviderForType(bootstrapper);
             return factoryMethod.Invoke(null, new[] { serviceProvider });
