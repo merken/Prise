@@ -9,4 +9,8 @@
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Prise.Infrastructure" Version="0.0.1" />
+  </ItemGroup>
+
 </Project>
