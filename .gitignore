@@ -2,5 +2,6 @@ bin
 obj
 dist
 publish
-*/PluginApp/Plugins
-*/PluginServer/Plugins
+**/PluginApp/Plugins
+**/PluginServer/Plugins
+**/MyHost/Plugins
