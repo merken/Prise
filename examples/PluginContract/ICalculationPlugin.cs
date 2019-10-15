@@ -8,6 +8,6 @@ namespace PluginContract
         decimal Calculate(decimal a, decimal b);
         decimal CalculateComplex(CalculationContext context);
         CalculationResult CalculateComplexResult(CalculationContext context);
-        CalculationResult CalculateMutiple(ComplexCalculationContext context);
+        ComplexCalculationResult CalculateMutiple(ComplexCalculationContext context);
     }
 }

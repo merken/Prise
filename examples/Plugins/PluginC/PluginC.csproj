@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\PluginContract\PluginContract.csproj" />
-    <ProjectReference Include="Domain\Domain.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
 
 </Project>

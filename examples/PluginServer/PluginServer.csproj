@@ -4,12 +4,18 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
 
+  <!-- Package reference -->
   <ItemGroup>
-    <PackageReference Include="Prise" Version="0.0.1" />
+    <!-- <PackageReference Include="Prise" Version="0.0.1" /> -->
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PluginContract\PluginContract.csproj" />
+  </ItemGroup>
+  <!-- LOCAL DEBUGGING -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Prise.Infrastructure\Prise.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Prise.Infrastructure.NetCore\Prise.Infrastructure.NetCore.csproj" />
   </ItemGroup>
 
 </Project>

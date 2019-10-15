@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 
 namespace Prise.Infrastructure.NetCore
 {
-    public class SinglePluginLoader<T> : PluginLoader, IPluginLoader<T>
+    public class MultiPluginLoader<T> : PluginLoader, IPluginLoader<T>
     {
         private readonly IPluginLoadOptions<T> pluginLoadOptions;
 
-        public SinglePluginLoader(IPluginLoadOptions<T> pluginLoadOptions)
+        public MultiPluginLoader(IPluginLoadOptions<T> pluginLoadOptions)
         {
             this.pluginLoadOptions = pluginLoadOptions;
         }
@@ -20,7 +20,7 @@ namespace Prise.Infrastructure.NetCore
 
         public async Task<T[]> LoadAll()
         {
-            throw new System.NotImplementedException("Loading multiple plugins is not supported in this loader");
+            return await this.LoadPluginsOfType<T>(this.pluginLoadOptions);
         }
     }
 }

@@ -45,6 +45,6 @@ Task("publish")
   });
 
 Task("default")
-  .IsDependentOn("build");
+  .IsDependentOn("publish");
 
 RunTarget(target);

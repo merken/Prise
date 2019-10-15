@@ -8,4 +8,8 @@
     <ProjectReference Include="..\..\PluginContract\PluginContract.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Prise.Infrastructure" Version="0.0.1" />
+  </ItemGroup>
+
 </Project>
