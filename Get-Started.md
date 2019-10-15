@@ -31,5 +31,6 @@ When the controller is consumed, the plugin will be loaded on demand and execute
 
 Check the example projects!
 
-Getting started example: 
-Example using all possible features of Prise: 
+Getting started example: https://github.com/merken/Prise/tree/master/examples/SimplePlugin
+
+Example using all possible features of Prise: https://github.com/merken/Prise/tree/master/examples/SimplePlugin
