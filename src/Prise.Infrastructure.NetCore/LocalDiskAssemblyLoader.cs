@@ -56,7 +56,7 @@ namespace Prise.Infrastructure.NetCore
         internal static async Task<Stream> LoadFileFromLocalDisk(string loadPath, string pluginAssemblyName)
         {
             if (!File.Exists($"{loadPath}\\{pluginAssemblyName}"))
-                throw new ArgumentException($"PLugin assembly does not exist in path : {loadPath}\\{pluginAssemblyName}");
+                throw new ArgumentException($"Plugin assembly does not exist in path : {loadPath}\\{pluginAssemblyName}");
 
             var memoryStream = new MemoryStream();
             using (var stream = new FileStream($"{loadPath}\\{pluginAssemblyName}", FileMode.Open, FileAccess.Read))

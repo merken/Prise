@@ -5,8 +5,6 @@ namespace Prise.Infrastructure
     [System.AttributeUsage(System.AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public sealed class PluginAttribute : System.Attribute
     {
-        // See the attribute guidelines at
-        //  http://go.microsoft.com/fwlink/?LinkId=85236
         Type pluginType;
         public Type PluginType
         {

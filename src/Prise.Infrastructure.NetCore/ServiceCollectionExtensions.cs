@@ -158,10 +158,9 @@ namespace Prise.Infrastructure.NetCore
             where T : class
         {
             var optionsBuilder = new PluggerOptionsBuilder<T>().WithDefaultOptions();
-
             config?.Invoke(optionsBuilder);
-            var options = optionsBuilder.Build();
 
+            var options = optionsBuilder.Build();
             services.AddScoped<IPluginLoadOptions<T>>((s) => options);
 
             if (!options.SupportMultiplePlugins)
@@ -173,7 +172,6 @@ namespace Prise.Infrastructure.NetCore
         }
 
         public static IServiceCollection AddPriseWithCustomLoader<T, TPluginLoader>(this IServiceCollection services, Action<PluggerOptionsBuilder<T>> config = null)
-
             where T : class
             where TPluginLoader : class, IPluginLoader<T>
         {
@@ -239,7 +237,7 @@ namespace Prise.Infrastructure.NetCore
                 if (ag.InnerException != null)
                     throw ag.InnerException;
 
-                throw new NotSupportedException("Excpected inner exception to be thrown, but was null");
+                throw new NotSupportedException("Excpected inner exception to be present, but was null");
             }
         }
     }
