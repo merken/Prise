@@ -116,5 +116,4 @@ namespace Prise.Infrastructure.NetCore
             return results.ToArray();
         }
     }
-
 }
