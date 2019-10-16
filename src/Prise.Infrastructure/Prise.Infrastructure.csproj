@@ -1,6 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <Title>Prise.Infrastructure</Title>
+    <PackageId>Prise.Infrastructure</PackageId>
+    <PackageDescription>Prise, A .NET Core plugin framework!</PackageDescription>
+    <Authors>Maarten Merken</Authors>
+    <Company>MRKN</Company>
+    <PackageTags>plugin;framework;prise;decoupling;assembly;dispatchproxy;proxy</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageIcon>icon.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
@@ -11,5 +32,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="2.2" />
   </ItemGroup>
+
 
 </Project>
