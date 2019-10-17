@@ -13,12 +13,12 @@ namespace Prise.Infrastructure.NetCore
             this.pluginLoadOptions = pluginLoadOptions;
         }
 
-        public async Task<T> Load()
+        public virtual async Task<T> Load()
         {
             return (await this.LoadPluginsOfType<T>(this.pluginLoadOptions)).First();
         }
 
-        public async Task<T[]> LoadAll()
+        public virtual async Task<T[]> LoadAll()
         {
             return await this.LoadPluginsOfType<T>(this.pluginLoadOptions);
         }
