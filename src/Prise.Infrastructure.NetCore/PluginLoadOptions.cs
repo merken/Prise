@@ -68,7 +68,7 @@ namespace Prise.Infrastructure.NetCore
         internal INetworkAssemblyLoaderOptions networkAssemblyLoaderOptions;
         internal Type networkAssemblyLoaderOptionsType;
         internal bool supportMultiplePlugins;
-        internal Action<IServiceCollection> additionalServices;
+        internal Action<IServiceCollection> configureServices;
 
         internal PluggerOptionsBuilder()
         {
@@ -184,9 +184,9 @@ namespace Prise.Infrastructure.NetCore
             return this;
         }
 
-        public PluggerOptionsBuilder<T> WithAdditionalServices(Action<IServiceCollection> additionalServices)
+        public PluggerOptionsBuilder<T> ConfigureServices(Action<IServiceCollection> configureServices)
         {
-            this.additionalServices = additionalServices;
+            this.configureServices = configureServices;
             return this;
         }
 
@@ -226,7 +226,7 @@ namespace Prise.Infrastructure.NetCore
             if (networkAssemblyLoaderOptionsType != null)
                 services.AddScoped(typeof(INetworkAssemblyLoaderOptions), networkAssemblyLoaderOptionsType);
 
-            additionalServices?.Invoke(services);
+            configureServices?.Invoke(services);
 
             // Make use of DI by providing an injected instance of the registered services above
             return services.AddScoped<IPluginLoadOptions<T>, PluginLoadOptions<T>>();
