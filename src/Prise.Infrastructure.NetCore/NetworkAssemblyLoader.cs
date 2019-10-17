@@ -28,9 +28,6 @@ namespace Prise.Infrastructure.NetCore
             if (assemblyName.FullName == this.pluginInfrastructureAssemblyName.FullName)
                 return null;
 
-            if (assemblyName.FullName == this.pluginInfrastructureAssemblyName.FullName)
-                return null;
-
             var deps = DependencyContext.Default;
             var res = deps.CompileLibraries.Where(d => d.Name.Contains(assemblyName.Name)).ToList();
             if (res.Count > 0)
@@ -39,9 +36,11 @@ namespace Prise.Infrastructure.NetCore
             }
             else
             {
-                // Assembly or dependency could not be found locally
-                return LoadDependencyFromNetwork(assemblyName);
+                var networkAssembly = LoadDependencyFromNetwork(assemblyName);
+                if (networkAssembly != null)
+                    return networkAssembly;
             }
+            return Assembly.Load(assemblyName);
         }
 
         protected virtual Assembly LoadDependencyFromNetwork(AssemblyName assemblyName)
@@ -66,12 +65,18 @@ namespace Prise.Infrastructure.NetCore
 
     public class NetworkAssemblyLoader<T> : IPluginAssemblyLoader<T>
     {
-        private readonly IRootPathProvider rootPathProvider;
-        private readonly INetworkAssemblyLoaderOptions options;
-        private readonly HttpClient httpClient;
-        private readonly AssemblyName pluginInfrastructureAssemblyName;
+        protected readonly IRootPathProvider rootPathProvider;
+        protected readonly INetworkAssemblyLoaderOptions options;
+        protected readonly HttpClient httpClient;
+        protected readonly AssemblyName pluginInfrastructureAssemblyName;
 
+        /// To be used by Dependency Injection
         public NetworkAssemblyLoader(
+            IRootPathProvider rootPathProvider,
+            INetworkAssemblyLoaderOptions options,
+            IHttpClientFactory httpClientFactory) : this(rootPathProvider, options, httpClientFactory.CreateClient()) { }
+
+        internal NetworkAssemblyLoader(
             IRootPathProvider rootPathProvider,
             INetworkAssemblyLoaderOptions options,
             HttpClient httpClient)
@@ -82,14 +87,14 @@ namespace Prise.Infrastructure.NetCore
             this.pluginInfrastructureAssemblyName = typeof(Prise.Infrastructure.PluginAttribute).Assembly.GetName();
         }
 
-        public async Task<Assembly> Load(string pluginAssemblyName)
+        public async virtual Task<Assembly> Load(string pluginAssemblyName)
         {
             var pluginStream = await LoadPluginFromNetwork(this.options.BaseUrl, pluginAssemblyName);
-            var loader = new NetworkAssemblyLoadContext(this.options.BaseUrl, this.httpClient);
+            var loader = new NetworkAssemblyLoadContext(this.options.BaseUrl, httpClient);
             return loader.LoadFromStream(pluginStream);
         }
 
-        private async Task<Stream> LoadPluginFromNetwork(string baseUrl, string pluginAssemblyName)
+        protected async virtual Task<Stream> LoadPluginFromNetwork(string baseUrl, string pluginAssemblyName)
         {
             var response = await this.httpClient.GetAsync($"{baseUrl}/{pluginAssemblyName}");
             if (response.StatusCode == System.Net.HttpStatusCode.NotFound)

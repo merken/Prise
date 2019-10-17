@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -11,7 +12,11 @@ namespace Prise.Infrastructure.NetCore
         protected async Task<T[]> LoadPluginsOfType<T>(IPluginLoadOptions<T> pluginLoadOptions)
         {
             var pluginInstances = new List<T>();
-            var pluginAssembly = await pluginLoadOptions.AssemblyLoader.Load(pluginLoadOptions.PluginAssemblyName);
+            var assemblyName = pluginLoadOptions.PluginAssemblyNameProvider.GetAssemblyName();
+            if (String.IsNullOrEmpty(assemblyName))
+                throw new NotSupportedException($"IPluginAssemblyNameProvider returned an empty assembly name for plugin type {typeof(T).Name}");
+                
+            var pluginAssembly = await pluginLoadOptions.AssemblyLoader.Load(assemblyName);
             var pluginTypes = pluginAssembly
                             .GetTypes()
                             .Where(t => t.CustomAttributes
@@ -20,7 +25,7 @@ namespace Prise.Infrastructure.NetCore
                             .OrderBy(t => t.Name);
 
             if (pluginTypes == null && !pluginTypes.Any())
-                throw new ArgumentException($@"No plugin was found in assembly {pluginAssembly.FullName}. Requested plugin type: {typeof(T).Name}. Please add the {nameof(PluginAttribute)} to your plugin class and specify the PluginType: [Plugin(PluginType = typeof({typeof(T).Name}))]");
+                throw new FileNotFoundException($@"No plugin was found in assembly {pluginAssembly.FullName}. Requested plugin type: {typeof(T).Name}. Please add the {nameof(PluginAttribute)} to your plugin class and specify the PluginType: [Plugin(PluginType = typeof({typeof(T).Name}))]");
 
             foreach (var pluginType in pluginTypes)
             {

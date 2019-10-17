@@ -34,9 +34,8 @@ namespace Prise.Infrastructure.NetCore
         internal PluginProxy<T> SetRemoteObject(object remoteObject)
         {
             if (remoteObject == null)
-            {
-                throw new ArgumentNullException(nameof(remoteObject));
-            }
+                throw new NotSupportedException($"Remote object for Proxy<{typeof(T).Name}> was null");
+
             this.remoteObject = remoteObject;
             return this;
         }
@@ -44,9 +43,8 @@ namespace Prise.Infrastructure.NetCore
         internal PluginProxy<T> SetParameterConverter(IParameterConverter parameterConverter)
         {
             if (parameterConverter == null)
-            {
-                throw new ArgumentNullException(nameof(parameterConverter));
-            }
+                throw new NotSupportedException($"IParameterConverter for Proxy<{typeof(T).Name}> was null");
+
             this.parameterConverter = parameterConverter;
             return this;
         }
@@ -54,9 +52,8 @@ namespace Prise.Infrastructure.NetCore
         internal PluginProxy<T> SetResultConverter(IResultConverter resultConverter)
         {
             if (resultConverter == null)
-            {
-                throw new ArgumentNullException(nameof(resultConverter));
-            }
+                throw new NotSupportedException($"IResultConverter for Proxy<{typeof(T).Name}> was null");
+
             this.resultConverter = resultConverter;
             return this;
         }

@@ -56,7 +56,7 @@ namespace Prise.Infrastructure.NetCore
         internal static async Task<Stream> LoadFileFromLocalDisk(string loadPath, string pluginAssemblyName)
         {
             if (!File.Exists($"{loadPath}\\{pluginAssemblyName}"))
-                throw new ArgumentException($"Plugin assembly does not exist in path : {loadPath}\\{pluginAssemblyName}");
+                throw new FileNotFoundException($"Plugin assembly does not exist in path : {loadPath}\\{pluginAssemblyName}");
 
             var memoryStream = new MemoryStream();
             using (var stream = new FileStream($"{loadPath}\\{pluginAssemblyName}", FileMode.Open, FileAccess.Read))
@@ -79,15 +79,16 @@ namespace Prise.Infrastructure.NetCore
 
     public class LocalDiskAssemblyLoader<T> : IPluginAssemblyLoader<T>
     {
-        private readonly IRootPathProvider rootPathProvider;
-        private readonly ILocalAssemblyLoaderOptions options;
+        protected readonly IRootPathProvider rootPathProvider;
+        protected readonly ILocalAssemblyLoaderOptions options;
+
         public LocalDiskAssemblyLoader(IRootPathProvider rootPathProvider, ILocalAssemblyLoaderOptions options)
         {
             this.rootPathProvider = rootPathProvider;
             this.options = options;
         }
 
-        public async Task<Assembly> Load(string pluginAssemblyName)
+        public async virtual Task<Assembly> Load(string pluginAssemblyName)
         {
             var rootPath = this.rootPathProvider.GetRootPath();
             var pluginAbsolutePath = $"{rootPath}\\{this.options.PluginPath}";
