@@ -1,5 +1,7 @@
 using System;
+using System.Net.Http;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using Prise.Infrastructure.NetCore.Contracts;
 
 namespace Prise.Infrastructure.NetCore
@@ -11,8 +13,7 @@ namespace Prise.Infrastructure.NetCore
         IResultConverter ResultConverter { get; }
         IParameterConverter ParameterConverter { get; }
         IPluginAssemblyLoader<T> AssemblyLoader { get; }
-        string PluginAssemblyName { get; }
-        bool SupportMultiplePlugins { get; }
+        IPluginAssemblyNameProvider PluginAssemblyNameProvider { get; }
     }
 
     public class PluginLoadOptions<T> : IPluginLoadOptions<T>
@@ -22,8 +23,7 @@ namespace Prise.Infrastructure.NetCore
         private readonly IResultConverter resultConverter;
         private readonly IParameterConverter parameterConverter;
         private readonly IPluginAssemblyLoader<T> assemblyLoader;
-        private readonly string pluginAssemblyName;
-        private readonly bool supportMultiplePlugins;
+        private readonly IPluginAssemblyNameProvider pluginAssemblyNameProvider;
 
         public PluginLoadOptions(
             IRootPathProvider rootPathProvider,
@@ -31,16 +31,14 @@ namespace Prise.Infrastructure.NetCore
             IParameterConverter parameterConverter,
             IResultConverter resultConverter,
             IPluginAssemblyLoader<T> assemblyLoader,
-            string pluginAssemblyName,
-            bool supportMultiplePlugins = false)
+            IPluginAssemblyNameProvider pluginAssemblyNameProvider)
         {
             this.rootPathProvider = rootPathProvider;
             this.activator = activator;
             this.parameterConverter = parameterConverter;
             this.resultConverter = resultConverter;
             this.assemblyLoader = assemblyLoader;
-            this.pluginAssemblyName = pluginAssemblyName;
-            this.supportMultiplePlugins = supportMultiplePlugins;
+            this.pluginAssemblyNameProvider = pluginAssemblyNameProvider;
         }
 
         public IRootPathProvider RootPathProvider => this.rootPathProvider;
@@ -48,19 +46,29 @@ namespace Prise.Infrastructure.NetCore
         public IResultConverter ResultConverter => this.resultConverter;
         public IParameterConverter ParameterConverter => this.parameterConverter;
         public IPluginAssemblyLoader<T> AssemblyLoader => this.assemblyLoader;
-        public string PluginAssemblyName => this.pluginAssemblyName;
-        public bool SupportMultiplePlugins => this.supportMultiplePlugins;
+        public IPluginAssemblyNameProvider PluginAssemblyNameProvider => this.pluginAssemblyNameProvider;
     }
 
     public class PluggerOptionsBuilder<T>
     {
         internal IRootPathProvider rootPathProvider;
+        internal Type rootPathProviderType;
         internal IRemotePluginActivator activator;
+        internal Type activatorType;
         internal IResultConverter resultConverter;
+        internal Type resultConverterType;
         internal IParameterConverter parameterConverter;
+        internal Type parameterConverterType;
         internal IPluginAssemblyLoader<T> assemblyLoader;
-        internal string pluginAssemblyName;
+        internal Type assemblyLoaderType;
+        internal IPluginAssemblyNameProvider pluginAssemblyNameProvider;
+        internal Type pluginAssemblyNameProviderType;
+        internal ILocalAssemblyLoaderOptions localAssemblyLoaderOptions;
+        internal Type localAssemblyLoaderOptionsType;
+        internal INetworkAssemblyLoaderOptions networkAssemblyLoaderOptions;
+        internal Type networkAssemblyLoaderOptionsType;
         internal bool supportMultiplePlugins;
+        internal Action<IServiceCollection> additionalServices;
 
         internal PluggerOptionsBuilder()
         {
@@ -72,9 +80,36 @@ namespace Prise.Infrastructure.NetCore
             return this;
         }
 
+        public PluggerOptionsBuilder<T> WithRootPathProvider<TType>()
+            where TType : IRootPathProvider
+        {
+            this.rootPathProviderType = typeof(TType);
+            return this;
+        }
+
+        public PluggerOptionsBuilder<T> WithPluginAssemblyName(string pluginAssemblyName)
+        {
+            this.pluginAssemblyNameProvider = new PluginAssemblyNameProvider(pluginAssemblyName);
+            return this;
+        }
+
+        public PluggerOptionsBuilder<T> WithPluginAssemblyNameProvider<TType>()
+                   where TType : IPluginAssemblyNameProvider
+        {
+            this.pluginAssemblyNameProviderType = typeof(TType);
+            return this;
+        }
+
         public PluggerOptionsBuilder<T> WithActivator(IRemotePluginActivator activator)
         {
             this.activator = activator;
+            return this;
+        }
+
+        public PluggerOptionsBuilder<T> WithActivator<TType>()
+            where TType : IRemotePluginActivator
+        {
+            this.activatorType = typeof(TType);
             return this;
         }
 
@@ -84,9 +119,23 @@ namespace Prise.Infrastructure.NetCore
             return this;
         }
 
+        public PluggerOptionsBuilder<T> WithParameterConverter<TType>()
+            where TType : IParameterConverter
+        {
+            this.parameterConverterType = typeof(TType);
+            return this;
+        }
+
         public PluggerOptionsBuilder<T> WithResultConverter(IResultConverter resultConverter)
         {
             this.resultConverter = resultConverter;
+            return this;
+        }
+
+        public PluggerOptionsBuilder<T> WithResultConverter<TType>()
+            where TType : IResultConverter
+        {
+            this.resultConverterType = typeof(TType);
             return this;
         }
 
@@ -96,10 +145,37 @@ namespace Prise.Infrastructure.NetCore
             return this;
         }
 
-        public PluggerOptionsBuilder<T> WithLocalDiskAssemblyLoader(LocalAssemblyLoaderOptions options)
+        public PluggerOptionsBuilder<T> WithAssemblyLoader<TType>()
+           where TType : IPluginAssemblyLoader<T>
         {
-            this.assemblyLoader = new LocalDiskAssemblyLoader<T>(this.rootPathProvider, options);
+            this.assemblyLoaderType = typeof(TType);
             return this;
+        }
+
+        public PluggerOptionsBuilder<T> WithLocalDiskAssemblyLoader(string pluginPath)
+        {
+            this.localAssemblyLoaderOptions = new LocalAssemblyLoaderOptions(pluginPath);
+            return this.WithAssemblyLoader<LocalDiskAssemblyLoader<T>>();
+        }
+
+        public PluggerOptionsBuilder<T> WithLocalDiskAssemblyLoader<TType>()
+            where TType : ILocalAssemblyLoaderOptions
+        {
+            this.localAssemblyLoaderOptionsType = typeof(TType);
+            return this.WithAssemblyLoader<LocalDiskAssemblyLoader<T>>();
+        }
+
+        public PluggerOptionsBuilder<T> WithNetworkAssemblyLoader(string baseUrl)
+        {
+            this.networkAssemblyLoaderOptions = new NetworkAssemblyLoaderOptions(baseUrl);
+            return this.WithAssemblyLoader<NetworkAssemblyLoader<T>>();
+        }
+
+        public PluggerOptionsBuilder<T> WithNetworkAssemblyLoader<TType>()
+            where TType : INetworkAssemblyLoaderOptions
+        {
+            this.networkAssemblyLoaderOptionsType = typeof(TType);
+            return this.WithAssemblyLoader<NetworkAssemblyLoader<T>>();
         }
 
         public PluggerOptionsBuilder<T> SupportMultiplePlugins(bool supportMultiplePlugins = true)
@@ -108,9 +184,9 @@ namespace Prise.Infrastructure.NetCore
             return this;
         }
 
-        public PluggerOptionsBuilder<T> WithPluginAssemblyName(string pluginAssemblyName)
+        public PluggerOptionsBuilder<T> WithAdditionalServices(Action<IServiceCollection> additionalServices)
         {
-            this.pluginAssemblyName = pluginAssemblyName;
+            this.additionalServices = additionalServices;
             return this;
         }
 
@@ -124,21 +200,36 @@ namespace Prise.Infrastructure.NetCore
             this.parameterConverter = new NewtonsoftParameterConverter();
             this.resultConverter = new BinaryFormatterResultConverter();
             this.assemblyLoader = new LocalDiskAssemblyLoader<T>(this.rootPathProvider, new LocalAssemblyLoaderOptions("Plugins"));
-            this.pluginAssemblyName = $"{typeof(T).Name}.dll";
+            this.pluginAssemblyNameProvider = new PluginAssemblyNameProvider($"{typeof(T).Name}.dll");
+            this.supportMultiplePlugins = false;
 
             return this;
         }
 
-        internal IPluginLoadOptions<T> Build()
+        internal IServiceCollection RegisterOptions(IServiceCollection services)
         {
-            return new PluginLoadOptions<T>(
-                this.rootPathProvider,
-                 this.activator,
-                 this.parameterConverter,
-                 this.resultConverter,
-                 this.assemblyLoader,
-                 this.pluginAssemblyName,
-                 this.supportMultiplePlugins);
+            services
+                .RegisterTypeOrInstance<IRootPathProvider>(rootPathProviderType, rootPathProvider)
+                .RegisterTypeOrInstance<IPluginAssemblyNameProvider>(pluginAssemblyNameProviderType, pluginAssemblyNameProvider)
+                .RegisterTypeOrInstance<IRemotePluginActivator>(activatorType, activator)
+                .RegisterTypeOrInstance<IResultConverter>(resultConverterType, resultConverter)
+                .RegisterTypeOrInstance<IParameterConverter>(parameterConverterType, parameterConverter)
+                .RegisterTypeOrInstance<IPluginAssemblyLoader<T>>(assemblyLoaderType, assemblyLoader);
+
+            if (localAssemblyLoaderOptions != null)
+                services.AddScoped<ILocalAssemblyLoaderOptions>(s => localAssemblyLoaderOptions);
+            if (localAssemblyLoaderOptionsType != null)
+                services.AddScoped(typeof(ILocalAssemblyLoaderOptions), localAssemblyLoaderOptionsType);
+
+            if (networkAssemblyLoaderOptions != null)
+                services.AddScoped<INetworkAssemblyLoaderOptions>(s => networkAssemblyLoaderOptions);
+            if (networkAssemblyLoaderOptionsType != null)
+                services.AddScoped(typeof(INetworkAssemblyLoaderOptions), networkAssemblyLoaderOptionsType);
+
+            additionalServices?.Invoke(services);
+
+            // Make use of DI by providing an injected instance of the registered services above
+            return services.AddScoped<IPluginLoadOptions<T>, PluginLoadOptions<T>>();
         }
 
         private string GetLocalExecutionPath()
@@ -146,6 +237,22 @@ namespace Prise.Infrastructure.NetCore
             var localExecutionPath = Assembly.GetExecutingAssembly().Location;
             var paths = localExecutionPath.Split("\\");
             return String.Join("\\", paths, 0, paths.Length - 1);
+        }
+    }
+
+    internal static class PluginLoadOptionsBuilderExtensions
+    {
+        internal static IServiceCollection RegisterTypeOrInstance<TType>(this IServiceCollection services, Type type, TType instance)
+            where TType : class
+        {
+            if (type != null)
+                services.AddScoped(typeof(TType), type);
+            else if (instance != null)
+                services.AddScoped<TType>(s => instance);
+            else
+                throw new NotSupportedException($"Could not find type {type.Name} or instance {typeof(TType).Name} to register");
+
+            return services;
         }
     }
 }

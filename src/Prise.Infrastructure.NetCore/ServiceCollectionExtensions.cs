@@ -15,10 +15,9 @@ namespace Prise.Infrastructure.NetCore
             var optionsBuilder = new PluggerOptionsBuilder<T>().WithDefaultOptions();
             config?.Invoke(optionsBuilder);
 
-            var options = optionsBuilder.Build();
-            services.AddScoped<IPluginLoadOptions<T>>((s) => options);
+            services = optionsBuilder.RegisterOptions(services);
 
-            if (!options.SupportMultiplePlugins)
+            if (!optionsBuilder.supportMultiplePlugins)
                 AddSinglePluginLoader<T>(services);
             else
                 AddMultiPluginLoader<T>(services);
@@ -26,16 +25,14 @@ namespace Prise.Infrastructure.NetCore
             return services;
         }
 
-        public static IServiceCollection AddPriseWithCustomLoader<T, TPluginLoader>(this IServiceCollection services, Action<PluggerOptionsBuilder<T>> config = null)
+        public static IServiceCollection AddPriseWithPluginLoader<T, TPluginLoader>(this IServiceCollection services, Action<PluggerOptionsBuilder<T>> config = null)
             where T : class
             where TPluginLoader : class, IPluginLoader<T>
         {
             var optionsBuilder = new PluggerOptionsBuilder<T>().WithDefaultOptions();
-
             config?.Invoke(optionsBuilder);
-            var options = optionsBuilder.Build();
 
-            services.AddScoped<IPluginLoadOptions<T>>((s) => options);
+            services = optionsBuilder.RegisterOptions(services);
 
             return services
                 .AddScoped<IPluginLoader<T>, TPluginLoader>()
