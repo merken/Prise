@@ -2,10 +2,10 @@
 using Contract;
 using Prise.Infrastructure;
 
-namespace HelloWorldPlugin
+namespace Hallo.Plugin
 {
     [Plugin(PluginType = typeof(IHelloPlugin))]
-    public class HelloWorldPlugin : IHelloPlugin
+    public class Hallo : IHelloPlugin
     {
         public string SayHello(string input)
         {
