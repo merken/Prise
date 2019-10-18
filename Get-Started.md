@@ -33,4 +33,4 @@ Check the example projects!
 
 Getting started example: https://github.com/merken/Prise/tree/master/examples/SimplePlugin
 
-Example using all possible features of Prise: https://github.com/merken/Prise/tree/master/examples/SimplePlugin
+Example using all possible features of Prise: https://github.com/merken/Prise/tree/master/examples/ComplexPlugin
