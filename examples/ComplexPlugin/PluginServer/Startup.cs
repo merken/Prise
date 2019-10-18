@@ -65,7 +65,8 @@ namespace PluginServer
             // This will look for a custom plugin based on the context
             return services.AddPriseWithPluginLoader<ICalculationPlugin, ContextPluginLoader<ICalculationPlugin>>(options =>
                  options
-                     .WithDefaultOptions($"{Env.ContentRootPath}\\PluginServer")
+                     .WithDefaultOptions($"{Env.ContentRootPath}")
+                     .WithPluginAssemblyNameProvider<ContextPluginAssemblyNameProvider>()
              );
         }
 
