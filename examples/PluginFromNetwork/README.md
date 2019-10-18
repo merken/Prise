@@ -7,7 +7,7 @@ There are two parts in the loading process.
 - Loading the plugin assembly by name
 - Loading all dependecies from that assembly (discovery)
 
-You can influence *both8 loading paths using custom code.
+You can influence *both* loading paths using custom code.
 
 > Keep in mind that we assume you `dotnet publish` your assemblies to a dedicated plugin directory on a remote location.
 > All direct dependecies should reside in the same folder as the plugin, by default.
@@ -49,4 +49,4 @@ Open your browser to https://localhost:5001/Plugins to see al the plugins.
 
 Launch the MyHost application using the `dotnet run --urls=https://localhost:5003` command from inside the MyHost directory.
 
-Open your browser to https://localhost:5003/hello?input=Maarten
+Open your browser to https://localhost:5003/hello?input=Maarten or use Postman to change the Accept-Header in order to see the results.
