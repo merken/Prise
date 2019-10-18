@@ -12,13 +12,13 @@ namespace Prise.Infrastructure.NetCore
     internal class LocalDiskAssemblyLoadContext : AssemblyLoadContext
     {
         private readonly string rootPath;
-        private readonly string pluginLocation;
+        private readonly string pluginPath;
         private readonly AssemblyName pluginInfrastructureAssemblyName;
 
-        public LocalDiskAssemblyLoadContext(string rootPath, string pluginLocation)
+        public LocalDiskAssemblyLoadContext(string rootPath, string pluginPath)
         {
             this.rootPath = rootPath;
-            this.pluginLocation = pluginLocation;
+            this.pluginPath = pluginPath;
             this.pluginInfrastructureAssemblyName = typeof(Prise.Infrastructure.PluginAttribute).Assembly.GetName();
         }
 
@@ -35,7 +35,7 @@ namespace Prise.Infrastructure.NetCore
             }
             else
             {
-                if (File.Exists($"{this.rootPath}\\{this.pluginLocation}\\{assemblyName.Name}.dll"))
+                if (File.Exists($"{this.rootPath}\\{this.pluginPath}\\{assemblyName.Name}.dll"))
                 {
                     return LoadDependencyFromLocalDisk(assemblyName);
                 }
@@ -46,7 +46,7 @@ namespace Prise.Infrastructure.NetCore
         protected virtual Assembly LoadDependencyFromLocalDisk(AssemblyName assemblyName)
         {
             var name = $"{assemblyName.Name}.dll";
-            var dependency = LoadFileFromLocalDisk($"{this.rootPath}\\{this.pluginLocation}", name).Result;
+            var dependency = LoadFileFromLocalDisk($"{this.rootPath}\\{this.pluginPath}", name).Result;
 
             if (dependency == null) return null;
 
