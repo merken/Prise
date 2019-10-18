@@ -40,7 +40,7 @@ namespace PluginServer.Custom
                 this.pluginLoadOptions.ParameterConverter,
                 this.pluginLoadOptions.ResultConverter,
                 new LocalDiskAssemblyLoader<T>(this.pluginLoadOptions.RootPathProvider, new LocalAssemblyLoaderOptions(pluginPath)),
-                assemblyToLoadFrom
+                this.pluginLoadOptions.PluginAssemblyNameProvider
             );
         }
     }

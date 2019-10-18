@@ -63,7 +63,7 @@ namespace PluginServer
         private IServiceCollection AddPriseWithCustomerLoader(IServiceCollection services)
         {
             // This will look for a custom plugin based on the context
-            return services.AddPriseWithCustomLoader<ICalculationPlugin, ContextPluginLoader<ICalculationPlugin>>(options =>
+            return services.AddPriseWithPluginLoader<ICalculationPlugin, ContextPluginLoader<ICalculationPlugin>>(options =>
                  options
                      .WithDefaultOptions($"{Env.ContentRootPath}\\PluginServer")
              );
