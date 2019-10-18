@@ -29,8 +29,12 @@ Copy the plugin's published files into this folder.
 
 When the controller is consumed, the plugin will be loaded on demand and executed.
 
-Check the example projects!
+##Check the example projects!
 
 Getting started example: https://github.com/merken/Prise/tree/master/examples/SimplePlugin
 
 Example using all possible features of Prise: https://github.com/merken/Prise/tree/master/examples/ComplexPlugin
+
+Example for loading Plugins over the network : https://github.com/merken/Prise/tree/master/examples/PluginFromNetwork
+
+Example for loading Plugins with dependencies : https://github.com/merken/Prise/tree/master/examples/PluginWithDependencies
