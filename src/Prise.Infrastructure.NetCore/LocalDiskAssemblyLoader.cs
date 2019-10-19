@@ -35,7 +35,7 @@ namespace Prise.Infrastructure.NetCore
             }
             else
             {
-                if (File.Exists($"{this.rootPath}\\{this.pluginPath}\\{assemblyName.Name}.dll"))
+                if (File.Exists(Path.Combine(this.rootPath, Path.Combine(this.pluginPath, $"{assemblyName.Name}.dll"))))
                 {
                     return LoadDependencyFromLocalDisk(assemblyName);
                 }
@@ -46,7 +46,7 @@ namespace Prise.Infrastructure.NetCore
         protected virtual Assembly LoadDependencyFromLocalDisk(AssemblyName assemblyName)
         {
             var name = $"{assemblyName.Name}.dll";
-            var dependency = LoadFileFromLocalDisk($"{this.rootPath}\\{this.pluginPath}", name).Result;
+            var dependency = LoadFileFromLocalDisk(Path.Combine(this.rootPath, this.pluginPath), name).Result;
 
             if (dependency == null) return null;
 
@@ -55,11 +55,11 @@ namespace Prise.Infrastructure.NetCore
 
         internal static async Task<Stream> LoadFileFromLocalDisk(string loadPath, string pluginAssemblyName)
         {
-            if (!File.Exists($"{loadPath}\\{pluginAssemblyName}"))
-                throw new FileNotFoundException($"Plugin assembly does not exist in path : {loadPath}\\{pluginAssemblyName}");
+            if (!File.Exists(Path.Combine(loadPath, pluginAssemblyName)))
+                throw new FileNotFoundException($"Plugin assembly does not exist in path : {Path.Combine(loadPath, pluginAssemblyName)}");
 
             var memoryStream = new MemoryStream();
-            using (var stream = new FileStream($"{loadPath}\\{pluginAssemblyName}", FileMode.Open, FileAccess.Read))
+            using (var stream = new FileStream(Path.Combine(loadPath, pluginAssemblyName), FileMode.Open, FileAccess.Read))
                 await stream.CopyToAsync(memoryStream);
 
             memoryStream.Flush();
@@ -91,7 +91,7 @@ namespace Prise.Infrastructure.NetCore
         public async virtual Task<Assembly> Load(string pluginAssemblyName)
         {
             var rootPath = this.rootPathProvider.GetRootPath();
-            var pluginAbsolutePath = $"{rootPath}\\{this.options.PluginPath}";
+            var pluginAbsolutePath = Path.Combine(rootPath, this.options.PluginPath);
             var pluginStream = await LocalDiskAssemblyLoadContext.LoadFileFromLocalDisk(pluginAbsolutePath, pluginAssemblyName);
             var loader = new LocalDiskAssemblyLoadContext(rootPath, this.options.PluginPath);
             return loader.LoadFromStream(pluginStream);

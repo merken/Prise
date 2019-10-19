@@ -53,6 +53,8 @@ namespace Prise.Infrastructure.NetCore
     {
         internal IRootPathProvider rootPathProvider;
         internal Type rootPathProviderType;
+        internal ISharedServicesProvider sharedServicesProvider;
+        internal Type sharedServicesProviderType;
         internal IRemotePluginActivator activator;
         internal Type activatorType;
         internal IResultConverter resultConverter;
@@ -190,13 +192,22 @@ namespace Prise.Infrastructure.NetCore
             return this;
         }
 
+        public PluggerOptionsBuilder<T> ConfigureSharedServices(Action<IServiceCollection> sharedServices)
+        {
+            var services = new ServiceCollection();
+            sharedServices.Invoke(services);
+            this.sharedServicesProvider = new DefaultSharedServicesProvider(services);
+            return this;
+        }
+
         public PluggerOptionsBuilder<T> WithDefaultOptions(string rootPath = null)
         {
             if (String.IsNullOrEmpty(rootPath))
                 rootPath = GetLocalExecutionPath();
 
             this.rootPathProvider = new RootPathProvider(rootPath);
-            this.activator = new NetCoreActivator();
+            this.sharedServicesProvider = new DefaultSharedServicesProvider(new ServiceCollection());
+            this.activator = new NetCoreActivator(this.sharedServicesProvider);
             this.parameterConverter = new NewtonsoftParameterConverter();
             this.resultConverter = new BinaryFormatterResultConverter();
             this.assemblyLoader = new LocalDiskAssemblyLoader<T>(this.rootPathProvider, new LocalAssemblyLoaderOptions("Plugins"));
@@ -210,6 +221,7 @@ namespace Prise.Infrastructure.NetCore
         {
             services
                 .RegisterTypeOrInstance<IRootPathProvider>(rootPathProviderType, rootPathProvider)
+                .RegisterTypeOrInstance<ISharedServicesProvider>(sharedServicesProviderType, sharedServicesProvider)
                 .RegisterTypeOrInstance<IPluginAssemblyNameProvider>(pluginAssemblyNameProviderType, pluginAssemblyNameProvider)
                 .RegisterTypeOrInstance<IRemotePluginActivator>(activatorType, activator)
                 .RegisterTypeOrInstance<IResultConverter>(resultConverterType, resultConverter)
