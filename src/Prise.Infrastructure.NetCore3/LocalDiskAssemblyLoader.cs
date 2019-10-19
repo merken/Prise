@@ -50,11 +50,11 @@ namespace Prise.Infrastructure.NetCore3
 
         protected virtual Assembly LoadDependencyFromLocalDisk(AssemblyName assemblyName)
         {
-            if (!File.Exists($"{this.rootPath}\\{this.pluginLocation}\\{assemblyName.Name}.dll"))
+            if (!File.Exists(Path.Combine(this.rootPath, Path.Combine(this.pluginLocation, $"{assemblyName.Name}.dll"))))
                 return null;
 
             var name = $"{assemblyName.Name}.dll";
-            var dependency = LoadFileFromLocalDisk($"{this.rootPath}\\{this.pluginLocation}", name).Result;
+            var dependency = LoadFileFromLocalDisk(Path.Combine(this.rootPath, this.pluginLocation), name).Result;
 
             if (dependency == null) return null;
 
@@ -64,7 +64,7 @@ namespace Prise.Infrastructure.NetCore3
         internal static async Task<Stream> LoadFileFromLocalDisk(string loadPath, string pluginAssemblyName)
         {
             var memoryStream = new MemoryStream();
-            using (var stream = new FileStream($"{loadPath}\\{pluginAssemblyName}", FileMode.Open, FileAccess.Read))
+            using (var stream = new FileStream(Path.Combine(loadPath, pluginAssemblyName), FileMode.Open, FileAccess.Read))
                 await stream.CopyToAsync(memoryStream);
 
             memoryStream.Flush();

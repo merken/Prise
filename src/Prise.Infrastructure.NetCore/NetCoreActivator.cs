@@ -7,6 +7,14 @@ namespace Prise.Infrastructure.NetCore
 {
     public class NetCoreActivator : IRemotePluginActivator
     {
+
+        private readonly ISharedServicesProvider sharedServicesProvider;
+
+        public NetCoreActivator(ISharedServicesProvider sharedServicesProvider)
+        {
+            this.sharedServicesProvider = sharedServicesProvider;
+        }
+
         public object CreateRemoteBootstrapper(Type bootstrapperType)
         {
             var contructors = bootstrapperType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
@@ -43,7 +51,10 @@ namespace Prise.Infrastructure.NetCore
             return factoryMethod.Invoke(null, new[] { serviceProvider });
         }
 
-        private IServiceProvider CreateServiceProviderForType(IPluginBootstrapper bootstrapper) =>
-            bootstrapper.Bootstrap(new ServiceCollection()).BuildServiceProvider();
+        private IServiceProvider CreateServiceProviderForType(IPluginBootstrapper bootstrapper)
+        {
+            var sharedServices = this.sharedServicesProvider.ProvideSharedServices();
+            return bootstrapper.Bootstrap(sharedServices).BuildServiceProvider();
+        }
     }
 }
