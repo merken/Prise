@@ -22,5 +22,10 @@ namespace Prise.Infrastructure.NetCore
         {
             throw new System.NotImplementedException("Loading multiple plugins is not supported in this loader");
         }
+
+        public virtual async Task Unload()
+        {
+            await this.pluginLoadOptions.AssemblyLoader.Unload();
+        }
     }
 }

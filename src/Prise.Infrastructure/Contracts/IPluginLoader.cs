@@ -6,5 +6,6 @@ namespace Prise.Infrastructure
     {
         Task<T> Load();
         Task<T[]> LoadAll();
+        Task Unload();
     }
 }

@@ -22,5 +22,10 @@ namespace Prise.Infrastructure.NetCore
         {
             return await this.LoadPluginsOfType<T>(this.pluginLoadOptions);
         }
+
+        public virtual async Task Unload()
+        {
+            await this.pluginLoadOptions.AssemblyLoader.Unload();
+        }
     }
 }

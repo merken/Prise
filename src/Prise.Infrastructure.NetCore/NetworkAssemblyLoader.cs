@@ -69,6 +69,7 @@ namespace Prise.Infrastructure.NetCore
         protected readonly INetworkAssemblyLoaderOptions options;
         protected readonly HttpClient httpClient;
         protected readonly AssemblyName pluginInfrastructureAssemblyName;
+        internal NetworkAssemblyLoadContext loader;
 
         /// To be used by Dependency Injection
         public NetworkAssemblyLoader(
@@ -90,7 +91,7 @@ namespace Prise.Infrastructure.NetCore
         public async virtual Task<Assembly> Load(string pluginAssemblyName)
         {
             var pluginStream = await LoadPluginFromNetwork(this.options.BaseUrl, pluginAssemblyName);
-            var loader = new NetworkAssemblyLoadContext(this.options.BaseUrl, httpClient);
+            this.loader = new NetworkAssemblyLoadContext(this.options.BaseUrl, httpClient);
             return loader.LoadFromStream(pluginStream);
         }
 
@@ -104,6 +105,11 @@ namespace Prise.Infrastructure.NetCore
                 throw new InvalidOperationException($"Error loading plugin {pluginAssemblyName} at {baseUrl}");
 
             return await response.Content.ReadAsStreamAsync();
+        }
+
+        public async Task Unload()
+        {
+            // this.loader.Unload();
         }
     }
 }

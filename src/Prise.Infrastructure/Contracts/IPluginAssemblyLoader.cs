@@ -6,5 +6,6 @@ namespace Prise.Infrastructure
     public interface IPluginAssemblyLoader<T>
     {
         Task<Assembly> Load(string pluginAssemblyName);
+        Task Unload();
     }
 }
