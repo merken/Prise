@@ -7,7 +7,6 @@ namespace Prise.Infrastructure.NetCore
 {
     public class NetCoreActivator : IRemotePluginActivator
     {
-
         private readonly ISharedServicesProvider sharedServicesProvider;
 
         public NetCoreActivator(ISharedServicesProvider sharedServicesProvider)
@@ -26,7 +25,6 @@ namespace Prise.Infrastructure.NetCore
                 throw new NotSupportedException($"Bootstrapper {bootstrapperType.Name} must contain a public parameterless constructor");
 
             return Activator.CreateInstance(bootstrapperType);
-
         }
 
         public object CreateRemoteInstance(Type pluginType, IPluginBootstrapper bootstrapper, MethodInfo factoryMethod)

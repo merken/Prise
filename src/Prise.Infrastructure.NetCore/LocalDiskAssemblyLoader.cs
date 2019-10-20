@@ -81,6 +81,7 @@ namespace Prise.Infrastructure.NetCore
     {
         protected readonly IRootPathProvider rootPathProvider;
         protected readonly ILocalAssemblyLoaderOptions options;
+        internal LocalDiskAssemblyLoadContext loader;
 
         public LocalDiskAssemblyLoader(IRootPathProvider rootPathProvider, ILocalAssemblyLoaderOptions options)
         {
@@ -93,8 +94,14 @@ namespace Prise.Infrastructure.NetCore
             var rootPath = this.rootPathProvider.GetRootPath();
             var pluginAbsolutePath = Path.Combine(rootPath, this.options.PluginPath);
             var pluginStream = await LocalDiskAssemblyLoadContext.LoadFileFromLocalDisk(pluginAbsolutePath, pluginAssemblyName);
-            var loader = new LocalDiskAssemblyLoadContext(rootPath, this.options.PluginPath);
+            this.loader = new LocalDiskAssemblyLoadContext(rootPath, this.options.PluginPath);
             return loader.LoadFromStream(pluginStream);
+        }
+
+        public async virtual Task Unload()
+        {
+            //TODO unloading
+            // this.loader.Unload();
         }
     }
 }

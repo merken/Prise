@@ -34,7 +34,9 @@ namespace MyHost.Controllers
         public async Task<string> Get([FromQuery]string input)
         {
             var plugin = await _pluginLoader.Load();
-            return plugin.SayHello(input);
+            var response = plugin.SayHello(input);
+            await _pluginLoader.Unload();
+            return response;
         }
     }
 }

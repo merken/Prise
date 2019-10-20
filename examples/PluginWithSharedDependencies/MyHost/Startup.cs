@@ -37,6 +37,7 @@ namespace MyHost
                 .WithPluginAssemblyName("LanguageBased.Plugin.dll")
                 .ConfigureSharedServices(services =>
                 {
+                    services.AddHttpContextAccessor(); // Required to read out HTTP Headers from request
                     services.AddScoped<ISharedLanguageService, AcceptHeaderlanguageService>();
                 })
             );

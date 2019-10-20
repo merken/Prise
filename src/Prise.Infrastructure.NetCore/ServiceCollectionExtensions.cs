@@ -9,10 +9,10 @@ namespace Prise.Infrastructure.NetCore
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddPrise<T>(this IServiceCollection services, Action<PluggerOptionsBuilder<T>> config = null)
+        public static IServiceCollection AddPrise<T>(this IServiceCollection services, Action<PluginLoadOptionsBuilder<T>> config = null)
             where T : class
         {
-            var optionsBuilder = new PluggerOptionsBuilder<T>().WithDefaultOptions();
+            var optionsBuilder = new PluginLoadOptionsBuilder<T>().WithDefaultOptions();
             config?.Invoke(optionsBuilder);
 
             services = optionsBuilder.RegisterOptions(services);
@@ -25,11 +25,11 @@ namespace Prise.Infrastructure.NetCore
             return services;
         }
 
-        public static IServiceCollection AddPriseWithPluginLoader<T, TPluginLoader>(this IServiceCollection services, Action<PluggerOptionsBuilder<T>> config = null)
+        public static IServiceCollection AddPriseWithPluginLoader<T, TPluginLoader>(this IServiceCollection services, Action<PluginLoadOptionsBuilder<T>> config = null)
             where T : class
             where TPluginLoader : class, IPluginLoader<T>
         {
-            var optionsBuilder = new PluggerOptionsBuilder<T>().WithDefaultOptions();
+            var optionsBuilder = new PluginLoadOptionsBuilder<T>().WithDefaultOptions();
             config?.Invoke(optionsBuilder);
 
             services = optionsBuilder.RegisterOptions(services);

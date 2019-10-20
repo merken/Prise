@@ -54,7 +54,7 @@ namespace Prise.Infrastructure.NetCore
         public IPluginAssemblyNameProvider PluginAssemblyNameProvider => this.pluginAssemblyNameProvider;
     }
 
-    public class PluggerOptionsBuilder<T>
+    public class PluginLoadOptionsBuilder<T>
     {
         internal IRootPathProvider rootPathProvider;
         internal Type rootPathProviderType;
@@ -77,134 +77,134 @@ namespace Prise.Infrastructure.NetCore
         internal bool supportMultiplePlugins;
         internal Action<IServiceCollection> configureServices;
 
-        internal PluggerOptionsBuilder()
+        internal PluginLoadOptionsBuilder()
         {
         }
 
-        public PluggerOptionsBuilder<T> WithRootPath(string path)
+        public PluginLoadOptionsBuilder<T> WithRootPath(string path)
         {
             this.rootPathProvider = new RootPathProvider(path);
             return this;
         }
 
-        public PluggerOptionsBuilder<T> WithRootPathProvider<TType>()
+        public PluginLoadOptionsBuilder<T> WithRootPathProvider<TType>()
             where TType : IRootPathProvider
         {
             this.rootPathProviderType = typeof(TType);
             return this;
         }
 
-        public PluggerOptionsBuilder<T> WithPluginAssemblyName(string pluginAssemblyName)
+        public PluginLoadOptionsBuilder<T> WithPluginAssemblyName(string pluginAssemblyName)
         {
             this.pluginAssemblyNameProvider = new PluginAssemblyNameProvider(pluginAssemblyName);
             return this;
         }
 
-        public PluggerOptionsBuilder<T> WithPluginAssemblyNameProvider<TType>()
+        public PluginLoadOptionsBuilder<T> WithPluginAssemblyNameProvider<TType>()
                    where TType : IPluginAssemblyNameProvider
         {
             this.pluginAssemblyNameProviderType = typeof(TType);
             return this;
         }
 
-        public PluggerOptionsBuilder<T> WithActivator(IRemotePluginActivator activator)
+        public PluginLoadOptionsBuilder<T> WithActivator(IRemotePluginActivator activator)
         {
             this.activator = activator;
             return this;
         }
 
-        public PluggerOptionsBuilder<T> WithActivator<TType>()
+        public PluginLoadOptionsBuilder<T> WithActivator<TType>()
             where TType : IRemotePluginActivator
         {
             this.activatorType = typeof(TType);
             return this;
         }
 
-        public PluggerOptionsBuilder<T> WithParameterConverter(IParameterConverter parameterConverter)
+        public PluginLoadOptionsBuilder<T> WithParameterConverter(IParameterConverter parameterConverter)
         {
             this.parameterConverter = parameterConverter;
             return this;
         }
 
-        public PluggerOptionsBuilder<T> WithParameterConverter<TType>()
+        public PluginLoadOptionsBuilder<T> WithParameterConverter<TType>()
             where TType : IParameterConverter
         {
             this.parameterConverterType = typeof(TType);
             return this;
         }
 
-        public PluggerOptionsBuilder<T> WithResultConverter(IResultConverter resultConverter)
+        public PluginLoadOptionsBuilder<T> WithResultConverter(IResultConverter resultConverter)
         {
             this.resultConverter = resultConverter;
             return this;
         }
 
-        public PluggerOptionsBuilder<T> WithResultConverter<TType>()
+        public PluginLoadOptionsBuilder<T> WithResultConverter<TType>()
             where TType : IResultConverter
         {
             this.resultConverterType = typeof(TType);
             return this;
         }
 
-        public PluggerOptionsBuilder<T> WithAssemblyLoader(IPluginAssemblyLoader<T> assemblyLoader)
+        public PluginLoadOptionsBuilder<T> WithAssemblyLoader(IPluginAssemblyLoader<T> assemblyLoader)
         {
             this.assemblyLoader = assemblyLoader;
             return this;
         }
 
-        public PluggerOptionsBuilder<T> WithAssemblyLoader<TType>()
+        public PluginLoadOptionsBuilder<T> WithAssemblyLoader<TType>()
            where TType : IPluginAssemblyLoader<T>
         {
             this.assemblyLoaderType = typeof(TType);
             return this;
         }
 
-        public PluggerOptionsBuilder<T> WithLocalDiskAssemblyLoader(string pluginPath)
+        public PluginLoadOptionsBuilder<T> WithLocalDiskAssemblyLoader(string pluginPath)
         {
             this.localAssemblyLoaderOptions = new LocalAssemblyLoaderOptions(pluginPath);
             return this.WithAssemblyLoader<LocalDiskAssemblyLoader<T>>();
         }
 
-        public PluggerOptionsBuilder<T> WithLocalDiskAssemblyLoader<TType>()
+        public PluginLoadOptionsBuilder<T> WithLocalDiskAssemblyLoader<TType>()
             where TType : ILocalAssemblyLoaderOptions
         {
             this.localAssemblyLoaderOptionsType = typeof(TType);
             return this.WithAssemblyLoader<LocalDiskAssemblyLoader<T>>();
         }
 
-        public PluggerOptionsBuilder<T> WithNetworkAssemblyLoader(string baseUrl)
+        public PluginLoadOptionsBuilder<T> WithNetworkAssemblyLoader(string baseUrl)
         {
             this.networkAssemblyLoaderOptions = new NetworkAssemblyLoaderOptions(baseUrl);
             return this.WithAssemblyLoader<NetworkAssemblyLoader<T>>();
         }
 
-        public PluggerOptionsBuilder<T> WithNetworkAssemblyLoader<TType>()
+        public PluginLoadOptionsBuilder<T> WithNetworkAssemblyLoader<TType>()
             where TType : INetworkAssemblyLoaderOptions
         {
             this.networkAssemblyLoaderOptionsType = typeof(TType);
             return this.WithAssemblyLoader<NetworkAssemblyLoader<T>>();
         }
 
-        public PluggerOptionsBuilder<T> WithSharedServicesProvider<TType>()
+        public PluginLoadOptionsBuilder<T> WithSharedServicesProvider<TType>()
            where TType : ISharedServicesProvider
         {
             this.sharedServicesProviderType = typeof(TType);
             return this;
         }
 
-        public PluggerOptionsBuilder<T> SupportMultiplePlugins(bool supportMultiplePlugins = true)
+        public PluginLoadOptionsBuilder<T> SupportMultiplePlugins(bool supportMultiplePlugins = true)
         {
             this.supportMultiplePlugins = supportMultiplePlugins;
             return this;
         }
 
-        public PluggerOptionsBuilder<T> ConfigureServices(Action<IServiceCollection> configureServices)
+        public PluginLoadOptionsBuilder<T> ConfigureServices(Action<IServiceCollection> configureServices)
         {
             this.configureServices = configureServices;
             return this;
         }
 
-        public PluggerOptionsBuilder<T> ConfigureSharedServices(Action<IServiceCollection> sharedServices)
+        public PluginLoadOptionsBuilder<T> ConfigureSharedServices(Action<IServiceCollection> sharedServices)
         {
             if (this.sharedServicesProviderType != null)
                 throw new NotSupportedException($"A custom {typeof(ISharedServicesProvider).Name} type cannot be used in combination with {nameof(ConfigureSharedServices)}service");
@@ -216,7 +216,7 @@ namespace Prise.Infrastructure.NetCore
             return this;
         }
 
-        public PluggerOptionsBuilder<T> WithDefaultOptions(string rootPath = null)
+        public PluginLoadOptionsBuilder<T> WithDefaultOptions(string rootPath = null)
         {
             if (String.IsNullOrEmpty(rootPath))
                 rootPath = GetLocalExecutionPath();

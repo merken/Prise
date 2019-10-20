@@ -15,7 +15,7 @@ namespace Prise.Infrastructure.NetCore
             var assemblyName = pluginLoadOptions.PluginAssemblyNameProvider.GetAssemblyName();
             if (String.IsNullOrEmpty(assemblyName))
                 throw new NotSupportedException($"IPluginAssemblyNameProvider returned an empty assembly name for plugin type {typeof(T).Name}");
-                
+
             var pluginAssembly = await pluginLoadOptions.AssemblyLoader.Load(assemblyName);
             var pluginTypes = pluginAssembly
                             .GetTypes()
@@ -74,6 +74,11 @@ namespace Prise.Infrastructure.NetCore
                .SetResultConverter(pluginLoadOptions.ResultConverter);
 
             return (T)proxy;
+        }
+
+        protected async Task Unload<T>(IPluginLoadOptions<T> pluginLoadOptions)
+        {
+            await pluginLoadOptions.AssemblyLoader.Unload();
         }
     }
 }
