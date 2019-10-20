@@ -9,6 +9,7 @@ namespace Prise.Infrastructure.NetCore
     public interface IPluginLoadOptions<T>
     {
         IRootPathProvider RootPathProvider { get; }
+        ISharedServicesProvider SharedServicesProvider { get; }
         IRemotePluginActivator Activator { get; }
         IResultConverter ResultConverter { get; }
         IParameterConverter ParameterConverter { get; }
@@ -19,6 +20,7 @@ namespace Prise.Infrastructure.NetCore
     public class PluginLoadOptions<T> : IPluginLoadOptions<T>
     {
         private readonly IRootPathProvider rootPathProvider;
+        private readonly ISharedServicesProvider sharedServicesProvider;
         private readonly IRemotePluginActivator activator;
         private readonly IResultConverter resultConverter;
         private readonly IParameterConverter parameterConverter;
@@ -27,6 +29,7 @@ namespace Prise.Infrastructure.NetCore
 
         public PluginLoadOptions(
             IRootPathProvider rootPathProvider,
+            ISharedServicesProvider sharedServicesProvider,
             IRemotePluginActivator activator,
             IParameterConverter parameterConverter,
             IResultConverter resultConverter,
@@ -34,6 +37,7 @@ namespace Prise.Infrastructure.NetCore
             IPluginAssemblyNameProvider pluginAssemblyNameProvider)
         {
             this.rootPathProvider = rootPathProvider;
+            this.sharedServicesProvider = sharedServicesProvider;
             this.activator = activator;
             this.parameterConverter = parameterConverter;
             this.resultConverter = resultConverter;
@@ -42,6 +46,7 @@ namespace Prise.Infrastructure.NetCore
         }
 
         public IRootPathProvider RootPathProvider => this.rootPathProvider;
+        public ISharedServicesProvider SharedServicesProvider => this.sharedServicesProvider;
         public IRemotePluginActivator Activator => this.activator;
         public IResultConverter ResultConverter => this.resultConverter;
         public IParameterConverter ParameterConverter => this.parameterConverter;
@@ -180,6 +185,13 @@ namespace Prise.Infrastructure.NetCore
             return this.WithAssemblyLoader<NetworkAssemblyLoader<T>>();
         }
 
+        public PluggerOptionsBuilder<T> WithSharedServicesProvider<TType>()
+           where TType : ISharedServicesProvider
+        {
+            this.sharedServicesProviderType = typeof(TType);
+            return this;
+        }
+
         public PluggerOptionsBuilder<T> SupportMultiplePlugins(bool supportMultiplePlugins = true)
         {
             this.supportMultiplePlugins = supportMultiplePlugins;
@@ -194,9 +206,13 @@ namespace Prise.Infrastructure.NetCore
 
         public PluggerOptionsBuilder<T> ConfigureSharedServices(Action<IServiceCollection> sharedServices)
         {
+            if (this.sharedServicesProviderType != null)
+                throw new NotSupportedException($"A custom {typeof(ISharedServicesProvider).Name} type cannot be used in combination with {nameof(ConfigureSharedServices)}service");
+
             var services = new ServiceCollection();
             sharedServices.Invoke(services);
             this.sharedServicesProvider = new DefaultSharedServicesProvider(services);
+            this.activator = new NetCoreActivator(this.sharedServicesProvider);
             return this;
         }
 
