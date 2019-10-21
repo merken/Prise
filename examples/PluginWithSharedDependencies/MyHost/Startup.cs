@@ -33,7 +33,7 @@ namespace MyHost
             services.AddHttpContextAccessor(); // Required to read out HTTP Headers from request
 
             services.AddPrise<IHelloPlugin>(options => options
-                .WithLocalDiskAssemblyLoader("Plugins/LanguageBased.Plugin")
+                .WithLocalDiskAssemblyLoader("Plugins\\LanguageBased.Plugin")
                 .WithPluginAssemblyName("LanguageBased.Plugin.dll")
                 .ConfigureSharedServices(services =>
                 {
