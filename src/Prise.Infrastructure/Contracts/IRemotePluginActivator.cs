@@ -3,9 +3,9 @@ using System.Reflection;
 
 namespace Prise.Infrastructure
 {
-    public interface IRemotePluginActivator
+    public interface IRemotePluginActivator : IDisposable
     {
-        object CreateRemoteBootstrapper(Type boostrapperType);
+        object CreateRemoteBootstrapper(Type bootstrapperType);
         object CreateRemoteInstance(Type pluginType, IPluginBootstrapper bootstrapper, MethodInfo factoryMethod);
     }
 }

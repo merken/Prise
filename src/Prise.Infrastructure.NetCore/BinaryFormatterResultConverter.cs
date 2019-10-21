@@ -7,6 +7,8 @@ namespace Prise.Infrastructure.NetCore
 {
     public class BinaryFormatterResultConverter : IResultConverter
     {
+        private bool disposed = false;
+
         public object ConvertToLocalType(Type localType, object value)
         {
             return DeserializeFromStream(SerializeToStream(value));
@@ -26,6 +28,21 @@ namespace Prise.Infrastructure.NetCore
             stream.Seek(0, SeekOrigin.Begin);
             object o = formatter.Deserialize(stream);
             return o;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed && disposing)
+            {
+                // Nothing to do here
+            }
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

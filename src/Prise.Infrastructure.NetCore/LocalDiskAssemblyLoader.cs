@@ -11,15 +11,25 @@ namespace Prise.Infrastructure.NetCore
 {
     internal class LocalDiskAssemblyLoadContext : AssemblyLoadContext
     {
-        private readonly string rootPath;
-        private readonly string pluginPath;
         private readonly AssemblyName pluginInfrastructureAssemblyName;
+        private string rootPath;
+        private string pluginPath;
+        private bool isConfigured;
 
-        public LocalDiskAssemblyLoadContext(string rootPath, string pluginPath)
+        public LocalDiskAssemblyLoadContext()
         {
+            this.pluginInfrastructureAssemblyName = typeof(PluginAttribute).Assembly.GetName();
+        }
+
+        internal void Configure(string rootPath, string pluginPath)
+        {
+            if (this.isConfigured)
+                throw new NotSupportedException($"This LocalDiskAssemblyLoadContext is already configured for {this.rootPath} {this.pluginPath}. Could not configure for {rootPath} {pluginPath}");
+
             this.rootPath = rootPath;
             this.pluginPath = pluginPath;
-            this.pluginInfrastructureAssemblyName = typeof(Prise.Infrastructure.PluginAttribute).Assembly.GetName();
+
+            this.isConfigured = true;
         }
 
         protected override Assembly Load(AssemblyName assemblyName)
@@ -55,11 +65,12 @@ namespace Prise.Infrastructure.NetCore
 
         internal static async Task<Stream> LoadFileFromLocalDisk(string loadPath, string pluginAssemblyName)
         {
-            if (!File.Exists(Path.Combine(loadPath, pluginAssemblyName)))
-                throw new FileNotFoundException($"Plugin assembly does not exist in path : {Path.Combine(loadPath, pluginAssemblyName)}");
+            var probingPath = Path.GetFullPath(Path.Combine(loadPath, pluginAssemblyName)).Replace("\\", "/");
+            if (!File.Exists(probingPath))
+                throw new FileNotFoundException($"Plugin assembly does not exist in path : {probingPath}");
 
             var memoryStream = new MemoryStream();
-            using (var stream = new FileStream(Path.Combine(loadPath, pluginAssemblyName), FileMode.Open, FileAccess.Read))
+            using (var stream = new FileStream(probingPath, FileMode.Open, FileAccess.Read))
                 await stream.CopyToAsync(memoryStream);
 
             memoryStream.Flush();
@@ -81,27 +92,46 @@ namespace Prise.Infrastructure.NetCore
     {
         protected readonly IRootPathProvider rootPathProvider;
         protected readonly ILocalAssemblyLoaderOptions options;
-        internal LocalDiskAssemblyLoadContext loader;
+        private readonly LocalDiskAssemblyLoadContext context;
+        protected bool disposed = false;
 
         public LocalDiskAssemblyLoader(IRootPathProvider rootPathProvider, ILocalAssemblyLoaderOptions options)
         {
             this.rootPathProvider = rootPathProvider;
             this.options = options;
+            this.context = new LocalDiskAssemblyLoadContext();
         }
 
-        public async virtual Task<Assembly> Load(string pluginAssemblyName)
+        public async Task<Assembly> Load(string pluginAssemblyName)
         {
-            var rootPath = this.rootPathProvider.GetRootPath();
-            var pluginAbsolutePath = Path.Combine(rootPath, this.options.PluginPath);
-            var pluginStream = await LocalDiskAssemblyLoadContext.LoadFileFromLocalDisk(pluginAbsolutePath, pluginAssemblyName);
-            this.loader = new LocalDiskAssemblyLoadContext(rootPath, this.options.PluginPath);
-            return loader.LoadFromStream(pluginStream);
+            var rootPluginPath = Path.Join(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
+            var pluginStream = await LocalDiskAssemblyLoadContext.LoadFileFromLocalDisk(rootPluginPath, pluginAssemblyName);
+            this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
+            return this.context.LoadFromStream(pluginStream);
         }
 
         public async virtual Task Unload()
         {
-            //TODO unloading
-            // this.loader.Unload();
+            GC.Collect(); // collects all unused memory
+            GC.WaitForPendingFinalizers(); // wait until GC has finished its work
+            GC.Collect();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed && disposing)
+            {
+                GC.Collect(); // collects all unused memory
+                GC.WaitForPendingFinalizers(); // wait until GC has finished its work
+                GC.Collect();
+            }
+            this.disposed = true;
         }
     }
 }

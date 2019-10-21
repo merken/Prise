@@ -6,7 +6,7 @@ using Prise.Infrastructure.NetCore.Contracts;
 
 namespace Prise.Infrastructure.NetCore
 {
-    public interface IPluginLoadOptions<T>
+    public interface IPluginLoadOptions<T> : IDisposable
     {
         IRootPathProvider RootPathProvider { get; }
         ISharedServicesProvider SharedServicesProvider { get; }
@@ -26,6 +26,7 @@ namespace Prise.Infrastructure.NetCore
         private readonly IParameterConverter parameterConverter;
         private readonly IPluginAssemblyLoader<T> assemblyLoader;
         private readonly IPluginAssemblyNameProvider pluginAssemblyNameProvider;
+        protected bool disposed = false;
 
         public PluginLoadOptions(
             IRootPathProvider rootPathProvider,
@@ -52,6 +53,29 @@ namespace Prise.Infrastructure.NetCore
         public IParameterConverter ParameterConverter => this.parameterConverter;
         public IPluginAssemblyLoader<T> AssemblyLoader => this.assemblyLoader;
         public IPluginAssemblyNameProvider PluginAssemblyNameProvider => this.pluginAssemblyNameProvider;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed && disposing)
+            {
+                // Dispose all properties
+                this.rootPathProvider.Dispose();
+                this.sharedServicesProvider.Dispose();
+                this.activator.Dispose();
+                this.parameterConverter.Dispose();
+                this.resultConverter.Dispose();
+                // Unloads the loaded plugin assemblies
+                this.assemblyLoader.Dispose();
+                this.pluginAssemblyNameProvider.Dispose();
+            }
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 
     public class PluginLoadOptionsBuilder<T>
