@@ -10,17 +10,28 @@ namespace Prise.Infrastructure.NetCore3
 {
     internal class LocalDiskAssemblyLoadContext : AssemblyLoadContext
     {
-        private readonly string rootPath;
-        private readonly string pluginLocation;
         private readonly AssemblyName pluginInfrastructureAssemblyName;
+        private string rootPath;
+        private string pluginPath;
         private AssemblyDependencyResolver resolver;
+        private bool isConfigured;
 
-        public LocalDiskAssemblyLoadContext(string rootPath, string pluginLocation)
+        public LocalDiskAssemblyLoadContext()
+            : base(true) // This should always be collectible, since we do not expect to have a long-living plugin
         {
-            this.rootPath = rootPath;
-            this.pluginLocation = pluginLocation;
             this.pluginInfrastructureAssemblyName = typeof(Infra.PluginAttribute).Assembly.GetName();
+        }
+
+        internal void Configure(string rootPath, string pluginPath)
+        {
+            if (this.isConfigured)
+                throw new NotSupportedException($"This LocalDiskAssemblyLoadContext is already configured for {this.rootPath} {this.pluginPath}. Could not configure for {rootPath} {pluginPath}");
+
+            this.rootPath = rootPath;
+            this.pluginPath = pluginPath;
             this.resolver = new AssemblyDependencyResolver(rootPath);
+
+            this.isConfigured = true;
         }
 
         protected override Assembly Load(AssemblyName assemblyName)
@@ -50,11 +61,11 @@ namespace Prise.Infrastructure.NetCore3
 
         protected virtual Assembly LoadDependencyFromLocalDisk(AssemblyName assemblyName)
         {
-            if (!File.Exists(Path.Combine(this.rootPath, Path.Combine(this.pluginLocation, $"{assemblyName.Name}.dll"))))
+            if (!File.Exists(Path.Combine(this.rootPath, Path.Combine(this.pluginPath, $"{assemblyName.Name}.dll"))))
                 return null;
 
             var name = $"{assemblyName.Name}.dll";
-            var dependency = LoadFileFromLocalDisk(Path.Combine(this.rootPath, this.pluginLocation), name).Result;
+            var dependency = LoadFileFromLocalDisk(Path.Combine(this.rootPath, this.pluginPath), name).Result;
 
             if (dependency == null) return null;
 
@@ -86,17 +97,42 @@ namespace Prise.Infrastructure.NetCore3
     {
         private readonly IRootPathProvider rootPathProvider;
         private readonly ILocalAssemblyLoaderOptions options;
+        private readonly LocalDiskAssemblyLoadContext context;
+        protected bool disposed = false;
+
         public LocalDiskAssemblyLoader(IRootPathProvider rootPathProvider, ILocalAssemblyLoaderOptions options)
         {
             this.rootPathProvider = rootPathProvider;
             this.options = options;
+            this.context = new LocalDiskAssemblyLoadContext();
         }
 
         public async Task<Assembly> Load(string pluginAssemblyName)
         {
             var pluginStream = await LocalDiskAssemblyLoadContext.LoadFileFromLocalDisk(this.options.PluginPath, pluginAssemblyName);
-            var loader = new LocalDiskAssemblyLoadContext(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
-            return loader.LoadFromStream(pluginStream);
+            this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
+            return this.context.LoadFromStream(pluginStream);
+        }
+
+        public Task Unload()
+        {
+            this.context.Unload();
+            return Task.CompletedTask;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed && disposing)
+            {
+                this.context.Unload();
+            }
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

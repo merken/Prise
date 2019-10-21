@@ -8,6 +8,7 @@ namespace Prise.Infrastructure.NetCore
     public class NetCoreActivator : IRemotePluginActivator
     {
         private readonly ISharedServicesProvider sharedServicesProvider;
+        private bool disposed = false;
 
         public NetCoreActivator(ISharedServicesProvider sharedServicesProvider)
         {
@@ -19,9 +20,9 @@ namespace Prise.Infrastructure.NetCore
             var contructors = bootstrapperType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
             var firstCtor = contructors.First();
 
-            if (contructors.Count() == 0)
+            if (!contructors.Any())
                 throw new NotSupportedException($"No public constructors found for remote bootstrapper {bootstrapperType.Name}");
-            if (firstCtor.GetParameters().Count() > 0)
+            if (firstCtor.GetParameters().Any())
                 throw new NotSupportedException($"Bootstrapper {bootstrapperType.Name} must contain a public parameterless constructor");
 
             return Activator.CreateInstance(bootstrapperType);
@@ -35,7 +36,7 @@ namespace Prise.Infrastructure.NetCore
                 throw new NotSupportedException($"Multiple public constructors found for remote plugin {pluginType.Name}");
 
             var firstCtor = contructors.FirstOrDefault();
-            if (firstCtor != null && firstCtor.GetParameters().Count() == 0)
+            if (firstCtor != null && !firstCtor.GetParameters().Any())
                 return Activator.CreateInstance(pluginType);
 
             if (factoryMethod == null)
@@ -53,6 +54,21 @@ namespace Prise.Infrastructure.NetCore
         {
             var sharedServices = this.sharedServicesProvider.ProvideSharedServices();
             return bootstrapper.Bootstrap(sharedServices).BuildServiceProvider();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed && disposing)
+            {
+                // Nothing to do here
+            }
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

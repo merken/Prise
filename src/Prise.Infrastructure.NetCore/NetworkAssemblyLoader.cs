@@ -12,15 +12,25 @@ namespace Prise.Infrastructure.NetCore
 {
     public class NetworkAssemblyLoadContext : AssemblyLoadContext
     {
-        private readonly string baseUrl;
         private readonly HttpClient httpClient;
         private readonly AssemblyName pluginInfrastructureAssemblyName;
+        private string baseUrl;
+        private bool isConfigured;
 
-        public NetworkAssemblyLoadContext(string baseUrl, HttpClient httpClient)
+        public NetworkAssemblyLoadContext(HttpClient httpClient)
         {
-            this.baseUrl = baseUrl;
             this.httpClient = httpClient;
             this.pluginInfrastructureAssemblyName = typeof(Prise.Infrastructure.PluginAttribute).Assembly.GetName();
+        }
+
+        internal void Configure(string baseUrl)
+        {
+            if (this.isConfigured)
+                throw new NotSupportedException($"This NetworkAssemblyLoadContext is already configured for {this.baseUrl}. Could not configure for {baseUrl}");
+
+            this.baseUrl = baseUrl;
+
+            this.isConfigured = true;
         }
 
         protected override Assembly Load(AssemblyName assemblyName)
@@ -65,34 +75,32 @@ namespace Prise.Infrastructure.NetCore
 
     public class NetworkAssemblyLoader<T> : IPluginAssemblyLoader<T>
     {
-        protected readonly IRootPathProvider rootPathProvider;
         protected readonly INetworkAssemblyLoaderOptions options;
-        protected readonly HttpClient httpClient;
         protected readonly AssemblyName pluginInfrastructureAssemblyName;
-        internal NetworkAssemblyLoadContext loader;
+        private readonly HttpClient httpClient;
+        internal NetworkAssemblyLoadContext context;
+        protected bool disposed = false;
 
         /// To be used by Dependency Injection
         public NetworkAssemblyLoader(
-            IRootPathProvider rootPathProvider,
             INetworkAssemblyLoaderOptions options,
-            IHttpClientFactory httpClientFactory) : this(rootPathProvider, options, httpClientFactory.CreateClient()) { }
+            IHttpClientFactory httpClientFactory) : this(options, httpClientFactory.CreateClient()) { }
 
         internal NetworkAssemblyLoader(
-            IRootPathProvider rootPathProvider,
             INetworkAssemblyLoaderOptions options,
             HttpClient httpClient)
         {
             this.options = options;
-            this.rootPathProvider = rootPathProvider;
             this.httpClient = httpClient;
+            this.context = new NetworkAssemblyLoadContext(httpClient);
             this.pluginInfrastructureAssemblyName = typeof(Prise.Infrastructure.PluginAttribute).Assembly.GetName();
         }
 
         public async virtual Task<Assembly> Load(string pluginAssemblyName)
         {
             var pluginStream = await LoadPluginFromNetwork(this.options.BaseUrl, pluginAssemblyName);
-            this.loader = new NetworkAssemblyLoadContext(this.options.BaseUrl, httpClient);
-            return loader.LoadFromStream(pluginStream);
+            this.context.Configure(this.options.BaseUrl);
+            return this.context.LoadFromStream(pluginStream);
         }
 
         protected async virtual Task<Stream> LoadPluginFromNetwork(string baseUrl, string pluginAssemblyName)
@@ -107,9 +115,28 @@ namespace Prise.Infrastructure.NetCore
             return await response.Content.ReadAsStreamAsync();
         }
 
-        public async Task Unload()
+        public async virtual Task Unload()
         {
-            // this.loader.Unload();
+            GC.Collect(); // collects all unused memory
+            GC.WaitForPendingFinalizers(); // wait until GC has finished its work
+            GC.Collect();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed && disposing)
+            {
+                GC.Collect(); // collects all unused memory
+                GC.WaitForPendingFinalizers(); // wait until GC has finished its work
+                GC.Collect();
+            }
+            this.disposed = true;
         }
     }
 }
