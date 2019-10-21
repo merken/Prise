@@ -5,3 +5,5 @@ publish
 **/PluginApp/Plugins
 **/PluginServer/Plugins
 **/MyHost/Plugins
+.vs
+*.sln
