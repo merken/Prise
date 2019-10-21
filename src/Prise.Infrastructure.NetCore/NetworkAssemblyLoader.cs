@@ -12,10 +12,10 @@ namespace Prise.Infrastructure.NetCore
 {
     public class NetworkAssemblyLoadContext : AssemblyLoadContext
     {
-        private readonly HttpClient httpClient;
-        private readonly AssemblyName pluginInfrastructureAssemblyName;
-        private string baseUrl;
-        private bool isConfigured;
+        protected readonly HttpClient httpClient;
+        protected readonly AssemblyName pluginInfrastructureAssemblyName;
+        protected string baseUrl;
+        protected bool isConfigured;
 
         public NetworkAssemblyLoadContext(HttpClient httpClient)
         {
@@ -63,7 +63,7 @@ namespace Prise.Infrastructure.NetCore
             return Assembly.Load(dependency);
         }
 
-        private byte[] DownloadDependency(string pluginAssemblyName)
+        protected byte[] DownloadDependency(string pluginAssemblyName)
         {
             var response = this.httpClient.GetAsync($"{baseUrl}/{pluginAssemblyName}").Result;
             if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -77,8 +77,8 @@ namespace Prise.Infrastructure.NetCore
     {
         protected readonly INetworkAssemblyLoaderOptions options;
         protected readonly AssemblyName pluginInfrastructureAssemblyName;
-        private readonly HttpClient httpClient;
-        internal NetworkAssemblyLoadContext context;
+        protected readonly HttpClient httpClient;
+        protected NetworkAssemblyLoadContext context;
         protected bool disposed = false;
 
         /// To be used by Dependency Injection

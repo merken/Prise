@@ -6,7 +6,7 @@ namespace Prise.Infrastructure.NetCore
 {
     public class PrisePluginLoader<T> : PluginLoader, IPluginLoader<T>
     {
-        private readonly IPluginLoadOptions<T> pluginLoadOptions;
+        protected readonly IPluginLoadOptions<T> pluginLoadOptions;
         private bool disposed = false;
 
         public PrisePluginLoader(IPluginLoadOptions<T> pluginLoadOptions)

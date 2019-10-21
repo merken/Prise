@@ -11,10 +11,10 @@ namespace Prise.Infrastructure.NetCore
 {
     internal class LocalDiskAssemblyLoadContext : AssemblyLoadContext
     {
-        private readonly AssemblyName pluginInfrastructureAssemblyName;
-        private string rootPath;
-        private string pluginPath;
-        private bool isConfigured;
+        protected readonly AssemblyName pluginInfrastructureAssemblyName;
+        protected string rootPath;
+        protected string pluginPath;
+        protected bool isConfigured;
 
         public LocalDiskAssemblyLoadContext()
         {
