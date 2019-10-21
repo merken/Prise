@@ -12,17 +12,7 @@ namespace Prise.Infrastructure.NetCore
         public static IServiceCollection AddPrise<T>(this IServiceCollection services, Action<PluginLoadOptionsBuilder<T>> config = null)
             where T : class
         {
-            var optionsBuilder = new PluginLoadOptionsBuilder<T>().WithDefaultOptions();
-            config?.Invoke(optionsBuilder);
-
-            services = optionsBuilder.RegisterOptions(services);
-
-            if (!optionsBuilder.supportMultiplePlugins)
-                AddSinglePluginLoader<T>(services);
-            else
-                AddMultiPluginLoader<T>(services);
-
-            return services;
+            return services.AddPriseWithPluginLoader<T, PrisePluginLoader<T>>(config);
         }
 
         public static IServiceCollection AddPriseWithPluginLoader<T, TPluginLoader>(this IServiceCollection services, Action<PluginLoadOptionsBuilder<T>> config = null)
@@ -36,35 +26,6 @@ namespace Prise.Infrastructure.NetCore
 
             return services
                 .AddScoped<IPluginLoader<T>, TPluginLoader>()
-                .AddScoped<T>((s) =>
-                {
-                    var loader = s.GetRequiredService<IPluginLoader<T>>();
-                    return TryAndRethrowInnerException(loader.Load());
-                })
-                .AddScoped<IEnumerable<T>>((s) =>
-                {
-                    var loader = s.GetRequiredService<IPluginLoader<T>>();
-                    return TryAndRethrowInnerException(loader.LoadAll());
-                });
-        }
-
-        private static IServiceCollection AddSinglePluginLoader<T>(IServiceCollection services)
-            where T : class
-        {
-            return services
-                .AddScoped<IPluginLoader<T>, SinglePluginLoader<T>>()
-                .AddScoped<T>((s) =>
-                {
-                    var loader = s.GetRequiredService<IPluginLoader<T>>();
-                    return TryAndRethrowInnerException(loader.Load());
-                });
-        }
-
-        private static IServiceCollection AddMultiPluginLoader<T>(IServiceCollection services)
-            where T : class
-        {
-            return services
-                .AddScoped<IPluginLoader<T>, MultiPluginLoader<T>>()
                 .AddScoped<T>((s) =>
                 {
                     var loader = s.GetRequiredService<IPluginLoader<T>>();
