@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Prise.Infrastructure;
@@ -6,6 +7,7 @@ namespace MyHost
 {
     public class LanguageBasedAssemblyNameProvider : IPluginAssemblyNameProvider
     {
+        private bool disposed = false;
         private readonly IHttpContextAccessor contextAccessor;
         public LanguageBasedAssemblyNameProvider(IHttpContextAccessor contextAccessor)
         {
@@ -33,6 +35,21 @@ namespace MyHost
                     break;
             }
             return assemblyName;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed && disposing)
+            {
+                // Nothing to do here
+            }
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

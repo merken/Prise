@@ -5,11 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Prise" Version="1.0.3" />
+    <!-- <PackageReference Include="Prise" Version="1.0.3" /> -->
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PluginContract\PluginContract.csproj" />
+    <ProjectReference Include="..\..\..\src\Prise.Infrastructure\Prise.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\src\Prise.Infrastructure.NetCore\Prise.Infrastructure.NetCore.csproj" />
   </ItemGroup>
 
 </Project>
