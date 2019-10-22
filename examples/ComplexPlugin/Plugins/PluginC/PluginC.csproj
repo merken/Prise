@@ -7,10 +7,11 @@
   <ItemGroup>
     <ProjectReference Include="..\..\PluginContract\PluginContract.csproj" />
     <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Prise.Infrastructure\Prise.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Prise.Infrastructure" Version="1.0.0" />
+    <!-- <PackageReference Include="Prise.Infrastructure" Version="1.0.0" /> -->
   </ItemGroup>
 
 </Project>

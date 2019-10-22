@@ -45,7 +45,7 @@ namespace PluginServer
             services.AddScoped<ICalculationService, LazyCalculationService>();
 
             // AddPriseWithDefaultOptions(services);
-            AddPriseWithCustomerLoader(services);
+            AddPriseWithCustomerPluginLoading(services);
         }
 
         private IServiceCollection AddPriseWithDefaultOptions(IServiceCollection services)
@@ -60,13 +60,14 @@ namespace PluginServer
             );
         }
 
-        private IServiceCollection AddPriseWithCustomerLoader(IServiceCollection services)
+        private IServiceCollection AddPriseWithCustomerPluginLoading(IServiceCollection services)
         {
             // This will look for a custom plugin based on the context
-            return services.AddPriseWithPluginLoader<ICalculationPlugin, ContextPluginLoader<ICalculationPlugin>>(options =>
+            return services.AddPrise<ICalculationPlugin>(options =>
                  options
-                     .WithDefaultOptions($"{Env.ContentRootPath}")
+                     .WithDefaultOptions($"{Env.ContentRootPath}\\Plugins")
                      .WithPluginAssemblyNameProvider<ContextPluginAssemblyNameProvider>()
+                     .WithLocalDiskAssemblyLoader<ContextPluginAssemblyLoadOptions>()
              );
         }
 
