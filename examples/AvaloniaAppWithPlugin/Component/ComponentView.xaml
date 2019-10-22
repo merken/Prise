@@ -1,0 +1,19 @@
+<UserControl
+    x:Class="Component.ConfigurationView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Component;assembly=Component"
+    d:DesignHeight="480"
+    d:DesignWidth="640"
+    mc:Ignorable="d">
+    <UserControl.DataContext>
+        <vm:ComponentViewModel />
+    </UserControl.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+    </Grid>
+</UserControl>
