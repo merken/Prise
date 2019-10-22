@@ -9,14 +9,42 @@ namespace Prise.Infrastructure.NetCore
 {
     public abstract class PluginLoader
     {
-        protected async Task<T[]> LoadPluginsOfType<T>(IPluginLoadOptions<T> pluginLoadOptions)
+        protected T[] LoadPluginsOfType<T>(IPluginLoadOptions<T> pluginLoadOptions)
         {
-            var pluginInstances = new List<T>();
+            var assemblyName = GetAssemblyName(pluginLoadOptions);
+            var assembly = pluginLoadOptions.AssemblyLoader.Load(assemblyName);
+            return CreatePluginInstances(pluginLoadOptions, assembly);
+        }
+
+        protected async Task<T[]> LoadPluginsOfTypeAsync<T>(IPluginLoadOptions<T> pluginLoadOptions)
+        {
+            var assemblyName = GetAssemblyName(pluginLoadOptions);
+            var assembly = await pluginLoadOptions.AssemblyLoader.LoadAsync(assemblyName);
+            return CreatePluginInstances(pluginLoadOptions, assembly);
+        }
+
+        protected void Unload<T>(IPluginLoadOptions<T> pluginLoadOptions)
+        {
+            pluginLoadOptions.AssemblyLoader.Unload();
+        }
+
+        protected async Task UnloadAsync<T>(IPluginLoadOptions<T> pluginLoadOptions)
+        {
+            await pluginLoadOptions.AssemblyLoader.UnloadAsync();
+        }
+
+        protected string GetAssemblyName<T>(IPluginLoadOptions<T> pluginLoadOptions)
+        {
             var assemblyName = pluginLoadOptions.PluginAssemblyNameProvider.GetAssemblyName();
             if (String.IsNullOrEmpty(assemblyName))
                 throw new NotSupportedException($"IPluginAssemblyNameProvider returned an empty assembly name for plugin type {typeof(T).Name}");
 
-            var pluginAssembly = await pluginLoadOptions.AssemblyLoader.Load(assemblyName);
+            return assemblyName;
+        }
+
+        protected T[] CreatePluginInstances<T>(IPluginLoadOptions<T> pluginLoadOptions, Assembly pluginAssembly)
+        {
+            var pluginInstances = new List<T>();
             var pluginTypes = pluginAssembly
                             .GetTypes()
                             .Where(t => t.CustomAttributes
@@ -74,11 +102,6 @@ namespace Prise.Infrastructure.NetCore
                .SetResultConverter(pluginLoadOptions.ResultConverter);
 
             return (T)proxy;
-        }
-
-        protected async Task Unload<T>(IPluginLoadOptions<T> pluginLoadOptions)
-        {
-            await pluginLoadOptions.AssemblyLoader.Unload();
         }
     }
 }

@@ -73,13 +73,12 @@ namespace Prise.Infrastructure.NetCore
         }
     }
 
-    public class NetworkAssemblyLoader<T> : IPluginAssemblyLoader<T>
+    public class NetworkAssemblyLoader<T> : DisposableAssemblyUnLoader, IPluginAssemblyLoader<T>
     {
         protected readonly INetworkAssemblyLoaderOptions options;
         protected readonly AssemblyName pluginInfrastructureAssemblyName;
         protected readonly HttpClient httpClient;
         protected NetworkAssemblyLoadContext context;
-        protected bool disposed = false;
 
         /// To be used by Dependency Injection
         public NetworkAssemblyLoader(
@@ -96,14 +95,33 @@ namespace Prise.Infrastructure.NetCore
             this.pluginInfrastructureAssemblyName = typeof(Prise.Infrastructure.PluginAttribute).Assembly.GetName();
         }
 
-        public async virtual Task<Assembly> Load(string pluginAssemblyName)
+        public virtual Assembly Load(string pluginAssemblyName)
         {
-            var pluginStream = await LoadPluginFromNetwork(this.options.BaseUrl, pluginAssemblyName);
+            var pluginStream = LoadPluginFromNetwork(this.options.BaseUrl, pluginAssemblyName);
             this.context.Configure(this.options.BaseUrl);
             return this.context.LoadFromStream(pluginStream);
         }
 
-        protected async virtual Task<Stream> LoadPluginFromNetwork(string baseUrl, string pluginAssemblyName)
+        public async virtual Task<Assembly> LoadAsync(string pluginAssemblyName)
+        {
+            var pluginStream = await LoadPluginFromNetworkAsync(this.options.BaseUrl, pluginAssemblyName);
+            this.context.Configure(this.options.BaseUrl);
+            return this.context.LoadFromStream(pluginStream);
+        }
+
+        protected virtual Stream LoadPluginFromNetwork(string baseUrl, string pluginAssemblyName)
+        {
+            var response = this.httpClient.GetAsync($"{baseUrl}/{pluginAssemblyName}").Result;
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                throw new FileNotFoundException($"Remote assembly {pluginAssemblyName} not found at {baseUrl}");
+
+            if (!response.IsSuccessStatusCode)
+                throw new InvalidOperationException($"Error loading plugin {pluginAssemblyName} at {baseUrl}");
+
+            return response.Content.ReadAsStreamAsync().Result;
+        }
+
+        protected async virtual Task<Stream> LoadPluginFromNetworkAsync(string baseUrl, string pluginAssemblyName)
         {
             var response = await this.httpClient.GetAsync($"{baseUrl}/{pluginAssemblyName}");
             if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -113,30 +131,6 @@ namespace Prise.Infrastructure.NetCore
                 throw new InvalidOperationException($"Error loading plugin {pluginAssemblyName} at {baseUrl}");
 
             return await response.Content.ReadAsStreamAsync();
-        }
-
-        public async virtual Task Unload()
-        {
-            GC.Collect(); // collects all unused memory
-            GC.WaitForPendingFinalizers(); // wait until GC has finished its work
-            GC.Collect();
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed && disposing)
-            {
-                GC.Collect(); // collects all unused memory
-                GC.WaitForPendingFinalizers(); // wait until GC has finished its work
-                GC.Collect();
-            }
-            this.disposed = true;
         }
     }
 }
