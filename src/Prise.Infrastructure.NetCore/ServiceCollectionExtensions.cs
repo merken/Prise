@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Prise.Infrastructure.NetCore.Contracts;
@@ -17,7 +18,7 @@ namespace Prise.Infrastructure.NetCore
 
         public static IServiceCollection AddPriseWithPluginLoader<T, TPluginLoader>(this IServiceCollection services, Action<PluginLoadOptionsBuilder<T>> config = null)
             where T : class
-            where TPluginLoader : class, IPluginLoader<T>
+            where TPluginLoader : class, IPluginLoader<T>, IPluginResolver<T>
         {
             var optionsBuilder = new PluginLoadOptionsBuilder<T>().WithDefaultOptions();
             config?.Invoke(optionsBuilder);
@@ -26,32 +27,17 @@ namespace Prise.Infrastructure.NetCore
 
             return services
                 .AddScoped<IPluginLoader<T>, TPluginLoader>()
+                .AddScoped<IPluginResolver<T>, TPluginLoader>()
                 .AddScoped<T>((s) =>
                 {
-                    var loader = s.GetRequiredService<IPluginLoader<T>>();
-                    return TryAndRethrowInnerException(loader.Load());
+                    // Synchronous plugin loading
+                    return s.GetRequiredService<IPluginResolver<T>>().Load();
                 })
                 .AddScoped<IEnumerable<T>>((s) =>
                 {
-                    var loader = s.GetRequiredService<IPluginLoader<T>>();
-                    return TryAndRethrowInnerException(loader.LoadAll());
+                    // Synchronous plugins loading
+                    return s.GetRequiredService<IPluginResolver<T>>().LoadAll();
                 });
-        }
-
-        private static T TryAndRethrowInnerException<T>(Task<T> task)
-        {
-            try
-            {
-                task.Wait();
-                return task.Result;
-            }
-            catch (AggregateException ag)
-            {
-                if (ag.InnerException != null)
-                    throw ag.InnerException;
-
-                throw new NotSupportedException("Excpected inner exception to be present, but was null");
-            }
         }
     }
 }

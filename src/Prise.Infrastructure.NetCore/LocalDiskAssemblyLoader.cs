@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyModel;
 using Prise.Infrastructure.NetCore.Contracts;
@@ -37,48 +38,66 @@ namespace Prise.Infrastructure.NetCore
             if (assemblyName.FullName == this.pluginInfrastructureAssemblyName.FullName)
                 return null;
 
-            var deps = DependencyContext.Default;
-            var res = deps.CompileLibraries.Where(d => d.Name.Contains(assemblyName.Name)).ToList();
-            if (res.Count > 0)
+            var defaultDependencies = DependencyContext.Default;
+            var candidateAssembly = defaultDependencies.CompileLibraries.FirstOrDefault(d => String.Compare(d.Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase) == 0);
+            if (candidateAssembly != null)
             {
-                return Assembly.Load(new AssemblyName(res.First().Name));
+                return Assembly.Load(new AssemblyName(candidateAssembly.Name));
             }
-            else
+
+            // Check if the dependency exists in the directory of the plugin
+            if (File.Exists(Path.Combine(this.rootPath, Path.Combine(this.pluginPath, $"{assemblyName.Name}.dll"))))
             {
-                if (File.Exists(Path.Combine(this.rootPath, Path.Combine(this.pluginPath, $"{assemblyName.Name}.dll"))))
-                {
-                    return LoadDependencyFromLocalDisk(assemblyName);
-                }
+                return LoadDependencyFromLocalDisk(assemblyName);
             }
+
+            // Default, just load the assembly as if it were in this AppDomain
             return Assembly.Load(assemblyName);
         }
 
         protected virtual Assembly LoadDependencyFromLocalDisk(AssemblyName assemblyName)
         {
             var name = $"{assemblyName.Name}.dll";
-            var dependency = LoadFileFromLocalDisk(Path.Combine(this.rootPath, this.pluginPath), name).Result;
+            var dependency = LoadFileFromLocalDisk(Path.Combine(this.rootPath, this.pluginPath), name);
 
             if (dependency == null) return null;
 
             return Assembly.Load(ToByteArray(dependency));
         }
 
-        internal static async Task<Stream> LoadFileFromLocalDisk(string loadPath, string pluginAssemblyName)
+        internal static Stream LoadFileFromLocalDisk(string loadPath, string pluginAssemblyName)
+        {
+            var probingPath = EnsureFileExists(loadPath, pluginAssemblyName);
+            var memoryStream = new MemoryStream();
+            using (var stream = new FileStream(probingPath, FileMode.Open, FileAccess.Read))
+            {
+                memoryStream.SetLength(stream.Length);
+                stream.Read(memoryStream.GetBuffer(), 0, (int)stream.Length);
+            }
+            return memoryStream;
+        }
+
+        internal static async Task<Stream> LoadFileFromLocalDiskAsync(string loadPath, string pluginAssemblyName)
+        {
+            var probingPath = EnsureFileExists(loadPath, pluginAssemblyName);
+            var memoryStream = new MemoryStream();
+            using (var stream = new FileStream(probingPath, FileMode.Open, FileAccess.Read))
+            {
+                memoryStream.SetLength(stream.Length);
+                await stream.ReadAsync(memoryStream.GetBuffer(), 0, (int)stream.Length);
+            }
+            return memoryStream;
+        }
+
+        private static string EnsureFileExists(string loadPath, string pluginAssemblyName)
         {
             var probingPath = Path.GetFullPath(Path.Combine(loadPath, pluginAssemblyName)).Replace("\\", "/");
             if (!File.Exists(probingPath))
                 throw new FileNotFoundException($"Plugin assembly does not exist in path : {probingPath}");
-
-            var memoryStream = new MemoryStream();
-            using (var stream = new FileStream(probingPath, FileMode.Open, FileAccess.Read))
-                await stream.CopyToAsync(memoryStream);
-
-            memoryStream.Flush();
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            return memoryStream;
+            return probingPath;
         }
 
-        public static byte[] ToByteArray(Stream stream)
+        private static byte[] ToByteArray(Stream stream)
         {
             stream.Position = 0;
             byte[] buffer = new byte[stream.Length];
@@ -88,12 +107,11 @@ namespace Prise.Infrastructure.NetCore
         }
     }
 
-    public class LocalDiskAssemblyLoader<T> : IPluginAssemblyLoader<T>
+    public class LocalDiskAssemblyLoader<T> : DisposableAssemblyUnLoader, IPluginAssemblyLoader<T>
     {
         protected readonly IRootPathProvider rootPathProvider;
         protected readonly ILocalAssemblyLoaderOptions options;
         private readonly LocalDiskAssemblyLoadContext context;
-        protected bool disposed = false;
 
         public LocalDiskAssemblyLoader(IRootPathProvider rootPathProvider, ILocalAssemblyLoaderOptions options)
         {
@@ -102,36 +120,20 @@ namespace Prise.Infrastructure.NetCore
             this.context = new LocalDiskAssemblyLoadContext();
         }
 
-        public async Task<Assembly> Load(string pluginAssemblyName)
+        public Assembly Load(string pluginAssemblyName)
         {
             var rootPluginPath = Path.Join(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
-            var pluginStream = await LocalDiskAssemblyLoadContext.LoadFileFromLocalDisk(rootPluginPath, pluginAssemblyName);
+            var pluginStream = LocalDiskAssemblyLoadContext.LoadFileFromLocalDisk(rootPluginPath, pluginAssemblyName);
             this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
             return this.context.LoadFromStream(pluginStream);
         }
 
-        public async virtual Task Unload()
+        public async Task<Assembly> LoadAsync(string pluginAssemblyName)
         {
-            GC.Collect(); // collects all unused memory
-            GC.WaitForPendingFinalizers(); // wait until GC has finished its work
-            GC.Collect();
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed && disposing)
-            {
-                GC.Collect(); // collects all unused memory
-                GC.WaitForPendingFinalizers(); // wait until GC has finished its work
-                GC.Collect();
-            }
-            this.disposed = true;
+            var rootPluginPath = Path.Join(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
+            var pluginStream = await LocalDiskAssemblyLoadContext.LoadFileFromLocalDiskAsync(rootPluginPath, pluginAssemblyName);
+            this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
+            return this.context.LoadFromStream(pluginStream);
         }
     }
 }
