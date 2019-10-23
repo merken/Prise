@@ -250,7 +250,8 @@ namespace Prise.Infrastructure.NetCore
             this.activator = new NetCoreActivator(this.sharedServicesProvider);
             this.parameterConverter = new NewtonsoftParameterConverter();
             this.resultConverter = new BinaryFormatterResultConverter();
-            this.assemblyLoader = new LocalDiskAssemblyLoader<T>(this.rootPathProvider, new LocalAssemblyLoaderOptions("Plugins"));
+            this.assemblyLoaderType = typeof(LocalDiskAssemblyLoader<T>);
+            this.localAssemblyLoaderOptions =  new LocalAssemblyLoaderOptions("Plugins");
             this.pluginAssemblyNameProvider = new PluginAssemblyNameProvider($"{typeof(T).Name}.dll");
             this.supportMultiplePlugins = false;
 
