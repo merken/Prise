@@ -1,9 +1,11 @@
 ﻿using System;
+using Avalonia.Controls;
 
 namespace Contract
 {
     public interface IAppComponent
     {
-        void Activate(ComponentInput input);
+        string GetName();
+        UserControl Load();
     }
 }

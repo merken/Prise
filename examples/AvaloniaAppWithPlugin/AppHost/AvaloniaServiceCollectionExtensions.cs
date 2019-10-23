@@ -11,6 +11,8 @@ namespace AppHost
             var services = new ServiceCollection();
             configureServices.Invoke(services);
 
+            AppServiceLocator.Configure(services.BuildServiceProvider());
+
             return app;
         }
     }

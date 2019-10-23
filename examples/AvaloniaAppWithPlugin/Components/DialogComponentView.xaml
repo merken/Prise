@@ -1,19 +1,17 @@
 <UserControl
-    x:Class="Component.ConfigurationView"
+    x:Class="Components.DialogComponentView"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:Component;assembly=Component"
+    xmlns:vm="clr-namespace:Components;assembly=Components"
     d:DesignHeight="480"
     d:DesignWidth="640"
     mc:Ignorable="d">
     <UserControl.DataContext>
-        <vm:ComponentViewModel />
+        <!-- <vm:ComponentViewModel /> -->
     </UserControl.DataContext>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+        <TextBlock>DIALOG COMPONENT</TextBlock>
     </Grid>
 </UserControl>
