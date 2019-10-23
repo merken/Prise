@@ -1,7 +1,11 @@
 using System;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
 
 namespace Prise.Infrastructure.NetCore
 {
@@ -12,6 +16,39 @@ namespace Prise.Infrastructure.NetCore
         public object ConvertToLocalType(Type localType, object value)
         {
             return DeserializeFromStream(SerializeToStream(value));
+        }
+
+        public object ConvertToLocalTypeAsync(Type localType, Task task)
+        {
+            var taskResultType=localType.GenericTypeArguments[0];
+            var taskCompletionSource = new TaskCompletionSource(taskResultType);
+
+            task.ContinueWith(t =>
+            {
+                if (t.IsCanceled)
+                {
+                    taskCompletionSource.TrySetCanceled();
+                }
+                else if (t.IsFaulted)
+                {
+                    taskCompletionSource.TrySetException(t.Exception);
+                }
+                else
+                {
+                    var property = t.GetType()
+                                  .GetTypeInfo()
+                                  .GetProperties()
+                                  .FirstOrDefault(p => p.Name == "Result");
+
+                    if (property != null)
+                    {
+                        var value = DeserializeFromStream(SerializeToStream(property.GetValue(task)));
+                        taskCompletionSource.TrySetResult(value);
+                    }
+                }
+            });
+
+            return taskCompletionSource.Task;
         }
 
         public static MemoryStream SerializeToStream(object o)
