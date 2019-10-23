@@ -106,7 +106,6 @@ namespace Prise.Infrastructure.NetCore
             return buffer;
         }
     }
-
     public class LocalDiskAssemblyLoader<T> : DisposableAssemblyUnLoader, IPluginAssemblyLoader<T>
     {
         protected readonly IRootPathProvider rootPathProvider;
