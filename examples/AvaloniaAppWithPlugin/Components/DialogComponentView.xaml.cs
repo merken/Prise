@@ -1,11 +1,11 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace Component
+namespace Components
 {
-    public class ComponentView : UserControl
+    public class DialogComponentView : UserControl
     {
-        public ComponentView()
+        public DialogComponentView()
         {
             InitializeComponent();
         }

@@ -45,10 +45,14 @@ namespace Prise.Infrastructure.NetCore
                 return Assembly.Load(new AssemblyName(candidateAssembly.Name));
             }
 
-            // Check if the dependency exists in the directory of the plugin
-            if (File.Exists(Path.Combine(this.rootPath, Path.Combine(this.pluginPath, $"{assemblyName.Name}.dll"))))
+            if (!assemblyName.Name.ToLower().Contains("avalonia"))
             {
-                return LoadDependencyFromLocalDisk(assemblyName);
+
+                // Check if the dependency exists in the directory of the plugin
+                if (File.Exists(Path.Combine(this.rootPath, Path.Combine(this.pluginPath, $"{assemblyName.Name}.dll"))))
+                {
+                    return LoadDependencyFromLocalDisk(assemblyName);
+                }
             }
 
             // Default, just load the assembly as if it were in this AppDomain
