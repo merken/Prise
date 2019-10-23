@@ -27,11 +27,16 @@ namespace HelloWorldPlugin
 
         private async Task<Dictionary<string, string>> GetDictionary()
         {
-            using (var stream = new StreamReader("Plugins\\Dictionary.json"))
+            using (var stream = new StreamReader($"{GetLocalExecutionPath()}\\Plugins\\Dictionary.json"))
             {
                 var json = await stream.ReadToEndAsync();
                 return JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
             }
+        }
+
+        private string GetLocalExecutionPath()
+        {
+            return AppDomain.CurrentDomain.BaseDirectory;
         }
     }
 }
