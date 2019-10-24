@@ -1,5 +1,6 @@
 using System.Linq;
 using Microsoft.AspNetCore.Http;
+using Prise.Infrastructure;
 using Prise.Infrastructure.NetCore.Contracts;
 
 namespace PluginServer.Custom
@@ -20,5 +21,7 @@ namespace PluginServer.Custom
                 return pluginType;
             }
         }
+
+        public DependencyLoadPreference DependencyLoadPreference => DependencyLoadPreference.PreferDependencyContext;
     }
 }

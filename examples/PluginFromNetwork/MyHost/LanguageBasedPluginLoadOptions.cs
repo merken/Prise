@@ -1,6 +1,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Prise.Infrastructure;
 using Prise.Infrastructure.NetCore.Contracts;
 
 namespace MyHost
@@ -40,5 +41,7 @@ namespace MyHost
                 return $"{configuration["PluginServerUrl"]}/{plugin}";
             }
         }
+
+        public DependencyLoadPreference DependencyLoadPreference => DependencyLoadPreference.PreferDependencyContext;
     }
 }
