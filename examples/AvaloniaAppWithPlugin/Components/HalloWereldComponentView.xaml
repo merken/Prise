@@ -1,5 +1,5 @@
 <UserControl
-    x:Class="Components.DialogComponentView"
+    x:Class="Components.HalloWereldComponentView"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -8,10 +8,8 @@
     d:DesignHeight="480"
     d:DesignWidth="640"
     mc:Ignorable="d">
-    <UserControl.DataContext>
-        <!-- <vm:ComponentViewModel /> -->
-    </UserControl.DataContext>
     <Grid>
-        <TextBlock>DIALOG COMPONENT</TextBlock>
+        <TextBlock>Hallo Wereld Component</TextBlock>
+        <Image Source="Assets/hallo.png" />
     </Grid>
 </UserControl>

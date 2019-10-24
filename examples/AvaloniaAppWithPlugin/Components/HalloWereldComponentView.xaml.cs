@@ -3,9 +3,9 @@ using Avalonia.Markup.Xaml;
 
 namespace Components
 {
-    public class DialogComponentView : UserControl
+    public class HalloWereldComponentView : UserControl
     {
-        public DialogComponentView()
+        public HalloWereldComponentView()
         {
             InitializeComponent();
         }
