@@ -15,20 +15,19 @@ namespace Prise.Infrastructure.NetCore
         {
             try
             {
+                var localType = callingMethod.ReturnType;
                 var targetMethod = FindMethodOnRemoteObject(callingMethod, remoteObject);
                 if (targetMethod == null)
                     throw new NotSupportedException($"Target method {callingMethod.Name} is not found on Plugin Type {remoteObject.GetType().Name}.");
 
                 var result = targetMethod.Invoke(remoteObject, SerializeParameters(targetMethod, args));
 
-
                 var remoteType = targetMethod.ReturnType;
-
                 if (remoteType.BaseType == typeof(System.Threading.Tasks.Task))
                 {
-                    return this.resultConverter.ConvertToLocalTypeAsync(remoteType, result as System.Threading.Tasks.Task);
+                    return this.resultConverter.ConvertToLocalTypeAsync(localType, remoteType, result as System.Threading.Tasks.Task);
                 }
-                return this.resultConverter.ConvertToLocalType(remoteType, result);
+                return this.resultConverter.ConvertToLocalType(localType, remoteType, result);
             }
             catch (Exception ex) when (ex is TargetInvocationException)
             {

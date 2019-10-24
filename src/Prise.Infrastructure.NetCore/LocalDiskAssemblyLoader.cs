@@ -10,11 +10,14 @@ using Prise.Infrastructure.NetCore.Contracts;
 
 namespace Prise.Infrastructure.NetCore
 {
+
+
     internal class LocalDiskAssemblyLoadContext : AssemblyLoadContext
     {
         protected readonly AssemblyName pluginInfrastructureAssemblyName;
         protected string rootPath;
         protected string pluginPath;
+        protected DependencyLoadPreference dependencyLoadPreference;
         protected bool isConfigured;
 
         public LocalDiskAssemblyLoadContext()
@@ -22,15 +25,25 @@ namespace Prise.Infrastructure.NetCore
             this.pluginInfrastructureAssemblyName = typeof(PluginAttribute).Assembly.GetName();
         }
 
-        internal void Configure(string rootPath, string pluginPath)
+        internal void Configure(string rootPath, string pluginPath, DependencyLoadPreference dependencyLoadPreference)
         {
             if (this.isConfigured)
-                throw new NotSupportedException($"This LocalDiskAssemblyLoadContext is already configured for {this.rootPath} {this.pluginPath}. Could not configure for {rootPath} {pluginPath}");
+                return;
 
             this.rootPath = rootPath;
             this.pluginPath = pluginPath;
+            this.dependencyLoadPreference = dependencyLoadPreference;
 
             this.isConfigured = true;
+        }
+
+        private Assembly LoadFromRemote(AssemblyName assemblyName)
+        {
+            if (File.Exists(Path.Combine(this.rootPath, Path.Combine(this.pluginPath, $"{assemblyName.Name}.dll"))))
+            {
+                return LoadDependencyFromLocalDisk(assemblyName);
+            }
+            return null;
         }
 
         protected override Assembly Load(AssemblyName assemblyName)
@@ -38,25 +51,8 @@ namespace Prise.Infrastructure.NetCore
             if (assemblyName.FullName == this.pluginInfrastructureAssemblyName.FullName)
                 return null;
 
-            var defaultDependencies = DependencyContext.Default;
-            var candidateAssembly = defaultDependencies.CompileLibraries.FirstOrDefault(d => String.Compare(d.Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase) == 0);
-            if (candidateAssembly != null)
-            {
-                return Assembly.Load(new AssemblyName(candidateAssembly.Name));
-            }
-
-            if (!assemblyName.Name.ToLower().Contains("avalonia"))
-            {
-
-                // Check if the dependency exists in the directory of the plugin
-                if (File.Exists(Path.Combine(this.rootPath, Path.Combine(this.pluginPath, $"{assemblyName.Name}.dll"))))
-                {
-                    return LoadDependencyFromLocalDisk(assemblyName);
-                }
-            }
-
-            // Default, just load the assembly as if it were in this AppDomain
-            return Assembly.Load(assemblyName);
+            return AssemblyLoadStrategyFactory
+                .GetAssemblyLoadStrategy(this.dependencyLoadPreference).LoadAssembly(assemblyName, LoadFromRemote);
         }
 
         protected virtual Assembly LoadDependencyFromLocalDisk(AssemblyName assemblyName)
@@ -127,7 +123,7 @@ namespace Prise.Infrastructure.NetCore
         {
             var rootPluginPath = Path.Join(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
             var pluginStream = LocalDiskAssemblyLoadContext.LoadFileFromLocalDisk(rootPluginPath, pluginAssemblyName);
-            this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
+            this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath, this.options.DependencyLoadPreference);
             return this.context.LoadFromStream(pluginStream);
         }
 
@@ -135,7 +131,7 @@ namespace Prise.Infrastructure.NetCore
         {
             var rootPluginPath = Path.Join(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
             var pluginStream = await LocalDiskAssemblyLoadContext.LoadFileFromLocalDiskAsync(rootPluginPath, pluginAssemblyName);
-            this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
+            this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath, this.options.DependencyLoadPreference);
             return this.context.LoadFromStream(pluginStream);
         }
     }

@@ -183,9 +183,9 @@ namespace Prise.Infrastructure.NetCore
             return this;
         }
 
-        public PluginLoadOptionsBuilder<T> WithLocalDiskAssemblyLoader(string pluginPath)
+        public PluginLoadOptionsBuilder<T> WithLocalDiskAssemblyLoader(string pluginPath, DependencyLoadPreference dependencyLoadPreference = DependencyLoadPreference.PreferRemote)
         {
-            this.localAssemblyLoaderOptions = new LocalAssemblyLoaderOptions(pluginPath);
+            this.localAssemblyLoaderOptions = new LocalAssemblyLoaderOptions(pluginPath, dependencyLoadPreference);
             return this.WithAssemblyLoader<LocalDiskAssemblyLoader<T>>();
         }
 
@@ -251,7 +251,7 @@ namespace Prise.Infrastructure.NetCore
             this.parameterConverter = new NewtonsoftParameterConverter();
             this.resultConverter = new BinaryFormatterResultConverter();
             this.assemblyLoaderType = typeof(LocalDiskAssemblyLoader<T>);
-            this.localAssemblyLoaderOptions =  new LocalAssemblyLoaderOptions("Plugins");
+            this.localAssemblyLoaderOptions = new LocalAssemblyLoaderOptions("Plugins");
             this.pluginAssemblyNameProvider = new PluginAssemblyNameProvider($"{typeof(T).Name}.dll");
             this.supportMultiplePlugins = false;
 
