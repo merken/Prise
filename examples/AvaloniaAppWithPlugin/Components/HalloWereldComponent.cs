@@ -5,18 +5,16 @@ using Avalonia.Controls;
 namespace Components
 {
     [Plugin(PluginType=typeof(IAppComponent))]
-    public class DialogComponent : IAppComponent
+    public class HalloWereldComponent : IAppComponent
     {
         public UserControl Load()
         {
-            return new DialogComponentView();
+            return new HalloWereldComponentView();
         }
 
         public string GetName()
         {
-            return nameof(DialogComponent);
+            return nameof(HalloWereldComponent);
         }
-
-        // TODO Shared services
     }
 }

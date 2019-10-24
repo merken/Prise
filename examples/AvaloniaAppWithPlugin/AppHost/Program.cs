@@ -8,6 +8,8 @@ using Contract;
 using Prise.Infrastructure.NetCore;
 using System;
 using System.IO;
+using Prise.Infrastructure;
+using AppHost.Infrastructure;
 
 namespace AppHost
 {
@@ -31,6 +33,8 @@ namespace AppHost
             services.AddPrise<IAppComponent>(options =>
                options
                    .WithPluginAssemblyName("Components.dll")
+                   .WithLocalDiskAssemblyLoader("Plugins", DependencyLoadPreference.PreferAppDomain)
+                   .WithResultConverter<AvaloniaPluginResultConverter>()
                    .WithRootPath(GetRootPath())
            );
         }

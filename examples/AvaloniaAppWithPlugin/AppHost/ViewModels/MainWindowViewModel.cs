@@ -10,8 +10,8 @@ namespace AppHost.ViewModels
 {
     public class MainWindowViewModel : Shared.ViewModelBase
     {
-        public ICommand LoadAllComponentsCommand { get; set; }
-        public ICommand LoadComponentCommand { get; set; }
+        public RelayCommand<object> LoadAllComponentsCommand { get; set; }
+        public RelayCommand<object> LoadComponentCommand { get; set; }
         public List<string> Components { get; set; }
         public UserControl CurrentControl { get; set; }
 
@@ -27,6 +27,7 @@ namespace AppHost.ViewModels
         {
             var pluginLoader = AppServiceLocator.GetService<IPluginLoader<IAppComponent>>();
             var plugins = await pluginLoader.LoadAll();
+            components = new Dictionary<string, IAppComponent>();
             foreach (var plugin in plugins)
             {
                 components.Add(plugin.GetName(), plugin);
