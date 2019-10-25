@@ -1,4 +1,4 @@
-using Domain;
+using DomainForPluginC;
 
 namespace PluginC.Calculations
 {

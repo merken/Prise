@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using PluginContract;
+using Contract;
 using Prise.Infrastructure;
 
 namespace PluginB

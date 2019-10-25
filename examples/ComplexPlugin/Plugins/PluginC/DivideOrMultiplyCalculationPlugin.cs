@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Domain;
+using DomainForPluginC;
 using PluginC.Calculations;
-using PluginContract;
+using Contract;
 using Prise.Infrastructure;
 
 namespace PluginC
