@@ -17,12 +17,14 @@ namespace PluginC
             services.AddScoped<IDiscountService, DiscountService>();
 
             // Randomly choose what service to use
-            var random = new Random();
-            if (random.Next() % 2 == 0)
-                services.AddScoped<ICanCalculate, DivideCalculation>();
-            else
-                services.AddScoped<ICanCalculate, MultiplyCalculation>();
+            // var random = new Random();
+            // if (random.Next() % 2 == 0)
+            //     services.AddScoped<ICanCalculate, DivideCalculation>();
+            // else
+            //     services.AddScoped<ICanCalculate, MultiplyCalculation>();
 
+            services.AddScoped<ICanCalculate, MultiplyCalculation>();
+            
             return services;
         }
     }
