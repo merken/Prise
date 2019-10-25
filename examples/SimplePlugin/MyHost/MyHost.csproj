@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Prise" Version="1.0.3" />
+    <PackageReference Include="Prise" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>

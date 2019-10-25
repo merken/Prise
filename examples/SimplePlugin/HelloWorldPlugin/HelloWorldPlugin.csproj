@@ -9,6 +9,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Prise.Infrastructure" Version="1.0.0" />
+    <PackageReference Include="Prise.Infrastructure" Version="1.2.0" />
   </ItemGroup>
 </Project>
