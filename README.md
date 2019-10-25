@@ -8,6 +8,12 @@ Prise features:
 - Eager and Lazy loading of plugins
 - Loading plugins with their own dependency injection container
 
+## Latest version
+[Prise](https://www.nuget.org/packages/Prise) ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise)
+
+[Prise.Infrastructure](https://www.nuget.org/packages/Prise.Infrastructure) ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.Infrastructure)
+
+
 # How does Prise work ?
 At the heart, Prise connects the host with a plugin by using a DispatchProxy, all method calls are channeled through to the loaded plugin.
 Prise does not require the plugin to implement the interface provided by the contract, allowing you to extend the contract going forward, whilst still keeping your old plugins backwards compatible.
