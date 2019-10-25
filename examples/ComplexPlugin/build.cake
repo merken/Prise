@@ -72,8 +72,11 @@ Task("publish")
     });
 
     CopyDirectory("publish/PluginA", "AppHost/bin/debug/netcoreapp3.0/Plugins/PluginA");
+    CopyDirectory("publish/PluginA", "Tests/bin/debug/netcoreapp3.0/Plugins/PluginA");
     CopyDirectory("publish/PluginB", "AppHost/bin/debug/netcoreapp3.0/Plugins/PluginB");
+    CopyDirectory("publish/PluginB", "Tests/bin/debug/netcoreapp3.0/Plugins/PluginB");
     CopyDirectory("publish/PluginC", "AppHost/bin/debug/netcoreapp3.0/Plugins/PluginC");
+    CopyDirectory("publish/PluginC", "Tests/bin/debug/netcoreapp3.0/Plugins/PluginC");
   });
 
 Task("default")
