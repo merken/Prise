@@ -71,9 +71,9 @@ Task("publish")
         OutputDirectory = "publish/PluginC"
     });
 
-    CopyDirectory("publish/PluginA", "PluginServer/bin/debug/netcoreapp3.0/Plugins/PluginA");
-    CopyDirectory("publish/PluginB", "PluginServer/bin/debug/netcoreapp3.0/Plugins/PluginB");
-    CopyDirectory("publish/PluginC", "PluginServer/bin/debug/netcoreapp3.0/Plugins/PluginC");
+    CopyDirectory("publish/PluginA", "AppHost/bin/debug/netcoreapp3.0/Plugins/PluginA");
+    CopyDirectory("publish/PluginB", "AppHost/bin/debug/netcoreapp3.0/Plugins/PluginB");
+    CopyDirectory("publish/PluginC", "AppHost/bin/debug/netcoreapp3.0/Plugins/PluginC");
   });
 
 Task("default")

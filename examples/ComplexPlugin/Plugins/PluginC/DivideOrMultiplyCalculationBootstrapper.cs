@@ -1,5 +1,5 @@
 using System;
-using Domain;
+using DomainForPluginC;
 using Microsoft.Extensions.DependencyInjection;
 using PluginC.Calculations;
 using Prise.Infrastructure;

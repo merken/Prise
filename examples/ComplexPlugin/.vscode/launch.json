@@ -9,9 +9,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/PluginServer/bin/Debug/netcoreapp3.0/PluginServer.dll",
+            "program": "${workspaceFolder}/AppHost/bin/Debug/netcoreapp3.0/AppHost.dll",
             "args": ["uselazyservice=true"],
-            "cwd": "${workspaceFolder}/PluginServer",
+            "cwd": "${workspaceFolder}/AppHost",
             "stopAtEntry": false,
             "serverReadyAction": {
                 "action": "openExternally",

@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\PluginContract\PluginContract.csproj" />
-    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\..\Contract\Contract.csproj" />
+    <ProjectReference Include="..\..\DomainForPluginC\DomainForPluginC.csproj" />
     <ProjectReference Include="..\..\..\..\src\Prise.Infrastructure\Prise.Infrastructure.csproj" />
   </ItemGroup>
 
