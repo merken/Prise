@@ -4,8 +4,11 @@ This directory contains the most complex example of loading a plugin.
 The AppHost is an ASP.NET Core 3 application that exposes various endpoints.
 Every call to the API needs to have a **PluginType** HTTP Header with one of the following values: PluginA, PluginB or PluginC.
 Each plugin has its own special characteristics. 
+
 PluginA is the most simple one
+
 PluginB has broken the contract.
+
 PluginC is dependend on a third party assembly.
 
 ### TOO LONG DID NOT READ
