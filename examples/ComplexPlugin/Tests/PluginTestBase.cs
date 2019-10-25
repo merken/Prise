@@ -19,5 +19,15 @@ namespace Tests
             var responseContent = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<T>(responseContent);
         }
+
+        protected async Task<string> GetRaw(HttpClient client, string pluginType, string endpoint)
+        {
+            client.DefaultRequestHeaders.Add("PluginType", pluginType);
+            var response = await client.GetAsync(endpoint);
+            if (!response.IsSuccessStatusCode)
+                throw new Exception("Result was not success!");
+
+            return await response.Content.ReadAsStringAsync();
+        }
     }
 }
