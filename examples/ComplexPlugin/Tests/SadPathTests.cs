@@ -38,17 +38,10 @@ namespace Tests
         }
 
         [Fact]
-        public async Task Disco_Works()
+        public async Task PluginA_Description_Does_Not_Work()
         {
-            // Arrange
-            var payload = new CalculationRequestModel
-            {
-                A = 100,
-                B = 150
-            };
-
-            //Act
-            await Assert.ThrowsAsync<System.IO.FileNotFoundException>(async () => await Post<CalculationResponseModel>(_client, "PluginD", "/eager", payload));
+            // Arrange, Act
+            await Assert.ThrowsAsync<NotSupportedException>(async () => await GetRaw(_client, "PluginB", "/disco/description"));
         }
     }
 }
