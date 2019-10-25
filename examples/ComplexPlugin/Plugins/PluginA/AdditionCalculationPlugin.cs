@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using PluginContract;
 using Prise.Infrastructure;
@@ -8,7 +7,7 @@ namespace PluginA
 {
     /// <summary>
     /// This plugin does not require any 3rd party dependencies or dependency injection, 
-    /// as long as a default parameterless constructor is present (implicitly or explicitly) this plugin will get loaded.
+    ///     as long as a default parameterless constructor is present (implicitly or explicitly), this plugin will get loaded.
     /// </summary>
     [Plugin(PluginType = typeof(ICalculationPlugin))]
     public class AdditionCalculationPlugin : ICalculationPlugin

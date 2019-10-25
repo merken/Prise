@@ -17,7 +17,7 @@ namespace Prise.Infrastructure
             this.assemblyName = assemblyName;
         }
 
-        public string GetAssemblyName() => this.assemblyName;
+        public virtual string GetAssemblyName() => this.assemblyName;
 
         protected virtual void Dispose(bool disposing)
         {

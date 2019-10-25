@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using PluginServer.Models;
-using Prise.Infrastructure;
-using PluginContract;
 using PluginServer.Services;
 
 namespace PluginServer.Controllers
@@ -17,12 +12,14 @@ namespace PluginServer.Controllers
     public class ServiceCalculationController : ControllerBase
     {
         private readonly ILogger<ServiceCalculationController> _logger;
+
+        // Since the IPluginLoader is available through the DI container of .NET Core, a service can have it injectected, too!
         private readonly ICalculationService _service;
 
         public ServiceCalculationController(ILogger<ServiceCalculationController> logger, ICalculationService service)
         {
             _logger = logger;
-            this._service = service;
+            _service = service;
         }
 
         [HttpPost]

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using PluginServer.Models;
-using Prise.Infrastructure;
 using PluginContract;
 
 namespace PluginServer.Controllers
@@ -47,7 +43,7 @@ namespace PluginServer.Controllers
         [HttpPost("complex-input")]
         public CalculationResponseModel CalculateComplex(CalculationRequestModel requestModel)
         {
-            // Complex objects are serialized across Application Domains
+            // Complex parameters are serialized across Application Domains using Newtonsoft JSON
             var context = new CalculationContext
             {
                 A = requestModel.A,
@@ -67,7 +63,7 @@ namespace PluginServer.Controllers
                 A = requestModel.A,
                 B = requestModel.B
             };
-            // Complex results are dezerialized using Newtonsoft JSON (by default)
+            // Complex results are dezerialized using XML Deserialization (by default)
             return new CalculationResponseModel
             {
                 Result = _plugin.CalculateComplexResult(context).Result

@@ -2,7 +2,7 @@ var target = Argument("target", "default");
 var configuration = Argument("configuration", "Release");
 
 private void CleanProject(string projectDirectory){
-    var projectFile = $"{projectDirectory}\\{projectDirectory}.csproj";
+    var projectFile = $"{projectDirectory}";
     var bin = $"{projectDirectory}\\bin";
     var obj = $"{projectDirectory}\\obj";
 
@@ -28,9 +28,9 @@ private void CleanProject(string projectDirectory){
 
 Task("clean").Does( () =>
 { 
-  CleanProject("PluginA");
-  CleanProject("PluginB");
-  CleanProject("PluginC");
+  CleanProject("Plugins\\PluginA");
+  CleanProject("Plugins\\PluginB");
+  CleanProject("Plugins\\PluginC");
 });
 
 Task("build")
@@ -42,41 +42,38 @@ Task("build")
         Configuration = configuration
     };
 
-    DotNetCoreBuild("PluginA\\PluginA.csproj", settings);
-    DotNetCoreBuild("PluginB\\PluginB.csproj", settings);
-    DotNetCoreBuild("PluginC\\PluginC.csproj", settings);
+    DotNetCoreBuild("Plugins\\PluginA\\PluginA.csproj", settings);
+    DotNetCoreBuild("Plugins\\PluginB\\PluginB.csproj", settings);
+    DotNetCoreBuild("Plugins\\PluginC\\PluginC.csproj", settings);
 });
 
 Task("publish")
   .IsDependentOn("build")
   .Does(() =>
   { 
-    DotNetCorePublish("PluginA\\PluginA.csproj", new DotNetCorePublishSettings
+    DotNetCorePublish("Plugins\\PluginA\\PluginA.csproj", new DotNetCorePublishSettings
     {
         NoBuild = true,
         Configuration = configuration,
         OutputDirectory = "publish/PluginA"
     });
 
-    DotNetCorePublish("PluginB\\PluginB.csproj", new DotNetCorePublishSettings
+    DotNetCorePublish("Plugins\\PluginB\\PluginB.csproj", new DotNetCorePublishSettings
     {
         NoBuild = true,
         Configuration = configuration,
         OutputDirectory = "publish/PluginB"
     });
-    DotNetCorePublish("PluginC\\PluginC.csproj", new DotNetCorePublishSettings
+    DotNetCorePublish("Plugins\\PluginC\\PluginC.csproj", new DotNetCorePublishSettings
     {
         NoBuild = true,
         Configuration = configuration,
         OutputDirectory = "publish/PluginC"
     });
 
-    CopyDirectory("publish/PluginA", "../PluginApp/Plugins/PluginA");
-    CopyDirectory("publish/PluginA", "../PluginServer/Plugins/PluginA");
-    CopyDirectory("publish/PluginB", "../PluginApp/Plugins/PluginB");
-    CopyDirectory("publish/PluginB", "../PluginServer/Plugins/PluginB");
-    CopyDirectory("publish/PluginC", "../PluginApp/Plugins/PluginC");
-    CopyDirectory("publish/PluginC", "../PluginServer/Plugins/PluginC");
+    CopyDirectory("publish/PluginA", "PluginServer/bin/debug/netcoreapp3.0/Plugins/PluginA");
+    CopyDirectory("publish/PluginB", "PluginServer/bin/debug/netcoreapp3.0/Plugins/PluginB");
+    CopyDirectory("publish/PluginC", "PluginServer/bin/debug/netcoreapp3.0/Plugins/PluginC");
   });
 
 Task("default")

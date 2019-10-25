@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/PluginServer/bin/Debug/netcoreapp3.0/PluginServer.dll",
-            "args": [],
+            "args": ["uselazyservice=true"],
             "cwd": "${workspaceFolder}/PluginServer",
             "stopAtEntry": false,
             "serverReadyAction": {

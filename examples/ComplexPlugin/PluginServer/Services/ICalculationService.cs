@@ -19,6 +19,7 @@ namespace PluginServer.Services
     {
         private readonly ICalculationPlugin _plugin;
 
+        // An instance of the plugin is injected in this service
         public EagerCalculationService(ICalculationPlugin plugin)
         {
             this._plugin = plugin;
@@ -44,7 +45,7 @@ namespace PluginServer.Services
 
         public Task<CalculationResponseModel> CalculateComplex(CalculationRequestModel requestModel)
         {
-            // Complex objects are serialized across Application Domains
+            // Complex parameters are serialized across Application Domains using Newtonsoft JSON
             var context = new CalculationContext
             {
                 A = requestModel.A,
@@ -63,7 +64,7 @@ namespace PluginServer.Services
                 A = requestModel.A,
                 B = requestModel.B
             };
-            // Complex results are dezerialized using Newtonsoft JSON (by default)
+            // Complex results are dezerialized using XML Deserialization (by default)
             return Task.FromResult(new CalculationResponseModel
             {
                 Result = _plugin.CalculateComplexResult(context).Result
@@ -117,7 +118,7 @@ namespace PluginServer.Services
         public async Task<CalculationResponseModel> CalculateComplex(CalculationRequestModel requestModel)
         {
             var _plugin = await loader.Load();
-            // Complex objects are serialized across Application Domains
+            // Complex parameters are serialized across Application Domains using Newtonsoft JSON
             var context = new CalculationContext
             {
                 A = requestModel.A,
@@ -137,7 +138,7 @@ namespace PluginServer.Services
                 A = requestModel.A,
                 B = requestModel.B
             };
-            // Complex results are dezerialized using Newtonsoft JSON (by default)
+            // Complex results are dezerialized using XML Deserialization (by default)
             return new CalculationResponseModel
             {
                 Result = _plugin.CalculateComplexResult(context).Result

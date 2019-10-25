@@ -2,8 +2,7 @@ using System;
 
 namespace PluginContract
 {
-    // This object is deserialized using the Binary Result Converter by default
-    // It must be serializable
+    // Plugin result types ARE required to be serializable
     [Serializable]
     public class CalculationResult
     {

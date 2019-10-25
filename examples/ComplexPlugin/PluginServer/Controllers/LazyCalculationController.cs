@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -25,11 +22,12 @@ namespace PluginServer.Controllers
         }
 
         [HttpPost]
-        public  async Task<CalculationResponseModel> Calculate(CalculationRequestModel requestModel)
+        public async Task<CalculationResponseModel> Calculate(CalculationRequestModel requestModel)
         {
             // Load the plugin on-demand
             var plugin = await _loader.Load();
-            return new CalculationResponseModel{
+            return new CalculationResponseModel
+            {
                 Result = plugin.Calculate(requestModel.A, requestModel.B)
             };
         }
@@ -37,7 +35,7 @@ namespace PluginServer.Controllers
         [HttpPost("multi")]
         public CalculationResponseModel CalculateMultiple(CalculationRequestMultiModel requestModel)
         {
-            
+
             return null;
         }
     }

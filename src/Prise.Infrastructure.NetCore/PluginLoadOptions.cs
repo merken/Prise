@@ -285,12 +285,7 @@ namespace Prise.Infrastructure.NetCore
             return services.AddScoped<IPluginLoadOptions<T>, PluginLoadOptions<T>>();
         }
 
-        private string GetLocalExecutionPath()
-        {
-            var localExecutionPath = Assembly.GetExecutingAssembly().Location;
-            var paths = localExecutionPath.Split("\\");
-            return String.Join("\\", paths, 0, paths.Length - 1);
-        }
+        private string GetLocalExecutionPath() => AppDomain.CurrentDomain.BaseDirectory;
     }
 
     internal static class PluginLoadOptionsBuilderExtensions
