@@ -29,12 +29,20 @@ Copy the plugin's published files into this folder.
 
 When the controller is consumed, the plugin will be loaded on demand and executed.
 
-##Check the example projects!
+# Check out the example projects!
 
-Getting started example: https://github.com/merken/Prise/tree/master/examples/SimplePlugin
+## Getting started example: https://github.com/merken/Prise/tree/master/examples/SimplePlugin
 
-Example using all possible features of Prise: https://github.com/merken/Prise/tree/master/examples/ComplexPlugin
+## Example using all possible features of Prise: https://github.com/merken/Prise/tree/master/examples/ComplexPlugin
 
-Example for loading Plugins over the network : https://github.com/merken/Prise/tree/master/examples/PluginFromNetwork
+## Example of loading Plugins over the network : https://github.com/merken/Prise/tree/master/examples/PluginFromNetwork
 
-Example for loading Plugins with dependencies : https://github.com/merken/Prise/tree/master/examples/PluginWithDependencies
+## Example of loading Plugins with dependencies : https://github.com/merken/Prise/tree/master/examples/PluginWithDependencies
+
+## Example of an Avalonia App using UserControls as Plugins : https://github.com/merken/Prise/tree/master/examples/AvaloniaAppWithPlugin
+
+## Example of an Azure Function loading Plugins : https://github.com/merken/Prise/tree/master/examples/AzureFunctionWithPlugin
+
+## Example of loading a Plugin with an Async Contract : https://github.com/merken/Prise/tree/master/examples/PluginWithAsyncContract
+
+## Example of Shared dependencies between the Host and the Plugin : https://github.com/merken/Prise/tree/master/examples/PluginWithSharedDependencies
