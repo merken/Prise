@@ -6,8 +6,9 @@ using Prise.Infrastructure;
 namespace PluginA
 {
     /// <summary>
-    /// This plugin can only be loaded using the SupportMultiplePlugins option.
-    /// Plugins are loaded using an alphabetical order. The SinglePluginLoader will not return this instance.
+    /// By default, only the first plugin is loaded, the first in alphabethical order
+    /// In order to execute the ZAdditionPlusOneCalculationPlugin, you need to have an IEnumerable<ICalculationPlugin> injected
+    ///     or inject a IPluginLoader<ICalculationPlugin> and call the .LoadAll() method.
     /// </summary>
     [Plugin(PluginType = typeof(ICalculationPlugin))]
     public class ZAdditionPlusOneCalculationPlugin : ICalculationPlugin

@@ -1,24 +1,17 @@
-using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.StaticFiles;
 
 using Prise.Infrastructure.NetCore;
 using PluginContract;
-using Prise.Infrastructure.NetCore.Contracts;
 using PluginServer.Services;
 using PluginServer.Custom;
+using System;
 
 namespace PluginServer
 {
@@ -40,36 +33,32 @@ namespace PluginServer
             services.AddDirectoryBrowser();
             services.AddHttpContextAccessor();
 
-            // Uncomment either one of these service registrations
-            // services.AddScoped<ICalculationService, EagerCalculationService>();
-            services.AddScoped<ICalculationService, LazyCalculationService>();
+            var cla = services.BuildServiceProvider().GetRequiredService<ICommandLineArguments>();
 
-            // AddPriseWithDefaultOptions(services);
-            AddPriseWithCustomerPluginLoading(services);
+            if (cla.UseLazyService)
+            {
+                services.AddScoped<ICalculationService, LazyCalculationService>();
+            }
+            else
+            {
+                services.AddScoped<ICalculationService, EagerCalculationService>();
+            }
+
+            AddPriseWithContextBasedPluginLoading(services);
         }
 
-        private IServiceCollection AddPriseWithDefaultOptions(IServiceCollection services)
-        {
-            // This will look for 1 plugin in the Plugins directory
-            return services.AddPrise<ICalculationPlugin>(options =>
-                options
-                    .WithDefaultOptions($"{Env.ContentRootPath}\\PluginServer")
-                    .WithPluginAssemblyName("PluginA.dll")
-            // uncomment line below to add the support to load multiple plugins from the assembly
-            //.SupportMultiplePlugins()
-            );
-        }
-
-        private IServiceCollection AddPriseWithCustomerPluginLoading(IServiceCollection services)
+        private IServiceCollection AddPriseWithContextBasedPluginLoading(IServiceCollection services)
         {
             // This will look for a custom plugin based on the context
             return services.AddPrise<ICalculationPlugin>(options =>
                  options
-                     .WithDefaultOptions($"{Env.ContentRootPath}\\Plugins")
+                     .WithDefaultOptions(Path.Combine(GetExecutionDirectory(), "Plugins"))
                      .WithPluginAssemblyNameProvider<ContextPluginAssemblyNameProvider>()
                      .WithLocalDiskAssemblyLoader<ContextPluginAssemblyLoadOptions>()
              );
         }
+
+        private string GetExecutionDirectory() => AppDomain.CurrentDomain.BaseDirectory;
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -84,25 +73,6 @@ namespace PluginServer
             app.UseRouting();
 
             app.UseAuthorization();
-
-            var provider = new FileExtensionContentTypeProvider();
-            // allow DLL downloads
-            provider.Mappings[".dll"] = "application/x-msdownload";
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                ServeUnknownFileTypes = true,
-                FileProvider = new PhysicalFileProvider(
-                    Path.Combine(Directory.GetCurrentDirectory(), "Plugins")),
-                RequestPath = "/Plugins",
-                ContentTypeProvider = provider
-            });
-
-            app.UseDirectoryBrowser(new DirectoryBrowserOptions
-            {
-                FileProvider = new PhysicalFileProvider(
-                    Path.Combine(Directory.GetCurrentDirectory(), "Plugins")),
-                RequestPath = "/Plugins"
-            });
 
             app.UseEndpoints(endpoints =>
             {

@@ -3,5 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
+  
+  <!-- No third party dependency required in the Contract! -->
 
 </Project>
