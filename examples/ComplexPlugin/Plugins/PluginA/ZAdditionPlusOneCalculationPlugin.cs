@@ -13,6 +13,8 @@ namespace PluginA
     [Plugin(PluginType = typeof(ICalculationPlugin))]
     public class ZAdditionPlusOneCalculationPlugin : ICalculationPlugin
     {
+        public string Name => nameof(ZAdditionPlusOneCalculationPlugin);
+        public string Description => "This plugin performs addition +1";
         public int Calculate(int a, int b)
         {
             return a + b + 1;

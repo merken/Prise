@@ -12,6 +12,8 @@ namespace PluginA
     [Plugin(PluginType = typeof(ICalculationPlugin))]
     public class AdditionCalculationPlugin : ICalculationPlugin
     {
+        public string Name => nameof(AdditionCalculationPlugin);
+        public string Description => "This plugin performs addition";
         public int Calculate(int a, int b)
         {
             return a + b;
