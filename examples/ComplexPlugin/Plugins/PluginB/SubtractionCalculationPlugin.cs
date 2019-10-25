@@ -12,6 +12,12 @@ namespace PluginB
     [Plugin(PluginType = typeof(ICalculationPlugin))]
     public class SubtractionCalculationPlugin
     {
+        public string Name => nameof(SubtractionCalculationPlugin);
+
+        // Property Description will not be implemented in this plugin, all other methods can still be called
+        // public string Description => "This plugin performs subtraction";
+        // However, you could expose it this way:
+        // public string get_Description() => "This plugin performs subtraction";
         public int Calculate(int a, int b)
         {
             return a - b;

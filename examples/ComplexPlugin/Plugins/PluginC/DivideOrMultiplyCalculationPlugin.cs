@@ -13,6 +13,9 @@ namespace PluginC
     [Plugin(PluginType = typeof(ICalculationPlugin))]
     public class DivideOrMultiplyCalculationPlugin : ICalculationPlugin
     {
+        public string Name => nameof(DivideOrMultiplyCalculationPlugin);
+
+        public string Description => $"This plugin performs division OR multiplication, check out {nameof(DivideOrMultiplyCalculationBootstrapper)} for more details";
         private readonly ICanCalculate calculation;
 
         internal DivideOrMultiplyCalculationPlugin(ICanCalculate calculation)

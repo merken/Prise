@@ -36,5 +36,19 @@ namespace Tests
             //Act
             await Assert.ThrowsAsync<System.IO.FileNotFoundException>(async () => await Post<CalculationResponseModel>(_client, "PluginD", "/eager", payload));
         }
+
+        [Fact]
+        public async Task Disco_Works()
+        {
+            // Arrange
+            var payload = new CalculationRequestModel
+            {
+                A = 100,
+                B = 150
+            };
+
+            //Act
+            await Assert.ThrowsAsync<System.IO.FileNotFoundException>(async () => await Post<CalculationResponseModel>(_client, "PluginD", "/eager", payload));
+        }
     }
 }
