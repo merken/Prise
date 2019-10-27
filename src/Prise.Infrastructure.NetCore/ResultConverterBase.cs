@@ -16,7 +16,7 @@ namespace Prise.Infrastructure.NetCore
 
         public object ConvertToLocalTypeAsync(Type localType, Type remoteType, Task task)
         {
-            var taskResultType = remoteType.GenericTypeArguments[0];
+            var taskResultType = localType.GenericTypeArguments[0];
             var taskCompletionSource = new TaskCompletionSource(taskResultType);
 
             task.ContinueWith(t =>
