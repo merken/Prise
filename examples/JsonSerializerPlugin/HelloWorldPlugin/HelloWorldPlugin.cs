@@ -8,11 +8,6 @@ using Prise.Infrastructure;
 
 namespace HelloWorldPlugin
 {
-    public class LanguagesJson
-    {
-        public List<LanguageInfo> Languages { get; set; }
-    }
-
     [Plugin(PluginType = typeof(IHelloWorldPlugin))]
     public class HelloWorldPlugin : IHelloWorldPlugin
     {
@@ -45,7 +40,7 @@ namespace HelloWorldPlugin
             using (var stream = new StreamReader($"{GetLocalExecutionPath()}\\Plugins\\Languages.json"))
             {
                 var json = await stream.ReadToEndAsync();
-                return JsonConvert.DeserializeObject<LanguagesJson>(json).Languages.ToArray();
+                return JsonConvert.DeserializeObject<List<LanguageInfo>>(json).ToArray();
             }
         }
 
