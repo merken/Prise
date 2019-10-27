@@ -8,7 +8,7 @@ namespace Contract
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public LanguageInfo Dialects { get; set; }
+        public LanguageInfo[] Dialects { get; set; }
     }
 
     /// <summary>
@@ -19,10 +19,10 @@ namespace Contract
         public HelloDictionary(Dictionary<string, string> dictionary, LanguageInfo[] languages)
         {
             this.Dictionary = dictionary;
-            this.LanuguageInfo = languages;
+            this.LanguageInfo = languages;
         }
 
-        public LanguageInfo[] LanuguageInfo { get; set; }
+        public LanguageInfo[] LanguageInfo { get; set; }
         public Dictionary<string, string> Dictionary { get; set; }
         public string[] SupportedLanguages => Dictionary.Keys.Select(k => k).ToArray();
     }

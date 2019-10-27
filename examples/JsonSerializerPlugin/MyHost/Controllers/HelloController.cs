@@ -35,10 +35,11 @@ namespace MyHost.Controllers
                 // u-oh, is the language not supported ?
             }
 
-            var supportedLanguages = await _helloWorldPlugin.GetHelloDictionaryAsync();
+            var dictionary = await _helloWorldPlugin.GetHelloDictionaryAsync();
 
-            var info = $"Language {language} is not supported. Supported languages are : {String.Join(',', supportedLanguages.SupportedLanguages)}";
-            info += supportedLanguages.LanuguageInfo.Select(l => l.Description);
+            var info = $"Language {language} is not supported. Supported languages are : {String.Join(',', dictionary.SupportedLanguages)}";
+            info += String.Join(',', dictionary.LanguageInfo.Select(l => l.Description));
+
             return info;
         }
     }
