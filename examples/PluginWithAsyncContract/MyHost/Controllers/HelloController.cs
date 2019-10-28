@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 using Contract;
 using Prise.Infrastructure.NetCore;
+using System.Text.Json;
 
 namespace MyHost.Controllers
 {
@@ -35,8 +36,9 @@ namespace MyHost.Controllers
                 // u-oh, is the language not supported ?
             }
 
-            var supportedLanguages = await _helloWorldPlugin.GetHelloDictionaryAsync();
-            return $"Language {language} is not supported. Supported languages are : {String.Join(',', supportedLanguages.SupportedLanugages)}";
+            var dictionary = await _helloWorldPlugin.GetHelloDictionaryAsync();
+            var info = $"Language {language} is not supported. Supported languages are : {String.Join(',', dictionary.SupportedLanguages)}";
+            return $"{info} \n {JsonSerializer.Serialize(dictionary)}";
         }
     }
 }

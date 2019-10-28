@@ -22,7 +22,8 @@ namespace HelloWorldPlugin
         public async Task<HelloDictionary> GetHelloDictionaryAsync()
         {
             var dictionary = await GetDictionary();
-            return new HelloDictionary(dictionary);
+            var languages = await GetLanguages();
+            return new HelloDictionary(dictionary, languages);
         }
 
         private async Task<Dictionary<string, string>> GetDictionary()
@@ -31,6 +32,15 @@ namespace HelloWorldPlugin
             {
                 var json = await stream.ReadToEndAsync();
                 return JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+            }
+        }
+
+        private async Task<LanguageInfo[]> GetLanguages()
+        {
+            using (var stream = new StreamReader($"{GetLocalExecutionPath()}\\Plugins\\Languages.json"))
+            {
+                var json = await stream.ReadToEndAsync();
+                return JsonConvert.DeserializeObject<List<LanguageInfo>>(json).ToArray();
             }
         }
 
