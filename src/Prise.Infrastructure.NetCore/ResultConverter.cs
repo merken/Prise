@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Prise.Infrastructure.NetCore
 {
-    public abstract class ResultConverterBase : IResultConverter
+    public abstract class ResultConverter : IResultConverter
     {
         private bool disposed = false;
         public abstract object Deserialize(Type localType, Type remoteType, object value);
