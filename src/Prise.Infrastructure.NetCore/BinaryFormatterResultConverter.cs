@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Prise.Infrastructure.NetCore
 {
-    public class BinaryFormatterResultConverter : ResultConverterBase
+    public class BinaryFormatterResultConverter : ResultConverter
     {
         public override object Deserialize(Type localType, Type remoteType, object value)
         {
