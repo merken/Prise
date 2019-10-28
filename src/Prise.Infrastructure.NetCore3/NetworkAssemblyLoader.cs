@@ -4,10 +4,9 @@ using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
-using Prise.Infrastructure.NetCore;
 using Prise.Infrastructure.NetCore.Contracts;
 
-namespace Prise.Infrastructure.NetCore3
+namespace Prise.Infrastructure.NetCore
 {
     public class NetworkAssemblyLoadContext : AssemblyLoadContext
     {
