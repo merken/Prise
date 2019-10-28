@@ -5,9 +5,8 @@ using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Infra = Prise.Infrastructure;
 using Prise.Infrastructure.NetCore.Contracts;
-using Prise.Infrastructure.NetCore;
 
-namespace Prise.Infrastructure.NetCore3
+namespace Prise.Infrastructure.NetCore
 {
     internal class LocalDiskAssemblyLoadContext : AssemblyLoadContext
     {
