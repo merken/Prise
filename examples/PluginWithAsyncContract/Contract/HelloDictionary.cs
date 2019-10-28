@@ -4,16 +4,26 @@ using System.Linq;
 
 namespace Contract
 {
-    [Serializable]
+    public class LanguageInfo
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public LanguageInfo[] Dialects { get; set; }
+    }
+
+    /// <summary>
+    /// Using JSONConvert as IResultConverter, the return types must be POCO objects
+    /// </summary>
     public class HelloDictionary
     {
-        Dictionary<string, string> dictionary;
-
-        public HelloDictionary(Dictionary<string, string> dictionary)
+        public HelloDictionary(Dictionary<string, string> dictionary, LanguageInfo[] languages)
         {
-            this.dictionary = dictionary;
+            this.Dictionary = dictionary;
+            this.LanguageInfo = languages;
         }
 
-        public string[] SupportedLanugages => this.dictionary.Keys.Select(k => k).ToArray();
+        public LanguageInfo[] LanguageInfo { get; set; }
+        public Dictionary<string, string> Dictionary { get; set; }
+        public string[] SupportedLanguages => Dictionary.Keys.Select(k => k).ToArray();
     }
 }

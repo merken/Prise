@@ -3,7 +3,7 @@ using Prise.Infrastructure.NetCore;
 
 namespace AppHost.Infrastructure
 {
-    public class AvaloniaPluginResultConverter : ResultConverterBase
+    public class AvaloniaPluginResultConverter : ResultConverter
     {
         public override object Deserialize(Type localType, Type remoteType, object value)
         {
