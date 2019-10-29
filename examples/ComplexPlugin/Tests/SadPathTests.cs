@@ -34,14 +34,24 @@ namespace Tests
             };
 
             //Act
+#if NETCORE3_0
             await Assert.ThrowsAsync<System.IO.FileNotFoundException>(async () => await Post<CalculationResponseModel>(_client, "PluginD", "/eager", payload));
+#endif
+#if NETCORE2_1
+            await Assert.ThrowsAsync<System.Exception>(async () => await Post<CalculationResponseModel>(_client, "PluginD", "/eager", payload));
+#endif
         }
 
         [Fact]
         public async Task PluginA_Description_Does_Not_Work()
         {
             // Arrange, Act
+#if NETCORE3_0
             await Assert.ThrowsAsync<NotSupportedException>(async () => await GetRaw(_client, "PluginB", "/disco/description"));
+#endif
+#if NETCORE2_1
+            await Assert.ThrowsAsync<System.Exception>(async () => await GetRaw(_client, "PluginB", "/disco/description"));
+#endif
         }
     }
 }
