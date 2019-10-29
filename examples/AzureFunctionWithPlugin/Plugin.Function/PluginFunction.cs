@@ -22,7 +22,7 @@ namespace Plugin.Function
 
         [FunctionName("ComponentFunction")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
             var componentName = req.Query["component"].First();
