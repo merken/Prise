@@ -25,6 +25,7 @@
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
     <Compile Remove="netcore2.1\**\*.cs" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="3.0.0" />
   </ItemGroup>
 
   <PropertyGroup>
