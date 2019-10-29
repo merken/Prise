@@ -15,6 +15,7 @@ namespace Prise.Infrastructure.NetCore
         private readonly AssemblyDependencyResolver resolver;
         private string baseUrl;
         private bool isConfigured;
+        protected DependencyLoadPreference dependencyLoadPreference;
 
         public NetworkAssemblyLoadContext(string rootPath, HttpClient httpClient)
         {
@@ -23,14 +24,39 @@ namespace Prise.Infrastructure.NetCore
             this.resolver = new AssemblyDependencyResolver(rootPath);
         }
 
-        internal void Configure(string baseUrl)
+        internal void Configure(string baseUrl, DependencyLoadPreference dependencyLoadPreference)
         {
             if (this.isConfigured)
                 throw new NotSupportedException($"This NetworkAssemblyLoadContext is already configured for {this.baseUrl}. Could not configure for {baseUrl}");
 
             this.baseUrl = baseUrl;
+            this.dependencyLoadPreference = dependencyLoadPreference;
 
             this.isConfigured = true;
+        }
+
+        private Assembly LoadFromRemote(AssemblyName assemblyName)
+        {
+            var networkAssembly = LoadDependencyFromNetwork(assemblyName);
+            if (networkAssembly != null)
+                return networkAssembly;
+
+            return null;
+        }
+
+        private Assembly LoadFromDependencyContext(AssemblyName assemblyName)
+        {
+            string assemblyPath = resolver.ResolveAssemblyToPath(assemblyName);
+            if (assemblyPath != null)
+            {
+                return LoadFromAssemblyPath(assemblyPath);
+            }
+            return null;
+        }
+
+        private Assembly LoadFromAppDomain(AssemblyName assemblyName)
+        {
+            return Assembly.Load(assemblyName);
         }
 
         protected override Assembly Load(AssemblyName assemblyName)
@@ -38,13 +64,13 @@ namespace Prise.Infrastructure.NetCore
             if (assemblyName.FullName == this.pluginInfrastructureAssemblyName.FullName)
                 return null;
 
-            string assemblyPath = resolver.ResolveAssemblyToPath(assemblyName);
-            if (assemblyPath != null)
-            {
-                return LoadFromAssemblyPath(assemblyPath);
-            }
-
-            return LoadDependencyFromNetwork(assemblyName);
+            return AssemblyLoadStrategyFactory
+                .GetAssemblyLoadStrategy(this.dependencyLoadPreference).LoadAssembly(
+                    assemblyName,
+                    LoadFromDependencyContext, 
+                    LoadFromRemote, 
+                    LoadFromAppDomain
+                );
         }
 
         protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
@@ -97,14 +123,14 @@ namespace Prise.Infrastructure.NetCore
         public virtual Assembly Load(string pluginAssemblyName)
         {
             var pluginStream = LoadPluginFromNetwork(this.options.BaseUrl, pluginAssemblyName);
-            this.context.Configure(this.options.BaseUrl);
+            this.context.Configure(this.options.BaseUrl, this.options.DependencyLoadPreference);
             return this.context.LoadFromStream(pluginStream);
         }
 
         public async virtual Task<Assembly> LoadAsync(string pluginAssemblyName)
         {
             var pluginStream = await LoadPluginFromNetworkAsync(this.options.BaseUrl, pluginAssemblyName);
-            this.context.Configure(this.options.BaseUrl);
+            this.context.Configure(this.options.BaseUrl, this.options.DependencyLoadPreference);
             return this.context.LoadFromStream(pluginStream);
         }
 

@@ -3,15 +3,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyModel;
 using Prise.Infrastructure.NetCore.Contracts;
 
 namespace Prise.Infrastructure.NetCore
 {
-
-
     internal class LocalDiskAssemblyLoadContext : AssemblyLoadContext
     {
         protected readonly AssemblyName pluginInfrastructureAssemblyName;
@@ -46,13 +43,34 @@ namespace Prise.Infrastructure.NetCore
             return null;
         }
 
+        private Assembly LoadFromDependencyContext(AssemblyName assemblyName)
+        {
+            var defaultDependencies = DependencyContext.Default;
+            var candidateAssembly = defaultDependencies.CompileLibraries.FirstOrDefault(d => String.Compare(d.Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase) == 0);
+            if (candidateAssembly != null)
+            {
+                return Assembly.Load(new AssemblyName(candidateAssembly.Name));
+            }
+            return null;
+        }
+
+        private Assembly LoadFromAppDomain(AssemblyName assemblyName)
+        {
+            return Assembly.Load(assemblyName);
+        }
+
         protected override Assembly Load(AssemblyName assemblyName)
         {
             if (assemblyName.FullName == this.pluginInfrastructureAssemblyName.FullName)
                 return null;
 
             return AssemblyLoadStrategyFactory
-                .GetAssemblyLoadStrategy(this.dependencyLoadPreference).LoadAssembly(assemblyName, LoadFromRemote);
+                .GetAssemblyLoadStrategy(this.dependencyLoadPreference).LoadAssembly(
+                    assemblyName,
+                    LoadFromDependencyContext, 
+                    LoadFromRemote, 
+                    LoadFromAppDomain
+                );
         }
 
         protected virtual Assembly LoadDependencyFromLocalDisk(AssemblyName assemblyName)

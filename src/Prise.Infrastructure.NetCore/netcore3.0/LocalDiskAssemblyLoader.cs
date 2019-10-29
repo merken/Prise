@@ -14,6 +14,8 @@ namespace Prise.Infrastructure.NetCore
         private string rootPath;
         private string pluginPath;
         private AssemblyDependencyResolver resolver;
+        protected DependencyLoadPreference dependencyLoadPreference;
+
         private bool isConfigured;
 
         public LocalDiskAssemblyLoadContext()
@@ -22,7 +24,7 @@ namespace Prise.Infrastructure.NetCore
             this.pluginInfrastructureAssemblyName = typeof(Infra.PluginAttribute).Assembly.GetName();
         }
 
-        internal void Configure(string rootPath, string pluginPath)
+        internal void Configure(string rootPath, string pluginPath, DependencyLoadPreference dependencyLoadPreference)
         {
             if (this.isConfigured)
                 throw new NotSupportedException($"This LocalDiskAssemblyLoadContext is already configured for {this.rootPath} {this.pluginPath}. Could not configure for {rootPath} {pluginPath}");
@@ -30,8 +32,38 @@ namespace Prise.Infrastructure.NetCore
             this.rootPath = rootPath;
             this.pluginPath = pluginPath;
             this.resolver = new AssemblyDependencyResolver(rootPath);
+            this.dependencyLoadPreference = dependencyLoadPreference;
 
             this.isConfigured = true;
+        }
+
+        private Assembly LoadFromRemote(AssemblyName assemblyName)
+        {
+            if (File.Exists(Path.Combine(this.rootPath, Path.Combine(this.pluginPath, $"{assemblyName.Name}.dll"))))
+            {
+                return LoadDependencyFromLocalDisk(assemblyName);
+            }
+            return null;
+        }
+
+        private Assembly LoadFromDependencyContext(AssemblyName assemblyName)
+        {
+            string assemblyPath = resolver.ResolveAssemblyToPath(assemblyName);
+            if (assemblyPath != null)
+            {
+                return LoadFromAssemblyPath(assemblyPath);
+            }
+            return null;
+        }
+
+        private Assembly LoadFromAppDomain(AssemblyName assemblyName)
+        {
+            try
+            {
+                return Assembly.Load(assemblyName);
+            }
+            catch (System.IO.FileNotFoundException) { }
+            return null;
         }
 
         protected override Assembly Load(AssemblyName assemblyName)
@@ -39,13 +71,13 @@ namespace Prise.Infrastructure.NetCore
             if (assemblyName.FullName == this.pluginInfrastructureAssemblyName.FullName)
                 return null;
 
-            string assemblyPath = resolver.ResolveAssemblyToPath(assemblyName);
-            if (assemblyPath != null)
-            {
-                return LoadFromAssemblyPath(assemblyPath);
-            }
-
-            return LoadDependencyFromLocalDisk(assemblyName);
+            return AssemblyLoadStrategyFactory
+                .GetAssemblyLoadStrategy(this.dependencyLoadPreference).LoadAssembly(
+                    assemblyName,
+                    LoadFromDependencyContext,
+                    LoadFromRemote,
+                    LoadFromAppDomain
+                );
         }
 
         protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
@@ -124,11 +156,11 @@ namespace Prise.Infrastructure.NetCore
             this.context = new LocalDiskAssemblyLoadContext();
         }
 
-         public Assembly Load(string pluginAssemblyName)
+        public Assembly Load(string pluginAssemblyName)
         {
             var rootPluginPath = Path.Join(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
             var pluginStream = LocalDiskAssemblyLoadContext.LoadFileFromLocalDisk(rootPluginPath, pluginAssemblyName);
-            this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
+            this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath, this.options.DependencyLoadPreference);
             return this.context.LoadFromStream(pluginStream);
         }
 
@@ -136,7 +168,7 @@ namespace Prise.Infrastructure.NetCore
         {
             var rootPluginPath = Path.Join(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
             var pluginStream = await LocalDiskAssemblyLoadContext.LoadFileFromLocalDiskAsync(rootPluginPath, pluginAssemblyName);
-            this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
+            this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath, this.options.DependencyLoadPreference);
             return this.context.LoadFromStream(pluginStream);
         }
     }

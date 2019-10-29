@@ -1,25 +1,68 @@
 var target = Argument("target", "default");
 var configuration = Argument("configuration", "Release");
 var outputDir = "..\\dist";
-var semVer = "1.2.1";
-var version = "1.2.1";
-var infoVer = "1.2.1";
+var semVer = "1.2.3";
+var version = "1.2.3";
+var infoVer = "1.2.3";
 
 Task("build").Does( () =>
 { 
-    var settings = new DotNetCoreBuildSettings
+    var netcoreapp2 = new DotNetCoreBuildSettings
     {
-        Configuration = "Release"
+        Configuration = "Release",
+        Framework = "netcoreapp2.1"
+    };
+    var netcoreapp3 = new DotNetCoreBuildSettings
+    {
+        Configuration = "Release",
+        Framework = "netcoreapp3.0"
     };
 
-    DotNetCoreBuild("Prise.Infrastructure\\Prise.Infrastructure.csproj", settings);
-    DotNetCoreBuild("Prise.Infrastructure.NetCore\\Prise.Infrastructure.NetCore.csproj", settings);
+    var netstandard2 = new DotNetCoreBuildSettings
+    {
+        Configuration = "Release",
+        Framework = "netstandard2.0"
+    };
+    var netstandard2_1 = new DotNetCoreBuildSettings
+    {
+        Configuration = "Release",
+        Framework = "netstandard2.1"
+    };
+
+    DotNetCoreBuild("Prise.Infrastructure\\Prise.Infrastructure.csproj", netstandard2);
+    DotNetCoreBuild("Prise.Infrastructure\\Prise.Infrastructure.csproj", netstandard2_1);
+    DotNetCoreBuild("Prise.Infrastructure.NetCore\\Prise.Infrastructure.NetCore.csproj", netcoreapp2);
+    DotNetCoreBuild("Prise.Infrastructure.NetCore\\Prise.Infrastructure.NetCore.csproj", netcoreapp3);
 });
 
 Task("test").Does( () =>
 { 
-  DotNetCoreTest("Tests\\Prise.Infrastructure.Tests\\Prise.Infrastructure.Tests.csproj");
-  DotNetCoreTest("Tests\\Prise.Infrastructure.NetCore.Tests\\Prise.Infrastructure.NetCore.Tests.csproj");
+  var netcoreapp2 = new DotNetCoreTestSettings
+  {
+      Configuration = "Release",
+      Framework = "netcoreapp2.1"
+  };
+  var netcoreapp3 = new DotNetCoreTestSettings
+  {
+      Configuration = "Release",
+      Framework = "netcoreapp3.0"
+  };
+
+  var netstandard2 = new DotNetCoreTestSettings
+  {
+      Configuration = "Release",
+      Framework = "netstandard2.0"
+  };
+  var netstandard2_1 = new DotNetCoreTestSettings
+  {
+      Configuration = "Release",
+      Framework = "netstandard2.1"
+  };
+
+  DotNetCoreTest("Tests\\Prise.Infrastructure.Tests\\Prise.Infrastructure.Tests.csproj", netstandard2);
+  DotNetCoreTest("Tests\\Prise.Infrastructure.Tests\\Prise.Infrastructure.Tests.csproj", netstandard2_1);
+  DotNetCoreTest("Tests\\Prise.Infrastructure.NetCore.Tests\\Prise.Infrastructure.NetCore.Tests.csproj",netcoreapp2);
+  DotNetCoreTest("Tests\\Prise.Infrastructure.NetCore.Tests\\Prise.Infrastructure.NetCore.Tests.csproj",netcoreapp3);
 }).IsDependentOn("build");
 
 Task("publish")

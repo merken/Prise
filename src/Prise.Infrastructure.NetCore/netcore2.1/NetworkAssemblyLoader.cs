@@ -44,13 +44,34 @@ namespace Prise.Infrastructure.NetCore
             return null;
         }
 
+        private Assembly LoadFromDependencyContext(AssemblyName assemblyName)
+        {
+            var defaultDependencies = DependencyContext.Default;
+            var candidateAssembly = defaultDependencies.CompileLibraries.FirstOrDefault(d => String.Compare(d.Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase) == 0);
+            if (candidateAssembly != null)
+            {
+                return Assembly.Load(new AssemblyName(candidateAssembly.Name));
+            }
+            return null;
+        }
+
+        private Assembly LoadFromAppDomain(AssemblyName assemblyName)
+        {
+            return Assembly.Load(assemblyName);
+        }
+
         protected override Assembly Load(AssemblyName assemblyName)
         {
             if (assemblyName.FullName == this.pluginInfrastructureAssemblyName.FullName)
                 return null;
 
             return AssemblyLoadStrategyFactory
-                .GetAssemblyLoadStrategy(this.dependencyLoadPreference).LoadAssembly(assemblyName, LoadFromRemote);
+                .GetAssemblyLoadStrategy(this.dependencyLoadPreference).LoadAssembly(
+                    assemblyName,
+                    LoadFromDependencyContext, 
+                    LoadFromRemote, 
+                    LoadFromAppDomain
+                );
         }
 
         protected virtual Assembly LoadDependencyFromNetwork(AssemblyName assemblyName)
@@ -76,7 +97,6 @@ namespace Prise.Infrastructure.NetCore
     public class NetworkAssemblyLoader<T> : DisposableAssemblyUnLoader, IPluginAssemblyLoader<T>
     {
         protected readonly INetworkAssemblyLoaderOptions options;
-        protected readonly AssemblyName pluginInfrastructureAssemblyName;
         protected readonly HttpClient httpClient;
         protected NetworkAssemblyLoadContext context;
 
@@ -92,7 +112,6 @@ namespace Prise.Infrastructure.NetCore
             this.options = options;
             this.httpClient = httpClient;
             this.context = new NetworkAssemblyLoadContext(httpClient);
-            this.pluginInfrastructureAssemblyName = typeof(Prise.Infrastructure.PluginAttribute).Assembly.GetName();
         }
 
         public virtual Assembly Load(string pluginAssemblyName)

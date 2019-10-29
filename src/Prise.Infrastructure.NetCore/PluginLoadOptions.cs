@@ -248,8 +248,17 @@ namespace Prise.Infrastructure.NetCore
             this.rootPathProvider = new RootPathProvider(rootPath);
             this.sharedServicesProvider = new DefaultSharedServicesProvider(new ServiceCollection());
             this.activator = new NetCoreActivator(this.sharedServicesProvider);
+
+            // Use System.Text.Json in 3.0
+#if NETCORE3_0
+            this.parameterConverter = new JsonSerializerParameterConverter();
+            this.resultConverter = new JsonSerializerResultConverter();
+#endif
+            // Use Newtonsoft.Json in 2.1
+#if NETCORE2_1
             this.parameterConverter = new NewtonsoftParameterConverter();
             this.resultConverter = new NewtonsoftResultConverter();
+#endif
             this.assemblyLoaderType = typeof(LocalDiskAssemblyLoader<T>);
             this.localAssemblyLoaderOptions = new LocalAssemblyLoaderOptions("Plugins");
             this.pluginAssemblyNameProvider = new PluginAssemblyNameProvider($"{typeof(T).Name}.dll");
