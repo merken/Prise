@@ -115,7 +115,13 @@ namespace Prise.Infrastructure.NetCore
         private readonly HttpClient httpClient;
         internal NetworkAssemblyLoadContext context;
 
+        /// To be used by Dependency Injection
         public NetworkAssemblyLoader(
+            IRootPathProvider rootPathProvider,
+            INetworkAssemblyLoaderOptions options,
+            IHttpClientFactory httpClientFactory) : this(rootPathProvider, options, httpClientFactory.CreateClient()) { }
+
+        internal NetworkAssemblyLoader(
             IRootPathProvider rootPathProvider,
             INetworkAssemblyLoaderOptions options,
             HttpClient httpClient)
