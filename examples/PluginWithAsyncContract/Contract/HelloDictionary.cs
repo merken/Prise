@@ -22,6 +22,11 @@ namespace Contract
             this.LanguageInfo = languages;
         }
 
+        /// <summary>
+        /// For System.Text.Json deserialization, a default parameterless CTOR is required
+        /// </summary>
+        public HelloDictionary(){}
+
         public LanguageInfo[] LanguageInfo { get; set; }
         public Dictionary<string, string> Dictionary { get; set; }
         public string[] SupportedLanguages => Dictionary.Keys.Select(k => k).ToArray();
