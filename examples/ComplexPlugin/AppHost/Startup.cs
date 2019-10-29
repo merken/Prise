@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Mvc;
 
 using Prise.Infrastructure.NetCore;
 using Contract;
@@ -13,22 +14,18 @@ using System;
 
 namespace AppHost
 {
-    public class Startup
+    public partial class Startup
     {
-        public Startup(IConfiguration configuration, IWebHostEnvironment env)
+        public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            Env = env;
         }
 
         public IConfiguration Configuration { get; }
-        public IWebHostEnvironment Env { get; }
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-            services.AddDirectoryBrowser();
+            ConfigureTargetFramework(services);
             services.AddHttpContextAccessor();
 
             var cla = services.BuildServiceProvider().GetRequiredService<ICommandLineArguments>();
@@ -59,7 +56,12 @@ namespace AppHost
         private string GetExecutionDirectory() => AppDomain.CurrentDomain.BaseDirectory;
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+#if NETCORE3_0
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+#endif
+#if NETCORE2_1
+        public void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IHostingEnvironment env)
+#endif
         {
             if (env.IsDevelopment())
             {
@@ -68,14 +70,7 @@ namespace AppHost
 
             app.UseHttpsRedirection();
 
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            ConfigureTargetFramework(app);
         }
     }
 }

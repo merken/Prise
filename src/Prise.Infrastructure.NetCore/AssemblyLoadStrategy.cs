@@ -1,26 +1,13 @@
 using System;
-using System.Linq;
 using System.Reflection;
-using Microsoft.Extensions.DependencyModel;
 
 namespace Prise.Infrastructure.NetCore
 {
-    internal interface IAssemblyLoadStrategy
-    {
-        Assembly LoadAssembly(AssemblyName assemblyName, Func<AssemblyName, Assembly> loadFromRemote);
-    }
-
     internal abstract class AssemblyLoadStrategy
     {
-        protected Assembly TryLoadFromDependencyContext(AssemblyName assemblyName)
+        protected Assembly TryLoadFromDependencyContext(AssemblyName assemblyName, Func<AssemblyName, Assembly> loadFromDependencyContext)
         {
-            var defaultDependencies = DependencyContext.Default;
-            var candidateAssembly = defaultDependencies.CompileLibraries.FirstOrDefault(d => String.Compare(d.Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase) == 0);
-            if (candidateAssembly != null)
-            {
-                return Assembly.Load(new AssemblyName(candidateAssembly.Name));
-            }
-            return null;
+            return loadFromDependencyContext(assemblyName);
         }
 
         protected Assembly TryLoadFromRemote(AssemblyName assemblyName, Func<AssemblyName, Assembly> loadFromRemote)
@@ -28,23 +15,34 @@ namespace Prise.Infrastructure.NetCore
             return loadFromRemote(assemblyName);
         }
 
-        protected Assembly TryLoadFromAppDomain(AssemblyName assemblyName)
+        protected Assembly TryLoadFromAppDomain(AssemblyName assemblyName, Func<AssemblyName, Assembly> loadFromAppDomain)
         {
-            return Assembly.Load(assemblyName);
+            return loadFromAppDomain(assemblyName);
         }
+    }
+
+    internal interface IAssemblyLoadStrategy
+    {
+        Assembly LoadAssembly(AssemblyName assemblyName,
+            Func<AssemblyName, Assembly> loadFromDependencyContext,
+            Func<AssemblyName, Assembly> loadFromRemote,
+            Func<AssemblyName, Assembly> loadFromAppDomain);
     }
 
     internal class PreferDependencyContextAssemblyLoadStrategy : AssemblyLoadStrategy, IAssemblyLoadStrategy
     {
-        public Assembly LoadAssembly(AssemblyName assemblyName, Func<AssemblyName, Assembly> loadFromRemote)
+        public Assembly LoadAssembly(AssemblyName assemblyName,
+            Func<AssemblyName, Assembly> loadFromDependencyContext,
+            Func<AssemblyName, Assembly> loadFromRemote,
+            Func<AssemblyName, Assembly> loadFromAppDomain)
         {
-            var assembly = TryLoadFromDependencyContext(assemblyName);
+            var assembly = TryLoadFromDependencyContext(assemblyName, loadFromDependencyContext);
 
             if (assembly == null)
                 assembly = TryLoadFromRemote(assemblyName, loadFromRemote);
 
             if (assembly == null)
-                assembly = TryLoadFromAppDomain(assemblyName);
+                assembly = TryLoadFromAppDomain(assemblyName, loadFromAppDomain);
 
             return assembly;
         }
@@ -52,15 +50,18 @@ namespace Prise.Infrastructure.NetCore
 
     internal class PreferRemoteAssemblyLoadStrategy : AssemblyLoadStrategy, IAssemblyLoadStrategy
     {
-        public Assembly LoadAssembly(AssemblyName assemblyName, Func<AssemblyName, Assembly> loadFromRemote)
+        public Assembly LoadAssembly(AssemblyName assemblyName,
+            Func<AssemblyName, Assembly> loadFromDependencyContext,
+            Func<AssemblyName, Assembly> loadFromRemote,
+            Func<AssemblyName, Assembly> loadFromAppDomain)
         {
             var assembly = TryLoadFromRemote(assemblyName, loadFromRemote);
 
             if (assembly == null)
-                assembly = TryLoadFromDependencyContext(assemblyName);
+                assembly = TryLoadFromDependencyContext(assemblyName, loadFromDependencyContext);
 
             if (assembly == null)
-                assembly = TryLoadFromAppDomain(assemblyName);
+                assembly = TryLoadFromAppDomain(assemblyName, loadFromAppDomain);
 
             return assembly;
         }
@@ -68,12 +69,15 @@ namespace Prise.Infrastructure.NetCore
 
     internal class PreferAppDomainAssemblyLoadStrategy : AssemblyLoadStrategy, IAssemblyLoadStrategy
     {
-        public Assembly LoadAssembly(AssemblyName assemblyName, Func<AssemblyName, Assembly> loadFromRemote)
+        public Assembly LoadAssembly(AssemblyName assemblyName,
+            Func<AssemblyName, Assembly> loadFromDependencyContext,
+            Func<AssemblyName, Assembly> loadFromRemote,
+            Func<AssemblyName, Assembly> loadFromAppDomain)
         {
-            var assembly = TryLoadFromAppDomain(assemblyName);
+            var assembly = TryLoadFromAppDomain(assemblyName, loadFromAppDomain);
 
             if (assembly == null)
-                assembly = TryLoadFromDependencyContext(assemblyName);
+                assembly = TryLoadFromDependencyContext(assemblyName, loadFromDependencyContext);
 
             if (assembly == null)
                 assembly = TryLoadFromRemote(assemblyName, loadFromRemote);
