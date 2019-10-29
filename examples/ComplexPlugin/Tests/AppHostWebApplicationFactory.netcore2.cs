@@ -6,18 +6,17 @@ using Microsoft.Extensions.Hosting;
 
 namespace Tests
 {
-    public class CommandLineArgumentsLazy : ICommandLineArguments
-    {
-        public bool UseLazyService => true;
-    }
-
     public partial class AppHostWebApplicationFactory
        : WebApplicationFactory<AppHost.Startup>
     {
-        private bool useLazyServices = false;
-        public void ConfigureLazyService()
+#if NETCORE2_1
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            this.useLazyServices = true;
+            builder.ConfigureServices(services =>
+            {
+                services.AddSingleton<ICommandLineArguments>(new CommandLineArgumentsLazy());
+            });
         }
+#endif
     }
 }
