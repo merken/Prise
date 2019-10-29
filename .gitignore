@@ -7,3 +7,4 @@ publish
 **/MyHost/Plugins
 .vs
 *.sln
+*.cmd
