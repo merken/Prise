@@ -39,10 +39,10 @@ namespace Prise.Infrastructure.NetCore
             var assembly = TryLoadFromDependencyContext(assemblyName, loadFromDependencyContext);
 
             if (assembly == null)
-                assembly = TryLoadFromRemote(assemblyName, loadFromRemote);
+                assembly = TryLoadFromAppDomain(assemblyName, loadFromAppDomain);
 
             if (assembly == null)
-                assembly = TryLoadFromAppDomain(assemblyName, loadFromAppDomain);
+                assembly = TryLoadFromRemote(assemblyName, loadFromRemote);
 
             return assembly;
         }
