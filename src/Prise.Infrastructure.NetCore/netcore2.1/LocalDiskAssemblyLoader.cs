@@ -56,7 +56,12 @@ namespace Prise.Infrastructure.NetCore
 
         private Assembly LoadFromAppDomain(AssemblyName assemblyName)
         {
-            return Assembly.Load(assemblyName);
+            try
+            {
+                return Assembly.Load(assemblyName);
+            }
+            catch (System.IO.FileNotFoundException) { }
+            return null;
         }
 
         protected override Assembly Load(AssemblyName assemblyName)
@@ -67,8 +72,8 @@ namespace Prise.Infrastructure.NetCore
             return AssemblyLoadStrategyFactory
                 .GetAssemblyLoadStrategy(this.dependencyLoadPreference).LoadAssembly(
                     assemblyName,
-                    LoadFromDependencyContext, 
-                    LoadFromRemote, 
+                    LoadFromDependencyContext,
+                    LoadFromRemote,
                     LoadFromAppDomain
                 );
         }
