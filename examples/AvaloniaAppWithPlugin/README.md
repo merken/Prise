@@ -27,3 +27,6 @@ Compile and copy the plugin by using the `cake` command from inside the Componen
 Launch the MyHost application using the `dotnet run` command from inside the AppHost directory.
 
 ![alt text](avalonia-app-plugins.gif "gif")
+
+### Works on Ubuntu, too!
+![alt text](avalonia-ubuntu.gif "gif")
