@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Contract;
 using Microsoft.EntityFrameworkCore;
+using Prise.Infrastructure;
 
 namespace SQLPlugin
 {
@@ -15,6 +16,10 @@ namespace SQLPlugin
         {
             this.dbContext = dbContext;
         }
+
+        [PluginFactory]
+        public static SqlProductsRepository ThisIsTheFactoryMethod(IServiceProvider serviceProvider) =>
+            new SqlProductsRepository((ProductsDbContext)serviceProvider.GetService(typeof(ProductsDbContext)));
 
         public async Task<Product> Create(Product product)
         {
