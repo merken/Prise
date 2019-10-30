@@ -11,6 +11,7 @@ namespace AppHost.ViewModels
     public class MainWindowViewModel : Shared.ViewModelBase
     {
         public RelayCommand<object> LoadAllComponentsCommand { get; set; }
+        public RelayCommand<object> UnLoadAllComponentsCommand { get; set; }
         public RelayCommand<object> LoadComponentCommand { get; set; }
         public List<string> Components { get; set; }
         public UserControl CurrentControl { get; set; }
@@ -20,6 +21,7 @@ namespace AppHost.ViewModels
         public MainWindowViewModel()
         {
             LoadAllComponentsCommand = new RelayCommand<object>(LoadComponents, true, true);
+            UnLoadAllComponentsCommand = new RelayCommand<object>(UnLoadComponents, true, true);
             LoadComponentCommand = new RelayCommand<object>(LoadComponent, true, false);
         }
 
@@ -33,6 +35,14 @@ namespace AppHost.ViewModels
                 components.Add(plugin.GetName(), plugin);
             }
             Components = new List<string>(components.Select(p => p.Key));
+            this.RaisePropertyChanged(nameof(Components));
+        }
+
+        async void UnLoadComponents(object parameter)
+        {
+            var pluginLoader = AppServiceLocator.GetService<IPluginLoader<IAppComponent>>();
+            await pluginLoader.Unload();
+            Components = new List<string>();
             this.RaisePropertyChanged(nameof(Components));
         }
 
