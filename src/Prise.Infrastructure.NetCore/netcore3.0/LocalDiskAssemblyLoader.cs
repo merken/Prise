@@ -27,8 +27,7 @@ namespace Prise.Infrastructure.NetCore
         internal void Configure(string rootPath, string pluginPath, DependencyLoadPreference dependencyLoadPreference)
         {
             if (this.isConfigured)
-                throw new NotSupportedException($"This LocalDiskAssemblyLoadContext is already configured for {this.rootPath} {this.pluginPath}. Could not configure for {rootPath} {pluginPath}");
-
+                return;
             this.rootPath = rootPath;
             this.pluginPath = pluginPath;
             this.resolver = new AssemblyDependencyResolver(rootPath);
