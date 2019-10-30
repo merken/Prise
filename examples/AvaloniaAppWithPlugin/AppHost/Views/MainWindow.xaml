@@ -9,6 +9,9 @@
         <Button Command="{Binding LoadAllComponentsCommand}" Width="160">
             Load Components
         </Button>
+         <Button Command="{Binding UnLoadAllComponentsCommand}" Width="160">
+            Unload Components
+        </Button>
         <ListBox Items="{Binding Components}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
