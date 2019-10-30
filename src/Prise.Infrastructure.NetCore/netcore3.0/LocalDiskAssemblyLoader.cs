@@ -154,6 +154,7 @@ namespace Prise.Infrastructure.NetCore
             this.rootPathProvider = rootPathProvider;
             this.options = options;
             this.context = new LocalDiskAssemblyLoadContext();
+            this.loadContext = this.context;
         }
 
         public Assembly Load(string pluginAssemblyName)
