@@ -4,11 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Prise.Infrastructure;
 
 namespace Prise.Infrastructure.NetCore
 {
     public abstract class PluginLoader
     {
+
         protected T[] LoadPluginsOfType<T>(IPluginLoadOptions<T> pluginLoadOptions)
         {
             var assemblyName = GetAssemblyName(pluginLoadOptions);
@@ -52,7 +54,7 @@ namespace Prise.Infrastructure.NetCore
                                 && (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Name == typeof(T).Name))
                             .OrderBy(t => t.Name);
 
-            if (pluginTypes == null && !pluginTypes.Any())
+            if (pluginTypes == null || !pluginTypes.Any())
                 throw new FileNotFoundException($@"No plugin was found in assembly {pluginAssembly.FullName}. Requested plugin type: {typeof(T).Name}. Please add the {nameof(PluginAttribute)} to your plugin class and specify the PluginType: [Plugin(PluginType = typeof({typeof(T).Name}))]");
 
             foreach (var pluginType in pluginTypes)
@@ -63,14 +65,17 @@ namespace Prise.Infrastructure.NetCore
                 IPluginBootstrapper bootstrapper = null;
                 if (bootstrapperType != null)
                 {
-                    var remoteBootstrapperInstance = pluginLoadOptions.Activator.CreateRemoteBootstrapper(bootstrapperType);
-                    if (remoteBootstrapperInstance as IPluginBootstrapper == null)
-                        throw new NotSupportedException("Version type mismatch");
-                    bootstrapper = remoteBootstrapperInstance as IPluginBootstrapper;
+                    var remoteBootstrapperInstance = pluginLoadOptions.Activator.CreateRemoteBootstrapper(bootstrapperType, pluginAssembly);
+                    var remoteBootstrapperProxy = pluginLoadOptions.ProxyCreator.CreateBootstrapperProxy(remoteBootstrapperInstance);
+                    bootstrapper = remoteBootstrapperProxy;
+                    // if (remoteBootstrapperInstance as IPluginBootstrapper == null)
+                    //     throw new NotSupportedException("Version type mismatch");
+                    // bootstrapper = remoteBootstrapperInstance as IPluginBootstrapper;
                 }
 
-                var remoteObject = pluginLoadOptions.Activator.CreateRemoteInstance(pluginType, bootstrapper, pluginFactoryMethod);
-                pluginInstances.Add(CreateProxy<T>(remoteObject, pluginLoadOptions));
+                var remoteObject = pluginLoadOptions.Activator.CreateRemoteInstance(pluginType, bootstrapper, pluginFactoryMethod, pluginAssembly);
+                var remoteProxy = pluginLoadOptions.ProxyCreator.CreatePluginProxy(remoteObject, pluginLoadOptions);
+                pluginInstances.Add(remoteProxy);
             }
 
             return pluginInstances.ToArray();
@@ -90,18 +95,6 @@ namespace Prise.Infrastructure.NetCore
             return pluginType.GetMethods()
                     .Where(m => m.CustomAttributes
                         .Any(c => c.AttributeType.Name == typeof(Prise.Infrastructure.PluginFactoryAttribute).Name)).FirstOrDefault();
-        }
-
-        protected T CreateProxy<T>(object remoteObject, IPluginLoadOptions<T> pluginLoadOptions)
-        {
-            var proxy = PluginProxy<T>.Create();
-
-            ((PluginProxy<T>)proxy)
-               .SetRemoteObject(remoteObject)
-               .SetParameterConverter(pluginLoadOptions.ParameterConverter)
-               .SetResultConverter(pluginLoadOptions.ResultConverter);
-
-            return (T)proxy;
         }
     }
 }

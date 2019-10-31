@@ -8,18 +8,23 @@ using Prise.Infrastructure;
 
 namespace SQLPlugin
 {
+    [Plugin(PluginType = typeof(IProductsRepository))]
     public class SqlProductsRepository : IProductsRepository
     {
         private readonly ProductsDbContext dbContext;
+        private readonly IServiceProvider serviceProvider;
 
-        internal SqlProductsRepository(ProductsDbContext dbContext)
+        internal SqlProductsRepository(IServiceProvider serviceProvider)
         {
-            this.dbContext = dbContext;
+            this.serviceProvider = serviceProvider;
         }
 
         [PluginFactory]
-        public static SqlProductsRepository ThisIsTheFactoryMethod(IServiceProvider serviceProvider) =>
-            new SqlProductsRepository((ProductsDbContext)serviceProvider.GetService(typeof(ProductsDbContext)));
+        public static SqlProductsRepository ThisIsTheFactoryMethod(IServiceProvider serviceProvider)
+        {
+            var service = serviceProvider.GetService(typeof(ProductsDbContext));
+            return new SqlProductsRepository(serviceProvider);
+        }
 
         public async Task<Product> Create(Product product)
         {
@@ -37,7 +42,8 @@ namespace SQLPlugin
 
         public async Task<IEnumerable<Product>> All()
         {
-            return await this.dbContext.Products
+            var dbContext = (ProductsDbContext)serviceProvider.GetService(typeof(ProductsDbContext));
+            return await dbContext.Products
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -51,7 +57,8 @@ namespace SQLPlugin
 
         public async Task<IEnumerable<Product>> Search(string term)
         {
-            return await this.dbContext.Products
+            var dbContext = (ProductsDbContext)serviceProvider.GetService(typeof(ProductsDbContext));
+            return await dbContext.Products
                 .AsNoTracking()
                 .Where(p => p.Description.Contains(term))
                 .ToListAsync();

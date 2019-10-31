@@ -70,13 +70,18 @@ Task("publish")
         Configuration = configuration,
         OutputDirectory = "publish/TableStoragePlugin"
     });
+  });
 
-    CopyDirectory("publish/CosmosDbPlugin", "AppHost/bin/debug/netcoreapp3.0/Plugins/CosmosDbPlugin");
-    CopyDirectory("publish/SQLPlugin", "AppHost/bin/debug/netcoreapp3.0/Plugins/SQLPlugin");
-    CopyDirectory("publish/TableStoragePlugin", "AppHost/bin/debug/netcoreapp3.0/Plugins/TableStoragePlugin");
+Task("copy-to-apphost")
+  .IsDependentOn("publish")
+  .Does(() =>
+  {
+    CopyDirectory("publish/CosmosDbPlugin", "MyHost/bin/debug/netcoreapp3.0/Plugins/CosmosDbPlugin");
+    CopyDirectory("publish/SQLPlugin", "MyHost/bin/debug/netcoreapp3.0/Plugins/SQLPlugin");
+    CopyDirectory("publish/TableStoragePlugin", "MyHost/bin/debug/netcoreapp3.0/Plugins/TableStoragePlugin");
   });
 
 Task("default")
-  .IsDependentOn("publish");
+  .IsDependentOn("copy-to-apphost");
 
 RunTarget(target);

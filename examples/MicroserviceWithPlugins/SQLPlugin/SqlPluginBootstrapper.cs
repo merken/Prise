@@ -1,3 +1,4 @@
+using System;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
@@ -5,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Prise.Infrastructure;
+using SQLPlugin.Configuration;
 
 namespace SQLPlugin
 {
@@ -14,11 +16,13 @@ namespace SQLPlugin
         public IServiceCollection Bootstrap(IServiceCollection services)
         {
             var config = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
-            var connectionString = config.GetConnectionString("ProductsDb");
-
+            var sqlConfig = new SQLPluginConfig();
+            config.Bind("SQLPlugin", sqlConfig);
+            Console.WriteLine($"CONNECTION STRING : {sqlConfig.ConnectionString}");
+            
             services.AddScoped<DbConnection>((serviceProvider) =>
             {
-                var dbConnection = new SqlConnection(connectionString);
+                var dbConnection = new SqlConnection(sqlConfig.ConnectionString);
                 dbConnection.Open();
                 return dbConnection;
             });
