@@ -15,7 +15,7 @@ namespace Prise.Infrastructure.NetCore
             this.sharedServicesProvider = sharedServicesProvider;
         }
 
-        public object CreateRemoteBootstrapper(Type bootstrapperType)
+        public object CreateRemoteBootstrapper(Type bootstrapperType, Assembly assembly)
         {
             var contructors = bootstrapperType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
             var firstCtor = contructors.First();
@@ -24,11 +24,11 @@ namespace Prise.Infrastructure.NetCore
                 throw new NotSupportedException($"No public constructors found for remote bootstrapper {bootstrapperType.Name}");
             if (firstCtor.GetParameters().Any())
                 throw new NotSupportedException($"Bootstrapper {bootstrapperType.Name} must contain a public parameterless constructor");
-
             return Activator.CreateInstance(bootstrapperType);
+            // return assembly.CreateInstance(bootstrapperType.FullName);
         }
 
-        public object CreateRemoteInstance(Type pluginType, IPluginBootstrapper bootstrapper, MethodInfo factoryMethod)
+        public object CreateRemoteInstance(Type pluginType, IPluginBootstrapper bootstrapper, MethodInfo factoryMethod, Assembly assembly)
         {
             var contructors = pluginType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
 
@@ -37,7 +37,8 @@ namespace Prise.Infrastructure.NetCore
 
             var firstCtor = contructors.FirstOrDefault();
             if (firstCtor != null && !firstCtor.GetParameters().Any())
-                return Activator.CreateInstance(pluginType);
+                return assembly.CreateInstance(pluginType.FullName);
+            // return Activator.CreateInstance(pluginType);
 
             if (factoryMethod == null)
                 throw new NotSupportedException($@"Plugins must either provide a default parameterless constructor or implement a static factory method.

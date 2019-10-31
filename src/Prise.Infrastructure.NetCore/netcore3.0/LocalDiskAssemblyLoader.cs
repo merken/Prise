@@ -5,6 +5,11 @@ using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Infra = Prise.Infrastructure;
 using Prise.Infrastructure.NetCore.Contracts;
+using System.Linq;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Prise.Infrastructure.NetCore
 {
@@ -17,6 +22,7 @@ namespace Prise.Infrastructure.NetCore
         protected DependencyLoadPreference dependencyLoadPreference;
 
         private bool isConfigured;
+        private ConcurrentDictionary<string, bool> dependencies;
 
         public LocalDiskAssemblyLoadContext()
             : base(true) // This should always be collectible, since we do not expect to have a long-living plugin
@@ -24,14 +30,15 @@ namespace Prise.Infrastructure.NetCore
             this.pluginInfrastructureAssemblyName = typeof(Infra.PluginAttribute).Assembly.GetName();
         }
 
-        internal void Configure(string rootPath, string pluginPath, DependencyLoadPreference dependencyLoadPreference)
+        internal void Configure(string rootPath, string pluginPath, DependencyLoadPreference dependencyLoadPreference, ConcurrentDictionary<string, bool> dependencies)
         {
             if (this.isConfigured)
                 return;
             this.rootPath = rootPath;
             this.pluginPath = pluginPath;
-            this.resolver = new AssemblyDependencyResolver(rootPath);
+            this.resolver = new AssemblyDependencyResolver(Path.Combine(rootPath, pluginPath));
             this.dependencyLoadPreference = dependencyLoadPreference;
+            this.dependencies = dependencies;
 
             this.isConfigured = true;
         }
@@ -40,9 +47,31 @@ namespace Prise.Infrastructure.NetCore
         {
             if (File.Exists(Path.Combine(this.rootPath, Path.Combine(this.pluginPath, $"{assemblyName.Name}.dll"))))
             {
-                return LoadDependencyFromLocalDisk(assemblyName);
+                var assembly = LoadAssemblyAndReferences(assemblyName);
+                dependencies[assembly.FullName] = true;
+                return assembly;
             }
             return null;
+        }
+
+        private Assembly LoadAssemblyAndReferences(AssemblyName assemblyName)
+        {
+            var assembly = LoadDependencyFromLocalDisk(assemblyName);
+            if (assembly == null)
+                return null;
+            foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
+            {
+                if (!referencedAssemblyName.FullName.Contains("netstandard"))
+                    if (!dependencies.ContainsKey(referencedAssemblyName.FullName) || dependencies[referencedAssemblyName.FullName] == false)
+                    {
+                        // load all referenced assemblies from Remote
+                        var referencedAssembly = LoadAssemblyAndReferences(referencedAssemblyName);
+                        if (referencedAssembly == null)
+                            throw new NotSupportedException($"Reference assembly {referencedAssemblyName.FullName} for {assemblyName.FullName} could not be loaded, did you publish the plugin?");
+                        dependencies[referencedAssemblyName.FullName] = true;
+                    }
+            }
+            return assembly;
         }
 
         private Assembly LoadFromDependencyContext(AssemblyName assemblyName)
@@ -50,7 +79,10 @@ namespace Prise.Infrastructure.NetCore
             string assemblyPath = resolver.ResolveAssemblyToPath(assemblyName);
             if (assemblyPath != null)
             {
-                return LoadFromAssemblyPath(assemblyPath);
+                var assembly = LoadFromAssemblyPath(assemblyPath);
+                if (assembly != null)
+                    dependencies[assembly.FullName] = true;
+                return assembly;
             }
             return null;
         }
@@ -59,7 +91,10 @@ namespace Prise.Infrastructure.NetCore
         {
             try
             {
-                return Assembly.Load(assemblyName);
+                var assembly = Assembly.Load(assemblyName);
+                if (assembly != null)
+                    dependencies[assembly.FullName] = true;
+                return assembly;
             }
             catch (System.IO.FileNotFoundException) { }
             return null;
@@ -132,7 +167,7 @@ namespace Prise.Infrastructure.NetCore
             return probingPath;
         }
 
-        private static byte[] ToByteArray(Stream stream)
+        internal static byte[] ToByteArray(Stream stream)
         {
             stream.Position = 0;
             byte[] buffer = new byte[stream.Length];
@@ -158,18 +193,97 @@ namespace Prise.Infrastructure.NetCore
 
         public Assembly Load(string pluginAssemblyName)
         {
+            // var rootPluginPath = Path.Join(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
+            // var pluginStream = LocalDiskAssemblyLoadContext.LoadFileFromLocalDisk(rootPluginPath, pluginAssemblyName);
+            // this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath, this.options.DependencyLoadPreference);
+            // return this.context.LoadFromStream(pluginStream);
+
             var rootPluginPath = Path.Join(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
             var pluginStream = LocalDiskAssemblyLoadContext.LoadFileFromLocalDisk(rootPluginPath, pluginAssemblyName);
-            this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath, this.options.DependencyLoadPreference);
-            return this.context.LoadFromStream(pluginStream);
+            // var pluginStream2 = LocalDiskAssemblyLoadContext.LoadFileFromLocalDisk(rootPluginPath, pluginAssemblyName);
+            var dependencies = GetDependencies(Path.Join(this.rootPathProvider.GetRootPath(), this.options.PluginPath), pluginAssemblyName);
+            this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath, this.options.DependencyLoadPreference, dependencies);
+            var assembly = this.context.LoadFromStream(pluginStream);
+            foreach (var dependency in dependencies.Keys)
+            {
+                var dependencyAssembly = LoadAssembly(Path.Join(rootPluginPath, $"{dependency}.dll"));
+                if (dependencyAssembly != null)
+                    this.context.LoadFromStream(dependencyAssembly);
+            }
+            return assembly;
+        }
+
+        private Stream LoadAssembly(string path)
+        {
+            if (!File.Exists(path))
+                return null;
+            var memoryStream = new MemoryStream();
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                memoryStream.SetLength(stream.Length);
+                stream.Read(memoryStream.GetBuffer(), 0, (int)stream.Length);
+            }
+            return memoryStream;
         }
 
         public async Task<Assembly> LoadAsync(string pluginAssemblyName)
         {
             var rootPluginPath = Path.Join(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
             var pluginStream = await LocalDiskAssemblyLoadContext.LoadFileFromLocalDiskAsync(rootPluginPath, pluginAssemblyName);
-            this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath, this.options.DependencyLoadPreference);
+            this.context.Configure(this.rootPathProvider.GetRootPath(), this.options.PluginPath, this.options.DependencyLoadPreference, GetDependencies(pluginStream));
             return this.context.LoadFromStream(pluginStream);
         }
+
+        private ConcurrentDictionary<string, bool> GetDependencies(string assemblyLocation, string assemblyName)
+        {
+            var dependencies = new ConcurrentDictionary<string, bool>();
+            using (var stream = new StreamReader(Path.Join(assemblyLocation, $"{Path.GetFileNameWithoutExtension(assemblyName)}.deps.json")))
+            {
+                var json = stream.ReadToEnd();
+                var file = JsonSerializer.Deserialize<DependencyFile>(json);
+                var projectReferences = file.Libraries.Where(l => l.Value.Type == "project" && !l.Key.StartsWith("Contract"));
+                var otherReferencesExceptRuntime = file.Libraries
+                    .Where(l =>
+                        !l.Key.StartsWith("runtime") &&
+                        !l.Key.StartsWith("Microsoft.CSharp") &&
+                        !l.Key.StartsWith("NETStandard") &&
+                        !l.Key.StartsWith("Microsoft.NETCore") &&
+                        !l.Key.StartsWith("Contract") &&
+                        !l.Key.StartsWith("Microsoft.Win32") &&
+                        (l.Value.Type == "package" && l.Value.Serviceable));
+
+                foreach (var reference in projectReferences.Union(otherReferencesExceptRuntime))
+                    dependencies[reference.Key.Split('/')[0]] = false;
+            }
+            return dependencies;
+        }
+
+        private ConcurrentDictionary<string, bool> GetDependencies(Stream stream)
+        {
+            // var depsFile = 
+            var assembly = Assembly.Load(LocalDiskAssemblyLoadContext.ToByteArray(stream));
+            var dependencies = new ConcurrentDictionary<string, bool>();
+            foreach (var dependency in assembly.GetReferencedAssemblies())
+            {
+                if (!dependency.FullName.Contains("netstandard"))
+                    dependencies[dependency.FullName] = false;
+            }
+            return dependencies;
+        }
+    }
+
+    public class DependencyFile
+    {
+        [JsonPropertyName("libraries")]
+        public Dictionary<String, Library> Libraries { get; set; }
+    }
+
+    public class Library
+    {
+        [JsonPropertyName("type")]
+        public String Type { get; set; }
+
+        [JsonPropertyName("serviceable")]
+        public bool Serviceable { get; set; }
     }
 }

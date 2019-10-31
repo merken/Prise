@@ -13,6 +13,8 @@ using Microsoft.Extensions.Logging;
 
 using Contract;
 using Prise.Infrastructure.NetCore;
+using System.IO;
+using MyHost.Infrastructure;
 
 namespace MyHost
 {
@@ -29,14 +31,27 @@ namespace MyHost
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            var tenantConfig = new TenantConfig();
+            Configuration.Bind("TenantConfig", tenantConfig);
+            services.AddSingleton(tenantConfig); // Add the tenantConfig for use in the Tenant Aware middleware
+
+            services.AddHttpContextAccessor(); // Add the IHttpContextAccessor for use in the Tenant Aware middleware
+
             services.AddPrise<IProductsRepository>(options => options
-                .WithDefaultOptions(Path.Combine(GetExecutionDirectory(), "Plugins"))
-                .WithPluginAssemblyNameProvider<ContextPluginAssemblyNameProvider>()
-                .WithLocalDiskAssemblyLoader<ContextPluginAssemblyLoadOptions>()
+                // Plugins will be located at /bin/Debug/netcoreapp3.0/Plugins directory
+                // each plugin will have its own directory
+                // /SQLPlugin
+                // /TableStoragePlugin
+                // /CosmosDbPlugin
+                .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"))
+                .WithPluginAssemblyNameProvider<TenantPluginAssemblyNameProvider>()
+                .WithLocalDiskAssemblyLoader<TenantPluginAssemblyLoadOptions>()
                 .ConfigureSharedServices(services =>
                 {
-                    services.AddHttpContextAccessor(); // Required to read out HTTP Headers from request
-                    services.AddSingleton<IConfiguration>(Configuration); // Add the config
+                    // Add the configuration for use in the plugins
+                    // this way, the plugins can read their own config section from the appsettings.json
+                    services.AddSingleton(Configuration); 
                 })
             );
         }

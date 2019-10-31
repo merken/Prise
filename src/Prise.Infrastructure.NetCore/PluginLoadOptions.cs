@@ -6,17 +6,6 @@ using Prise.Infrastructure.NetCore.Contracts;
 
 namespace Prise.Infrastructure.NetCore
 {
-    public interface IPluginLoadOptions<T> : IDisposable
-    {
-        IRootPathProvider RootPathProvider { get; }
-        ISharedServicesProvider SharedServicesProvider { get; }
-        IRemotePluginActivator Activator { get; }
-        IResultConverter ResultConverter { get; }
-        IParameterConverter ParameterConverter { get; }
-        IPluginAssemblyLoader<T> AssemblyLoader { get; }
-        IPluginAssemblyNameProvider PluginAssemblyNameProvider { get; }
-    }
-
     public class PluginLoadOptions<T> : IPluginLoadOptions<T>
     {
         private readonly IRootPathProvider rootPathProvider;
@@ -26,6 +15,7 @@ namespace Prise.Infrastructure.NetCore
         private readonly IParameterConverter parameterConverter;
         private readonly IPluginAssemblyLoader<T> assemblyLoader;
         private readonly IPluginAssemblyNameProvider pluginAssemblyNameProvider;
+        private readonly IProxyCreator<T> proxyCreator;
         protected bool disposed = false;
 
         public PluginLoadOptions(
@@ -35,7 +25,9 @@ namespace Prise.Infrastructure.NetCore
             IParameterConverter parameterConverter,
             IResultConverter resultConverter,
             IPluginAssemblyLoader<T> assemblyLoader,
-            IPluginAssemblyNameProvider pluginAssemblyNameProvider)
+            IPluginAssemblyNameProvider pluginAssemblyNameProvider,
+            IProxyCreator<T> proxyCreator
+            )
         {
             this.rootPathProvider = rootPathProvider;
             this.sharedServicesProvider = sharedServicesProvider;
@@ -44,6 +36,7 @@ namespace Prise.Infrastructure.NetCore
             this.resultConverter = resultConverter;
             this.assemblyLoader = assemblyLoader;
             this.pluginAssemblyNameProvider = pluginAssemblyNameProvider;
+            this.proxyCreator = proxyCreator;
         }
 
         public IRootPathProvider RootPathProvider => this.rootPathProvider;
@@ -53,6 +46,7 @@ namespace Prise.Infrastructure.NetCore
         public IParameterConverter ParameterConverter => this.parameterConverter;
         public IPluginAssemblyLoader<T> AssemblyLoader => this.assemblyLoader;
         public IPluginAssemblyNameProvider PluginAssemblyNameProvider => this.pluginAssemblyNameProvider;
+        public IProxyCreator<T> ProxyCreator => this.proxyCreator;
 
         protected virtual void Dispose(bool disposing)
         {
@@ -67,6 +61,7 @@ namespace Prise.Infrastructure.NetCore
                 // Unloads the loaded plugin assemblies
                 this.assemblyLoader.Dispose();
                 this.pluginAssemblyNameProvider.Dispose();
+                this.proxyCreator.Dispose();
             }
             this.disposed = true;
         }
@@ -86,6 +81,8 @@ namespace Prise.Infrastructure.NetCore
         internal Type sharedServicesProviderType;
         internal IRemotePluginActivator activator;
         internal Type activatorType;
+        internal IProxyCreator<T> proxyCreator;
+        internal Type proxyCreatorType;
         internal IResultConverter resultConverter;
         internal Type resultConverterType;
         internal IParameterConverter parameterConverter;
@@ -115,6 +112,19 @@ namespace Prise.Infrastructure.NetCore
             where TType : IRootPathProvider
         {
             this.rootPathProviderType = typeof(TType);
+            return this;
+        }
+
+        public PluginLoadOptionsBuilder<T> WithProxyCreator(IProxyCreator<T> proxyCreator)
+        {
+            this.proxyCreator = proxyCreator;
+            return this;
+        }
+
+        public PluginLoadOptionsBuilder<T> WithProxyCreator<TType>()
+            where TType : IProxyCreator<T>
+        {
+            this.proxyCreatorType = typeof(TType);
             return this;
         }
 
@@ -248,6 +258,7 @@ namespace Prise.Infrastructure.NetCore
             this.rootPathProvider = new RootPathProvider(rootPath);
             this.sharedServicesProvider = new DefaultSharedServicesProvider(new ServiceCollection());
             this.activator = new NetCoreActivator(this.sharedServicesProvider);
+            this.proxyCreator = new PluginProxyCreator<T>();
 
             // Use System.Text.Json in 3.0
 #if NETCORE3_0
@@ -271,6 +282,7 @@ namespace Prise.Infrastructure.NetCore
         {
             services
                 .RegisterTypeOrInstance<IRootPathProvider>(rootPathProviderType, rootPathProvider)
+                .RegisterTypeOrInstance<IProxyCreator<T>>(proxyCreatorType, proxyCreator)
                 .RegisterTypeOrInstance<ISharedServicesProvider>(sharedServicesProviderType, sharedServicesProvider)
                 .RegisterTypeOrInstance<IPluginAssemblyNameProvider>(pluginAssemblyNameProviderType, pluginAssemblyNameProvider)
                 .RegisterTypeOrInstance<IRemotePluginActivator>(activatorType, activator)
