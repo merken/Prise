@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using Prise.Infrastructure;
 
@@ -47,35 +48,59 @@ namespace Prise.Infrastructure.NetCore
         protected T[] CreatePluginInstances<T>(IPluginLoadOptions<T> pluginLoadOptions, Assembly pluginAssembly)
         {
             var pluginInstances = new List<T>();
-            var pluginTypes = pluginAssembly
-                            .GetTypes()
-                            .Where(t => t.CustomAttributes
-                                .Any(c => c.AttributeType.Name == typeof(Prise.Infrastructure.PluginAttribute).Name
-                                && (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Name == typeof(T).Name))
-                            .OrderBy(t => t.Name);
-
-            if (pluginTypes == null || !pluginTypes.Any())
-                throw new FileNotFoundException($@"No plugin was found in assembly {pluginAssembly.FullName}. Requested plugin type: {typeof(T).Name}. Please add the {nameof(PluginAttribute)} to your plugin class and specify the PluginType: [Plugin(PluginType = typeof({typeof(T).Name}))]");
-
-            foreach (var pluginType in pluginTypes)
+            try
             {
-                var bootstrapperType = GetPluginBootstrapper(pluginAssembly, pluginType);
-                var pluginFactoryMethod = GetPluginFactoryMethod(pluginType);
+                var pluginTypes = pluginAssembly
+                                .GetTypes()
+                                .Where(t => t.CustomAttributes
+                                    .Any(c => c.AttributeType.Name == typeof(Prise.Infrastructure.PluginAttribute).Name
+                                    && (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Name == typeof(T).Name))
+                                .OrderBy(t => t.Name);
 
-                IPluginBootstrapper bootstrapper = null;
-                if (bootstrapperType != null)
+                if (pluginTypes == null || !pluginTypes.Any())
+                    throw new FileNotFoundException($@"No plugin was found in assembly {pluginAssembly.FullName}. Requested plugin type: {typeof(T).Name}. Please add the {nameof(PluginAttribute)} to your plugin class and specify the PluginType: [Plugin(PluginType = typeof({typeof(T).Name}))]");
+
+                foreach (var pluginType in pluginTypes)
                 {
-                    var remoteBootstrapperInstance = pluginLoadOptions.Activator.CreateRemoteBootstrapper(bootstrapperType, pluginAssembly);
-                    var remoteBootstrapperProxy = pluginLoadOptions.ProxyCreator.CreateBootstrapperProxy(remoteBootstrapperInstance);
-                    bootstrapper = remoteBootstrapperProxy;
-                    // if (remoteBootstrapperInstance as IPluginBootstrapper == null)
-                    //     throw new NotSupportedException("Version type mismatch");
-                    // bootstrapper = remoteBootstrapperInstance as IPluginBootstrapper;
-                }
+                    var bootstrapperType = GetPluginBootstrapper(pluginAssembly, pluginType);
+                    var pluginFactoryMethod = GetPluginFactoryMethod(pluginType);
 
-                var remoteObject = pluginLoadOptions.Activator.CreateRemoteInstance(pluginType, bootstrapper, pluginFactoryMethod, pluginAssembly);
-                var remoteProxy = pluginLoadOptions.ProxyCreator.CreatePluginProxy(remoteObject, pluginLoadOptions);
-                pluginInstances.Add(remoteProxy);
+                    IPluginBootstrapper bootstrapper = null;
+                    if (bootstrapperType != null)
+                    {
+                        var remoteBootstrapperInstance = pluginLoadOptions.Activator.CreateRemoteBootstrapper(bootstrapperType, pluginAssembly);
+                        var remoteBootstrapperProxy = pluginLoadOptions.ProxyCreator.CreateBootstrapperProxy(remoteBootstrapperInstance);
+                        bootstrapper = remoteBootstrapperProxy;
+                        // if (remoteBootstrapperInstance as IPluginBootstrapper == null)
+                        //     throw new NotSupportedException("Version type mismatch");
+                        // bootstrapper = remoteBootstrapperInstance as IPluginBootstrapper;
+                    }
+
+                    var remoteObject = pluginLoadOptions.Activator.CreateRemoteInstance(pluginType, bootstrapper, pluginFactoryMethod, pluginAssembly);
+                    var remoteProxy = pluginLoadOptions.ProxyCreator.CreatePluginProxy(remoteObject, pluginLoadOptions);
+                    pluginInstances.Add(remoteProxy);
+                }
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (Exception exSub in ex.LoaderExceptions)
+                {
+                    sb.AppendLine(exSub.Message);
+                    FileNotFoundException exFileNotFound = exSub as FileNotFoundException;
+                    if (exFileNotFound != null)
+                    {
+                        if (!string.IsNullOrEmpty(exFileNotFound.FusionLog))
+                        {
+                            sb.AppendLine("Fusion Log:");
+                            sb.AppendLine(exFileNotFound.FusionLog);
+                        }
+                    }
+                    sb.AppendLine();
+                }
+                string errorMessage = sb.ToString();
+                throw new Exception(errorMessage);
+                //Display or log the error based on your application.
             }
 
             return pluginInstances.ToArray();
