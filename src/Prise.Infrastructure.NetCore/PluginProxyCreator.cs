@@ -2,29 +2,28 @@ using System;
 
 namespace Prise.Infrastructure.NetCore
 {
-    public class PluginProxyCreator<T> : IProxyCreator<T>
+    public abstract class PluginProxyCreator
+    {
+        public static TProxyType CreateProxy<TProxyType>(object remoteObject, IParameterConverter parameterConverter, IResultConverter resultConverter)
+        {
+            var proxy = PluginProxy<TProxyType>.Create();
+            ((PluginProxy<TProxyType>)proxy)
+                .SetRemoteObject(remoteObject)
+                .SetParameterConverter(parameterConverter)
+                .SetResultConverter(resultConverter);
+            return (TProxyType)proxy;
+        }
+    }
+
+    public class PluginProxyCreator<T> : PluginProxyCreator,  IProxyCreator<T>
     {
         protected bool disposed = false;
 
-        public IPluginBootstrapper CreateBootstrapperProxy(object remoteBootstrapper)
-        {
-            var proxy = PluginProxy<IPluginBootstrapper>.Create();
-            ((PluginProxy<IPluginBootstrapper>)proxy)
-                .SetRemoteObject(remoteBootstrapper)
-                .SetParameterConverter(new PassthroughParameterConverter())
-                .SetResultConverter(new PassthroughResultConverter());
-            return (IPluginBootstrapper)proxy;
-        }
+        public IPluginBootstrapper CreateBootstrapperProxy(object remoteBootstrapper) =>
+            CreateProxy<IPluginBootstrapper>(remoteBootstrapper, new PassthroughParameterConverter(), new PassthroughResultConverter());
 
-        public T CreatePluginProxy(object remoteObject, IPluginLoadOptions<T> options)
-        {
-            var proxy = PluginProxy<T>.Create();
-            ((PluginProxy<T>)proxy)
-                .SetRemoteObject(remoteObject)
-                .SetParameterConverter(options.ParameterConverter)
-                .SetResultConverter(options.ResultConverter);
-            return (T)proxy;
-        }
+        public T CreatePluginProxy(object remoteObject, IPluginLoadOptions<T> options) =>
+            CreateProxy<T>(remoteObject, options.ParameterConverter, options.ResultConverter);
 
         protected virtual void Dispose(bool disposing)
         {

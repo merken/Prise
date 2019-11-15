@@ -21,11 +21,11 @@ namespace Prise.Infrastructure.NetCore
             var firstCtor = contructors.First();
 
             if (!contructors.Any())
-                throw new NotSupportedException($"No public constructors found for remote bootstrapper {bootstrapperType.Name}");
+                throw new PrisePluginException($"No public constructors found for remote bootstrapper {bootstrapperType.Name}");
             if (firstCtor.GetParameters().Any())
-                throw new NotSupportedException($"Bootstrapper {bootstrapperType.Name} must contain a public parameterless constructor");
-            return Activator.CreateInstance(bootstrapperType);
-            // return assembly.CreateInstance(bootstrapperType.FullName);
+                throw new PrisePluginException($"Bootstrapper {bootstrapperType.Name} must contain a public parameterless constructor");
+
+            return assembly.CreateInstance(bootstrapperType.FullName);
         }
 
         public object CreateRemoteInstance(Type pluginType, IPluginBootstrapper bootstrapper, MethodInfo factoryMethod, Assembly assembly)
@@ -33,19 +33,18 @@ namespace Prise.Infrastructure.NetCore
             var contructors = pluginType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
 
             if (contructors.Count() > 1)
-                throw new NotSupportedException($"Multiple public constructors found for remote plugin {pluginType.Name}");
+                throw new PrisePluginException($"Multiple public constructors found for remote plugin {pluginType.Name}");
 
             var firstCtor = contructors.FirstOrDefault();
             if (firstCtor != null && !firstCtor.GetParameters().Any())
                 return assembly.CreateInstance(pluginType.FullName);
-            // return Activator.CreateInstance(pluginType);
 
             if (factoryMethod == null)
-                throw new NotSupportedException($@"Plugins must either provide a default parameterless constructor or implement a static factory method.
+                throw new PrisePluginException($@"Plugins must either provide a default parameterless constructor or implement a static factory method.
                     Like; 'public static {pluginType.Name} CreatePlugin(IServiceProvider serviceProvider)");
 
             if (bootstrapper == null)
-                throw new NotSupportedException($"The type requires dependencies, please provide a {nameof(IPluginBootstrapper)} for plugin {pluginType.Name}");
+                throw new PrisePluginException($"The type requires dependencies, please provide a {nameof(IPluginBootstrapper)} for plugin {pluginType.Name}");
 
             var serviceProvider = CreateServiceProviderForType(bootstrapper);
             return factoryMethod.Invoke(null, new[] { serviceProvider });

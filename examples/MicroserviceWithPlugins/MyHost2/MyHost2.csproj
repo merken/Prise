@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\MyHost\Controllers\ProductsController.cs" Link="Controllers\ProductsController.cs" />
+    <Compile Include="..\MyHost\Controllers\ProductsUsingLoaderController.cs" Link="Controllers\ProductsUsingLoaderController.cs" />
+    <Compile Include="..\MyHost\Infrastructure\TenantAwarePluginMiddleware.cs" Link="Infrastructure\TenantAwarePluginMiddleware.cs" />
+    <Compile Include="..\MyHost\Infrastructure\TenantConfig.cs" Link="Infrastructure\TenantConfig.cs" />
+    <Compile Include="..\MyHost\Infrastructure\TenantPluginAssemblyLoadOptions.cs" Link="Infrastructure\TenantPluginAssemblyLoadOptions.cs" />
+    <Compile Include="..\MyHost\Infrastructure\TenantPluginAssemblyNameProvider.cs" Link="Infrastructure\TenantPluginAssemblyNameProvider.cs" />
+    <Compile Include="..\MyHost\Infrastructure\TenantPluginDependencyPathProvider.cs" Link="Infrastructure\TenantPluginDependencyPathProvider.cs" />
+    <Compile Include="..\MyHost\Infrastructure\TenantPluginNetworkLoadOptions.cs" Link="Infrastructure\TenantPluginNetworkLoadOptions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+    <Folder Include="Infrastructure\" />
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Prise.Infrastructure.NetCore\Prise.Infrastructure.NetCore.csproj" />
+    <ProjectReference Include="..\..\..\src\Prise.Infrastructure\Prise.Infrastructure.csproj" />
+    <ProjectReference Include="..\Contract\Contract.csproj" />
+  </ItemGroup>
+
+</Project>

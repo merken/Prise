@@ -1,6 +1,4 @@
-using Prise.Infrastructure;
-
-namespace Prise.Infrastructure.NetCore.Contracts
+namespace Prise.Infrastructure.NetCore
 {
     public interface INetworkAssemblyLoaderOptions : IAssemblyLoadOptions
     {
@@ -10,8 +8,12 @@ namespace Prise.Infrastructure.NetCore.Contracts
     public class NetworkAssemblyLoaderOptions : AssemblyLoadOptions, INetworkAssemblyLoaderOptions
     {
         private readonly string baseUrl;
-        public NetworkAssemblyLoaderOptions(string baseUrl, DependencyLoadPreference dependencyLoadPreference = DependencyLoadPreference.PreferRemote)
-         : base(dependencyLoadPreference)
+        public NetworkAssemblyLoaderOptions(string baseUrl,
+            PluginPlatformVersion pluginPlatformVersion,
+            DependencyLoadPreference dependencyLoadPreference,
+            NativeDependencyLoadPreference nativeDependencyLoadPreference
+        )
+         : base(pluginPlatformVersion, dependencyLoadPreference, nativeDependencyLoadPreference)
         {
             this.baseUrl = baseUrl;
 

@@ -12,5 +12,9 @@ namespace Prise.Infrastructure
         IPluginAssemblyLoader<T> AssemblyLoader { get; }
         IPluginAssemblyNameProvider PluginAssemblyNameProvider { get; }
         IProxyCreator<T> ProxyCreator { get; }
+        IHostTypesProvider HostTypesProvider { get; }
+        IRemoteTypesProvider RemoteTypesProvider { get; }
+        IRuntimePlatformContext RuntimePlatformContext { get; }
+        IPluginSelector PluginSelector { get; }
     }
 }
