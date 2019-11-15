@@ -17,10 +17,22 @@ namespace MyHost.Infrastructure
             this.contextAccessor = contextAccessor;
         }
 
-        protected string GetPlugin()
+        protected string GetPluginPath()
         {
             if (!this.contextAccessor.HttpContext.Request.Headers["Tenant"].Any())
-                throw new NotSupportedException("Please provide Tenant HTTP Header");
+                return "OldSQLPlugin"; //The old plugin is a netcoreapp2.1 plugin, it should work on both MyHost and MyHost2
+
+            var tenant = this.contextAccessor.HttpContext.Request.Headers["Tenant"].First();
+            var configPair = this.tenantConfig.Configuration
+                .FirstOrDefault(c => String.Compare(c.Tenant, tenant, StringComparison.OrdinalIgnoreCase) == 0);
+            return configPair.Plugin;
+        }
+
+        protected string GetPluginAssembly()
+        {
+            if (!this.contextAccessor.HttpContext.Request.Headers["Tenant"].Any())
+                return "OldSQLPlugin";
+
             var tenant = this.contextAccessor.HttpContext.Request.Headers["Tenant"].First();
             var configPair = this.tenantConfig.Configuration
                 .FirstOrDefault(c => String.Compare(c.Tenant, tenant, StringComparison.OrdinalIgnoreCase) == 0);

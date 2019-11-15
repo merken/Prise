@@ -29,6 +29,7 @@ private void CleanProject(string projectDirectory){
 Task("clean").Does( () =>
 { 
   CleanProject("CosmosDbPlugin");
+  CleanProject("OldSQLPlugin");
   CleanProject("SQLPlugin");
   CleanProject("TableStoragePlugin");
 });
@@ -43,6 +44,7 @@ Task("build")
     };
 
     DotNetCoreBuild("CosmosDbPlugin\\CosmosDbPlugin.csproj", settings);
+    DotNetCoreBuild("OldSQLPlugin\\OldSQLPlugin.csproj", settings);
     DotNetCoreBuild("SQLPlugin\\SQLPlugin.csproj", settings);
     DotNetCoreBuild("TableStoragePlugin\\TableStoragePlugin.csproj", settings);
 });
@@ -58,12 +60,20 @@ Task("publish")
         OutputDirectory = "publish/CosmosDbPlugin"
     });
 
+    DotNetCorePublish("OldSQLPlugin\\OldSQLPlugin.csproj", new DotNetCorePublishSettings
+    {
+        NoBuild = true,
+        Configuration = configuration,
+        OutputDirectory = "publish/OldSQLPlugin"
+    });
+
     DotNetCorePublish("SQLPlugin\\SQLPlugin.csproj", new DotNetCorePublishSettings
     {
         NoBuild = true,
         Configuration = configuration,
         OutputDirectory = "publish/SQLPlugin"
     });
+
     DotNetCorePublish("TableStoragePlugin\\TableStoragePlugin.csproj", new DotNetCorePublishSettings
     {
         NoBuild = true,
@@ -77,8 +87,16 @@ Task("copy-to-apphost")
   .Does(() =>
   {
     CopyDirectory("publish/CosmosDbPlugin", "MyHost/bin/debug/netcoreapp3.0/Plugins/CosmosDbPlugin");
+    CopyDirectory("publish/CosmosDbPlugin", "MyHost2/bin/debug/netcoreapp2.1/Plugins/CosmosDbPlugin");
+    CopyDirectory("publish/CosmosDbPlugin", "PluginServer/Plugins/CosmosDbPlugin");
     CopyDirectory("publish/SQLPlugin", "MyHost/bin/debug/netcoreapp3.0/Plugins/SQLPlugin");
+    CopyDirectory("publish/SQLPlugin", "MyHost2/bin/debug/netcoreapp2.1/Plugins/SQLPlugin");
+    CopyDirectory("publish/SQLPlugin", "PluginServer/Plugins/SQLPlugin");
+    CopyDirectory("publish/OldSQLPlugin", "MyHost/bin/debug/netcoreapp3.0/Plugins/OldSQLPlugin");
+    CopyDirectory("publish/OldSQLPlugin", "MyHost2/bin/debug/netcoreapp2.1/Plugins/OldSQLPlugin");
     CopyDirectory("publish/TableStoragePlugin", "MyHost/bin/debug/netcoreapp3.0/Plugins/TableStoragePlugin");
+    CopyDirectory("publish/TableStoragePlugin", "MyHost2/bin/debug/netcoreapp2.1/Plugins/TableStoragePlugin");
+    CopyDirectory("publish/TableStoragePlugin", "PluginServer/Plugins/TableStoragePlugin");
   });
 
 Task("default")

@@ -1,5 +1,3 @@
-using System;
-using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -18,10 +16,10 @@ namespace SQLPlugin
             var config = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
             var sqlConfig = new SQLPluginConfig();
             config.Bind("SQLPlugin", sqlConfig);
-            Console.WriteLine($"CONNECTION STRING : {sqlConfig.ConnectionString}");
             
             services.AddScoped<DbConnection>((serviceProvider) =>
             {
+                // using Microsoft.Data.SqlClient
                 var dbConnection = new SqlConnection(sqlConfig.ConnectionString);
                 dbConnection.Open();
                 return dbConnection;

@@ -1,28 +1,33 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Prise.Infrastructure;
 
 namespace Prise.Infrastructure.NetCore
 {
     public abstract class PluginLoader
     {
+        protected Assembly pluginAssembly;
+        protected List<IDisposable> disposables;
+
+        protected PluginLoader()
+        {
+            this.disposables = new List<IDisposable>();
+        }
 
         protected T[] LoadPluginsOfType<T>(IPluginLoadOptions<T> pluginLoadOptions)
         {
             var assemblyName = GetAssemblyName(pluginLoadOptions);
-            var assembly = pluginLoadOptions.AssemblyLoader.Load(assemblyName);
-            return CreatePluginInstances(pluginLoadOptions, assembly);
+            this.pluginAssembly = pluginLoadOptions.AssemblyLoader.Load(assemblyName);
+            return CreatePluginInstances(pluginLoadOptions, ref this.pluginAssembly);
         }
 
         protected async Task<T[]> LoadPluginsOfTypeAsync<T>(IPluginLoadOptions<T> pluginLoadOptions)
         {
             var assemblyName = GetAssemblyName(pluginLoadOptions);
-            var assembly = await pluginLoadOptions.AssemblyLoader.LoadAsync(assemblyName);
-            return CreatePluginInstances(pluginLoadOptions, assembly);
+            this.pluginAssembly = await pluginLoadOptions.AssemblyLoader.LoadAsync(assemblyName);
+            return CreatePluginInstances(pluginLoadOptions, ref this.pluginAssembly);
         }
 
         protected void Unload<T>(IPluginLoadOptions<T> pluginLoadOptions)
@@ -39,12 +44,12 @@ namespace Prise.Infrastructure.NetCore
         {
             var assemblyName = pluginLoadOptions.PluginAssemblyNameProvider.GetAssemblyName();
             if (String.IsNullOrEmpty(assemblyName))
-                throw new NotSupportedException($"IPluginAssemblyNameProvider returned an empty assembly name for plugin type {typeof(T).Name}");
+                throw new PrisePluginException($"IPluginAssemblyNameProvider returned an empty assembly name for plugin type {typeof(T).Name}");
 
             return assemblyName;
         }
 
-        protected T[] CreatePluginInstances<T>(IPluginLoadOptions<T> pluginLoadOptions, Assembly pluginAssembly)
+        protected T[] CreatePluginInstances<T>(IPluginLoadOptions<T> pluginLoadOptions, ref Assembly pluginAssembly)
         {
             var pluginInstances = new List<T>();
             var pluginTypes = pluginAssembly
@@ -52,14 +57,20 @@ namespace Prise.Infrastructure.NetCore
                             .Where(t => t.CustomAttributes
                                 .Any(c => c.AttributeType.Name == typeof(Prise.Infrastructure.PluginAttribute).Name
                                 && (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Name == typeof(T).Name))
-                            .OrderBy(t => t.Name);
+                            .OrderBy(t => t.Name)
+                            .AsEnumerable();
 
             if (pluginTypes == null || !pluginTypes.Any())
-                throw new FileNotFoundException($@"No plugin was found in assembly {pluginAssembly.FullName}. Requested plugin type: {typeof(T).Name}. Please add the {nameof(PluginAttribute)} to your plugin class and specify the PluginType: [Plugin(PluginType = typeof({typeof(T).Name}))]");
+                throw new PrisePluginException($@"No plugin was found in assembly {pluginAssembly.FullName}. Requested plugin type: {typeof(T).Name}. Please add the {nameof(PluginAttribute)} to your plugin class and specify the PluginType: [Plugin(PluginType = typeof({typeof(T).Name}))]");
+
+            pluginTypes = pluginLoadOptions.PluginSelector.SelectPlugins(pluginTypes);
+
+            if (!pluginTypes.Any())
+                throw new PrisePluginException($@"Selector returned no plugin for {pluginAssembly.FullName}. Requested plugin type: {typeof(T).Name}. Please add the {nameof(PluginAttribute)} to your plugin class and specify the PluginType: [Plugin(PluginType = typeof({typeof(T).Name}))]");
 
             foreach (var pluginType in pluginTypes)
             {
-                var bootstrapperType = GetPluginBootstrapper(pluginAssembly, pluginType);
+                var bootstrapperType = GetPluginBootstrapper(ref this.pluginAssembly, pluginType);
                 var pluginFactoryMethod = GetPluginFactoryMethod(pluginType);
 
                 IPluginBootstrapper bootstrapper = null;
@@ -67,21 +78,20 @@ namespace Prise.Infrastructure.NetCore
                 {
                     var remoteBootstrapperInstance = pluginLoadOptions.Activator.CreateRemoteBootstrapper(bootstrapperType, pluginAssembly);
                     var remoteBootstrapperProxy = pluginLoadOptions.ProxyCreator.CreateBootstrapperProxy(remoteBootstrapperInstance);
+                    this.disposables.Add(remoteBootstrapperProxy as IDisposable);
                     bootstrapper = remoteBootstrapperProxy;
-                    // if (remoteBootstrapperInstance as IPluginBootstrapper == null)
-                    //     throw new NotSupportedException("Version type mismatch");
-                    // bootstrapper = remoteBootstrapperInstance as IPluginBootstrapper;
                 }
 
                 var remoteObject = pluginLoadOptions.Activator.CreateRemoteInstance(pluginType, bootstrapper, pluginFactoryMethod, pluginAssembly);
                 var remoteProxy = pluginLoadOptions.ProxyCreator.CreatePluginProxy(remoteObject, pluginLoadOptions);
+                this.disposables.Add(remoteProxy as IDisposable);
                 pluginInstances.Add(remoteProxy);
             }
 
             return pluginInstances.ToArray();
         }
 
-        protected Type GetPluginBootstrapper(Assembly pluginAssembly, Type pluginType)
+        protected Type GetPluginBootstrapper(ref Assembly pluginAssembly, Type pluginType)
         {
             return pluginAssembly
                     .GetTypes()

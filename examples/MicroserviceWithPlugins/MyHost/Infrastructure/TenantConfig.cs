@@ -11,5 +11,6 @@ namespace MyHost.Infrastructure
     {
         public string Tenant { get; set; }
         public string Plugin { get; set; }
+        public string PluginDirectory { get; set; }
     }
 }

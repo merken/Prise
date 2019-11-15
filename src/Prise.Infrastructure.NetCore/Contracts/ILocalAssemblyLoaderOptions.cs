@@ -1,6 +1,4 @@
-using Prise.Infrastructure;
-
-namespace Prise.Infrastructure.NetCore.Contracts
+namespace Prise.Infrastructure.NetCore
 {
     public interface ILocalAssemblyLoaderOptions : IAssemblyLoadOptions
     {
@@ -10,12 +8,16 @@ namespace Prise.Infrastructure.NetCore.Contracts
     public class LocalAssemblyLoaderOptions : AssemblyLoadOptions, ILocalAssemblyLoaderOptions
     {
         private readonly string pluginPath;
-        public LocalAssemblyLoaderOptions(string pluginPath, DependencyLoadPreference dependencyLoadPreference = DependencyLoadPreference.PreferRemote)
-         : base(dependencyLoadPreference)
+        public LocalAssemblyLoaderOptions(string pluginPath,
+            PluginPlatformVersion pluginPlatformVersion,
+            DependencyLoadPreference dependencyLoadPreference,
+            NativeDependencyLoadPreference nativeDependencyLoadPreference
+        )
+         : base(pluginPlatformVersion, dependencyLoadPreference, nativeDependencyLoadPreference)
         {
             this.pluginPath = pluginPath;
         }
-        
+
         public string PluginPath => pluginPath;
     }
 }

@@ -10,7 +10,7 @@ namespace MyHost.Infrastructure
         public TenantPluginAssemblyNameProvider(IHttpContextAccessor contextAccessor, TenantConfig tenantConfig)
             : base(contextAccessor, tenantConfig) { }
 
-        public string GetAssemblyName() => $"{GetPlugin()}.dll";
+        public string GetAssemblyName() => $"{GetPluginAssembly()}.dll";
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls

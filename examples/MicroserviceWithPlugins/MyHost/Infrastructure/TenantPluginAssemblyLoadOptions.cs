@@ -1,7 +1,6 @@
-using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Prise.Infrastructure;
-using Prise.Infrastructure.NetCore.Contracts;
+using Prise.Infrastructure.NetCore;
 
 namespace MyHost.Infrastructure
 {
@@ -9,7 +8,9 @@ namespace MyHost.Infrastructure
     {
         public TenantPluginAssemblyLoadOptions(IHttpContextAccessor contextAccessor, TenantConfig tenantConfig)
             : base(contextAccessor, tenantConfig) { }
-        public string PluginPath => GetPlugin();
+        public string PluginPath => GetPluginPath();
+        public PluginPlatformVersion PluginPlatformVersion => PluginPlatformVersion.Empty(); // Allow for runtime platform scanning
         public DependencyLoadPreference DependencyLoadPreference => DependencyLoadPreference.PreferDependencyContext;
+        public NativeDependencyLoadPreference NativeDependencyLoadPreference => NativeDependencyLoadPreference.PreferInstalledRuntime;
     }
 }

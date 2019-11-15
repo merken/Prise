@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Contract
 {
-    public interface IProductsRepository
+    public interface IProductsRepository //: IDisposable
     {
         Task<Product> Get(int productId);
         Task<Product> Create(Product product);

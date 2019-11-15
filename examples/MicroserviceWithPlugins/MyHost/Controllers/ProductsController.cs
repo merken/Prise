@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -15,7 +14,8 @@ namespace MyHost.Controllers
         private readonly ILogger<ProductsController> _logger;
         private readonly IProductsRepository repository;
 
-        public ProductsController(ILogger<ProductsController> logger, IProductsRepository repository)
+        public ProductsController(ILogger<ProductsController> logger,
+            IProductsRepository repository)
         {
             this.repository = repository;
             _logger = logger;
@@ -25,9 +25,9 @@ namespace MyHost.Controllers
         public Task<IEnumerable<Product>> Get([FromQuery] string searchTerm)
         {
             if (String.IsNullOrEmpty(searchTerm))
-                return this.repository.All();
+                return repository.All();
 
-            return this.repository.Search(searchTerm);
+            return repository.Search(searchTerm);
         }
 
         [HttpGet("{productId}")]

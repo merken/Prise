@@ -6,5 +6,6 @@ publish
 **/PluginServer/Plugins
 **/MyHost/Plugins
 .vs
-*.sln
 *.cmd
+*.sln
+appsettings.Development.json

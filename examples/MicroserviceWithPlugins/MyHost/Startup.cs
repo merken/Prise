@@ -36,8 +36,9 @@ namespace MyHost
             Configuration.Bind("TenantConfig", tenantConfig);
             services.AddSingleton(tenantConfig); // Add the tenantConfig for use in the Tenant Aware middleware
 
+            services.AddHttpClient();
             services.AddHttpContextAccessor(); // Add the IHttpContextAccessor for use in the Tenant Aware middleware
-
+            
             services.AddPrise<IProductsRepository>(options => options
                 // Plugins will be located at /bin/Debug/netcoreapp3.0/Plugins directory
                 // each plugin will have its own directory
@@ -46,13 +47,21 @@ namespace MyHost
                 // /CosmosDbPlugin
                 .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"))
                 .WithPluginAssemblyNameProvider<TenantPluginAssemblyNameProvider>()
+
                 .WithLocalDiskAssemblyLoader<TenantPluginAssemblyLoadOptions>()
+                //.WithNetworkAssemblyLoader<TenantPluginNetworkLoadOptions>()
+
+                .WithDependencyPathProvider<TenantPluginDependencyPathProvider>()
                 .ConfigureSharedServices(services =>
                 {
                     // Add the configuration for use in the plugins
                     // this way, the plugins can read their own config section from the appsettings.json
-                    services.AddSingleton(Configuration); 
+                    services.AddSingleton(Configuration);
                 })
+            //.WithSelector((types) =>
+            //{
+            //    return types.Where(t => t.Name.Contains("MongoDbProductsRepository"));
+            //})
             );
         }
 
