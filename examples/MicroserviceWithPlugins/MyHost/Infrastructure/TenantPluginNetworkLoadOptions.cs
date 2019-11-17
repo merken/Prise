@@ -11,6 +11,7 @@ namespace MyHost.Infrastructure
         public string BaseUrl => $"https://localhost:5003/Plugins/{GetPluginPath()}";
 
         public PluginPlatformVersion PluginPlatformVersion => PluginPlatformVersion.Empty();
+        public bool IgnorePlatformInconsistencies => false;
         public DependencyLoadPreference DependencyLoadPreference => DependencyLoadPreference.PreferDependencyContext;
         public NativeDependencyLoadPreference NativeDependencyLoadPreference => NativeDependencyLoadPreference.PreferInstalledRuntime;
     }
