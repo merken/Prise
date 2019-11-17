@@ -32,7 +32,8 @@ namespace Prise.Infrastructure.NetCore
                 depsFileProvider,
                 pluginDependencyResolver,
                 nativeAssemblyUnloader,
-                options.PluginPath
+                options.PluginPath,
+                options.IgnorePlatformInconsistencies
             );
 
             this.assemblyLoadContextReference = new System.WeakReference(this.loadContext);

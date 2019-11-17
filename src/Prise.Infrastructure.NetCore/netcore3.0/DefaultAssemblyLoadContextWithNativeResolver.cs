@@ -36,7 +36,8 @@ namespace Prise.Infrastructure.NetCore
                 depsFileProvider,
                 pluginDependencyResolver,
                 nativeAssemblyUnloader,
-                options.PluginPath
+                options.PluginPath,
+                options.IgnorePlatformInconsistencies
             )
         { }
 

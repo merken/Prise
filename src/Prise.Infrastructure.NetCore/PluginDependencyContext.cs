@@ -42,7 +42,8 @@ namespace Prise.Infrastructure.NetCore
             IEnumerable<Type> hostTypes,
             IEnumerable<Type> remoteTypes,
             IRuntimePlatformContext runtimePlatformContext,
-            IDepsFileProvider depsFileProvider)
+            IDepsFileProvider depsFileProvider,
+            bool ignorePlatformInconsistencies)
         {
             var hostDependencies = new List<HostDependency>();
             var remoteDependencies = new List<RemoteDependency>();
@@ -58,7 +59,7 @@ namespace Prise.Infrastructure.NetCore
             var hostFramework = hostFrameworkProvider.ProvideHostFramwork();
             var dependencyContext = GetDependencyContextFromPluginAssembly(pluginAssemblyName, depsFileProvider);
             var pluginFramework = dependencyContext.Target.Framework;
-            CheckFrameworkCompatibility(hostFramework, pluginFramework);
+            CheckFrameworkCompatibility(hostFramework, pluginFramework, ignorePlatformInconsistencies);
 
             var pluginDependencies = GetPluginDependencies(dependencyContext);
             var pluginReferenceDependencies = GetPluginReferenceDependencies(dependencyContext);
@@ -82,7 +83,8 @@ namespace Prise.Infrastructure.NetCore
             IEnumerable<Type> hostTypes,
             IEnumerable<Type> remoteTypes,
             IRuntimePlatformContext runtimePlatformContext,
-            IDepsFileProvider depsFileProvider)
+            IDepsFileProvider depsFileProvider,
+            bool ignorePlatformInconsistencies)
         {
             var hostDependencies = new List<HostDependency>();
             var remoteDependencies = new List<RemoteDependency>();
@@ -98,7 +100,7 @@ namespace Prise.Infrastructure.NetCore
             var hostFramework = hostFrameworkProvider.ProvideHostFramwork();
             var dependencyContext = await GetDependencyContextFromPluginAssemblyAsync(pluginAssemblyName, depsFileProvider);
             var pluginFramework = dependencyContext.Target.Framework;
-            CheckFrameworkCompatibility(hostFramework, pluginFramework);
+            CheckFrameworkCompatibility(hostFramework, pluginFramework, ignorePlatformInconsistencies);
 
             var pluginDependencies = GetPluginDependencies(dependencyContext);
             var resoureDependencies = GetResourceDependencies(dependencyContext);
@@ -116,13 +118,25 @@ namespace Prise.Infrastructure.NetCore
                 runtimePlatformContext);
         }
 
-        private static void CheckFrameworkCompatibility(string hostFramework, string pluginFramework)
+        private static void CheckFrameworkCompatibility(string hostFramework, string pluginFramework, bool ignorePlatformInconsistencies)
         {
+            if (ignorePlatformInconsistencies)
+                return;
+
             if (pluginFramework != hostFramework)
             {
                 Debug.WriteLine($"Plugin framework {pluginFramework} does not match host framework {hostFramework}");
-                var pluginFrameworkVersion = pluginFramework.Split(new String[] { "Version=v" }, StringSplitOptions.RemoveEmptyEntries)[1];
-                var hostFrameworkVersion = hostFramework.Split(new String[] { "Version=v" }, StringSplitOptions.RemoveEmptyEntries)[1];
+
+                var pluginFrameworkType = pluginFramework.Split(new String[] { ",Version=v" }, StringSplitOptions.RemoveEmptyEntries)[0];
+                var hostFrameworkType = hostFramework.Split(new String[] { ",Version=v" }, StringSplitOptions.RemoveEmptyEntries)[0];
+                if (pluginFrameworkType.ToLower() == ".netstandard")
+                    throw new PrisePluginException($"Plugin framework {pluginFramework} might have compatibility issues, use the IgnorePlatformInconsistencies flag to skip this check.");
+
+                if (pluginFrameworkType != hostFrameworkType)
+                    throw new PrisePluginException($"Plugin framework {pluginFramework} does not match the host {hostFramework}. Please target {hostFramework} in order to load the plugin.");
+
+                var pluginFrameworkVersion = pluginFramework.Split(new String[] { ",Version=v" }, StringSplitOptions.RemoveEmptyEntries)[1];
+                var hostFrameworkVersion = hostFramework.Split(new String[] { ",Version=v" }, StringSplitOptions.RemoveEmptyEntries)[1];
                 var pluginFrameworkVersionMajor = int.Parse(pluginFrameworkVersion.Split(new String[] { "." }, StringSplitOptions.RemoveEmptyEntries)[0]);
                 var pluginFrameworkVersionMinor = int.Parse(pluginFrameworkVersion.Split(new String[] { "." }, StringSplitOptions.RemoveEmptyEntries)[1]);
                 var hostFrameworkVersionMajor = int.Parse(hostFrameworkVersion.Split(new String[] { "." }, StringSplitOptions.RemoveEmptyEntries)[0]);
