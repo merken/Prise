@@ -1,7 +1,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Prise.Infrastructure;
-using Prise.Infrastructure.NetCore.Contracts;
+using Prise.Infrastructure.NetCore;
 
 namespace AppHost.Custom
 {
@@ -31,6 +31,14 @@ namespace AppHost.Custom
             }
         }
 
+        public PluginPlatformVersion PluginPlatformVersion => PluginPlatformVersion.Empty();
+        
+        /// <summary>
+        /// The plugins are of type netstandard, while the host is a netcoreapp. To ignore this inconsistency, set this flag to true.
+        /// </summary>
+        public bool IgnorePlatformInconsistencies => true; 
         public DependencyLoadPreference DependencyLoadPreference => DependencyLoadPreference.PreferDependencyContext;
+
+        public NativeDependencyLoadPreference NativeDependencyLoadPreference => NativeDependencyLoadPreference.PreferInstalledRuntime;
     }
 }

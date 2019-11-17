@@ -50,6 +50,7 @@ namespace AppHost
                      .WithDefaultOptions(Path.Combine(GetExecutionDirectory(), "Plugins"))
                      .WithPluginAssemblyNameProvider<ContextPluginAssemblyNameProvider>()
                      .WithLocalDiskAssemblyLoader<ContextPluginAssemblyLoadOptions>()
+                     .WithHostFrameworkProvider<AppHostFrameworkProvider>()
              );
         }
 
