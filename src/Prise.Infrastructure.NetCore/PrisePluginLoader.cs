@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Prise.Infrastructure.NetCore
@@ -44,15 +43,18 @@ namespace Prise.Infrastructure.NetCore
         {
             this.pluginLoadOptions.AssemblyLoader.Unload();
         }
-
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed && disposing)
             {
+                foreach (var disposable in this.disposables)
+                    disposable.Dispose();
+
+                // Remove the lock on the loaded assembly
+                this.pluginAssembly = null;
                 // Disposes all configured services for the PluginLoadOptions
                 // Including the AssemblyLoader
                 this.pluginLoadOptions.Dispose();
-
             }
             this.disposed = true;
         }
