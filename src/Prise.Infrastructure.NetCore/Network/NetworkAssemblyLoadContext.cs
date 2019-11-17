@@ -40,7 +40,8 @@ namespace Prise.Infrastructure.NetCore
                 depsFileProvider,
                 pluginDependencyResolver,
                 nativeAssemblyUnloader,
-                String.Empty
+                String.Empty,
+                options.IgnorePlatformInconsistencies
              )
         {
             this.httpClient = httpClientFactory.CreateClient();
@@ -56,7 +57,8 @@ namespace Prise.Infrastructure.NetCore
                 this.hostTypesProvider.ProvideHostTypes(),
                 this.remoteTypesProvider.ProvideRemoteTypes(),
                 this.runtimePlatformContext,
-                this.depsFileProvider);
+                this.depsFileProvider,
+                this.ignorePlatformInconsistencies);
 
             using (var pluginStream = LoadPluginFromNetwork(this.baseUrl, pluginAssemblyName))
             {
@@ -78,7 +80,8 @@ namespace Prise.Infrastructure.NetCore
                 this.hostTypesProvider.ProvideHostTypes(),
                 this.remoteTypesProvider.ProvideRemoteTypes(),
                 this.runtimePlatformContext,
-                this.depsFileProvider);
+                this.depsFileProvider,
+                this.ignorePlatformInconsistencies);
 
             using (var pluginStream = await LoadPluginFromNetworkAsync(this.baseUrl, pluginAssemblyName))
             {

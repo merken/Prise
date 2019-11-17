@@ -156,7 +156,13 @@ namespace Prise.Infrastructure.NetCore
             if (pluginPlatformVersion == null)
                 pluginPlatformVersion = PluginPlatformVersion.Empty();
 
-            this.localAssemblyLoaderOptions = new LocalAssemblyLoaderOptions(pluginPath, pluginPlatformVersion, dependencyLoadPreference, nativeDependencyLoadPreference);
+            this.localAssemblyLoaderOptions = new LocalAssemblyLoaderOptions(
+                pluginPath,
+                pluginPlatformVersion,
+                false,
+                dependencyLoadPreference,
+                nativeDependencyLoadPreference);
+
 #if NETCORE3_0
             return this.WithAssemblyLoader<DefaultAssemblyLoaderWithNativeResolver<T>>();
 #endif
@@ -187,7 +193,13 @@ namespace Prise.Infrastructure.NetCore
             if (pluginPlatformVersion == null)
                 pluginPlatformVersion = PluginPlatformVersion.Empty();
 
-            this.networkAssemblyLoaderOptions = new NetworkAssemblyLoaderOptions(baseUrl, pluginPlatformVersion, dependencyLoadPreference, nativeDependencyLoadPreference);
+            this.networkAssemblyLoaderOptions = new NetworkAssemblyLoaderOptions(
+                baseUrl,
+                pluginPlatformVersion,
+                false,
+                dependencyLoadPreference,
+                nativeDependencyLoadPreference);
+
             this.depsFileProviderType = typeof(NetworkDepsFileProvider);
             this.pluginDependencyResolverType = typeof(NetworkPluginDependencyResolver);
             this.assemblyLoaderType = typeof(NetworkAssemblyLoader<T>);
@@ -317,7 +329,39 @@ namespace Prise.Infrastructure.NetCore
 
         public PluginLoadOptionsBuilder<T> WithHostFrameworkProvider(IHostFrameworkProvider hostFrameworkProvider)
         {
+            this.hostFrameworkProviderType = null;
             this.hostFrameworkProvider = hostFrameworkProvider;
+            return this;
+        }
+
+        public PluginLoadOptionsBuilder<T> WithHostFrameworkProvider<TType>()
+           where TType : IHostFrameworkProvider
+        {
+            this.hostFrameworkProviderType = typeof(TType);
+            return this;
+        }
+
+        public PluginLoadOptionsBuilder<T> IgnorePlatformInconsistencies(bool ignore = true)
+        {
+            if (this.localAssemblyLoaderOptionsType != null || this.networkAssemblyLoaderOptionsType != null || this.assemblyLoaderType != null)
+                throw new PrisePluginException("Custom loaders and custom load options are not supported with IgnorePlatformInconsistencies(), please provide your own value for IgnorePlatformInconsistencies.");
+
+            if (this.localAssemblyLoaderOptions != null)
+                this.localAssemblyLoaderOptions = new LocalAssemblyLoaderOptions(
+                    this.localAssemblyLoaderOptions.PluginPath,
+                    this.localAssemblyLoaderOptions.PluginPlatformVersion,
+                    ignore,
+                    this.localAssemblyLoaderOptions.DependencyLoadPreference,
+                    this.localAssemblyLoaderOptions.NativeDependencyLoadPreference);
+
+            if (this.networkAssemblyLoaderOptions != null)
+                this.networkAssemblyLoaderOptions = new NetworkAssemblyLoaderOptions(
+                   this.networkAssemblyLoaderOptions.BaseUrl,
+                   this.networkAssemblyLoaderOptions.PluginPlatformVersion,
+                   ignore,
+                   this.networkAssemblyLoaderOptions.DependencyLoadPreference,
+                   this.networkAssemblyLoaderOptions.NativeDependencyLoadPreference);
+
             return this;
         }
 
@@ -369,6 +413,7 @@ namespace Prise.Infrastructure.NetCore
             this.localAssemblyLoaderOptions = new LocalAssemblyLoaderOptions(
                 "Plugins",
                 PluginPlatformVersion.Empty(),
+                false,
                 DependencyLoadPreference.PreferDependencyContext,
                 NativeDependencyLoadPreference.PreferInstalledRuntime);
 

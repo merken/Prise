@@ -10,10 +10,11 @@ namespace Prise.Infrastructure.NetCore
         private readonly string pluginPath;
         public LocalAssemblyLoaderOptions(string pluginPath,
             PluginPlatformVersion pluginPlatformVersion,
+            bool ignorePlatformInconsistencies,
             DependencyLoadPreference dependencyLoadPreference,
             NativeDependencyLoadPreference nativeDependencyLoadPreference
         )
-         : base(pluginPlatformVersion, dependencyLoadPreference, nativeDependencyLoadPreference)
+         : base(pluginPlatformVersion, ignorePlatformInconsistencies, dependencyLoadPreference, nativeDependencyLoadPreference)
         {
             this.pluginPath = pluginPath;
         }

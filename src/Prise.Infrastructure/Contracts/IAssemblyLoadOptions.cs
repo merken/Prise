@@ -21,6 +21,7 @@ namespace Prise.Infrastructure
     public interface IAssemblyLoadOptions
     {
         PluginPlatformVersion PluginPlatformVersion { get; }
+        bool IgnorePlatformInconsistencies { get; }
         DependencyLoadPreference DependencyLoadPreference { get; }
         NativeDependencyLoadPreference NativeDependencyLoadPreference { get; }
     }
@@ -30,19 +31,23 @@ namespace Prise.Infrastructure
     public class AssemblyLoadOptions : IAssemblyLoadOptions
     {
         private readonly PluginPlatformVersion pluginPlatformVersion;
+        private readonly bool ignorePlatformInconsistencies;
         private readonly DependencyLoadPreference dependencyLoadPreference;
         private readonly NativeDependencyLoadPreference nativeDependencyLoadPreference;
         public AssemblyLoadOptions(
             PluginPlatformVersion pluginPlatformVersion,
+            bool ignorePlatformInconsistencies = false,
             DependencyLoadPreference dependencyLoadPreference = DependencyLoadPreference.PreferRemote,
             NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime)
         {
             this.pluginPlatformVersion = pluginPlatformVersion;
+            this.ignorePlatformInconsistencies = ignorePlatformInconsistencies;
             this.dependencyLoadPreference = dependencyLoadPreference;
             this.nativeDependencyLoadPreference = nativeDependencyLoadPreference;
         }
 
         public PluginPlatformVersion PluginPlatformVersion => this.pluginPlatformVersion;
+        public bool IgnorePlatformInconsistencies => this.ignorePlatformInconsistencies;
         public DependencyLoadPreference DependencyLoadPreference => this.dependencyLoadPreference;
         public NativeDependencyLoadPreference NativeDependencyLoadPreference => this.nativeDependencyLoadPreference;
     }

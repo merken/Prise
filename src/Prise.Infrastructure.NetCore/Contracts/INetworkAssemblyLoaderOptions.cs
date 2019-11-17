@@ -10,10 +10,11 @@ namespace Prise.Infrastructure.NetCore
         private readonly string baseUrl;
         public NetworkAssemblyLoaderOptions(string baseUrl,
             PluginPlatformVersion pluginPlatformVersion,
+            bool ignorePlatformInconsistencies,
             DependencyLoadPreference dependencyLoadPreference,
             NativeDependencyLoadPreference nativeDependencyLoadPreference
         )
-         : base(pluginPlatformVersion, dependencyLoadPreference, nativeDependencyLoadPreference)
+         : base(pluginPlatformVersion, ignorePlatformInconsistencies, dependencyLoadPreference, nativeDependencyLoadPreference)
         {
             this.baseUrl = baseUrl;
 

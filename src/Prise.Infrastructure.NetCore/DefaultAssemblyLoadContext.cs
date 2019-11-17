@@ -27,6 +27,7 @@ namespace Prise.Infrastructure.NetCore
         internal IAssemblyLoadStrategy assemblyLoadStrategy;
         protected bool disposed = false;
         protected ConcurrentDictionary<string, IntPtr> loadedNativeLibraries;
+        protected bool ignorePlatformInconsistencies;
 
         public DefaultAssemblyLoadContext(
             PluginPlatformVersion pluginPlatformVersion,
@@ -42,7 +43,8 @@ namespace Prise.Infrastructure.NetCore
             IDepsFileProvider depsFileProvider,
             IPluginDependencyResolver pluginDependencyResolver,
             INativeAssemblyUnloader nativeAssemblyUnloader,
-            string pluginPath)
+            string pluginPath,
+            bool ignorePlatformInconsistencies)
         {
             this.pluginPlatformVersion = pluginPlatformVersion;
             this.dependencyLoadPreference = dependencyLoadPreference;
@@ -59,6 +61,7 @@ namespace Prise.Infrastructure.NetCore
             this.pluginDependencyResolver = pluginDependencyResolver;
             this.nativeAssemblyUnloader = nativeAssemblyUnloader;
             this.loadedNativeLibraries = new ConcurrentDictionary<string, IntPtr>();
+            this.ignorePlatformInconsistencies = ignorePlatformInconsistencies;
         }
 
         public virtual Assembly LoadPluginAssembly(string pluginAssemblyName)
@@ -72,7 +75,8 @@ namespace Prise.Infrastructure.NetCore
                 this.hostTypesProvider.ProvideHostTypes(),
                 this.remoteTypesProvider.ProvideRemoteTypes(),
                 this.runtimePlatformContext,
-                this.depsFileProvider);
+                this.depsFileProvider,
+                this.ignorePlatformInconsistencies);
 
             using (var pluginStream = LoadFileFromLocalDisk(pluginPath, pluginAssemblyName))
             {
@@ -94,7 +98,8 @@ namespace Prise.Infrastructure.NetCore
                 this.hostTypesProvider.ProvideHostTypes(),
                 this.remoteTypesProvider.ProvideRemoteTypes(),
                 this.runtimePlatformContext,
-                this.depsFileProvider);
+                this.depsFileProvider,
+                this.ignorePlatformInconsistencies);
 
             using (var pluginStream = await LoadFileFromLocalDiskAsync(pluginPath, pluginAssemblyName))
             {
