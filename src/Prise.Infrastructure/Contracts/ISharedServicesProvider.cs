@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Diagnostics;
 
 namespace Prise.Infrastructure
 {
@@ -8,6 +9,7 @@ namespace Prise.Infrastructure
         IServiceCollection ProvideSharedServices();
     }
 
+    [DebuggerDisplay("{ProvideSharedServices().Count}")]
     public class DefaultSharedServicesProvider : ISharedServicesProvider
     {
         private readonly IServiceCollection services;

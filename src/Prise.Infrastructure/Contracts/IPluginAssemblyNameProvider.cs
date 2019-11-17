@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 namespace Prise.Infrastructure
 {
@@ -7,6 +8,7 @@ namespace Prise.Infrastructure
         string GetAssemblyName();
     }
 
+    [DebuggerDisplay("{GetAssemblyName()}")]
     public class PluginAssemblyNameProvider : IPluginAssemblyNameProvider
     {
         private readonly string assemblyName;

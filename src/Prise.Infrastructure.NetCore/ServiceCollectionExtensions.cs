@@ -1,23 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Runtime.Loader;
 using Microsoft.Extensions.DependencyInjection;
-using Prise.Infrastructure.NetCore.Contracts;
 
 namespace Prise.Infrastructure.NetCore
 {
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddPrise<T>(this IServiceCollection services, Action<PluginLoadOptionsBuilder<T>> config = null)
-            where T : class
+            where T : class//, IDisposable
         {
             return services.AddPriseWithPluginLoader<T, PrisePluginLoader<T>>(config);
         }
 
         public static IServiceCollection AddPriseWithPluginLoader<T, TPluginLoader>(this IServiceCollection services, Action<PluginLoadOptionsBuilder<T>> config = null)
-            where T : class
+            where T : class//, IDisposable // todo
             where TPluginLoader : class, IPluginLoader<T>, IPluginResolver<T>
         {
             var optionsBuilder = new PluginLoadOptionsBuilder<T>().WithDefaultOptions();

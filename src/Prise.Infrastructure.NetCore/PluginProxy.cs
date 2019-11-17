@@ -5,11 +5,12 @@ using System.Reflection;
 
 namespace Prise.Infrastructure.NetCore
 {
-    public class PluginProxy<T> : DispatchProxy
+    public class PluginProxy<T> : DispatchProxy, IDisposable
     {
         private IParameterConverter parameterConverter;
         private IResultConverter resultConverter;
         private object remoteObject;
+        protected bool disposed = false;
 
         protected override object Invoke(MethodInfo callingMethod, object[] args)
         {
@@ -18,7 +19,7 @@ namespace Prise.Infrastructure.NetCore
                 var localType = callingMethod.ReturnType;
                 var targetMethod = FindMethodOnRemoteObject(callingMethod, remoteObject);
                 if (targetMethod == null)
-                    throw new NotSupportedException($"Target method {callingMethod.Name} is not found on Plugin Type {remoteObject.GetType().Name}.");
+                    throw new PrisePluginException($"Target method {callingMethod.Name} is not found on Plugin Type {remoteObject.GetType().Name}.");
 
                 var result = targetMethod.Invoke(remoteObject, SerializeParameters(targetMethod, args));
 
@@ -40,7 +41,7 @@ namespace Prise.Infrastructure.NetCore
         internal PluginProxy<T> SetRemoteObject(object remoteObject)
         {
             if (remoteObject == null)
-                throw new NotSupportedException($"Remote object for Proxy<{typeof(T).Name}> was null");
+                throw new PrisePluginException($"Remote object for Proxy<{typeof(T).Name}> was null");
 
             this.remoteObject = remoteObject;
             return this;
@@ -49,7 +50,7 @@ namespace Prise.Infrastructure.NetCore
         internal PluginProxy<T> SetParameterConverter(IParameterConverter parameterConverter)
         {
             if (parameterConverter == null)
-                throw new NotSupportedException($"IParameterConverter for Proxy<{typeof(T).Name}> was null");
+                throw new PrisePluginException($"IParameterConverter for Proxy<{typeof(T).Name}> was null");
 
             this.parameterConverter = parameterConverter;
             return this;
@@ -58,7 +59,7 @@ namespace Prise.Infrastructure.NetCore
         internal PluginProxy<T> SetResultConverter(IResultConverter resultConverter)
         {
             if (resultConverter == null)
-                throw new NotSupportedException($"IResultConverter for Proxy<{typeof(T).Name}> was null");
+                throw new PrisePluginException($"IResultConverter for Proxy<{typeof(T).Name}> was null");
 
             this.resultConverter = resultConverter;
             return this;
@@ -70,7 +71,7 @@ namespace Prise.Infrastructure.NetCore
 
             var targetMethods = targetObject.GetType().GetMethods().Where(targetMethod => targetMethod.Name == callingMethod.Name);
             if (targetMethods.Count() == 0)
-                throw new NotSupportedException($"Target method {callingMethod.Name} is not found on Plugin Type {targetObject.GetType().Name}.");
+                throw new PrisePluginException($"Target method {callingMethod.Name} is not found on Plugin Type {targetObject.GetType().Name}.");
 
             if (targetMethods.Count() == 1)
                 return targetMethods.First();
@@ -99,7 +100,7 @@ namespace Prise.Infrastructure.NetCore
             );
 
             if (targetMethods.Count() > 1)
-                throw new NotSupportedException($"Target method {callingMethod.Name} is found multiple times on Plugin Type {targetObject.GetType().Name}.");
+                throw new PrisePluginException($"Target method {callingMethod.Name} is found multiple times on Plugin Type {targetObject.GetType().Name}.");
 
             return targetMethods.First();
         }
@@ -117,6 +118,23 @@ namespace Prise.Infrastructure.NetCore
             }
 
             return results.ToArray();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed && disposing)
+            {
+                this.parameterConverter = null;
+                this.resultConverter = null;
+                this.remoteObject = null;
+            }
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
