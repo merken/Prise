@@ -3,11 +3,9 @@ using Avalonia.Logging.Serilog;
 using AppHost.Views;
 using Microsoft.Extensions.DependencyInjection;
 using AppHost.ViewModels;
-using System.Threading;
 using Contract;
-using Prise.Infrastructure.NetCore;
+using Prise;
 using System;
-using System.IO;
 using Prise.Infrastructure;
 using AppHost.Infrastructure;
 
@@ -33,7 +31,7 @@ namespace AppHost
             services.AddPrise<IAppComponent>(options =>
                options
                    .WithPluginAssemblyName("Components.dll")
-                   .WithLocalDiskAssemblyLoader("Plugins", DependencyLoadPreference.PreferAppDomain)
+                   .WithLocalDiskAssemblyLoader("Plugins", dependencyLoadPreference: DependencyLoadPreference.PreferAppDomain)
                    .WithResultConverter<AvaloniaPluginResultConverter>()
                    .WithRootPath(GetRootPath())
            );

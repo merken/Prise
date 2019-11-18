@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
-using Prise.Infrastructure.NetCore;
+using Prise;
 using System;
 using System.IO;
 

@@ -13,9 +13,9 @@ private void DeleteIfExists(string directory){
 }
 
 private void CleanProject(string projectDirectory){
-    var projectFile = $"{projectDirectory}\\{projectDirectory}.csproj";
-    var bin = $"{projectDirectory}\\bin";
-    var obj = $"{projectDirectory}\\obj";
+    var projectFile = $"{projectDirectory}/{projectDirectory}.csproj";
+    var bin = $"{projectDirectory}/bin";
+    var obj = $"{projectDirectory}/obj";
     var cleanSettings = new DotNetCoreCleanSettings
     {
         Configuration = configuration
@@ -40,14 +40,14 @@ Task("build")
         Configuration = configuration
     };
 
-    DotNetCoreBuild("HelloWorldPlugin\\HelloWorldPlugin.csproj", settings);
+    DotNetCoreBuild("HelloWorldPlugin/HelloWorldPlugin.csproj", settings);
 });
 
 Task("publish")
   .IsDependentOn("build")
   .Does(() =>
   { 
-    DotNetCorePublish("HelloWorldPlugin\\HelloWorldPlugin.csproj", new DotNetCorePublishSettings
+    DotNetCorePublish("HelloWorldPlugin/HelloWorldPlugin.csproj", new DotNetCorePublishSettings
     {
         NoBuild = true,
         Configuration = configuration,

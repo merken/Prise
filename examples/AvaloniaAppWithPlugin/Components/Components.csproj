@@ -19,9 +19,8 @@
     <PackageReference Include="Avalonia.Desktop" Version="0.8.3" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Prise.Plugin\Prise.Plugin.csproj" />
     <ProjectReference Include="..\Contract\Contract.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
-    <ProjectReference Include="..\..\..\src\Prise.Infrastructure\Prise.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\..\src\Prise.Infrastructure.NetCore\Prise.Infrastructure.NetCore.csproj" />
   </ItemGroup>
 </Project>

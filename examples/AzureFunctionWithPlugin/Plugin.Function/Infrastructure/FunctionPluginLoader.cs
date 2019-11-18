@@ -1,11 +1,9 @@
 using System;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Contract;
+using Prise;
 using Prise.Infrastructure;
-using Prise.Infrastructure.NetCore;
-using Prise.Infrastructure.NetCore.Contracts;
 
 namespace Plugin.Function.Infrastructure
 {
@@ -13,18 +11,11 @@ namespace Plugin.Function.Infrastructure
     {
         private bool disposed = false;
         private string componentName;
-        private readonly IHttpClientFactory factory;
-        private readonly IPluginServerOptions pluginServerOptions;
-        private readonly IPluginLoadOptions<IHelloPlugin> pluginLoadOptions;
+        private readonly FunctionPluginLoaderOptions functionPluginLoaderOptions;
 
-        public FunctionPluginLoader(
-            IPluginLoadOptions<IHelloPlugin> pluginLoadOptions, 
-            IHttpClientFactory factory,
-            IPluginServerOptions pluginServerOptions)
+        public FunctionPluginLoader(FunctionPluginLoaderOptions functionPluginLoaderOptions)
         {
-            this.pluginLoadOptions = pluginLoadOptions;
-            this.factory = factory;
-            this.pluginServerOptions = pluginServerOptions;
+            this.functionPluginLoaderOptions = functionPluginLoaderOptions;
         }
 
         internal void SetComponentToLoad(string componentName)
@@ -32,17 +23,44 @@ namespace Plugin.Function.Infrastructure
             this.componentName = componentName;
         }
 
-        private PluginLoadOptions<IHelloPlugin> GetOptions() =>
-            new PluginLoadOptions<IHelloPlugin>(
-                this.pluginLoadOptions.RootPathProvider,
-                this.pluginLoadOptions.SharedServicesProvider,
-                this.pluginLoadOptions.Activator,
-                this.pluginLoadOptions.ParameterConverter,
-                this.pluginLoadOptions.ResultConverter,
-                new NetworkAssemblyLoader<IHelloPlugin>(
-                    new NetworkAssemblyLoaderOptions($"{this.pluginServerOptions.PluginServerUrl}/{this.componentName}"), this.factory),
-                new PluginAssemblyNameProvider($"{this.componentName}.dll")
+        private PluginLoadOptions<IHelloPlugin> GetOptions()
+        {
+            var networkAssemblyLoaderOptions = new NetworkAssemblyLoaderOptions(
+                                $"{this.functionPluginLoaderOptions.PluginServerOptions.PluginServerUrl}/{this.componentName}",
+                                ignorePlatformInconsistencies: true); // The plugins are netstandard, so we must ignore inconsistencies
+
+            var depsFileProvider = new NetworkDepsFileProvider(networkAssemblyLoaderOptions, this.functionPluginLoaderOptions.HttpFactory);
+
+            var networkAssemblyLoader = new NetworkAssemblyLoader<IHelloPlugin>(
+                    this.functionPluginLoaderOptions.RootPathProvider,
+                    networkAssemblyLoaderOptions,
+                    this.functionPluginLoaderOptions.HostFrameworkProvider,
+                    this.functionPluginLoaderOptions.HostTypesProvider,
+                    this.functionPluginLoaderOptions.RemoteTypesProvider,
+                    this.functionPluginLoaderOptions.DependencyPathProvider,
+                    this.functionPluginLoaderOptions.ProbingPathsProvider,
+                    this.functionPluginLoaderOptions.RuntimePlatformContext,
+                    depsFileProvider,
+                    this.functionPluginLoaderOptions.PluginDependencyResolver,
+                    this.functionPluginLoaderOptions.NativeAssemblyUnloader,
+                    this.functionPluginLoaderOptions.TempPathProvider,
+                    this.functionPluginLoaderOptions.HttpFactory);
+
+            return new PluginLoadOptions<IHelloPlugin>(
+                this.functionPluginLoaderOptions.HelloPluginLoadOptions.RootPathProvider,
+                this.functionPluginLoaderOptions.HelloPluginLoadOptions.SharedServicesProvider,
+                this.functionPluginLoaderOptions.HelloPluginLoadOptions.Activator,
+                this.functionPluginLoaderOptions.HelloPluginLoadOptions.ParameterConverter,
+                this.functionPluginLoaderOptions.HelloPluginLoadOptions.ResultConverter,
+                networkAssemblyLoader,
+                new PluginAssemblyNameProvider($"{this.componentName}.dll"),
+                this.functionPluginLoaderOptions.HelloPluginLoadOptions.ProxyCreator,
+                this.functionPluginLoaderOptions.HelloPluginLoadOptions.HostTypesProvider,
+                this.functionPluginLoaderOptions.HelloPluginLoadOptions.RemoteTypesProvider,
+                this.functionPluginLoaderOptions.HelloPluginLoadOptions.RuntimePlatformContext,
+                this.functionPluginLoaderOptions.HelloPluginLoadOptions.PluginSelector
             );
+        }
 
         public virtual async Task<IHelloPlugin> Load()
         {
@@ -66,21 +84,26 @@ namespace Plugin.Function.Infrastructure
 
         public virtual async Task Unload()
         {
-            await this.pluginLoadOptions.AssemblyLoader.UnloadAsync();
+            await this.functionPluginLoaderOptions.HelloPluginLoadOptions.AssemblyLoader.UnloadAsync();
         }
 
         void IPluginResolver<IHelloPlugin>.Unload()
         {
-            this.pluginLoadOptions.AssemblyLoader.Unload();
+            this.functionPluginLoaderOptions.HelloPluginLoadOptions.AssemblyLoader.Unload();
         }
 
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed && disposing)
             {
+                foreach (var disposable in this.disposables)
+                    disposable.Dispose();
+
+                // Remove the lock on the loaded assembly
+                this.pluginAssembly = null;
                 // Disposes all configured services for the PluginLoadOptions
                 // Including the AssemblyLoader
-                this.pluginLoadOptions.Dispose();
+                this.functionPluginLoaderOptions?.HelloPluginLoadOptions?.Dispose();
 
             }
             this.disposed = true;

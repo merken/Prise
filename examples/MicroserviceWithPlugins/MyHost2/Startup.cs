@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MyHost.Infrastructure;
 using Prise.Infrastructure;
-using Prise.Infrastructure.NetCore;
+using Prise;
 
 namespace MyHost2
 {

@@ -13,9 +13,9 @@ private void DeleteIfExists(string directory){
 }
 
 private void CleanProject(string projectDirectory){
-    var projectFile = $"{projectDirectory}\\{projectDirectory}.csproj";
-    var bin = $"{projectDirectory}\\bin";
-    var obj = $"{projectDirectory}\\obj";
+    var projectFile = $"{projectDirectory}/{projectDirectory}.csproj";
+    var bin = $"{projectDirectory}/bin";
+    var obj = $"{projectDirectory}/obj";
     var cleanSettings = new DotNetCoreCleanSettings
     {
         Configuration = configuration
@@ -40,14 +40,14 @@ Task("build")
         Configuration = configuration
     };
 
-    DotNetCoreBuild("Components\\Components.csproj", settings);
+    DotNetCoreBuild("Components/Components.csproj", settings);
 });
 
 Task("publish")
   .IsDependentOn("build")
   .Does(() =>
   { 
-    DotNetCorePublish("Components\\Components.csproj", new DotNetCorePublishSettings
+    DotNetCorePublish("Components/Components.csproj", new DotNetCorePublishSettings
     {
         NoBuild = true,
         Configuration = configuration,

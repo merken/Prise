@@ -12,7 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using Contract;
-using Prise.Infrastructure.NetCore;
+using Prise;
 
 namespace MyHost
 {
@@ -29,7 +29,10 @@ namespace MyHost
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddPrise<IHelloWorldPlugin>(options => options.WithPluginAssemblyName("HelloWorldPlugin.dll"));
+            services.AddPrise<IHelloWorldPlugin>(options =>
+                options
+                    .WithPluginAssemblyName("HelloWorldPlugin.dll")
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,16 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Prise.Plugin\Prise.Plugin.csproj" />
     <ProjectReference Include="..\Contract\Contract.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="newtonsoft.json" Version="12.0.2" />
-    <PackageReference Include="Prise.Infrastructure" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>

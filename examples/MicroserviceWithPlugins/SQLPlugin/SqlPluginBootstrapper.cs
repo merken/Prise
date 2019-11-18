@@ -3,7 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Prise.Infrastructure;
+using Prise.Plugin;
 using SQLPlugin.Configuration;
 
 namespace SQLPlugin

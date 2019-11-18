@@ -4,7 +4,7 @@ using System.Linq;
 using DomainForPluginC;
 using PluginC.Calculations;
 using Contract;
-using Prise.Infrastructure;
+using Prise.Plugin;
 
 namespace PluginC
 {

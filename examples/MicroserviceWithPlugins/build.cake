@@ -2,9 +2,9 @@ var target = Argument("target", "default");
 var configuration = Argument("configuration", "Release");
 
 private void CleanProject(string projectDirectory){
-    var projectFile = $"{projectDirectory}";
-    var bin = $"{projectDirectory}\\bin";
-    var obj = $"{projectDirectory}\\obj";
+    var projectFile = $"{projectDirectory}/{projectDirectory}.csproj";
+    var bin = $"{projectDirectory}/bin";
+    var obj = $"{projectDirectory}/obj";
 
     var deleteSettings = new DeleteDirectorySettings{
         Force= true,
@@ -43,38 +43,38 @@ Task("build")
         Configuration = configuration
     };
 
-    DotNetCoreBuild("CosmosDbPlugin\\CosmosDbPlugin.csproj", settings);
-    DotNetCoreBuild("OldSQLPlugin\\OldSQLPlugin.csproj", settings);
-    DotNetCoreBuild("SQLPlugin\\SQLPlugin.csproj", settings);
-    DotNetCoreBuild("TableStoragePlugin\\TableStoragePlugin.csproj", settings);
+    DotNetCoreBuild("CosmosDbPlugin/CosmosDbPlugin.csproj", settings);
+    DotNetCoreBuild("OldSQLPlugin/OldSQLPlugin.csproj", settings);
+    DotNetCoreBuild("SQLPlugin/SQLPlugin.csproj", settings);
+    DotNetCoreBuild("TableStoragePlugin/TableStoragePlugin.csproj", settings);
 });
 
 Task("publish")
   .IsDependentOn("build")
   .Does(() =>
   { 
-    DotNetCorePublish("CosmosDbPlugin\\CosmosDbPlugin.csproj", new DotNetCorePublishSettings
+    DotNetCorePublish("CosmosDbPlugin/CosmosDbPlugin.csproj", new DotNetCorePublishSettings
     {
         NoBuild = true,
         Configuration = configuration,
         OutputDirectory = "publish/CosmosDbPlugin"
     });
 
-    DotNetCorePublish("OldSQLPlugin\\OldSQLPlugin.csproj", new DotNetCorePublishSettings
+    DotNetCorePublish("OldSQLPlugin/OldSQLPlugin.csproj", new DotNetCorePublishSettings
     {
         NoBuild = true,
         Configuration = configuration,
         OutputDirectory = "publish/OldSQLPlugin"
     });
 
-    DotNetCorePublish("SQLPlugin\\SQLPlugin.csproj", new DotNetCorePublishSettings
+    DotNetCorePublish("SQLPlugin/SQLPlugin.csproj", new DotNetCorePublishSettings
     {
         NoBuild = true,
         Configuration = configuration,
         OutputDirectory = "publish/SQLPlugin"
     });
 
-    DotNetCorePublish("TableStoragePlugin\\TableStoragePlugin.csproj", new DotNetCorePublishSettings
+    DotNetCorePublish("TableStoragePlugin/TableStoragePlugin.csproj", new DotNetCorePublishSettings
     {
         NoBuild = true,
         Configuration = configuration,

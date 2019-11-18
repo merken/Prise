@@ -17,7 +17,7 @@ namespace MyHost.Infrastructure
             this.contextAccessor = contextAccessor;
         }
 
-        protected string GetPluginPath()
+        protected string GetPluginPathFromContext()
         {
             if (!this.contextAccessor.HttpContext.Request.Headers["Tenant"].Any())
                 return "OldSQLPlugin"; //The old plugin is a netcoreapp2.1 plugin, it should work on both MyHost and MyHost2
@@ -28,7 +28,7 @@ namespace MyHost.Infrastructure
             return configPair.Plugin;
         }
 
-        protected string GetPluginAssembly()
+        protected string GetPluginAssemblyFromContext()
         {
             if (!this.contextAccessor.HttpContext.Request.Headers["Tenant"].Any())
                 return "OldSQLPlugin";

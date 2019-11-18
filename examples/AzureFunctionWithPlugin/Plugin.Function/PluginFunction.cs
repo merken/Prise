@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Contract;
@@ -25,15 +26,23 @@ namespace Plugin.Function
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
-            var componentName = req.Query["component"].First();
-            var input = req.Query["input"].First();
+            try
+            {
+                var componentName = req.Query["component"].First();
+                var input = req.Query["input"].First();
 
-            this.pluginLoader.SetComponentToLoad(componentName);
+                this.pluginLoader.SetComponentToLoad(componentName);
 
-            var plugin = await this.pluginLoader.Load();
-            var result = await plugin.SayHello(input);
+                var plugin = await this.pluginLoader.Load();
+                var result = await plugin.SayHello(input);
+                return (ActionResult)new OkObjectResult(result);
+            }
+            catch (Exception ex)
+            {
+            }
 
-            return (ActionResult)new OkObjectResult(result);
+            return null;
+
         }
     }
 }

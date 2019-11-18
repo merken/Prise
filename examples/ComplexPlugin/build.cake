@@ -3,8 +3,8 @@ var configuration = Argument("configuration", "Release");
 
 private void CleanProject(string projectDirectory){
     var projectFile = $"{projectDirectory}";
-    var bin = $"{projectDirectory}\\bin";
-    var obj = $"{projectDirectory}\\obj";
+    var bin = $"{projectDirectory}/bin";
+    var obj = $"{projectDirectory}/obj";
 
     var deleteSettings = new DeleteDirectorySettings{
         Force= true,
@@ -28,9 +28,9 @@ private void CleanProject(string projectDirectory){
 
 Task("clean").Does( () =>
 { 
-  CleanProject("Plugins\\PluginA");
-  CleanProject("Plugins\\PluginB");
-  CleanProject("Plugins\\PluginC");
+  CleanProject("Plugins/PluginA");
+  CleanProject("Plugins/PluginB");
+  CleanProject("Plugins/PluginC");
 });
 
 Task("build")
@@ -42,29 +42,29 @@ Task("build")
         Configuration = configuration
     };
 
-    DotNetCoreBuild("Plugins\\PluginA\\PluginA.csproj", settings);
-    DotNetCoreBuild("Plugins\\PluginB\\PluginB.csproj", settings);
-    DotNetCoreBuild("Plugins\\PluginC\\PluginC.csproj", settings);
+    DotNetCoreBuild("Plugins/PluginA/PluginA.csproj", settings);
+    DotNetCoreBuild("Plugins/PluginB/PluginB.csproj", settings);
+    DotNetCoreBuild("Plugins/PluginC/PluginC.csproj", settings);
 });
 
 Task("publish")
   .IsDependentOn("build")
   .Does(() =>
   { 
-    DotNetCorePublish("Plugins\\PluginA\\PluginA.csproj", new DotNetCorePublishSettings
+    DotNetCorePublish("Plugins/PluginA/PluginA.csproj", new DotNetCorePublishSettings
     {
         NoBuild = true,
         Configuration = configuration,
         OutputDirectory = "publish/PluginA"
     });
 
-    DotNetCorePublish("Plugins\\PluginB\\PluginB.csproj", new DotNetCorePublishSettings
+    DotNetCorePublish("Plugins/PluginB/PluginB.csproj", new DotNetCorePublishSettings
     {
         NoBuild = true,
         Configuration = configuration,
         OutputDirectory = "publish/PluginB"
     });
-    DotNetCorePublish("Plugins\\PluginC\\PluginC.csproj", new DotNetCorePublishSettings
+    DotNetCorePublish("Plugins/PluginC/PluginC.csproj", new DotNetCorePublishSettings
     {
         NoBuild = true,
         Configuration = configuration,

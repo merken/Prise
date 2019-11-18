@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Contract;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-
-using Contract;
-using Prise.Infrastructure.NetCore;
 using Prise.Infrastructure;
+using System.Threading.Tasks;
 
 namespace MyHost.Controllers
 {

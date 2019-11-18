@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Contract;
-using Prise.Infrastructure;
+using Prise.Plugin;
 
 namespace Bonjour.Plugin
 {
