@@ -36,6 +36,7 @@ namespace Prise
                 options.PluginPath,
                 options.IgnorePlatformInconsistencies
             );
+            this.assemblyLoadContextReference = new System.WeakReference(this.loadContext);
         }
 
         public virtual Assembly Load(string pluginAssemblyName)

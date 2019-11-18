@@ -326,6 +326,7 @@ namespace Prise
                 this.pluginDependencyContext = null;
                 this.assemblyLoadStrategy = null;
 
+                // Unload any loaded native assemblies
                 foreach (var nativeAssembly in this.loadedNativeLibraries)
                     this.nativeAssemblyUnloader.UnloadNativeAssembly(nativeAssembly.Key, nativeAssembly.Value);
 
@@ -340,13 +341,14 @@ namespace Prise
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this); // fails here
+            GC.SuppressFinalize(this);
         }
 
 #if NETCOREAPP2_1
         public void Unload()
         {
             // What to do for unloading in NETCOREAPP2_1?
+            // ==> Nothing, this is only available in .NET Core 3.0+
         }
 #endif
     }
