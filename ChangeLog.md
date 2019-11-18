@@ -9,9 +9,9 @@ Overhaul of Prise, the Prise.Infrastructure package has been deprecated, please 
 This package was stripped from its dependencies on anything other than the required for the *PluginAttribute*, *PluginBootstrapperAttribute*, *PluginFactoryAttribute* and *IPluginBootstrapper* interface.
 
 *Changes in namespaces are:*
-Prise.Infrastructure.NetCore assembly, Prise.Infrastructure namespace ==> -no change-
-Prise.Infrastructure.NetCore assembly, Prise.Infrastructure.NetCore namespace ==> **Prise**
-Prise.Infrastructure assembly, Prise.Infrastructure namespace ==> **Prise.Plugin**
+- Prise.Infrastructure.NetCore assembly, Prise.Infrastructure namespace ==> -no change-
+- Prise.Infrastructure.NetCore assembly, Prise.Infrastructure.NetCore namespace ==> **Prise**
+- Prise.Infrastructure assembly, Prise.Infrastructure namespace ==> **Prise.Plugin**
 
 *New APIs:*
 - PluginSelector, select a specific plugin from a list of loaded plugin types (when using a plugin assembly with multiple plugins)
