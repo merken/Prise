@@ -9,3 +9,4 @@ publish
 *.cmd
 *.sln
 appsettings.Development.json
+!Monorepo.sln
