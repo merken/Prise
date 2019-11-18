@@ -1,6 +1,11 @@
 # Prise
 A .NET Core Plugin Frawework!
 
+## 1.3.1
+
+*New features:*
+- Unloading of assemblies using a WeakReference : https://docs.microsoft.com/en-us/dotnet/standard/assembly/unloadability#use-collectible-assemblyloadcontext
+
 ## 1.3.0
 **Contains breaking changes**
 **Prise.Infrastructure package has been deprecated**
