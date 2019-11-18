@@ -1,20 +1,21 @@
+using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Prise.Infrastructure;
-using Prise.Infrastructure.NetCore.Contracts;
 
 namespace MyHost
 {
-    public class LanguageBasedPluginLoadOptions : ILocalAssemblyLoaderOptions
+    public class LanguageBasedPluginLoadOptions : LocalAssemblyLoaderOptions
     {
         private readonly IHttpContextAccessor contextAccessor;
         public LanguageBasedPluginLoadOptions(IHttpContextAccessor contextAccessor)
+            : base(String.Empty, // PluginPath will be provided at runtime
+                  ignorePlatformInconsistencies: true) // The plugins are netstandard plugins, the host is netcoreapp, ignore this inconsistency
         {
             this.contextAccessor = contextAccessor;
         }
 
-        public string PluginPath
+        public override string PluginPath
         {
             get
             {
@@ -40,7 +41,5 @@ namespace MyHost
                 return $"Plugins/{plugin}";
             }
         }
-
-        public DependencyLoadPreference DependencyLoadPreference => DependencyLoadPreference.PreferDependencyContext;
     }
 }

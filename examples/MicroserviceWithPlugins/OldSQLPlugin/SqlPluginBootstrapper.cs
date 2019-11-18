@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OldSQLPlugin.Configuration;
-using Prise.Infrastructure;
+using Prise.Plugin;
 using System.Data.Common;
 using System.Data.SqlClient;
 

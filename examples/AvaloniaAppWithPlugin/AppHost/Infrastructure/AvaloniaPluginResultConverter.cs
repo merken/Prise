@@ -1,5 +1,5 @@
 using System;
-using Prise.Infrastructure.NetCore;
+using Prise;
 
 namespace AppHost.Infrastructure
 {

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using Contract;
-using Prise.Infrastructure.NetCore;
+using Prise;
 
 namespace MyHost.Controllers
 {

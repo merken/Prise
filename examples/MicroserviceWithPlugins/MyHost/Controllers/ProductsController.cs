@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Contract;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 
 namespace MyHost.Controllers
 {
@@ -14,8 +17,10 @@ namespace MyHost.Controllers
         private readonly ILogger<ProductsController> _logger;
         private readonly IProductsRepository repository;
 
-        public ProductsController(ILogger<ProductsController> logger,
-            IProductsRepository repository)
+        public ProductsController(
+            ILogger<ProductsController> logger,
+            IProductsRepository repository
+            )
         {
             this.repository = repository;
             _logger = logger;

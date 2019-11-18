@@ -1,6 +1,6 @@
 ﻿using System;
 using Contract;
-using Prise.Infrastructure;
+using Prise.Plugin;
 
 namespace Hallo.Plugin
 {

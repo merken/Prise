@@ -1,6 +1,5 @@
 ﻿using System;
 using Contract;
-using Prise.Infrastructure;
 
 namespace Random.Domain
 {

@@ -2,7 +2,7 @@ using System;
 using DomainForPluginC;
 using Microsoft.Extensions.DependencyInjection;
 using PluginC.Calculations;
-using Prise.Infrastructure;
+using Prise.Plugin;
 
 namespace PluginC
 {

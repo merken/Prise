@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Contract;
 using Newtonsoft.Json;
-using Prise.Infrastructure;
+using Prise.Plugin;
 
 namespace HelloWorldPlugin
 {

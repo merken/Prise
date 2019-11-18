@@ -1,20 +1,20 @@
 using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
-using Prise.Infrastructure;
+using Prise;
 
 namespace MyHost
 {
-    public class LanguageBasedAssemblyNameProvider : IPluginAssemblyNameProvider
+    public class LanguageBasedAssemblyNameProvider : PluginAssemblyNameProvider
     {
-        private bool disposed = false;
         private readonly IHttpContextAccessor contextAccessor;
         public LanguageBasedAssemblyNameProvider(IHttpContextAccessor contextAccessor)
+            : base(String.Empty) // AssemblyName will be provided at runtime
         {
             this.contextAccessor = contextAccessor;
         }
 
-        public string GetAssemblyName()
+        public override string GetAssemblyName()
         {
             var language = this.contextAccessor.HttpContext.Request.Headers["Accept-Language"].First();
             var assemblyName = "Random.Plugin.dll";
@@ -35,21 +35,6 @@ namespace MyHost
                     break;
             }
             return assemblyName;
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed && disposing)
-            {
-                // Nothing to do here
-            }
-            this.disposed = true;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
     }
 }

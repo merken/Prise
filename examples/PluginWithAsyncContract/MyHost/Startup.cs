@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using Contract;
-using Prise.Infrastructure.NetCore;
+using Prise;
 
 namespace MyHost
 {
@@ -25,6 +25,7 @@ namespace MyHost
             services.AddPrise<IHelloWorldPlugin>(options => 
                 options
                     .WithPluginAssemblyName("HelloWorldPlugin.dll")
+                    .IgnorePlatformInconsistencies() // The HelloWorldPlugin is a netstandard library, the host is a netcoreapp, ignore this inconsistency
             );
         }
 

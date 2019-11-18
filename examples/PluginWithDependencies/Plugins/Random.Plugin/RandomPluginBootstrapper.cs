@@ -1,7 +1,7 @@
 ﻿using System;
 using Contract;
 using Microsoft.Extensions.DependencyInjection;
-using Prise.Infrastructure;
+using Prise.Plugin;
 using Random.Domain;
 
 namespace Random.Plugin

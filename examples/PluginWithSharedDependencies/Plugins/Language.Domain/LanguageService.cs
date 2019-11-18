@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Contract;
-using Prise.Infrastructure;
+﻿using System.Collections.Generic;
 
 namespace Language.Domain
 {

@@ -1,12 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\Prise.Plugin\Prise.Plugin.csproj" />
     <ProjectReference Include="..\..\Contract\Contract.csproj" />
-    <ProjectReference Include="..\..\..\..\src\Prise.Infrastructure\Prise.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

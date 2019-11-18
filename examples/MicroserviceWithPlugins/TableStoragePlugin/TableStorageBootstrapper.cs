@@ -3,7 +3,7 @@ using System.Data;
 using System.Data.Common;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Prise.Infrastructure;
+using Prise.Plugin;
 
 namespace TableStoragePlugin
 {

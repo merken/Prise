@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Contract;
-using Prise.Infrastructure;
+using Prise.Plugin;
 
 namespace PluginA
 {

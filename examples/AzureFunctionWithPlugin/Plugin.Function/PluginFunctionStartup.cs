@@ -3,7 +3,7 @@ using Contract;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Plugin.Function.Infrastructure;
-using Prise.Infrastructure.NetCore;
+using Prise;
 
 [assembly: FunctionsStartup(typeof(Plugin.Function.PluginFunctionStartup))]
 namespace Plugin.Function
@@ -13,6 +13,8 @@ namespace Plugin.Function
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.Services.AddHttpClient();
+
+            builder.Services.AddTransient<FunctionPluginLoaderOptions>(); // This class encapsulates all the Prise services
 
             builder.Services.AddPriseWithPluginLoader<IHelloPlugin, FunctionPluginLoader>(options =>
             {

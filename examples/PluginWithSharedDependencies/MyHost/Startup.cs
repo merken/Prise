@@ -1,19 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Contract;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
-using Contract;
-using Prise.Infrastructure.NetCore;
-using Prise.Infrastructure.NetCore.Contracts;
+using Prise;
 
 namespace MyHost
 {
@@ -35,6 +26,7 @@ namespace MyHost
             services.AddPrise<IHelloPlugin>(options => options
                 .WithLocalDiskAssemblyLoader("Plugins\\LanguageBased.Plugin")
                 .WithPluginAssemblyName("LanguageBased.Plugin.dll")
+                .IgnorePlatformInconsistencies() // The plugin is a netstandard library, the host is a netcoreapp, ignore this inconsistency
                 .ConfigureSharedServices(services =>
                 {
                     services.AddHttpContextAccessor(); // Required to read out HTTP Headers from request

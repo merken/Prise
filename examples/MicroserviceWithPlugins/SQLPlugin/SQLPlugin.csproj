@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Prise.Plugin\Prise.Plugin.csproj" />
     <ProjectReference Include="..\Contract\Contract.csproj" />
-    <ProjectReference Include="..\..\..\src\Prise.Infrastructure\Prise.Infrastructure.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

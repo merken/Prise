@@ -1,6 +1,6 @@
 ﻿using Contract;
 using Microsoft.EntityFrameworkCore;
-using Prise.Infrastructure;
+using Prise.Plugin;
 using System;
 using System.Collections.Generic;
 using System.Linq;

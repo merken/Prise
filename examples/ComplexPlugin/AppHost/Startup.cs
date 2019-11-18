@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
-using Prise.Infrastructure.NetCore;
+using Prise;
 using Contract;
 using AppHost.Services;
 using AppHost.Custom;

@@ -19,7 +19,7 @@ namespace MyHost.Infrastructure
             this.rootPathProvider = rootPathProvider;
         }
 
-        public string GetDependencyPath() => Path.Combine(this.rootPathProvider.GetRootPath(), $"{GetPluginPath()}");
+        public string GetDependencyPath() => Path.Combine(this.rootPathProvider.GetRootPath(), $"{GetPluginPathFromContext()}");
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls

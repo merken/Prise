@@ -1,7 +1,7 @@
 ﻿using System;
 using Contract;
 using Language.Domain;
-using Prise.Infrastructure;
+using Prise.Plugin;
 
 namespace Random.Plugin
 {

@@ -1,18 +1,19 @@
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Prise.Infrastructure;
-using Prise.Infrastructure.NetCore;
+using System;
 
 namespace AppHost.Custom
 {
-    public class ContextPluginAssemblyLoadOptions : ILocalAssemblyLoaderOptions
+    public class ContextPluginAssemblyLoadOptions : LocalAssemblyLoaderOptions
     {
         private readonly IHttpContextAccessor contextAccessor;
         public ContextPluginAssemblyLoadOptions(IHttpContextAccessor contextAccessor)
+            : base(String.Empty, // PluginPath will be provided at runtime
+                  ignorePlatformInconsistencies: true) // The plugins are of type netstandard, while the host is a netcoreapp. To ignore this inconsistency, set this flag to true.
         {
             this.contextAccessor = contextAccessor;
         }
-
 
         /// <summary>
         /// At this point the root path is /bin/debug/netcoreapp3.0/Plugins.
@@ -22,7 +23,7 @@ namespace AppHost.Custom
         /// After this, the ContextPluginAssemblyNameProvider will suffix the PluginPath with the correct assembly name.
         /// </summary>
         /// <value>The returned value will be /bin/debug/netcoreapp3.0/Plugins/PluginA, for example</value>
-        public string PluginPath
+        public override string PluginPath
         {
             get
             {
@@ -30,15 +31,5 @@ namespace AppHost.Custom
                 return pluginType;
             }
         }
-
-        public PluginPlatformVersion PluginPlatformVersion => PluginPlatformVersion.Empty();
-        
-        /// <summary>
-        /// The plugins are of type netstandard, while the host is a netcoreapp. To ignore this inconsistency, set this flag to true.
-        /// </summary>
-        public bool IgnorePlatformInconsistencies => true; 
-        public DependencyLoadPreference DependencyLoadPreference => DependencyLoadPreference.PreferDependencyContext;
-
-        public NativeDependencyLoadPreference NativeDependencyLoadPreference => NativeDependencyLoadPreference.PreferInstalledRuntime;
     }
 }

@@ -1,5 +1,5 @@
 using Contract;
-using Prise.Infrastructure;
+using Prise.Plugin;
 using Avalonia.Controls;
 
 namespace Components

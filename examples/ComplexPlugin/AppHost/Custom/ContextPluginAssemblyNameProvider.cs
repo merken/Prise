@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
-using Prise.Infrastructure;
+using Prise;
 
 namespace AppHost.Custom
 {

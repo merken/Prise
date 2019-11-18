@@ -1,22 +1,24 @@
+using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Prise.Infrastructure;
-using Prise.Infrastructure.NetCore.Contracts;
 
 namespace MyHost
 {
-    public class LanguageBasedPluginLoadOptions : INetworkAssemblyLoaderOptions
+    public class LanguageBasedPluginLoadOptions : NetworkAssemblyLoaderOptions
     {
         private readonly IHttpContextAccessor contextAccessor;
         private readonly IConfiguration configuration;
         public LanguageBasedPluginLoadOptions(IHttpContextAccessor contextAccessor, IConfiguration configuration)
+            : base(String.Empty, // BaseUrl will be provided at runtime
+                  ignorePlatformInconsistencies: true) // The plugins are netstandard, so ignore incosistencies with the MyHost (netcoreapp3.0)
         {
             this.configuration = configuration;
             this.contextAccessor = contextAccessor;
         }
 
-        public string BaseUrl
+        public override string BaseUrl
         {
             get
             {
@@ -41,7 +43,5 @@ namespace MyHost
                 return $"{configuration["PluginServerUrl"]}/{plugin}";
             }
         }
-
-        public DependencyLoadPreference DependencyLoadPreference => DependencyLoadPreference.PreferDependencyContext;
     }
 }

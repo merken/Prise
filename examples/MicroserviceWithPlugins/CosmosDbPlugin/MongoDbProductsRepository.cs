@@ -1,5 +1,5 @@
 ﻿using Contract;
-using Prise.Infrastructure;
+using Prise.Plugin;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
