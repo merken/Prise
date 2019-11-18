@@ -17,7 +17,7 @@ Prise features:
 ## Latest version
 [Prise](https://www.nuget.org/packages/Prise) ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise)
 
-[Prise.Infrastructure](https://www.nuget.org/packages/Prise.Infrastructure) ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.Infrastructure)
+[Prise.Plugin](https://www.nuget.org/packages/Prise.Plugin) ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.Plugin)
 
 
 # How does Prise work ?
