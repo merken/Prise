@@ -13,6 +13,8 @@ The Factory method will be passed a configured IServiceCollection that is constr
 *Breaking changes:*
 - **NetCoreActivator** class was replaced by **DefaultRemotePluginActivator**
 
+Please see https://github.com/merken/Prise/tree/master/examples/PluginWithExternalServices for an example.
+
 ## 1.3.1
 
 *New features:*
