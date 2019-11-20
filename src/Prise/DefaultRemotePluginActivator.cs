@@ -55,12 +55,6 @@ namespace Prise
             return factoryMethod.Invoke(null, new[] { serviceProvider });
         }
 
-        private IServiceProvider CreateServiceProviderForType(IPluginBootstrapper bootstrapper)
-        {
-            var sharedServices = this.sharedServicesProvider.ProvideSharedServices();
-            return bootstrapper.Bootstrap(sharedServices).BuildServiceProvider();
-        }
-
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed && disposing)
