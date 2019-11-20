@@ -385,7 +385,7 @@ namespace Prise
                 ; // If a shared service is added, it must be a added as a host type
 
             this.sharedServicesProvider = new DefaultSharedServicesProvider(services);
-            this.activator = new NetCoreActivator(this.sharedServicesProvider);
+            this.activator = new DefaultRemotePluginActivator(this.sharedServicesProvider);
             return this;
         }
 
@@ -396,7 +396,7 @@ namespace Prise
 
             this.rootPathProvider = new RootPathProvider(rootPath);
             this.sharedServicesProvider = new DefaultSharedServicesProvider(new ServiceCollection());
-            this.activator = new NetCoreActivator(this.sharedServicesProvider);
+            this.activator = new DefaultRemotePluginActivator(this.sharedServicesProvider);
             this.proxyCreator = new PluginProxyCreator<T>();
 
             // Use System.Text.Json in 3.0
