@@ -9,9 +9,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Setup .NET Core
+    - name: Setup .NET Core 2.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.1.802
+    - name: Build Prise with dotnet 2.1
+      run: dotnet build src/Prise/Prise.csproj --configuration Release -f netcoreapp2.1
+    - name: Build Prise.Plugin with dotnet 2.1
+      run: dotnet build src/Prise.Plugin/Prise.Plugin.csproj --configuration Release -f netcoreapp2.1
+      
+    - name: Setup .NET Core 3.0
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.0.100
-    - name: Build with dotnet
-      run: dotnet build --configuration Release
+    - name: Build Prise with dotnet 3.0
+      run: dotnet build src/Prise/Prise.csproj --configuration Release -f netcoreapp3.0
+    - name: Build Prise.Plugin with dotnet 3.0
+      run: dotnet build src/Prise.Plugin/Prise.Plugin.csproj --configuration Release -f netcoreapp3.0
