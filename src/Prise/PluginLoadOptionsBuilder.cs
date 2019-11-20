@@ -381,7 +381,7 @@ namespace Prise
             foreach (var sharedService in services)
                 this
                     .WithHostType(sharedService.ServiceType)
-                    .WithHostType(sharedService.ImplementationType ?? sharedService.ImplementationInstance.GetType() ?? sharedService.ImplementationFactory.Method.ReturnType)
+                    .WithHostType(sharedService.ImplementationType ?? sharedService.ImplementationInstance?.GetType() ?? sharedService.ImplementationFactory?.Method.ReturnType)
                 ; // If a shared service is added, it must be a added as a host type
 
             this.sharedServicesProvider = new DefaultSharedServicesProvider(services);
