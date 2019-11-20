@@ -1,6 +1,18 @@
 # Prise
 A .NET Core Plugin Frawework!
 
+## 1.3.2
+**Contains breaking changes**
+
+A plugin that has no additional setup required, should not contain an IPluginBootstrapper.
+The Factory method will be passed a configured IServiceCollection that is constructed using the **ConfigureSharedServices** option.
+
+*New features:*
+- Removed the requirement for a **IPluginBootstrapper** when using a **PluginFactoryAttribute**
+
+*Breaking changes:*
+- **NetCoreActivator** class was replaced by **DefaultRemotePluginActivator**
+
 ## 1.3.1
 
 *New features:*
