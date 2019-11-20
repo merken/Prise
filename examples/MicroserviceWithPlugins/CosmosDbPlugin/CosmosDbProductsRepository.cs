@@ -3,13 +3,14 @@ using Prise.Plugin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace CosmosDbPlugin
 {
     [Plugin(PluginType = typeof(IProductsRepository))]
-    public class CosmosDbProductsRepository : CosmosDbRepositoryBase, IProductsRepository
+    public class CosmosDbProductsRepository : CosmosDbRepositoryBase<ProductCosmosDbDocument>, IProductsRepository
     {
         internal CosmosDbProductsRepository(CosmosDbConfig config) : base(config) { }
 
@@ -23,7 +24,7 @@ namespace CosmosDbPlugin
         public async Task<IEnumerable<Product>> All()
         {
             await InitializeAsync();
-            return (await GetItemsAsync()).Select(d => ToProduct(d));
+            return (await GetItemsAsync()).Select(p => ToProduct(p));
 
         }
 
@@ -50,7 +51,11 @@ namespace CosmosDbPlugin
         public async Task<IEnumerable<Product>> Search(string term)
         {
             await InitializeAsync();
-            return (await GetItemsAsync(term)).Select(d => ToProduct(d));
+            Expression<Func<ProductCosmosDbDocument, bool>> predicate = null;
+            if (String.IsNullOrEmpty(term))
+                predicate = (p) => p.Name.Contains(term);
+
+            return (await GetItemsAsync(predicate)).Select(p => ToProduct(p));
         }
 
         public async Task<Product> Update(Product product)
@@ -61,18 +66,18 @@ namespace CosmosDbPlugin
 
         }
 
-        private Product ToProduct(ProductDocument d) => new Product
+        private Product ToProduct(ProductCosmosDbDocument d) => new Product
         {
-            Id = d.Id,
+            Id = int.Parse(d.Id),
             Name = d.Name,
             SKU = d.SKU,
             Description = d.Description,
             PriceExlVAT = d.PriceExlVAT,
         };
 
-        private ProductDocument ToDocument(Product p) => new ProductDocument
+        private ProductCosmosDbDocument ToDocument(Product p) => new ProductCosmosDbDocument
         {
-            Id = p.Id,
+            Id = p.Id.ToString(),
             Name = p.Name,
             SKU = p.SKU,
             Description = p.Description,
