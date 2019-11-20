@@ -1,13 +1,15 @@
 ﻿using Contract;
+using MongoDB.Bson;
 using Prise.Plugin;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CosmosDbPlugin
 {
     [Plugin(PluginType = typeof(IProductsRepository))]
-    public class MongoDbProductsRepository : MongoDbRepositoryBase<Product>, IProductsRepository
+    public class MongoDbProductsRepository : MongoDbRepositoryBase<ProductMongoDbDocument>, IProductsRepository
     {
         private bool disposed = false;
         internal MongoDbProductsRepository(MongoDbConfig config) : base(config, "products") { }
@@ -19,14 +21,16 @@ namespace CosmosDbPlugin
             return new MongoDbProductsRepository(config as MongoDbConfig);
         }
 
-        public Task<IEnumerable<Product>> All()
+        public async Task<IEnumerable<Product>> All()
         {
-            return this.GetAll();
+            return (await this.GetAll()).Select(p => ToProduct(p));
         }
 
-        public Task<Product> Create(Product product)
+        public async Task<Product> Create(Product product)
         {
-            return Insert(product);
+            var doc = ToDocument(product);
+            doc.InternalId = ObjectId.GenerateNewId();
+            return ToProduct((await Insert(ToDocument(product))));
         }
 
         public Task Delete(int productId)
@@ -34,34 +38,37 @@ namespace CosmosDbPlugin
             return Delete(productId.ToString());
         }
 
-        public Task<Product> Get(int productId)
+        public async Task<Product> Get(int productId)
         {
-            return GetItem(productId.ToString());
+            return ToProduct((await GetItem(productId.ToString())));
         }
 
-        public Task<IEnumerable<Product>> Search(string term)
+        public async Task<IEnumerable<Product>> Search(string term)
         {
-            return base.Search(term);
+            return (await base.Search(d => d.Name.Contains(term))).Select(p => ToProduct(p));
         }
 
-        public Task<Product> Update(Product product)
+        public async Task<Product> Update(Product product)
         {
-            return base.Update(product.Id.ToString(), product);
+            return ToProduct((await base.Update(product.Id.ToString(), ToDocument(product))));
         }
 
-        protected virtual void Dispose(bool disposing)
+        private Product ToProduct(ProductMongoDbDocument d) => new Product
         {
-            if (!this.disposed && disposing)
-            {
-                //
-            }
-            this.disposed = true;
-        }
+            Id = int.Parse(d.Id),
+            Name = d.Name,
+            SKU = d.SKU,
+            Description = d.Description,
+            PriceExlVAT = d.PriceExlVAT,
+        };
 
-        public void Dispose()
+        private ProductMongoDbDocument ToDocument(Product p) => new ProductMongoDbDocument
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+            Id = p.Id.ToString(),
+            Name = p.Name,
+            SKU = p.SKU,
+            Description = p.Description,
+            PriceExlVAT = p.PriceExlVAT,
+        };
     }
 }

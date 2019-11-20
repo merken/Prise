@@ -3,6 +3,7 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Authentication;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 namespace CosmosDbPlugin
 {
     public abstract class MongoDbRepositoryBase<T>
+        where T : IHaveAnId
     {
         protected readonly IMongoClient client;
         protected readonly IMongoDatabase database;
@@ -24,31 +26,30 @@ namespace CosmosDbPlugin
             this.collection = collection;
         }
 
-        protected IMongoCollection<DocumentBase> Collection => this.database.GetCollection<DocumentBase>(this.collection);
+        protected IMongoCollection<T> Collection => this.database.GetCollection<T>(this.collection);
 
         protected async Task<IEnumerable<T>> GetAll()
         {
             var results = await this.Collection.Find(_ => true).ToListAsync();
-            return results.Select(d => ConvertBody(d));
+            return results;
         }
 
-        protected async Task<IEnumerable<T>> Search(string term)
+        protected async Task<IEnumerable<T>> Search(Expression<Func<T, bool>> predicate = null)
         {
-            var results = await this.Collection.Find(_ => _.Body.Contains(term)).ToListAsync();
-            return results.Select(d => ConvertBody(d));
+            var results = await this.Collection.Find(predicate).ToListAsync();
+            return results;
         }
 
         protected async Task<T> Insert(T document)
         {
-            await this.Collection.InsertOneAsync(new DocumentBase() { Body = System.Text.Json.JsonSerializer.Serialize(document) });
+            await this.Collection.InsertOneAsync(document);
             return document;
         }
 
         protected async Task<T> Update(string documentId, T document)
         {
-            var filter = Builders<DocumentBase>.Filter.Eq(d => d.Id, documentId);
-            var update = Builders<DocumentBase>.Update.Set(d => d.Body, System.Text.Json.JsonSerializer.Serialize(document));
-            await this.Collection.UpdateOneAsync(filter, update);
+            var filter = Builders<T>.Filter.Eq(d => d.Id, documentId);
+            await this.Collection.ReplaceOneAsync(filter, document);
             return document;
         }
 
@@ -58,18 +59,13 @@ namespace CosmosDbPlugin
                             .Find(d => d.Id == documentId)
                             .FirstOrDefaultAsync();
 
-            return ConvertBody(document);
+            return document;
         }
 
         protected async Task Delete(string documentId)
         {
-            await this.Collection.DeleteOneAsync(
-                   Builders<DocumentBase>.Filter.Eq("Id", documentId));
-        }
-
-        protected T ConvertBody(DocumentBase document)
-        {
-            return (T)System.Text.Json.JsonSerializer.Deserialize(document.Body, typeof(T));
+            var filter = Builders<T>.Filter.Eq(d => d.Id, documentId);
+            await this.Collection.DeleteOneAsync(filter);
         }
     }
 }
