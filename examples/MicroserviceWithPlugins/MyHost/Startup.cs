@@ -54,8 +54,8 @@ namespace MyHost
                 })
                 .WithSelector((types) =>
                 {
-                    //return types.Where(t => t.Name.Contains("MongoDbProductsRepository"));
-                    return types.Where(t => t.Name.Contains("CosmosDbProductsRepository"));
+                    return types.Where(t => t.Name.Contains("MongoDbProductsRepository"));
+                    //return types.Where(t => t.Name.Contains("CosmosDbProductsRepository"));
                 })
             );
         }
