@@ -3,6 +3,7 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,7 +17,9 @@ namespace CosmosDbPlugin
 
         protected MongoDbRepositoryBase(MongoDbConfig config, string collection)
         {
-            this.client = new MongoClient(config.ConnectionString);
+            MongoClientSettings settings = MongoClientSettings.FromUrl(new MongoUrl(config.ConnectionString));
+            settings.SslSettings = new SslSettings() { EnabledSslProtocols = SslProtocols.Tls12 };
+            this.client = new MongoClient(settings);
             this.database = client.GetDatabase(config.Database);
             this.collection = collection;
         }
@@ -51,7 +54,7 @@ namespace CosmosDbPlugin
 
         protected async Task<T> GetItem(string documentId)
         {
-            var document =  await this.Collection
+            var document = await this.Collection
                             .Find(d => d.Id == documentId)
                             .FirstOrDefaultAsync();
 

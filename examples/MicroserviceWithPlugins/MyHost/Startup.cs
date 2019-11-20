@@ -8,6 +8,7 @@ using Contract;
 using System.IO;
 using MyHost.Infrastructure;
 using Prise;
+using System.Linq;
 
 namespace MyHost
 {
@@ -51,10 +52,11 @@ namespace MyHost
                     // this way, the plugins can read their own config section from the appsettings.json
                     services.AddSingleton(Configuration);
                 })
-            //.WithSelector((types) =>
-            //{
-            //    return types.Where(t => t.Name.Contains("MongoDbProductsRepository"));
-            //})
+                .WithSelector((types) =>
+                {
+                    //return types.Where(t => t.Name.Contains("MongoDbProductsRepository"));
+                    return types.Where(t => t.Name.Contains("CosmosDbProductsRepository"));
+                })
             );
         }
 
