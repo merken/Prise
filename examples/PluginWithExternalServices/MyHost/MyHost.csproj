@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Prise.Plugin\Prise.Plugin.csproj" />
+    <ProjectReference Include="..\..\..\src\Prise\Prise.csproj" />
+    <ProjectReference Include="..\Contract\Contract.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Plugins\**" LinkBase="Plugins" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,12 +7,12 @@ using Prise.Plugin;
 
 namespace Prise
 {
-    public class NetCoreActivator : IRemotePluginActivator
+    public class DefaultRemotePluginActivator : IRemotePluginActivator
     {
         private readonly ISharedServicesProvider sharedServicesProvider;
         private bool disposed = false;
 
-        public NetCoreActivator(ISharedServicesProvider sharedServicesProvider)
+        public DefaultRemotePluginActivator(ISharedServicesProvider sharedServicesProvider)
         {
             this.sharedServicesProvider = sharedServicesProvider;
         }
@@ -51,12 +51,8 @@ namespace Prise
                 sharedServices = bootstrapper.Bootstrap(sharedServices);
 
             var serviceProvider = sharedServices.BuildServiceProvider();
+
             return factoryMethod.Invoke(null, new[] { serviceProvider });
-
-
-            //throw new PrisePluginException($"The type requires dependencies, please provide a {nameof(IPluginBootstrapper)} for plugin {pluginType.Name}");
-
-            //var serviceProvider = CreateServiceProviderForType(bootstrapper);
         }
 
         private IServiceProvider CreateServiceProviderForType(IPluginBootstrapper bootstrapper)
@@ -80,4 +76,5 @@ namespace Prise
             GC.SuppressFinalize(this);
         }
     }
+}
 }
