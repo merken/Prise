@@ -11,14 +11,16 @@ namespace HttpPlugin
     [Plugin(PluginType = typeof(IProductsRepository))]
     public class SWAPIRepository : HttpRepositoryBase, IProductsRepository
     {
-        internal SWAPIRepository(HttpClient client)
-            : base(client)
+        internal SWAPIRepository(HttpClient client, HttpConfig config)
+            : base(client, new Uri(config.SWAPIUrl))
         {
         }
 
         [PluginFactory]
         public static SWAPIRepository SWAPIRepositoryPluginFactory(IServiceProvider serviceProvider) =>
-           new SWAPIRepository((HttpClient)serviceProvider.GetService(typeof(HttpClient)));
+           new SWAPIRepository(
+               (HttpClient)serviceProvider.GetService(typeof(HttpClient)),
+               (HttpConfig)serviceProvider.GetService(typeof(HttpConfig)));
 
         public async Task<IEnumerable<Product>> All()
         {

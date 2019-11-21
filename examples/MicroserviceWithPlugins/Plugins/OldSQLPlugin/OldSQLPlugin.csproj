@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
@@ -10,8 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Prise.Plugin\Prise.Plugin.csproj" />
-    <ProjectReference Include="..\Contract\Contract.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Prise.Plugin\Prise.Plugin.csproj" />
+    <ProjectReference Include="..\..\Contract\Contract.csproj" />
   </ItemGroup>
-
 </Project>

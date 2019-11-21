@@ -1,10 +1,8 @@
 ﻿using Contract;
-using Newtonsoft.Json;
 using Prise.Plugin;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HttpPlugin
@@ -12,14 +10,16 @@ namespace HttpPlugin
     [Plugin(PluginType = typeof(IProductsRepository))]
     public class MyProductsRepository : HttpRepositoryBase, IProductsRepository
     {
-        internal MyProductsRepository(HttpClient client)
-            : base(client)
+        internal MyProductsRepository(HttpClient client, HttpConfig config)
+            : base(client, new Uri(config.MyProductsUrl))
         {
         }
 
         [PluginFactory]
         public static MyProductsRepository MyProductsRepositoryPluginFactory(IServiceProvider serviceProvider) =>
-           new MyProductsRepository((HttpClient)serviceProvider.GetService(typeof(HttpClient)));
+           new MyProductsRepository(
+               (HttpClient)serviceProvider.GetService(typeof(HttpClient)),
+               (HttpConfig)serviceProvider.GetService(typeof(HttpConfig)));
 
         public Task<IEnumerable<Product>> All()
         {
