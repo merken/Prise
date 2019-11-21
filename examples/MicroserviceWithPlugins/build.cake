@@ -43,6 +43,7 @@ Task("build")
         Configuration = configuration
     };
 
+    DotNetCoreBuild("HttpPlugin/HttpPlugin.csproj", settings);
     DotNetCoreBuild("CosmosDbPlugin/CosmosDbPlugin.csproj", settings);
     DotNetCoreBuild("OldSQLPlugin/OldSQLPlugin.csproj", settings);
     DotNetCoreBuild("SQLPlugin/SQLPlugin.csproj", settings);
@@ -53,6 +54,14 @@ Task("publish")
   .IsDependentOn("build")
   .Does(() =>
   { 
+    DotNetCorePublish("HttpPlugin/HttpPlugin.csproj", new DotNetCorePublishSettings
+    {
+        NoBuild = true,
+        Configuration = configuration,
+        OutputDirectory = "publish/HttpPlugin"
+    });
+
+
     DotNetCorePublish("CosmosDbPlugin/CosmosDbPlugin.csproj", new DotNetCorePublishSettings
     {
         NoBuild = true,
@@ -86,6 +95,9 @@ Task("copy-to-apphost")
   .IsDependentOn("publish")
   .Does(() =>
   {
+    CopyDirectory("publish/HttpPlugin", "MyHost/bin/debug/netcoreapp3.0/Plugins/HttpPlugin");
+    CopyDirectory("publish/HttpPlugin", "MyHost2/bin/debug/netcoreapp2.1/Plugins/HttpPlugin");
+    CopyDirectory("publish/HttpPlugin", "PluginServer/Plugins/HttpPlugin");
     CopyDirectory("publish/CosmosDbPlugin", "MyHost/bin/debug/netcoreapp3.0/Plugins/CosmosDbPlugin");
     CopyDirectory("publish/CosmosDbPlugin", "MyHost2/bin/debug/netcoreapp2.1/Plugins/CosmosDbPlugin");
     CopyDirectory("publish/CosmosDbPlugin", "PluginServer/Plugins/CosmosDbPlugin");

@@ -59,10 +59,10 @@ namespace MyHost2
                     sharedServices.AddSingleton(Configuration);
                 })
                 .WithHostType<BinderOptions>()
-                //.WithSelector((types) =>
-                //{
-                //    return types.Where(t => t.Name.Contains("MongoDbProductsRepository"));
-                //})
+                .WithSelector((types) =>
+                {
+                    return types.Where(t => t.Name.Contains("SWAPIRepository"));
+                })
             );
         }
 
