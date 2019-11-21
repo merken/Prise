@@ -275,6 +275,13 @@ namespace Prise
             return this;
         }
 
+        public PluginLoadOptionsBuilder<T> WithSelector<TType>()
+            where TType : IPluginSelector
+        {
+            this.pluginSelectorType = typeof(TType);
+            return this;
+        }
+
         public PluginLoadOptionsBuilder<T> WithHostType(Type type)
         {
             var hostTypesProvider = this.hostTypesProvider as HostTypesProvider;
