@@ -52,12 +52,7 @@ namespace MyHost
                     // this way, the plugins can read their own config section from the appsettings.json
                     services.AddSingleton(Configuration);
                 })
-                .WithSelector((types) =>
-                {
-                    return types.Where(t => t.Name.Contains("SWAPIRepository"));
-                    //return types.Where(t => t.Name.Contains("MongoDbProductsRepository"));
-                    //return types.Where(t => t.Name.Contains("CosmosDbProductsRepository"));
-                })
+                .WithSelector<HttpClientPluginSelector>()
             );
         }
 

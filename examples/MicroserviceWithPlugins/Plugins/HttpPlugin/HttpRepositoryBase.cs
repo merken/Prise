@@ -11,9 +11,10 @@ namespace HttpPlugin
     public abstract class HttpRepositoryBase
     {
         private readonly HttpClient client;
-        protected HttpRepositoryBase(HttpClient client)
+        protected HttpRepositoryBase(HttpClient client, Uri baseUrl)
         {
             this.client = client;
+            this.client.BaseAddress = baseUrl;
         }
 
         protected async Task<T> SendAync<T>(HttpMethod httpMethod, string endpoint, object payload = null)

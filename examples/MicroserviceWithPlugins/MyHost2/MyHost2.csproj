@@ -7,6 +7,7 @@
   <ItemGroup>
     <Compile Include="..\MyHost\Controllers\ProductsController.cs" Link="Controllers\ProductsController.cs" />
     <Compile Include="..\MyHost\Controllers\ProductsUsingLoaderController.cs" Link="Controllers\ProductsUsingLoaderController.cs" />
+    <Compile Include="..\MyHost\Infrastructure\HttpClientPluginSelector.cs" Link="Infrastructure\HttpClientPluginSelector.cs" />
     <Compile Include="..\MyHost\Infrastructure\TenantAwarePluginMiddleware.cs" Link="Infrastructure\TenantAwarePluginMiddleware.cs" />
     <Compile Include="..\MyHost\Infrastructure\TenantConfig.cs" Link="Infrastructure\TenantConfig.cs" />
     <Compile Include="..\MyHost\Infrastructure\TenantPluginAssemblyLoadOptions.cs" Link="Infrastructure\TenantPluginAssemblyLoadOptions.cs" />

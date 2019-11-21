@@ -18,10 +18,11 @@ namespace HttpPlugin
             var httpConfig = new HttpConfig();
             config.Bind("HttpPlugin", httpConfig);
 
+            services.AddSingleton<HttpConfig>(httpConfig);
+
             services.AddScoped<HttpClient>((serviceProvider) =>
             {
                 var client = new HttpClient();
-                client.BaseAddress = new Uri(httpConfig.BaseUrl);
                 return client;
             });
 
