@@ -32,7 +32,7 @@ namespace MyHost
 
             services.AddHttpClient();
             services.AddHttpContextAccessor(); // Add the IHttpContextAccessor for use in the Tenant Aware middleware
-            
+
             services.AddPrise<IProductsRepository>(options => options
                 // Plugins will be located at /bin/Debug/netcoreapp3.0/Plugins directory
                 // each plugin will have its own directory
@@ -54,7 +54,8 @@ namespace MyHost
                 })
                 .WithSelector((types) =>
                 {
-                    return types.Where(t => t.Name.Contains("MongoDbProductsRepository"));
+                    return types.Where(t => t.Name.Contains("SWAPIRepository"));
+                    //return types.Where(t => t.Name.Contains("MongoDbProductsRepository"));
                     //return types.Where(t => t.Name.Contains("CosmosDbProductsRepository"));
                 })
             );

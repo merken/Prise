@@ -19,7 +19,7 @@ namespace MyHost.Infrastructure
 
         protected string GetPluginPathFromContext()
         {
-            return "CosmosDbPlugin";
+            return "HttpPlugin";
             if (!this.contextAccessor.HttpContext.Request.Headers["Tenant"].Any())
                 return "OldSQLPlugin"; //The old plugin is a netcoreapp2.1 plugin, it should work on both MyHost and MyHost2
 
@@ -31,7 +31,7 @@ namespace MyHost.Infrastructure
 
         protected string GetPluginAssemblyFromContext()
         {
-            return "CosmosDbPlugin";
+            return "HttpPlugin";
             if (!this.contextAccessor.HttpContext.Request.Headers["Tenant"].Any())
                 return "OldSQLPlugin";
 
