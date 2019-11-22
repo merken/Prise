@@ -1,6 +1,12 @@
 # Prise
 A .NET Core Plugin Frawework!
 
+## 1.3.3
+
+*New APIs:*
+- WithSelector<T> API was added to inject your own custom PluginTypeSelector
+  
+
 ## 1.3.2
 **Contains breaking changes**
 
