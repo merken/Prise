@@ -5,16 +5,15 @@ namespace Prise.Infrastructure
         string BaseUrl { get; }
     }
 
-    public class NetworkAssemblyLoaderOptions : AssemblyLoadOptions, INetworkAssemblyLoaderOptions
+    public class NetworkAssemblyLoaderOptions : DefaultAssemblyLoadOptions, INetworkAssemblyLoaderOptions
     {
         private readonly string baseUrl;
         public NetworkAssemblyLoaderOptions(string baseUrl,
             PluginPlatformVersion pluginPlatformVersion = null,
             bool ignorePlatformInconsistencies = false,
-            DependencyLoadPreference dependencyLoadPreference = DependencyLoadPreference.PreferDependencyContext,
             NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime
         )
-         : base(pluginPlatformVersion, ignorePlatformInconsistencies, dependencyLoadPreference, nativeDependencyLoadPreference)
+         : base(pluginPlatformVersion, ignorePlatformInconsistencies, nativeDependencyLoadPreference)
         {
             this.baseUrl = baseUrl;
         }

@@ -17,7 +17,7 @@ namespace Prise
         private bool disposed = false;
 
         private PluginDependencyContext(
-            AssemblyName plugin,
+            IPluginLoadContext pluginLoadContext,
             IEnumerable<HostDependency> hostDependencies,
             IEnumerable<RemoteDependency> remoteDependencies,
             IEnumerable<PluginDependency> pluginDependencies,
@@ -26,7 +26,7 @@ namespace Prise
             IEnumerable<PlatformDependency> platformDependencies
             )
         {
-            this.Plugin = plugin;
+            this.PluginLoadContext = pluginLoadContext;
             this.HostDependencies = hostDependencies;
             this.RemoteDependencies = remoteDependencies;
             this.PluginDependencies = pluginDependencies;
@@ -36,7 +36,7 @@ namespace Prise
         }
 
         public static PluginDependencyContext FromPluginAssembly(
-            string pluginAssemblyName,
+            IPluginLoadContext pluginLoadContext,
             IHostFrameworkProvider hostFrameworkProvider,
             IEnumerable<Type> hostTypes,
             IEnumerable<Type> remoteTypes,
@@ -56,7 +56,7 @@ namespace Prise
                 LoadAssemblyAndReferencesFromCurrentAppDomain(type.Assembly.GetName(), remoteDependencies);
 
             var hostFramework = hostFrameworkProvider.ProvideHostFramwork();
-            var dependencyContext = GetDependencyContextFromPluginAssembly(pluginAssemblyName, depsFileProvider);
+            var dependencyContext = GetDependencyContextFromPluginAssembly(pluginLoadContext, depsFileProvider);
             var pluginFramework = dependencyContext.Target.Framework;
             CheckFrameworkCompatibility(hostFramework, pluginFramework, ignorePlatformInconsistencies);
 
@@ -66,7 +66,7 @@ namespace Prise
             var platformDependencies = GetPlatformDependencies(dependencyContext, runtimePlatformContext.GetPlatformExtensions());
 
             return new PluginDependencyContext(
-                new AssemblyName(pluginAssemblyName),
+                pluginLoadContext,
                 hostDependencies,
                 remoteDependencies,
                 pluginDependencies,
@@ -76,7 +76,7 @@ namespace Prise
         }
 
         public static async Task<PluginDependencyContext> FromPluginAssemblyAsync(
-            string pluginAssemblyName,
+            IPluginLoadContext pluginLoadContext,
             IHostFrameworkProvider hostFrameworkProvider,
             IEnumerable<Type> hostTypes,
             IEnumerable<Type> remoteTypes,
@@ -96,7 +96,7 @@ namespace Prise
                 LoadAssemblyAndReferencesFromCurrentAppDomain(type.Assembly.GetName(), remoteDependencies);
 
             var hostFramework = hostFrameworkProvider.ProvideHostFramwork();
-            var dependencyContext = await GetDependencyContextFromPluginAssemblyAsync(pluginAssemblyName, depsFileProvider);
+            var dependencyContext = await GetDependencyContextFromPluginAssemblyAsync(pluginLoadContext, depsFileProvider);
             var pluginFramework = dependencyContext.Target.Framework;
             CheckFrameworkCompatibility(hostFramework, pluginFramework, ignorePlatformInconsistencies);
 
@@ -106,7 +106,7 @@ namespace Prise
             var pluginReferenceDependencies = GetPluginReferenceDependencies(dependencyContext);
 
             return new PluginDependencyContext(
-                new AssemblyName(pluginAssemblyName),
+                pluginLoadContext,
                 hostDependencies,
                 remoteDependencies,
                 pluginDependencies,
@@ -284,17 +284,17 @@ namespace Prise
             return dependencies;
         }
 
-        private static DependencyContext GetDependencyContextFromPluginAssembly(string pluginAssemblyName, IDepsFileProvider depsFileProvider)
+        private static DependencyContext GetDependencyContextFromPluginAssembly(IPluginLoadContext pluginLoadContext, IDepsFileProvider depsFileProvider)
         {
-            return new DependencyContextJsonReader().Read(depsFileProvider.ProvideDepsFile(pluginAssemblyName).Result);
+            return new DependencyContextJsonReader().Read(depsFileProvider.ProvideDepsFile(pluginLoadContext).Result);
         }
 
-        private static async Task<DependencyContext> GetDependencyContextFromPluginAssemblyAsync(string pluginAssemblyName, IDepsFileProvider depsFileProvider)
+        private static async Task<DependencyContext> GetDependencyContextFromPluginAssemblyAsync(IPluginLoadContext pluginLoadContext, IDepsFileProvider depsFileProvider)
         {
-            return new DependencyContextJsonReader().Read(await depsFileProvider.ProvideDepsFile(pluginAssemblyName));
+            return new DependencyContextJsonReader().Read(await depsFileProvider.ProvideDepsFile(pluginLoadContext));
         }
 
-        public AssemblyName Plugin { get; private set; }
+        public IPluginLoadContext PluginLoadContext { get; private set; }
         public IEnumerable<HostDependency> HostDependencies { get; private set; }
         public IEnumerable<RemoteDependency> RemoteDependencies { get; private set; }
         public IEnumerable<PluginDependency> PluginDependencies { get; private set; }
@@ -306,7 +306,7 @@ namespace Prise
         {
             if (!this.disposed && disposing)
             {
-                this.Plugin = null;
+                this.PluginLoadContext = null;
                 this.HostDependencies = null;
                 this.RemoteDependencies = null;
                 this.PluginDependencies = null;

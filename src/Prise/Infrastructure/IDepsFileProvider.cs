@@ -6,6 +6,6 @@ namespace Prise.Infrastructure
 {
     public interface IDepsFileProvider : IDisposable
     {
-        Task<Stream> ProvideDepsFile(string pluginAssemblyName);
+        Task<Stream> ProvideDepsFile(IPluginLoadContext pluginLoadContext);
     }
 }

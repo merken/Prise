@@ -23,10 +23,9 @@ namespace Prise
         {
             var instances = new List<T>();
             var assemblies = pluginLoadOptions.AssemblyScanner.Scan().Result;
-            foreach(var assembly in assemblies)
+            foreach (var loadContext in assemblies.Select(a => PluginLoadContext<T>.FromAssemblyScanResult(a)))
             {
-                var assemblyName = assembly.AssemblyName;
-                var pluginAssembly = pluginLoadOptions.AssemblyLoader.Load(assemblyName);
+                var pluginAssembly = pluginLoadOptions.AssemblyLoader.Load(loadContext);
                 this.pluginAssemblies.Add(pluginAssembly);
                 instances.AddRange(CreatePluginInstances(pluginLoadOptions, ref pluginAssembly));
             }
@@ -35,11 +34,15 @@ namespace Prise
 
         protected async Task<T[]> LoadPluginsOfTypeAsync<T>(IPluginLoadOptions<T> pluginLoadOptions)
         {
+            var instances = new List<T>();
             var assemblies = await pluginLoadOptions.AssemblyScanner.Scan();
-            var assemblyName = GetAssemblyName(pluginLoadOptions);
-            var pluginAssembly = await pluginLoadOptions.AssemblyLoader.LoadAsync(assemblyName);
-            this.pluginAssemblies.Add(pluginAssembly);
-            return CreatePluginInstances(pluginLoadOptions, ref pluginAssembly);
+            foreach (var loadContext in assemblies.Select(a => PluginLoadContext<T>.FromAssemblyScanResult(a)))
+            {
+                var pluginAssembly = await pluginLoadOptions.AssemblyLoader.LoadAsync(loadContext);
+                this.pluginAssemblies.Add(pluginAssembly);
+                instances.AddRange(CreatePluginInstances(pluginLoadOptions, ref pluginAssembly));
+            }
+            return instances.ToArray();
         }
 
         protected void Unload<T>(IPluginLoadOptions<T> pluginLoadOptions)
@@ -50,15 +53,6 @@ namespace Prise
         protected async Task UnloadAsync<T>(IPluginLoadOptions<T> pluginLoadOptions)
         {
             await pluginLoadOptions.AssemblyLoader.UnloadAsync();
-        }
-
-        protected string GetAssemblyName<T>(IPluginLoadOptions<T> pluginLoadOptions)
-        {
-            var assemblyName = pluginLoadOptions.PluginAssemblyNameProvider.GetAssemblyName();
-            if (String.IsNullOrEmpty(assemblyName))
-                throw new PrisePluginException($"IPluginAssemblyNameProvider returned an empty assembly name for plugin type {typeof(T).Name}");
-
-            return assemblyName;
         }
 
         protected T[] CreatePluginInstances<T>(IPluginLoadOptions<T> pluginLoadOptions, ref Assembly pluginAssembly)

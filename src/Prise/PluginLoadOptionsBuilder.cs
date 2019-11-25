@@ -15,6 +15,8 @@ namespace Prise
         internal Type assemblyScannerOptionsType;
         internal IPluginPathProvider pluginPathProvider;
         internal Type pluginPathProviderType;
+        internal IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider;
+        internal Type assemblyLoadStrategyProviderType = typeof(DefaultAssemblyLoadStrategyProvider);
         internal ISharedServicesProvider sharedServicesProvider;
         internal Type sharedServicesProviderType;
         internal IRemotePluginActivator activator;
@@ -29,8 +31,8 @@ namespace Prise
         internal Type assemblyLoaderType;
         internal IPluginAssemblyNameProvider pluginAssemblyNameProvider;
         internal Type pluginAssemblyNameProviderType;
-        internal ILocalAssemblyLoaderOptions localAssemblyLoaderOptions;
-        internal Type localAssemblyLoaderOptionsType;
+        internal IAssemblyLoadOptions assemblyLoadOptions;
+        internal Type assemblyLoadOptionsType;
         internal INetworkAssemblyLoaderOptions networkAssemblyLoaderOptions;
         internal Type networkAssemblyLoaderOptionsType;
         internal Action<IServiceCollection> configureServices;
@@ -71,6 +73,19 @@ namespace Prise
             where TType : IPluginPathProvider
         {
             this.pluginPathProviderType = typeof(TType);
+            return this;
+        }
+
+        public PluginLoadOptionsBuilder<T> WithAssemblyLoadStrategyProvider(IAssemblyLoadStrategyProvider provider)
+        {
+            this.assemblyLoadStrategyProvider = provider;
+            return this;
+        }
+
+        public PluginLoadOptionsBuilder<T> WithAssemblyLoadStrategyProvider<TType>()
+            where TType : IAssemblyLoadStrategyProvider
+        {
+            this.assemblyLoadStrategyProviderType = typeof(TType);
             return this;
         }
 
@@ -153,20 +168,16 @@ namespace Prise
         }
 
         public PluginLoadOptionsBuilder<T> WithLocalDiskAssemblyLoader(
-            string pluginPath,
             PluginPlatformVersion pluginPlatformVersion = null,
-            DependencyLoadPreference dependencyLoadPreference = DependencyLoadPreference.PreferDependencyContext,
             NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime
             )
         {
             if (pluginPlatformVersion == null)
                 pluginPlatformVersion = PluginPlatformVersion.Empty();
 
-            this.localAssemblyLoaderOptions = new LocalAssemblyLoaderOptions(
-                pluginPath,
+            this.assemblyLoadOptions = new DefaultAssemblyLoadOptions(
                 pluginPlatformVersion,
                 false,
-                dependencyLoadPreference,
                 nativeDependencyLoadPreference);
 
 #if NETCORE3_0
@@ -178,9 +189,9 @@ namespace Prise
         }
 
         public PluginLoadOptionsBuilder<T> WithLocalDiskAssemblyLoader<TType>()
-            where TType : ILocalAssemblyLoaderOptions
+            where TType : IAssemblyLoadOptions
         {
-            this.localAssemblyLoaderOptionsType = typeof(TType);
+            this.assemblyLoadOptionsType = typeof(TType);
 
 #if NETCORE3_0
             return this.WithAssemblyLoader<DefaultAssemblyLoaderWithNativeResolver<T>>();
@@ -193,7 +204,6 @@ namespace Prise
         public PluginLoadOptionsBuilder<T> WithNetworkAssemblyLoader(
             string baseUrl,
             PluginPlatformVersion pluginPlatformVersion = null,
-            DependencyLoadPreference dependencyLoadPreference = DependencyLoadPreference.PreferDependencyContext,
             NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime)
         {
             if (pluginPlatformVersion == null)
@@ -203,7 +213,6 @@ namespace Prise
                 baseUrl,
                 pluginPlatformVersion,
                 false,
-                dependencyLoadPreference,
                 nativeDependencyLoadPreference);
 
             this.depsFileProviderType = typeof(NetworkDepsFileProvider);
@@ -356,23 +365,20 @@ namespace Prise
 
         public PluginLoadOptionsBuilder<T> IgnorePlatformInconsistencies(bool ignore = true)
         {
-            if (this.localAssemblyLoaderOptionsType != null || this.networkAssemblyLoaderOptionsType != null || this.assemblyLoader != null)
+            if (this.assemblyLoadOptionsType != null || this.networkAssemblyLoaderOptionsType != null || this.assemblyLoader != null)
                 throw new PrisePluginException("Custom loaders and custom load options are not supported with IgnorePlatformInconsistencies(), please provide your own value for IgnorePlatformInconsistencies.");
 
-            if (this.localAssemblyLoaderOptions != null)
-                this.localAssemblyLoaderOptions = new LocalAssemblyLoaderOptions(
-                    this.localAssemblyLoaderOptions.PluginPath,
-                    this.localAssemblyLoaderOptions.PluginPlatformVersion,
+            if (this.assemblyLoadOptions != null)
+                this.assemblyLoadOptions = new DefaultAssemblyLoadOptions(
+                    this.assemblyLoadOptions.PluginPlatformVersion,
                     ignore,
-                    this.localAssemblyLoaderOptions.DependencyLoadPreference,
-                    this.localAssemblyLoaderOptions.NativeDependencyLoadPreference);
+                    this.assemblyLoadOptions.NativeDependencyLoadPreference);
 
             if (this.networkAssemblyLoaderOptions != null)
                 this.networkAssemblyLoaderOptions = new NetworkAssemblyLoaderOptions(
                    this.networkAssemblyLoaderOptions.BaseUrl,
                    this.networkAssemblyLoaderOptions.PluginPlatformVersion,
                    ignore,
-                   this.networkAssemblyLoaderOptions.DependencyLoadPreference,
                    this.networkAssemblyLoaderOptions.NativeDependencyLoadPreference);
 
             return this;
@@ -420,11 +426,14 @@ namespace Prise
             if (String.IsNullOrEmpty(pluginPath))
                 pluginPath = Path.Join(GetLocalExecutionPath(), "Plugins");
 
+            this.pluginPathProvider = new DefaultPluginPathProvider(pluginPath);
+            this.dependencyPathProvider = new DependencyPathProvider(pluginPath);
+
+            this.runtimePlatformContext = new RuntimePlatformContext();
             this.ScanForAssemblies(composer =>
                 composer.WithDefaultOptions<DefaultAssemblyScanner<T>, DefaultAssemblyScannerOptions<T>>());
 
-            this.runtimePlatformContext = new RuntimePlatformContext();
-            this.pluginPathProvider = new DefaultPluginPathProvider(pluginPath);
+            //this.pluginPathProvider = new DefaultPluginPathProvider(pluginPath);
             this.pluginAssemblyNameProvider = new PluginAssemblyNameProvider($"{typeof(T).Name}.dll");
             this.sharedServicesProvider = new DefaultSharedServicesProvider(new ServiceCollection());
             this.activator = new DefaultRemotePluginActivator(this.sharedServicesProvider);
@@ -442,14 +451,11 @@ namespace Prise
             this.resultConverter = new NewtonsoftResultConverter();
             this.assemblyLoaderType = typeof(DefaultAssemblyLoader<T>);
 #endif
-            this.localAssemblyLoaderOptions = new LocalAssemblyLoaderOptions(
-                "Plugins",
+            this.assemblyLoadOptions = new DefaultAssemblyLoadOptions(
                 PluginPlatformVersion.Empty(),
                 false,
-                DependencyLoadPreference.PreferDependencyContext,
                 NativeDependencyLoadPreference.PreferInstalledRuntime);
 
-            this.dependencyPathProvider = new DependencyPathProvider(Path.Combine(pluginPath, "Plugins"));
             this.probingPathsProvider = new ProbingPathsProvider();
 
             var hostTypesProvider = new HostTypesProvider();
@@ -475,9 +481,10 @@ namespace Prise
         internal IServiceCollection RegisterOptions(IServiceCollection services)
         {
             services
+                .RegisterTypeOrInstance<IPluginPathProvider>(pluginPathProviderType, pluginPathProvider)
+                .RegisterTypeOrInstance<IAssemblyLoadStrategyProvider>(assemblyLoadStrategyProviderType, assemblyLoadStrategyProvider)
                 .RegisterTypeOrInstance<IAssemblyScanner<T>>(assemblyScannerType, assemblyScanner)
                 .RegisterTypeOrInstance<IAssemblyScannerOptions<T>>(assemblyScannerOptionsType, assemblyScannerOptions)
-                .RegisterTypeOrInstance<IPluginPathProvider>(pluginPathProviderType, pluginPathProvider)
                 .RegisterTypeOrInstance<IProxyCreator<T>>(proxyCreatorType, proxyCreator)
                 .RegisterTypeOrInstance<ISharedServicesProvider>(sharedServicesProviderType, sharedServicesProvider)
                 .RegisterTypeOrInstance<IPluginAssemblyNameProvider>(pluginAssemblyNameProviderType, pluginAssemblyNameProvider)
@@ -498,14 +505,12 @@ namespace Prise
                 .RegisterTypeOrInstance<IHostFrameworkProvider>(hostFrameworkProviderType, hostFrameworkProvider)
                 ;
 
-            if (localAssemblyLoaderOptions != null)
+            if (assemblyLoadOptions != null)
                 services
-                    .AddScoped<ILocalAssemblyLoaderOptions>(s => localAssemblyLoaderOptions)
-                    .AddScoped<IAssemblyLoadOptions>(s => localAssemblyLoaderOptions);
-            if (localAssemblyLoaderOptionsType != null)
+                    .AddScoped<IAssemblyLoadOptions>(s => assemblyLoadOptions);
+            if (assemblyLoadOptionsType != null)
                 services
-                    .AddScoped(typeof(ILocalAssemblyLoaderOptions), localAssemblyLoaderOptionsType)
-                    .AddScoped(typeof(IAssemblyLoadOptions), localAssemblyLoaderOptionsType);
+                    .AddScoped(typeof(IAssemblyLoadOptions), assemblyLoadOptionsType);
 
             if (networkAssemblyLoaderOptions != null)
                 services

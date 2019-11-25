@@ -12,9 +12,8 @@ namespace Prise
         protected AssemblyDependencyResolver resolver;
 
         public DefaultAssemblyLoadContextWithNativeResolver(
-            ILocalAssemblyLoaderOptions options,
+            IAssemblyLoadOptions options,
             IHostFrameworkProvider hostFrameworkProvider,
-            IPluginPathProvider pluginPathProvider,
             IHostTypesProvider hostTypesProvider,
             IRemoteTypesProvider remoteTypesProvider,
             IDependencyPathProvider dependencyPathProvider,
@@ -22,11 +21,11 @@ namespace Prise
             IRuntimePlatformContext runtimePlatformContext,
             IDepsFileProvider depsFileProvider,
             IPluginDependencyResolver pluginDependencyResolver,
-            INativeAssemblyUnloader nativeAssemblyUnloader
+            INativeAssemblyUnloader nativeAssemblyUnloader,
+            IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider
         ) : base(
                 options,
                 hostFrameworkProvider,
-                pluginPathProvider,
                 hostTypesProvider,
                 remoteTypesProvider,
                 dependencyPathProvider,
@@ -34,24 +33,25 @@ namespace Prise
                 runtimePlatformContext,
                 depsFileProvider,
                 pluginDependencyResolver,
-                nativeAssemblyUnloader
+                nativeAssemblyUnloader,
+                assemblyLoadStrategyProvider
             )
         { }
 
-        public override Assembly LoadPluginAssembly(string pluginAssemblyName)
+        public override Assembly LoadPluginAssembly(IPluginLoadContext pluginLoadContext)
         {
             // contains rootpath + plugin folder + plugin assembly name
             // HostApplication/bin/Debug/netcoreapp3.0 + Plugins + Plugin.dll
-            this.resolver = new AssemblyDependencyResolver(Path.Join(this.pluginPath, pluginAssemblyName));
-            return base.LoadPluginAssembly(pluginAssemblyName);
+            this.resolver = new AssemblyDependencyResolver(Path.Join(pluginLoadContext.PluginAssemblyPath, pluginLoadContext.PluginAssemblyName));
+            return base.LoadPluginAssembly(pluginLoadContext);
         }
 
-        public override Task<Assembly> LoadPluginAssemblyAsync(string pluginAssemblyName)
+        public override Task<Assembly> LoadPluginAssemblyAsync(IPluginLoadContext pluginLoadContext)
         {
             // contains rootpath + plugin folder + plugin assembly name
             // HostApplication/bin/Debug/netcoreapp3.0 + Plugins + Plugin.dll
-            this.resolver = new AssemblyDependencyResolver(Path.Join(this.pluginPath, pluginAssemblyName));
-            return base.LoadPluginAssemblyAsync(pluginAssemblyName);
+            this.resolver = new AssemblyDependencyResolver(Path.Join(pluginLoadContext.PluginAssemblyPath, pluginLoadContext.PluginAssemblyName));
+            return base.LoadPluginAssemblyAsync(pluginLoadContext);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Prise
         /// </summary>
         /// <param name="assemblyName"></param>
         /// <returns></returns>
-        protected override ValueOrProceed<Assembly> LoadFromDependencyContext(AssemblyName assemblyName)
+        protected override ValueOrProceed<Assembly> LoadFromDependencyContext(IPluginLoadContext pluginLoadContext, AssemblyName assemblyName)
         {
             var assemblyPath = resolver.ResolveAssemblyToPath(assemblyName);
             if (!String.IsNullOrEmpty(assemblyPath) && File.Exists(assemblyPath))
@@ -67,7 +67,7 @@ namespace Prise
                 return ValueOrProceed<Assembly>.FromValue(LoadFromAssemblyPath(assemblyPath), false);
             }
 
-            return base.LoadFromDependencyContext(assemblyName);
+            return base.LoadFromDependencyContext(pluginLoadContext, assemblyName);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Prise
         /// </summary>
         /// <param name="unmanagedDllName"></param>
         /// <returns></returns>
-        protected override ValueOrProceed<string> LoadUnmanagedFromDependencyContext(string unmanagedDllName)
+        protected override ValueOrProceed<string> LoadUnmanagedFromDependencyContext(IPluginLoadContext pluginLoadContext, string unmanagedDllName)
         {
             string libraryPath = resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
             if (!String.IsNullOrEmpty(libraryPath))
@@ -88,7 +88,7 @@ namespace Prise
                 return ValueOrProceed<string>.FromValue(runtimeCandidate ?? libraryPath, false);
             }
 
-            return base.LoadUnmanagedFromDependencyContext(unmanagedDllName);
+            return base.LoadUnmanagedFromDependencyContext(pluginLoadContext, unmanagedDllName);
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace Prise
 
                 this.nativeAssemblyUnloader = null;
                 this.loadedNativeLibraries = null;
-                this.pluginPath = null;
+                //this.pluginPath = null;
             }
             this.disposed = true;
         }

@@ -7,8 +7,8 @@ namespace Prise.Infrastructure
 {
     public interface IPluginAssemblyLoader<T> : IDisposable
     {
-        Assembly Load(string pluginAssemblyName);
-        Task<Assembly> LoadAsync(string pluginAssemblyName);
+        Assembly Load(IPluginLoadContext pluginLoadContext);
+        Task<Assembly> LoadAsync(IPluginLoadContext pluginLoadContext);
         void Unload();
         Task UnloadAsync();
     }

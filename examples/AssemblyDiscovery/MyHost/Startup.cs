@@ -9,9 +9,30 @@ using System.IO;
 using Prise;
 using System.Linq;
 using Prise.AssemblyScanning.Discovery;
+using System.Threading.Tasks;
 
 namespace MyHost
 {
+    public class FakeWriter : IProductsWriter
+    {
+        public Task<Product> Create(Product product)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Product> Update(Product product)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class FakeDeleter : IProductsDeleter
+    {
+        public Task Delete(int productId)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -28,6 +49,9 @@ namespace MyHost
 
             services.AddHttpClient();
             services.AddHttpContextAccessor(); // Add the IHttpContextAccessor for use in the Tenant Aware middleware
+
+            services.AddScoped<IProductsWriter, FakeWriter>(); // TODO
+            services.AddScoped<IProductsDeleter, FakeDeleter>(); // TODO
 
             services.AddPrise<IProductsReader>(options => options
                 .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"))

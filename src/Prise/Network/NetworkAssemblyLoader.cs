@@ -9,7 +9,6 @@ namespace Prise
     {
         public NetworkAssemblyLoader(
             INetworkAssemblyLoaderOptions options,
-            IPluginPathProvider pluginPathProvider,
             IHostFrameworkProvider hostFrameworkProvider,
             IHostTypesProvider hostTypesProvider,
             IRemoteTypesProvider remoteTypesProvider,
@@ -19,6 +18,7 @@ namespace Prise
             IDepsFileProvider depsFileProvider,
             IPluginDependencyResolver pluginDependencyResolver,
             INativeAssemblyUnloader nativeAssemblyUnloader,
+            IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider,
             ITempPathProvider tempPathProvider,
             IHttpClientFactory httpClientFactory
             )
@@ -26,7 +26,6 @@ namespace Prise
             this.loadContext = new NetworkAssemblyLoadContext(
                 options,
                 hostFrameworkProvider,
-                pluginPathProvider,
                 hostTypesProvider,
                 remoteTypesProvider,
                 dependencyPathProvider,
@@ -35,20 +34,21 @@ namespace Prise
                 depsFileProvider,
                 pluginDependencyResolver,
                 nativeAssemblyUnloader,
+                assemblyLoadStrategyProvider,
                 httpClientFactory,
                 tempPathProvider
             );
             this.assemblyLoadContextReference = new System.WeakReference(this.loadContext);
         }
 
-        public virtual Assembly Load(string pluginAssemblyName)
+        public virtual Assembly Load(IPluginLoadContext pluginLoadContext)
         {
-            return this.loadContext.LoadPluginAssembly(pluginAssemblyName);
+            return this.loadContext.LoadPluginAssembly(pluginLoadContext);
         }
 
-        public virtual Task<Assembly> LoadAsync(string pluginAssemblyName)
+        public virtual Task<Assembly> LoadAsync(IPluginLoadContext pluginLoadContext)
         {
-            return this.loadContext.LoadPluginAssemblyAsync(pluginAssemblyName);
+            return this.loadContext.LoadPluginAssemblyAsync(pluginLoadContext);
         }
     }
 }

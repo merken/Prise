@@ -8,6 +8,7 @@ using TableStorageConnector;
 
 namespace ProductsReaderPlugin
 {
+    [Plugin(PluginType = typeof(IProductsReader))]
     public class TableStorageProductsReader : TableStorageConnector<Product>, IProductsReader
     {
         internal TableStorageProductsReader(

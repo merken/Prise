@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Prise.Infrastructure;
+using System;
 using System.Reflection;
 
 namespace Prise
 {
-    internal interface IAssemblyLoadStrategy
+    public interface IAssemblyLoadStrategy
     {
         /// <summary>
         /// Loads a dependency assembly for the current plugin
@@ -14,9 +15,9 @@ namespace Prise
         /// <param name="loadFromAppDomain"></param>
         /// <returns>A loaded assembly</returns>
         Assembly LoadAssembly(AssemblyName assemblyName,
-            Func<AssemblyName, ValueOrProceed<Assembly>> loadFromDependencyContext,
-            Func<AssemblyName, ValueOrProceed<Assembly>> loadFromRemote,
-            Func<AssemblyName, ValueOrProceed<Assembly>> loadFromAppDomain);
+            Func<IPluginLoadContext, AssemblyName, ValueOrProceed<Assembly>> loadFromDependencyContext,
+            Func<IPluginLoadContext, AssemblyName, ValueOrProceed<Assembly>> loadFromRemote,
+            Func<IPluginLoadContext, AssemblyName, ValueOrProceed<Assembly>> loadFromAppDomain);
 
         /// <summary>
         /// Loads a native assembly
@@ -27,8 +28,8 @@ namespace Prise
         /// <param name="loadFromAppDomain"></param>
         /// <returns>The path to a native assembly</returns>
         NativeAssembly LoadUnmanagedDll(string unmanagedDllName,
-           Func<string, ValueOrProceed<string>> loadFromDependencyContext,
-           Func<string, ValueOrProceed<string>> loadFromRemote,
-           Func<string, ValueOrProceed<IntPtr>> loadFromAppDomain);
+           Func<IPluginLoadContext, string, ValueOrProceed<string>> loadFromDependencyContext,
+           Func<IPluginLoadContext, string, ValueOrProceed<string>> loadFromRemote,
+           Func<IPluginLoadContext, string, ValueOrProceed<IntPtr>> loadFromAppDomain);
     }
 }

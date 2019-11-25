@@ -21,9 +21,9 @@ namespace Prise
             this.client = httpClientFactory.CreateClient();
         }
 
-        public virtual async Task<Stream> ProvideDepsFile(string pluginAssemblyName)
+        public virtual async Task<Stream> ProvideDepsFile(IPluginLoadContext pluginLoadContext)
         {
-            var url = $"{this.options.BaseUrl}/{Path.GetFileNameWithoutExtension(pluginAssemblyName)}.deps.json";
+            var url = $"{this.options.BaseUrl}/{Path.GetFileNameWithoutExtension(pluginLoadContext.PluginAssemblyPath)}.deps.json";
             var response = await this.client.GetAsync(url);
 
             if (response.StatusCode == System.Net.HttpStatusCode.NotFound)

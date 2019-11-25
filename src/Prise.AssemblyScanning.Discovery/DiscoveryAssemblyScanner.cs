@@ -59,8 +59,8 @@ namespace Prise.AssemblyScanning.Discovery
                 {
                     results.Add(new AssemblyScanResult<T>
                     {
-                        AssemblyName = assembly.Name,
-                        AssemblyPath = assembly.Path
+                        AssemblyName = Path.GetFileName(assembly.Path),
+                        AssemblyPath = Path.GetDirectoryName(assembly.Path)
                     });
                 }
             }

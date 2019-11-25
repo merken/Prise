@@ -10,7 +10,6 @@ namespace Prise.AssemblyScanning
         }
 
         public Type PluginType { get; private set; }
-        public Type ImplementationType { get; set; }
         public string AssemblyPath { get; set; }
         public string AssemblyName { get; set; }
     }

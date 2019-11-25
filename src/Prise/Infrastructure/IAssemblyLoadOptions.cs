@@ -21,21 +21,18 @@ namespace Prise.Infrastructure
     {
         PluginPlatformVersion PluginPlatformVersion { get; }
         bool IgnorePlatformInconsistencies { get; }
-        DependencyLoadPreference DependencyLoadPreference { get; }
         NativeDependencyLoadPreference NativeDependencyLoadPreference { get; }
     }
 
     [DebuggerDisplay("{DependencyLoadPreference.ToString()} - {NativeDependencyLoadPreference.ToString()}")]
-    public class AssemblyLoadOptions : IAssemblyLoadOptions
+    public class DefaultAssemblyLoadOptions : IAssemblyLoadOptions
     {
         private readonly PluginPlatformVersion pluginPlatformVersion;
         private readonly bool ignorePlatformInconsistencies;
-        private readonly DependencyLoadPreference dependencyLoadPreference;
         private readonly NativeDependencyLoadPreference nativeDependencyLoadPreference;
-        public AssemblyLoadOptions(
+        public DefaultAssemblyLoadOptions(
             PluginPlatformVersion pluginPlatformVersion,
             bool ignorePlatformInconsistencies = false,
-            DependencyLoadPreference dependencyLoadPreference = DependencyLoadPreference.PreferDependencyContext,
             NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime)
         {
             if (pluginPlatformVersion == null)
@@ -44,13 +41,11 @@ namespace Prise.Infrastructure
                 this.pluginPlatformVersion = pluginPlatformVersion;
 
             this.ignorePlatformInconsistencies = ignorePlatformInconsistencies;
-            this.dependencyLoadPreference = dependencyLoadPreference;
             this.nativeDependencyLoadPreference = nativeDependencyLoadPreference;
         }
 
         public PluginPlatformVersion PluginPlatformVersion => this.pluginPlatformVersion;
         public bool IgnorePlatformInconsistencies => this.ignorePlatformInconsistencies;
-        public DependencyLoadPreference DependencyLoadPreference => this.dependencyLoadPreference;
         public NativeDependencyLoadPreference NativeDependencyLoadPreference => this.nativeDependencyLoadPreference;
     }
 }
