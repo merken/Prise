@@ -1,11 +1,13 @@
 using System;
+using Prise.AssemblyScanning;
 using Prise.Infrastructure;
 
 namespace Prise
 {
     public class PluginLoadOptions<T> : IPluginLoadOptions<T>
     {
-        private readonly IRootPathProvider rootPathProvider;
+        private readonly IAssemblyScanner<T> assemblyScanner;
+        private readonly IPluginPathProvider pluginPathProvider;
         private readonly ISharedServicesProvider sharedServicesProvider;
         private readonly IRemotePluginActivator activator;
         private readonly IResultConverter resultConverter;
@@ -20,7 +22,8 @@ namespace Prise
         protected bool disposed = false;
 
         public PluginLoadOptions(
-            IRootPathProvider rootPathProvider,
+            IPluginPathProvider pluginPathProvider,
+            IAssemblyScanner<T> assemblyScanner,
             ISharedServicesProvider sharedServicesProvider,
             IRemotePluginActivator activator,
             IParameterConverter parameterConverter,
@@ -34,7 +37,8 @@ namespace Prise
             IPluginSelector pluginSelector
             )
         {
-            this.rootPathProvider = rootPathProvider;
+            this.pluginPathProvider  = pluginPathProvider;
+            this.assemblyScanner = assemblyScanner;
             this.sharedServicesProvider = sharedServicesProvider;
             this.activator = activator;
             this.parameterConverter = parameterConverter;
@@ -48,7 +52,8 @@ namespace Prise
             this.pluginSelector = pluginSelector;
         }
 
-        public IRootPathProvider RootPathProvider => this.rootPathProvider;
+        public IAssemblyScanner<T> AssemblyScanner => this.assemblyScanner;
+        public IPluginPathProvider PluginPathProvider => this.pluginPathProvider;
         public ISharedServicesProvider SharedServicesProvider => this.sharedServicesProvider;
         public IRemotePluginActivator Activator => this.activator;
         public IResultConverter ResultConverter => this.resultConverter;
@@ -66,7 +71,7 @@ namespace Prise
             if (!this.disposed && disposing)
             {
                 // Dispose all properties
-                this.rootPathProvider.Dispose();
+                this.pluginPathProvider.Dispose();
                 this.sharedServicesProvider.Dispose();
                 this.activator.Dispose();
                 this.parameterConverter.Dispose();

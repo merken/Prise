@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Http;
 using Prise.Infrastructure;
-using Prise;
 
 namespace MyHost.Infrastructure
 {

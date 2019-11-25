@@ -10,26 +10,36 @@ namespace Prise
 {
     public abstract class PluginLoader
     {
-        protected Assembly pluginAssembly;
+        protected List<Assembly> pluginAssemblies;
         protected List<IDisposable> disposables;
 
         protected PluginLoader()
         {
+            this.pluginAssemblies = new List<Assembly>();
             this.disposables = new List<IDisposable>();
         }
 
         protected T[] LoadPluginsOfType<T>(IPluginLoadOptions<T> pluginLoadOptions)
         {
-            var assemblyName = GetAssemblyName(pluginLoadOptions);
-            this.pluginAssembly = pluginLoadOptions.AssemblyLoader.Load(assemblyName);
-            return CreatePluginInstances(pluginLoadOptions, ref this.pluginAssembly);
+            var instances = new List<T>();
+            var assemblies = pluginLoadOptions.AssemblyScanner.Scan().Result;
+            foreach(var assembly in assemblies)
+            {
+                var assemblyName = assembly.AssemblyName;
+                var pluginAssembly = pluginLoadOptions.AssemblyLoader.Load(assemblyName);
+                this.pluginAssemblies.Add(pluginAssembly);
+                instances.AddRange(CreatePluginInstances(pluginLoadOptions, ref pluginAssembly));
+            }
+            return instances.ToArray();
         }
 
         protected async Task<T[]> LoadPluginsOfTypeAsync<T>(IPluginLoadOptions<T> pluginLoadOptions)
         {
+            var assemblies = await pluginLoadOptions.AssemblyScanner.Scan();
             var assemblyName = GetAssemblyName(pluginLoadOptions);
-            this.pluginAssembly = await pluginLoadOptions.AssemblyLoader.LoadAsync(assemblyName);
-            return CreatePluginInstances(pluginLoadOptions, ref this.pluginAssembly);
+            var pluginAssembly = await pluginLoadOptions.AssemblyLoader.LoadAsync(assemblyName);
+            this.pluginAssemblies.Add(pluginAssembly);
+            return CreatePluginInstances(pluginLoadOptions, ref pluginAssembly);
         }
 
         protected void Unload<T>(IPluginLoadOptions<T> pluginLoadOptions)
@@ -72,7 +82,7 @@ namespace Prise
 
             foreach (var pluginType in pluginTypes)
             {
-                var bootstrapperType = GetPluginBootstrapper(ref this.pluginAssembly, pluginType);
+                var bootstrapperType = GetPluginBootstrapper(ref pluginAssembly, pluginType);
                 var pluginFactoryMethod = GetPluginFactoryMethod(pluginType);
 
                 IPluginBootstrapper bootstrapper = null;

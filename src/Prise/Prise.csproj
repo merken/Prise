@@ -43,6 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj" />
     <ProjectReference Include="..\Prise.Plugin\Prise.Plugin.csproj" />
   </ItemGroup>
 </Project>

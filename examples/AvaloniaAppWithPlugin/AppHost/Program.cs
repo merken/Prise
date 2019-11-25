@@ -33,7 +33,7 @@ namespace AppHost
                    .WithPluginAssemblyName("Components.dll")
                    .WithLocalDiskAssemblyLoader("Plugins", dependencyLoadPreference: DependencyLoadPreference.PreferAppDomain)
                    .WithResultConverter<AvaloniaPluginResultConverter>()
-                   .WithRootPath(GetRootPath())
+                   // TODO .WithRootPath(GetRootPath())
            );
         }
 

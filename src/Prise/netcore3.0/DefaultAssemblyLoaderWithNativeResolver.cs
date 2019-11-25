@@ -9,7 +9,7 @@ namespace Prise
         public DefaultAssemblyLoaderWithNativeResolver(
             ILocalAssemblyLoaderOptions options,
             IHostFrameworkProvider hostFrameworkProvider,
-            IRootPathProvider rootPathProvider,
+            IPluginPathProvider pluginPathProvider,
             IHostTypesProvider hostTypesProvider,
             IRemoteTypesProvider remoteTypesProvider,
             IDependencyPathProvider dependencyPathProvider,
@@ -20,9 +20,9 @@ namespace Prise
             INativeAssemblyUnloader nativeAssemblyUnloader)
         {
             this.loadContext = new DefaultAssemblyLoadContextWithNativeResolver(
-                hostFrameworkProvider,
-                rootPathProvider,
                 options,
+                hostFrameworkProvider,
+                pluginPathProvider,
                 hostTypesProvider,
                 remoteTypesProvider,
                 dependencyPathProvider,
@@ -30,8 +30,7 @@ namespace Prise
                 runtimePlatformContext,
                 depsFileProvider,
                 pluginDependencyResolver,
-                nativeAssemblyUnloader,
-                options.PluginPath
+                nativeAssemblyUnloader
             );
             this.assemblyLoadContextReference = new System.WeakReference(this.loadContext);
         }

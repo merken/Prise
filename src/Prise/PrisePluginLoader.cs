@@ -52,8 +52,8 @@ namespace Prise
                 foreach (var disposable in this.disposables)
                     disposable.Dispose();
 
-                // Remove the lock on the loaded assembly
-                this.pluginAssembly = null;
+                // Remove the lock on the loaded assemblies
+                this.pluginAssemblies = null;
                 // Disposes all configured services for the PluginLoadOptions
                 // Including the AssemblyLoader
                 this.pluginLoadOptions.Dispose();
