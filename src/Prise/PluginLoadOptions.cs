@@ -7,30 +7,30 @@ namespace Prise
     public class PluginLoadOptions<T> : IPluginLoadOptions<T>
     {
         private readonly IAssemblyScanner<T> assemblyScanner;
-        private readonly ISharedServicesProvider sharedServicesProvider;
+        private readonly ISharedServicesProvider<T> sharedServicesProvider;
         private readonly IRemotePluginActivator activator;
         private readonly IResultConverter resultConverter;
         private readonly IParameterConverter parameterConverter;
         private readonly IPluginAssemblyLoader<T> assemblyLoader;
         private readonly IProxyCreator<T> proxyCreator;
         private readonly IHostTypesProvider hostTypesProvider;
-        private readonly IRemoteTypesProvider remoteTypesProvider;
+        private readonly IRemoteTypesProvider<T> remoteTypesProvider;
         private readonly IRuntimePlatformContext runtimePlatformContext;
-        private readonly IPluginSelector pluginSelector;
+        private readonly IPluginSelector<T> pluginSelector;
         protected bool disposed = false;
 
         public PluginLoadOptions(
-            IAssemblyScanner<T> assemblyScanner, // static
-            ISharedServicesProvider sharedServicesProvider, // static
-            IRemotePluginActivator activator, // static
-            IParameterConverter parameterConverter, // static
-            IResultConverter resultConverter, // static
-            IPluginAssemblyLoader<T> assemblyLoader, // static 
-            IProxyCreator<T> proxyCreator, // static
-            IHostTypesProvider hostTypesProvider, // static
-            IRemoteTypesProvider remoteTypesProvider, // static 
-            IRuntimePlatformContext runtimePlatformContext, //static
-            IPluginSelector pluginSelector // variable ?
+            IAssemblyScanner<T> assemblyScanner,
+            ISharedServicesProvider<T> sharedServicesProvider,
+            IRemotePluginActivator activator,
+            IParameterConverter parameterConverter,
+            IResultConverter resultConverter,
+            IPluginAssemblyLoader<T> assemblyLoader,
+            IProxyCreator<T> proxyCreator,
+            IHostTypesProvider hostTypesProvider,
+            IRemoteTypesProvider<T> remoteTypesProvider,
+            IRuntimePlatformContext runtimePlatformContext,
+            IPluginSelector<T> pluginSelector
             )
         {
             this.assemblyScanner = assemblyScanner;
@@ -47,16 +47,16 @@ namespace Prise
         }
 
         public IAssemblyScanner<T> AssemblyScanner => this.assemblyScanner;
-        public ISharedServicesProvider SharedServicesProvider => this.sharedServicesProvider;
+        public ISharedServicesProvider<T> SharedServicesProvider => this.sharedServicesProvider;
         public IRemotePluginActivator Activator => this.activator;
         public IResultConverter ResultConverter => this.resultConverter;
         public IParameterConverter ParameterConverter => this.parameterConverter;
         public IPluginAssemblyLoader<T> AssemblyLoader => this.assemblyLoader;
         public IProxyCreator<T> ProxyCreator => this.proxyCreator;
         public IHostTypesProvider HostTypesProvider => this.hostTypesProvider;
-        public IRemoteTypesProvider RemoteTypesProvider => this.remoteTypesProvider;
+        public IRemoteTypesProvider<T> RemoteTypesProvider => this.remoteTypesProvider;
         public IRuntimePlatformContext RuntimePlatformContext => this.runtimePlatformContext;
-        public IPluginSelector PluginSelector => this.pluginSelector;
+        public IPluginSelector<T> PluginSelector => this.pluginSelector;
 
         protected virtual void Dispose(bool disposing)
         {

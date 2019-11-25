@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 
 namespace Prise
 {
-    public class DefaultAssemblyLoadContextWithNativeResolver : DefaultAssemblyLoadContext
+    public class DefaultAssemblyLoadContextWithNativeResolver<T> : DefaultAssemblyLoadContext<T>
     {
         protected AssemblyDependencyResolver resolver;
 
         public DefaultAssemblyLoadContextWithNativeResolver(
-            IAssemblyLoadOptions options,
+            IAssemblyLoadOptions<T> options,
             IHostFrameworkProvider hostFrameworkProvider,
             IHostTypesProvider hostTypesProvider,
-            IRemoteTypesProvider remoteTypesProvider,
-            IDependencyPathProvider dependencyPathProvider,
-            IProbingPathsProvider probingPathsProvider,
+            IRemoteTypesProvider<T> remoteTypesProvider,
+            IDependencyPathProvider<T> dependencyPathProvider,
+            IProbingPathsProvider<T> probingPathsProvider,
             IRuntimePlatformContext runtimePlatformContext,
-            IDepsFileProvider depsFileProvider,
-            IPluginDependencyResolver pluginDependencyResolver,
+            IDepsFileProvider<T> depsFileProvider,
+            IPluginDependencyResolver<T> pluginDependencyResolver,
             INativeAssemblyUnloader nativeAssemblyUnloader,
             IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider
         ) : base(

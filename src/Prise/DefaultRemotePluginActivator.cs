@@ -7,12 +7,12 @@ using Prise.Plugin;
 
 namespace Prise
 {
-    public class DefaultRemotePluginActivator : IRemotePluginActivator
+    public class DefaultRemotePluginActivator<T> : IRemotePluginActivator
     {
-        private readonly ISharedServicesProvider sharedServicesProvider;
+        private readonly ISharedServicesProvider<T> sharedServicesProvider;
         private bool disposed = false;
 
-        public DefaultRemotePluginActivator(ISharedServicesProvider sharedServicesProvider)
+        public DefaultRemotePluginActivator(ISharedServicesProvider<T> sharedServicesProvider)
         {
             this.sharedServicesProvider = sharedServicesProvider;
         }

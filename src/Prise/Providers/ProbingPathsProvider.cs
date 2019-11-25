@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Prise
 {
-    public class ProbingPathsProvider : IProbingPathsProvider
+    public class ProbingPathsProvider<T> : IProbingPathsProvider<T>
     {
         private IList<string> probingPaths;
         protected bool disposed = false;
@@ -28,7 +28,7 @@ namespace Prise
             GC.SuppressFinalize(this);
         }
 
-        public ProbingPathsProvider AddProbingPath(string path)
+        public ProbingPathsProvider<T> AddProbingPath(string path)
         {
             this.probingPaths.Add(path);
             return this;

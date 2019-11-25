@@ -76,7 +76,7 @@ namespace Prise.Infrastructure
         IEnumerable<PlatformDependency> PlatformDependencies { get; }
     }
 
-    public interface IPluginDependencyResolver : IDisposable
+    public interface IPluginDependencyResolver<T> : IDisposable
     {
         Stream ResolvePluginDependencyToPath(string dependencyPath, IEnumerable<string> probingPaths, PluginDependency dependency);
         string ResolvePlatformDependencyToPath(string dependencyPath, IEnumerable<string> probingPaths, PlatformDependency dependency);

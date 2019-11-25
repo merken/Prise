@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace Prise
 {
-    public class NetworkDepsFileProvider : IDepsFileProvider
+    public class NetworkDepsFileProvider<T> : IDepsFileProvider<T>
     {
-        private readonly INetworkAssemblyLoaderOptions options;
+        private readonly INetworkAssemblyLoaderOptions<T> options;
         private readonly HttpClient client;
         private Stream stream;
         private bool disposed = false;
 
         public NetworkDepsFileProvider(
-            INetworkAssemblyLoaderOptions options, 
+            INetworkAssemblyLoaderOptions<T> options, 
             IHttpClientFactory httpClientFactory)
         {
             this.options = options;

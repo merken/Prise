@@ -35,13 +35,13 @@ namespace Prise
             this.PlatformDependencies = platformDependencies;
         }
 
-        public static PluginDependencyContext FromPluginAssembly(
+        public static PluginDependencyContext FromPluginAssembly<T>(
             IPluginLoadContext pluginLoadContext,
             IHostFrameworkProvider hostFrameworkProvider,
             IEnumerable<Type> hostTypes,
             IEnumerable<Type> remoteTypes,
             IRuntimePlatformContext runtimePlatformContext,
-            IDepsFileProvider depsFileProvider,
+            IDepsFileProvider<T> depsFileProvider,
             bool ignorePlatformInconsistencies)
         {
             var hostDependencies = new List<HostDependency>();
@@ -75,13 +75,13 @@ namespace Prise
                 platformDependencies);
         }
 
-        public static async Task<PluginDependencyContext> FromPluginAssemblyAsync(
+        public static async Task<PluginDependencyContext> FromPluginAssemblyAsync<T>(
             IPluginLoadContext pluginLoadContext,
             IHostFrameworkProvider hostFrameworkProvider,
             IEnumerable<Type> hostTypes,
             IEnumerable<Type> remoteTypes,
             IRuntimePlatformContext runtimePlatformContext,
-            IDepsFileProvider depsFileProvider,
+            IDepsFileProvider<T> depsFileProvider,
             bool ignorePlatformInconsistencies)
         {
             var hostDependencies = new List<HostDependency>();
@@ -284,12 +284,12 @@ namespace Prise
             return dependencies;
         }
 
-        private static DependencyContext GetDependencyContextFromPluginAssembly(IPluginLoadContext pluginLoadContext, IDepsFileProvider depsFileProvider)
+        private static DependencyContext GetDependencyContextFromPluginAssembly<T>(IPluginLoadContext pluginLoadContext, IDepsFileProvider<T> depsFileProvider)
         {
             return new DependencyContextJsonReader().Read(depsFileProvider.ProvideDepsFile(pluginLoadContext).Result);
         }
 
-        private static async Task<DependencyContext> GetDependencyContextFromPluginAssemblyAsync(IPluginLoadContext pluginLoadContext, IDepsFileProvider depsFileProvider)
+        private static async Task<DependencyContext> GetDependencyContextFromPluginAssemblyAsync<T>(IPluginLoadContext pluginLoadContext, IDepsFileProvider<T> depsFileProvider)
         {
             return new DependencyContextJsonReader().Read(await depsFileProvider.ProvideDepsFile(pluginLoadContext));
         }

@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Prise.Infrastructure
 {
-    public interface IPluginPathProvider : IDisposable
+    public interface IPluginPathProvider<T> : IDisposable
     {
         string GetPluginPath();
     }
 
-    public class DefaultPluginPathProvider : IPluginPathProvider
+    public class DefaultPluginPathProvider<T> : IPluginPathProvider<T>
     {
         private readonly string pluginPath;
         private bool disposed = false;

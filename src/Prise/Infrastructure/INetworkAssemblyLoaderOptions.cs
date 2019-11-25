@@ -1,11 +1,11 @@
 namespace Prise.Infrastructure
 {
-    public interface INetworkAssemblyLoaderOptions : IAssemblyLoadOptions
+    public interface INetworkAssemblyLoaderOptions<T> : IAssemblyLoadOptions<T>
     {
         string BaseUrl { get; }
     }
 
-    public class NetworkAssemblyLoaderOptions : DefaultAssemblyLoadOptions, INetworkAssemblyLoaderOptions
+    public class NetworkAssemblyLoaderOptions<T> : DefaultAssemblyLoadOptions<T>, INetworkAssemblyLoaderOptions<T>
     {
         private readonly string baseUrl;
         public NetworkAssemblyLoaderOptions(string baseUrl,

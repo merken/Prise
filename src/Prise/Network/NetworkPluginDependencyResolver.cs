@@ -5,17 +5,17 @@ using System.Net.Http;
 
 namespace Prise
 {
-    public class NetworkPluginDependencyResolver : DefaultPluginDependencyResolver
+    public class NetworkPluginDependencyResolver<T> : DefaultPluginDependencyResolver<T>
     {
-        private readonly INetworkAssemblyLoaderOptions options;
+        private readonly INetworkAssemblyLoaderOptions<T> options;
         private readonly HttpClient httpClient;
-        private readonly ITempPathProvider tempPathProvider;
+        private readonly ITempPathProvider<T> tempPathProvider;
 
         public NetworkPluginDependencyResolver(
             IRuntimePlatformContext runtimePlatformContext,
-            INetworkAssemblyLoaderOptions options,
+            INetworkAssemblyLoaderOptions<T> options,
             IHttpClientFactory httpClientFactory,
-            ITempPathProvider tempPathProvider): base(runtimePlatformContext)
+            ITempPathProvider<T> tempPathProvider): base(runtimePlatformContext)
         {
             this.options = options;
             this.httpClient = httpClientFactory.CreateClient();

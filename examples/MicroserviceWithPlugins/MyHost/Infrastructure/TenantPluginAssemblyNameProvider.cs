@@ -5,7 +5,7 @@ using Prise.Infrastructure;
 
 namespace MyHost.Infrastructure
 {
-    public class TenantPluginAssemblyNameProvider : TenantAwarePluginMiddleware, IPluginAssemblyNameProvider
+    public class TenantPluginAssemblyNameProvider<T> : TenantAwarePluginMiddleware, IPluginAssemblyNameProvider<T>
     {
         public TenantPluginAssemblyNameProvider(IHttpContextAccessor contextAccessor, TenantConfig tenantConfig)
             : base(contextAccessor, tenantConfig) { }

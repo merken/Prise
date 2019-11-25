@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Prise.Infrastructure
 {
-    public interface IPluginAssemblyNameProvider : IDisposable
+    public interface IPluginAssemblyNameProvider<T> : IDisposable
     {
         string GetAssemblyName();
     }

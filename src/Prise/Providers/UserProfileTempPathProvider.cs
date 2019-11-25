@@ -4,14 +4,14 @@ using System.IO;
 
 namespace Prise
 {
-    public class UserProfileTempPathProvider : ITempPathProvider
+    public class UserProfileTempPathProvider<T> : ITempPathProvider<T>
     {
         private static string PluginTempPath = "plugins";
         private readonly string pluginAssemblyName;
         private string tempPath = String.Empty;
         private bool disposed = false;
 
-        public UserProfileTempPathProvider(IPluginAssemblyNameProvider pluginAssemblyNameProvider)
+        public UserProfileTempPathProvider(IPluginAssemblyNameProvider<T> pluginAssemblyNameProvider)
         {
             this.pluginAssemblyName = Path.GetFileNameWithoutExtension(pluginAssemblyNameProvider.GetAssemblyName());
         }

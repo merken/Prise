@@ -2,7 +2,7 @@
 
 namespace Prise.Infrastructure
 {
-    public interface ITempPathProvider : IDisposable
+    public interface ITempPathProvider<T> : IDisposable
     {
         string ProvideTempPath(string assemblyName);
     }

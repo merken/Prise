@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Prise
 {
-    public class RemoteTypesProvider : IRemoteTypesProvider
+    public class RemoteTypesProvider<T> : IRemoteTypesProvider<T>
     {
         private IList<Type> remoteTypes;
         protected bool disposed = false;
@@ -29,13 +29,13 @@ namespace Prise
             GC.SuppressFinalize(this);
         }
 
-        public RemoteTypesProvider AddRemoteType(Type type)
+        public RemoteTypesProvider<T> AddRemoteType(Type type)
         {
             this.remoteTypes.Add(type);
             return this;
         }
 
-        public RemoteTypesProvider AddRemoteType<T>() => AddRemoteType(typeof(T));
+        public RemoteTypesProvider<T> AddRemoteType<TType>() => AddRemoteType(typeof(TType));
 
         public IEnumerable<Type> ProvideRemoteTypes() => this.remoteTypes;
     }

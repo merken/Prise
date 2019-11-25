@@ -1,9 +1,9 @@
 var target = Argument("target", "default");
 var configuration = Argument("configuration", "Release");
 var outputDir = "../dist";
-var semVer = "1.3.3";
-var version = "1.3.3";
-var infoVer = "1.3.3";
+var semVer = "1.4.0";
+var version = "1.4.0";
+var infoVer = "1.4.0";
 
 Task("build").Does( () =>
 { 
@@ -29,6 +29,7 @@ Task("build").Does( () =>
         Framework = "netstandard2.1"
     };
 
+    DotNetCoreBuild("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", netstandard2);
     DotNetCoreBuild("Prise.Plugin/Prise.Plugin.csproj", netstandard2);
     DotNetCoreBuild("Prise.Plugin/Prise.Plugin.csproj", netstandard2_1);
     DotNetCoreBuild("Prise/Prise.csproj", netcoreapp2);
@@ -53,6 +54,7 @@ Task("publish")
                 .Append("/p:AssemblyInformationalVersion={0}", infoVer);
         }
     };
+    DotNetCorePack("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", settings);
     DotNetCorePack("Prise.Plugin/Prise.Plugin.csproj", settings);
     DotNetCorePack("Prise/Prise.csproj", settings);
   });

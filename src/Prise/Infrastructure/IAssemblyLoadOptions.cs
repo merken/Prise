@@ -17,7 +17,8 @@ namespace Prise.Infrastructure
 
         public static PluginPlatformVersion Empty() => new PluginPlatformVersion();
     }
-    public interface IAssemblyLoadOptions
+
+    public interface IAssemblyLoadOptions<T>
     {
         PluginPlatformVersion PluginPlatformVersion { get; }
         bool IgnorePlatformInconsistencies { get; }
@@ -25,7 +26,7 @@ namespace Prise.Infrastructure
     }
 
     [DebuggerDisplay("{DependencyLoadPreference.ToString()} - {NativeDependencyLoadPreference.ToString()}")]
-    public class DefaultAssemblyLoadOptions : IAssemblyLoadOptions
+    public class DefaultAssemblyLoadOptions<T> : IAssemblyLoadOptions<T>
     {
         private readonly PluginPlatformVersion pluginPlatformVersion;
         private readonly bool ignorePlatformInconsistencies;

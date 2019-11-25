@@ -7,7 +7,7 @@ using Prise.Infrastructure;
 
 namespace Prise
 {
-    public class DefaultPluginDependencyResolver : IPluginDependencyResolver
+    public class DefaultPluginDependencyResolver<T> : IPluginDependencyResolver<T>
     {
         protected readonly IRuntimePlatformContext runtimePlatformContext;
         protected bool disposed = false;

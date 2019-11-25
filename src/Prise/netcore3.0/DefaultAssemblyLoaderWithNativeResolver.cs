@@ -7,19 +7,19 @@ namespace Prise
     public class DefaultAssemblyLoaderWithNativeResolver<T> : DisposableAssemblyUnLoader, IPluginAssemblyLoader<T>
     {
         public DefaultAssemblyLoaderWithNativeResolver(
-            IAssemblyLoadOptions options,
+            IAssemblyLoadOptions<T> options,
             IHostFrameworkProvider hostFrameworkProvider,
             IHostTypesProvider hostTypesProvider,
-            IRemoteTypesProvider remoteTypesProvider,
-            IDependencyPathProvider dependencyPathProvider,
-            IProbingPathsProvider probingPathsProvider,
+            IRemoteTypesProvider<T> remoteTypesProvider,
+            IDependencyPathProvider<T> dependencyPathProvider,
+            IProbingPathsProvider<T> probingPathsProvider,
             IRuntimePlatformContext runtimePlatformContext,
-            IDepsFileProvider depsFileProvider,
-            IPluginDependencyResolver pluginDependencyResolver,
+            IDepsFileProvider<T> depsFileProvider,
+            IPluginDependencyResolver<T> pluginDependencyResolver,
             INativeAssemblyUnloader nativeAssemblyUnloader,
             IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider)
         {
-            this.loadContext = new DefaultAssemblyLoadContextWithNativeResolver(
+            this.loadContext = new DefaultAssemblyLoadContextWithNativeResolver<T>(
                 options,
                 hostFrameworkProvider,
                 hostTypesProvider,
