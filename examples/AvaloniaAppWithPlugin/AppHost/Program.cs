@@ -31,7 +31,6 @@ namespace AppHost
             services.AddPrise<IAppComponent>(options =>
                options
                    .WithPluginAssemblyName("Components.dll")
-                   .WithLocalDiskAssemblyLoader("Plugins", dependencyLoadPreference: DependencyLoadPreference.PreferAppDomain)
                    .WithResultConverter<AvaloniaPluginResultConverter>()
                    // TODO .WithRootPath(GetRootPath())
            );

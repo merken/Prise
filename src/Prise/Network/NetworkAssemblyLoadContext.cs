@@ -17,7 +17,6 @@ namespace Prise
         public NetworkAssemblyLoadContext(
             INetworkAssemblyLoaderOptions options,
             IHostFrameworkProvider hostFrameworkProvider,
-            IPluginPathProvider pluginPathProvider,
             IHostTypesProvider hostTypesProvider,
             IRemoteTypesProvider remoteTypesProvider,
             IDependencyPathProvider dependencyPathProvider,
@@ -26,11 +25,11 @@ namespace Prise
             IDepsFileProvider depsFileProvider,
             IPluginDependencyResolver pluginDependencyResolver,
             INativeAssemblyUnloader nativeAssemblyUnloader,
+            IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider,
             IHttpClientFactory httpClientFactory,
             ITempPathProvider tempPathProvider) : base(
                 options,
                 hostFrameworkProvider,
-                pluginPathProvider,
                 hostTypesProvider,
                 remoteTypesProvider,
                 dependencyPathProvider,
@@ -38,7 +37,8 @@ namespace Prise
                 runtimePlatformContext,
                 depsFileProvider,
                 pluginDependencyResolver,
-                nativeAssemblyUnloader
+                nativeAssemblyUnloader,
+                assemblyLoadStrategyProvider
              )
         {
             this.httpClient = httpClientFactory.CreateClient();
@@ -46,10 +46,10 @@ namespace Prise
             this.tempPathProvider = tempPathProvider;
         }
 
-        public override Assembly LoadPluginAssembly(string pluginAssemblyName)
+        public override Assembly LoadPluginAssembly(IPluginLoadContext pluginLoadContext)
         {
             this.pluginDependencyContext = PluginDependencyContext.FromPluginAssembly(
-                pluginAssemblyName,
+                pluginLoadContext,
                 this.hostFrameworkProvider,
                 this.hostTypesProvider.ProvideHostTypes(),
                 this.remoteTypesProvider.ProvideRemoteTypes(),
@@ -57,22 +57,21 @@ namespace Prise
                 this.depsFileProvider,
                 this.options.IgnorePlatformInconsistencies);
 
-            using (var pluginStream = LoadPluginFromNetwork(this.baseUrl, pluginAssemblyName))
+            using (var pluginStream = LoadPluginFromNetwork(this.baseUrl, pluginLoadContext.PluginAssemblyName))
             {
-                this.assemblyLoadStrategy = AssemblyLoadStrategyFactory
-                    .GetAssemblyLoadStrategy(this.options.DependencyLoadPreference, this.pluginDependencyContext);
+                this.assemblyLoadStrategy = this.assemblyLoadStrategyProvider.ProvideAssemblyLoadStrategy(pluginLoadContext, this.pluginDependencyContext);
 
                 return base.LoadFromStream(pluginStream); // ==> AssemblyLoadContext.LoadFromStream(Stream stream);
             }
         }
 
-        public override async Task<Assembly> LoadPluginAssemblyAsync(string pluginAssemblyName)
+        public override async Task<Assembly> LoadPluginAssemblyAsync(IPluginLoadContext pluginLoadContext)
         {
             if (this.pluginDependencyContext != null)
-                throw new PrisePluginException($"Plugin {pluginAssemblyName} was already loaded");
+                throw new PrisePluginException($"Plugin {pluginLoadContext.PluginAssemblyName} was already loaded");
 
             this.pluginDependencyContext = await PluginDependencyContext.FromPluginAssemblyAsync(
-                pluginAssemblyName,
+                pluginLoadContext,
                 this.hostFrameworkProvider,
                 this.hostTypesProvider.ProvideHostTypes(),
                 this.remoteTypesProvider.ProvideRemoteTypes(),
@@ -80,10 +79,9 @@ namespace Prise
                 this.depsFileProvider,
                 this.options.IgnorePlatformInconsistencies);
 
-            using (var pluginStream = await LoadPluginFromNetworkAsync(this.baseUrl, pluginAssemblyName))
+            using (var pluginStream = await LoadPluginFromNetworkAsync(this.baseUrl, pluginLoadContext.PluginAssemblyName))
             {
-                this.assemblyLoadStrategy = AssemblyLoadStrategyFactory
-                    .GetAssemblyLoadStrategy(this.options.DependencyLoadPreference, this.pluginDependencyContext);
+                this.assemblyLoadStrategy = this.assemblyLoadStrategyProvider.ProvideAssemblyLoadStrategy(pluginLoadContext, this.pluginDependencyContext);
 
                 return base.LoadFromStream(pluginStream); // ==> AssemblyLoadContext.LoadFromStream(Stream stream);
             }
@@ -113,7 +111,7 @@ namespace Prise
             return await response.Content.ReadAsStreamAsync();
         }
 
-        protected override ValueOrProceed<Assembly> LoadFromRemote(AssemblyName assemblyName)
+        protected override ValueOrProceed<Assembly> LoadFromRemote(IPluginLoadContext pluginLoadContext, AssemblyName assemblyName)
         {
             var networkAssembly = LoadDependencyFromNetwork(assemblyName);
             if (networkAssembly != null)
@@ -122,7 +120,7 @@ namespace Prise
             return ValueOrProceed<Assembly>.Proceed();
         }
 
-        protected override ValueOrProceed<Assembly> LoadFromDependencyContext(AssemblyName assemblyName)
+        protected override ValueOrProceed<Assembly> LoadFromDependencyContext(IPluginLoadContext pluginLoadContext, AssemblyName assemblyName)
         {
             if (IsResourceAssembly(assemblyName))
             {
@@ -156,13 +154,15 @@ namespace Prise
             return ValueOrProceed<Assembly>.Proceed();
         }
 
-        protected override ValueOrProceed<string> LoadUnmanagedFromDependencyContext(string unmanagedDllName)
+        protected override ValueOrProceed<string> LoadUnmanagedFromDependencyContext(IPluginLoadContext pluginLoadContext, string unmanagedDllName)
         {
             var unmanagedDllNameWithoutFileExtension = Path.GetFileNameWithoutExtension(unmanagedDllName);
             var platformDependency = this.pluginDependencyContext.PlatformDependencies.FirstOrDefault(d => d.DependencyNameWithoutExtension == unmanagedDllNameWithoutFileExtension);
             if (platformDependency != null)
             {
                 var dependencyPath = this.dependencyPathProvider.GetDependencyPath();
+                if (String.IsNullOrEmpty(dependencyPath))
+                    dependencyPath = pluginLoadContext.PluginAssemblyPath;
                 var probingPaths = this.probingPathsProvider.GetProbingPaths();
                 var pathToDependency = this.pluginDependencyResolver.ResolvePlatformDependencyToPath(dependencyPath, probingPaths, platformDependency);
 
@@ -180,7 +180,7 @@ namespace Prise
             return ValueOrProceed<string>.FromValue(String.Empty, true);
         }
 
-        protected override ValueOrProceed<string> LoadUnmanagedFromRemote(string unmanagedDllName)
+        protected override ValueOrProceed<string> LoadUnmanagedFromRemote(IPluginLoadContext pluginLoadContext, string unmanagedDllName)
         {
             var networkUrl = $"{this.baseUrl}/{unmanagedDllName}";
             var networkFile = NetworkUtil.Download(this.httpClient, networkUrl);
@@ -226,7 +226,7 @@ namespace Prise
 
                 this.loadedNativeLibraries = null;
                 this.nativeAssemblyUnloader = null;
-                this.pluginPath = null;
+                //this.pluginPath = null;
 
                 if (this.tempPathProvider != null)
                     this.tempPathProvider.Dispose();

@@ -7,19 +7,13 @@ namespace Prise
 {
     public class DefaultDepsFileProvider : IDepsFileProvider
     {
-        private readonly IPluginPathProvider pluginPathProvider;
         private Stream stream;
         private bool disposed = false;
 
-        public DefaultDepsFileProvider(IPluginPathProvider pluginPathProvider)
+        public Task<Stream> ProvideDepsFile(IPluginLoadContext pluginLoadContext)
         {
-            this.pluginPathProvider = pluginPathProvider;
-        }
-
-        public Task<Stream> ProvideDepsFile(string pluginAssemblyName)
-        {
-            var pluginPath = this.pluginPathProvider.GetPluginPath();
-            var depsFileLocation = Path.GetFullPath(Path.Join(pluginPath, $"{Path.GetFileNameWithoutExtension(pluginAssemblyName)}.deps.json"));
+            var pluginPath = pluginLoadContext.PluginAssemblyPath;
+            var depsFileLocation = Path.GetFullPath(Path.Join(pluginPath, $"{Path.GetFileNameWithoutExtension(pluginLoadContext.PluginAssemblyName)}.deps.json"));
             this.stream = new MemoryStream();
 
             using (var fileStream = File.OpenRead(depsFileLocation))

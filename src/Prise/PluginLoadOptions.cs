@@ -7,13 +7,11 @@ namespace Prise
     public class PluginLoadOptions<T> : IPluginLoadOptions<T>
     {
         private readonly IAssemblyScanner<T> assemblyScanner;
-        private readonly IPluginPathProvider pluginPathProvider;
         private readonly ISharedServicesProvider sharedServicesProvider;
         private readonly IRemotePluginActivator activator;
         private readonly IResultConverter resultConverter;
         private readonly IParameterConverter parameterConverter;
         private readonly IPluginAssemblyLoader<T> assemblyLoader;
-        private readonly IPluginAssemblyNameProvider pluginAssemblyNameProvider;
         private readonly IProxyCreator<T> proxyCreator;
         private readonly IHostTypesProvider hostTypesProvider;
         private readonly IRemoteTypesProvider remoteTypesProvider;
@@ -22,29 +20,25 @@ namespace Prise
         protected bool disposed = false;
 
         public PluginLoadOptions(
-            IPluginPathProvider pluginPathProvider,
-            IAssemblyScanner<T> assemblyScanner,
-            ISharedServicesProvider sharedServicesProvider,
-            IRemotePluginActivator activator,
-            IParameterConverter parameterConverter,
-            IResultConverter resultConverter,
-            IPluginAssemblyLoader<T> assemblyLoader,
-            IPluginAssemblyNameProvider pluginAssemblyNameProvider,
-            IProxyCreator<T> proxyCreator,
-            IHostTypesProvider hostTypesProvider,
-            IRemoteTypesProvider remoteTypesProvider,
-            IRuntimePlatformContext runtimePlatformContext,
-            IPluginSelector pluginSelector
+            IAssemblyScanner<T> assemblyScanner, // static
+            ISharedServicesProvider sharedServicesProvider, // static
+            IRemotePluginActivator activator, // static
+            IParameterConverter parameterConverter, // static
+            IResultConverter resultConverter, // static
+            IPluginAssemblyLoader<T> assemblyLoader, // static 
+            IProxyCreator<T> proxyCreator, // static
+            IHostTypesProvider hostTypesProvider, // static
+            IRemoteTypesProvider remoteTypesProvider, // static 
+            IRuntimePlatformContext runtimePlatformContext, //static
+            IPluginSelector pluginSelector // variable ?
             )
         {
-            this.pluginPathProvider  = pluginPathProvider;
             this.assemblyScanner = assemblyScanner;
             this.sharedServicesProvider = sharedServicesProvider;
             this.activator = activator;
             this.parameterConverter = parameterConverter;
             this.resultConverter = resultConverter;
             this.assemblyLoader = assemblyLoader;
-            this.pluginAssemblyNameProvider = pluginAssemblyNameProvider;
             this.proxyCreator = proxyCreator;
             this.hostTypesProvider = hostTypesProvider;
             this.remoteTypesProvider = remoteTypesProvider;
@@ -53,13 +47,11 @@ namespace Prise
         }
 
         public IAssemblyScanner<T> AssemblyScanner => this.assemblyScanner;
-        public IPluginPathProvider PluginPathProvider => this.pluginPathProvider;
         public ISharedServicesProvider SharedServicesProvider => this.sharedServicesProvider;
         public IRemotePluginActivator Activator => this.activator;
         public IResultConverter ResultConverter => this.resultConverter;
         public IParameterConverter ParameterConverter => this.parameterConverter;
         public IPluginAssemblyLoader<T> AssemblyLoader => this.assemblyLoader;
-        public IPluginAssemblyNameProvider PluginAssemblyNameProvider => this.pluginAssemblyNameProvider;
         public IProxyCreator<T> ProxyCreator => this.proxyCreator;
         public IHostTypesProvider HostTypesProvider => this.hostTypesProvider;
         public IRemoteTypesProvider RemoteTypesProvider => this.remoteTypesProvider;
@@ -71,13 +63,11 @@ namespace Prise
             if (!this.disposed && disposing)
             {
                 // Dispose all properties
-                this.pluginPathProvider.Dispose();
                 this.sharedServicesProvider.Dispose();
                 this.activator.Dispose();
                 this.parameterConverter.Dispose();
                 this.resultConverter.Dispose();
                 // Unloads the loaded plugin assemblies
-                this.pluginAssemblyNameProvider.Dispose();
                 this.proxyCreator.Dispose();
                 this.hostTypesProvider.Dispose();
                 this.remoteTypesProvider.Dispose();

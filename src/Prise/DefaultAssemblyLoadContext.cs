@@ -10,7 +10,6 @@ namespace Prise
 {
     public class DefaultAssemblyLoadContext : InMemoryAssemblyLoadContext, IAssemblyLoadContext
     {
-        protected string pluginPath;
         protected IHostFrameworkProvider hostFrameworkProvider;
         protected IHostTypesProvider hostTypesProvider;
         protected IRemoteTypesProvider remoteTypesProvider;
@@ -21,26 +20,29 @@ namespace Prise
         protected IPluginDependencyResolver pluginDependencyResolver;
         protected IPluginDependencyContext pluginDependencyContext;
         protected INativeAssemblyUnloader nativeAssemblyUnloader;
+        protected IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider;
+
         internal IAssemblyLoadStrategy assemblyLoadStrategy;
         internal IAssemblyLoadOptions options;
         protected bool disposed = false;
         protected ConcurrentDictionary<string, IntPtr> loadedNativeLibraries;
 
+        //private string pluginPath;
+
         public DefaultAssemblyLoadContext(
             IAssemblyLoadOptions options,
             IHostFrameworkProvider hostFrameworkProvider,
-            IPluginPathProvider pluginPathProvider,
             IHostTypesProvider hostTypesProvider,
             IRemoteTypesProvider remoteTypesProvider,
-            IDependencyPathProvider dependencyPathProvider,
-            IProbingPathsProvider probingPathsProvider,
+            IDependencyPathProvider dependencyPathProvider, // todo variable
+            IProbingPathsProvider probingPathsProvider,  // todo variable
             IRuntimePlatformContext runtimePlatformContext,
-            IDepsFileProvider depsFileProvider,
-            IPluginDependencyResolver pluginDependencyResolver,
-            INativeAssemblyUnloader nativeAssemblyUnloader)
+            IDepsFileProvider depsFileProvider, // todo variable FIXED
+            IPluginDependencyResolver pluginDependencyResolver, // todo variable
+            INativeAssemblyUnloader nativeAssemblyUnloader,
+            IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider)
         {
             this.options = options;
-            this.pluginPath = pluginPathProvider.GetPluginPath();
             this.hostFrameworkProvider = hostFrameworkProvider;
             this.hostTypesProvider = hostTypesProvider;
             this.remoteTypesProvider = remoteTypesProvider;
@@ -50,16 +52,17 @@ namespace Prise
             this.depsFileProvider = depsFileProvider;
             this.pluginDependencyResolver = pluginDependencyResolver;
             this.nativeAssemblyUnloader = nativeAssemblyUnloader;
+            this.assemblyLoadStrategyProvider = assemblyLoadStrategyProvider;
             this.loadedNativeLibraries = new ConcurrentDictionary<string, IntPtr>();
         }
 
-        public virtual Assembly LoadPluginAssembly(string pluginAssemblyName)
+        public virtual Assembly LoadPluginAssembly(IPluginLoadContext pluginLoadContext)
         {
             if (this.pluginDependencyContext != null)
-                throw new PrisePluginException($"Plugin {pluginAssemblyName} was already loaded");
+                throw new PrisePluginException($"Plugin {pluginLoadContext.PluginAssemblyName} was already loaded");
 
             this.pluginDependencyContext = PluginDependencyContext.FromPluginAssembly(
-                pluginAssemblyName,
+                pluginLoadContext,
                 this.hostFrameworkProvider,
                 this.hostTypesProvider.ProvideHostTypes(),
                 this.remoteTypesProvider.ProvideRemoteTypes(),
@@ -67,22 +70,21 @@ namespace Prise
                 this.depsFileProvider,
                 this.options.IgnorePlatformInconsistencies);
 
-            using (var pluginStream = LoadFileFromLocalDisk(pluginPath, pluginAssemblyName))
+            using (var pluginStream = LoadFileFromLocalDisk(pluginLoadContext.PluginAssemblyPath, pluginLoadContext.PluginAssemblyName))
             {
-                this.assemblyLoadStrategy = AssemblyLoadStrategyFactory
-                  .GetAssemblyLoadStrategy(this.options.DependencyLoadPreference, this.pluginDependencyContext);
+                this.assemblyLoadStrategy = this.assemblyLoadStrategyProvider.ProvideAssemblyLoadStrategy(pluginLoadContext, this.pluginDependencyContext);
 
                 return base.LoadFromStream(pluginStream); // ==> AssemblyLoadContext.LoadFromStream(Stream stream);
             }
         }
 
-        public virtual async Task<Assembly> LoadPluginAssemblyAsync(string pluginAssemblyName)
+        public virtual async Task<Assembly> LoadPluginAssemblyAsync(IPluginLoadContext pluginLoadContext)
         {
             if (this.pluginDependencyContext != null)
-                throw new PrisePluginException($"Plugin {pluginAssemblyName} was already loaded");
+                throw new PrisePluginException($"Plugin {pluginLoadContext.PluginAssemblyName} was already loaded");
 
             this.pluginDependencyContext = await PluginDependencyContext.FromPluginAssemblyAsync(
-                pluginAssemblyName,
+                pluginLoadContext,
                 this.hostFrameworkProvider,
                 this.hostTypesProvider.ProvideHostTypes(),
                 this.remoteTypesProvider.ProvideRemoteTypes(),
@@ -90,16 +92,15 @@ namespace Prise
                 this.depsFileProvider,
                 this.options.IgnorePlatformInconsistencies);
 
-            using (var pluginStream = await LoadFileFromLocalDiskAsync(pluginPath, pluginAssemblyName))
+            using (var pluginStream = await LoadFileFromLocalDiskAsync(pluginLoadContext.PluginAssemblyPath, pluginLoadContext.PluginAssemblyName))
             {
-                this.assemblyLoadStrategy = AssemblyLoadStrategyFactory
-                  .GetAssemblyLoadStrategy(this.options.DependencyLoadPreference, this.pluginDependencyContext);
+                this.assemblyLoadStrategy = this.assemblyLoadStrategyProvider.ProvideAssemblyLoadStrategy(pluginLoadContext, this.pluginDependencyContext);
 
                 return base.LoadFromStream(pluginStream); // ==> AssemblyLoadContext.LoadFromStream(Stream stream);
             }
         }
 
-        protected virtual ValueOrProceed<Assembly> LoadFromDefaultContext(AssemblyName assemblyName)
+        protected virtual ValueOrProceed<Assembly> LoadFromDefaultContext(IPluginLoadContext pluginLoadContext, AssemblyName assemblyName)
         {
             try
             {
@@ -112,12 +113,12 @@ namespace Prise
             return ValueOrProceed<Assembly>.Proceed();
         }
 
-        protected virtual ValueOrProceed<Assembly> LoadFromRemote(AssemblyName assemblyName)
+        protected virtual ValueOrProceed<Assembly> LoadFromRemote(IPluginLoadContext pluginLoadContext, AssemblyName assemblyName)
         {
             var assemblyFileName = $"{assemblyName.Name}.dll";
-            if (File.Exists(Path.Combine(this.pluginPath, assemblyFileName)))
+            if (File.Exists(Path.Combine(pluginLoadContext.PluginAssemblyPath, assemblyFileName)))
             {
-                return LoadDependencyFromLocalDisk(assemblyFileName);
+                return LoadDependencyFromLocalDisk(pluginLoadContext, assemblyFileName);
             }
             return ValueOrProceed<Assembly>.Proceed();
         }
@@ -127,7 +128,7 @@ namespace Prise
             return !string.IsNullOrEmpty(assemblyName.CultureName) && !string.Equals("neutral", assemblyName.CultureName);
         }
 
-        protected virtual ValueOrProceed<Assembly> LoadFromDependencyContext(AssemblyName assemblyName)
+        protected virtual ValueOrProceed<Assembly> LoadFromDependencyContext(IPluginLoadContext pluginLoadContext, AssemblyName assemblyName)
         {
             if (IsResourceAssembly(assemblyName))
             {
@@ -148,6 +149,8 @@ namespace Prise
             if (pluginDependency != null)
             {
                 var dependencyPath = this.dependencyPathProvider.GetDependencyPath();
+                if (String.IsNullOrEmpty(dependencyPath))
+                    dependencyPath = pluginLoadContext.PluginAssemblyPath;
                 var probingPaths = this.probingPathsProvider.GetProbingPaths();
                 var dependency = this.pluginDependencyResolver.ResolvePluginDependencyToPath(dependencyPath, probingPaths, pluginDependency);
                 if (dependency != null)
@@ -163,13 +166,17 @@ namespace Prise
             return ValueOrProceed<Assembly>.Proceed();
         }
 
-        protected virtual ValueOrProceed<string> LoadUnmanagedFromDependencyContext(string unmanagedDllName)
+        protected virtual ValueOrProceed<string> LoadUnmanagedFromDependencyContext(IPluginLoadContext pluginLoadContext, string unmanagedDllName)
         {
             var unmanagedDllNameWithoutFileExtension = Path.GetFileNameWithoutExtension(unmanagedDllName);
             var platformDependency = this.pluginDependencyContext.PlatformDependencies.FirstOrDefault(d => d.DependencyNameWithoutExtension == unmanagedDllNameWithoutFileExtension);
             if (platformDependency != null)
             {
                 var dependencyPath = this.dependencyPathProvider.GetDependencyPath();
+
+                if (String.IsNullOrEmpty(dependencyPath))
+                    dependencyPath = pluginLoadContext.PluginAssemblyPath;
+
                 var probingPaths = this.probingPathsProvider.GetProbingPaths();
                 var pathToDependency = this.pluginDependencyResolver.ResolvePlatformDependencyToPath(dependencyPath, probingPaths, platformDependency);
                 if (!String.IsNullOrEmpty(pathToDependency))
@@ -186,10 +193,10 @@ namespace Prise
             return ValueOrProceed<string>.FromValue(String.Empty, true);
         }
 
-        protected virtual ValueOrProceed<string> LoadUnmanagedFromRemote(string unmanagedDllName)
+        protected virtual ValueOrProceed<string> LoadUnmanagedFromRemote(IPluginLoadContext pluginLoadContext, string unmanagedDllName)
         {
             var assemblyFileName = $"{unmanagedDllName}.dll";
-            var pathToDependency = Path.Combine(this.pluginPath, assemblyFileName);
+            var pathToDependency = Path.Combine(pluginLoadContext.PluginAssemblyPath, assemblyFileName);
             if (File.Exists(pathToDependency))
             {
                 return ValueOrProceed<string>.FromValue(pathToDependency, false);
@@ -197,7 +204,7 @@ namespace Prise
             return ValueOrProceed<string>.FromValue(String.Empty, true);
         }
 
-        protected virtual ValueOrProceed<IntPtr> LoadUnmanagedFromDefault(string unmanagedDllName)
+        protected virtual ValueOrProceed<IntPtr> LoadUnmanagedFromDefault(IPluginLoadContext pluginLoadContext, string unmanagedDllName)
         {
             var resolution = base.LoadUnmanagedDll(unmanagedDllName);
             if (resolution == default(IntPtr))
@@ -249,9 +256,9 @@ namespace Prise
         /// <returns>A loaded native library pointer</returns>
         protected virtual IntPtr LoadUnmanagedDllFromDependencyLookup(string fullPathToNativeAssembly) => base.LoadUnmanagedDllFromPath(fullPathToNativeAssembly);
 
-        protected virtual ValueOrProceed<Assembly> LoadDependencyFromLocalDisk(string assemblyFileName)
+        protected virtual ValueOrProceed<Assembly> LoadDependencyFromLocalDisk(IPluginLoadContext pluginLoadContext, string assemblyFileName)
         {
-            var dependency = LoadFileFromLocalDisk(this.pluginPath, assemblyFileName);
+            var dependency = LoadFileFromLocalDisk(pluginLoadContext.PluginAssemblyPath, assemblyFileName);
 
             if (dependency == null)
                 return ValueOrProceed<Assembly>.Proceed();
@@ -320,7 +327,7 @@ namespace Prise
 
                 this.loadedNativeLibraries = null;
                 this.nativeAssemblyUnloader = null;
-                this.pluginPath = null;
+                //this.pluginPath = null;
             }
             this.disposed = true;
         }

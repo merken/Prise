@@ -7,9 +7,8 @@ namespace Prise
     public class DefaultAssemblyLoader<T> : DisposableAssemblyUnLoader, IPluginAssemblyLoader<T>
     {
         public DefaultAssemblyLoader(
-            ILocalAssemblyLoaderOptions options,
+            IAssemblyLoadOptions options,
             IHostFrameworkProvider hostFrameworkProvider,
-            IPluginPathProvider pluginPathProvider,
             IHostTypesProvider hostTypesProvider,
             IRemoteTypesProvider remoteTypesProvider,
             IDependencyPathProvider dependencyPathProvider,
@@ -17,12 +16,12 @@ namespace Prise
             IRuntimePlatformContext runtimePlatformContext,
             IDepsFileProvider depsFileProvider,
             IPluginDependencyResolver pluginDependencyResolver,
-            INativeAssemblyUnloader nativeAssemblyUnloader)
+            INativeAssemblyUnloader nativeAssemblyUnloader,
+            IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider)
         {
             this.loadContext = new DefaultAssemblyLoadContext(
                 options,
                 hostFrameworkProvider,
-                pluginPathProvider,
                 hostTypesProvider,
                 remoteTypesProvider,
                 dependencyPathProvider,
@@ -30,19 +29,20 @@ namespace Prise
                 runtimePlatformContext,
                 depsFileProvider,
                 pluginDependencyResolver,
-                nativeAssemblyUnloader
+                nativeAssemblyUnloader,
+                assemblyLoadStrategyProvider
             );
             this.assemblyLoadContextReference = new System.WeakReference(this.loadContext);
         }
 
-        public virtual Assembly Load(string pluginAssemblyName)
+        public virtual Assembly Load(IPluginLoadContext pluginLoadContext)
         {
-            return this.loadContext.LoadPluginAssembly(pluginAssemblyName);
+            return this.loadContext.LoadPluginAssembly(pluginLoadContext);
         }
 
-        public virtual Task<Assembly> LoadAsync(string pluginAssemblyName)
+        public virtual Task<Assembly> LoadAsync(IPluginLoadContext pluginLoadContext)
         {
-            return this.loadContext.LoadPluginAssemblyAsync(pluginAssemblyName);
+            return this.loadContext.LoadPluginAssemblyAsync(pluginLoadContext);
         }
     }
 }

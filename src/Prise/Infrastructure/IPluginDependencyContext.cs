@@ -67,7 +67,7 @@ namespace Prise.Infrastructure
 
     public interface IPluginDependencyContext : IDisposable
     {
-        AssemblyName Plugin { get; }
+        IPluginLoadContext PluginLoadContext { get; }
         IEnumerable<HostDependency> HostDependencies { get; }
         IEnumerable<RemoteDependency> RemoteDependencies { get; }
         IEnumerable<PluginDependency> PluginDependencies { get; }

@@ -33,7 +33,7 @@ namespace TableStorageConnector
             this.rowKeySetter = rowKeySetter;
         }
 
-        protected async Task ConnectToTableAsync()
+        private async Task ConnectToTableAsync()
         {
             CloudStorageAccount storageAccount = new CloudStorageAccount(
                 new StorageCredentials(this.config.StorageAccount, this.config.StorageKey), false);
@@ -46,6 +46,7 @@ namespace TableStorageConnector
 
         protected async Task<IEnumerable<T>> GetAll()
         {
+            await ConnectToTableAsync();
             TableQuery<EntityAdapter<T>> query = new TableQuery<EntityAdapter<T>>();
 
             List<T> results = new List<T>();
@@ -65,6 +66,7 @@ namespace TableStorageConnector
 
         protected async Task<IEnumerable<T>> Search(string term)
         {
+            await ConnectToTableAsync();
             TableQuery<EntityAdapter<T>> query = new TableQuery<EntityAdapter<T>>();
             query.FilterString = term;
 
@@ -93,6 +95,7 @@ namespace TableStorageConnector
 
         protected async Task<T> GetItem(string partitionKey, string rowKey)
         {
+            await ConnectToTableAsync();
             var adapter = AsAdapter(partitionKey, rowKey);
             var operation = TableOperation.Retrieve<EntityAdapter<T>>(partitionKey, rowKey);
             var result = await table.ExecuteAsync(operation);
@@ -102,6 +105,7 @@ namespace TableStorageConnector
 
         protected async Task Delete(string partitionKey, string rowKey)
         {
+            await ConnectToTableAsync();
             var item = await GetItem(partitionKey, rowKey);
             var adapter = AsAdapter(item);
             var operation = TableOperation.Delete(adapter);
