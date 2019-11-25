@@ -15,9 +15,9 @@ namespace Prise
         private readonly ITempPathProvider tempPathProvider;
 
         public NetworkAssemblyLoadContext(
-            IHostFrameworkProvider hostFrameworkProvider,
-            IRootPathProvider rootPathProvider,
             INetworkAssemblyLoaderOptions options,
+            IHostFrameworkProvider hostFrameworkProvider,
+            IPluginPathProvider pluginPathProvider,
             IHostTypesProvider hostTypesProvider,
             IRemoteTypesProvider remoteTypesProvider,
             IDependencyPathProvider dependencyPathProvider,
@@ -28,11 +28,9 @@ namespace Prise
             INativeAssemblyUnloader nativeAssemblyUnloader,
             IHttpClientFactory httpClientFactory,
             ITempPathProvider tempPathProvider) : base(
-                options.PluginPlatformVersion,
-                options.DependencyLoadPreference,
-                options.NativeDependencyLoadPreference,
+                options,
                 hostFrameworkProvider,
-                rootPathProvider,
+                pluginPathProvider,
                 hostTypesProvider,
                 remoteTypesProvider,
                 dependencyPathProvider,
@@ -40,9 +38,7 @@ namespace Prise
                 runtimePlatformContext,
                 depsFileProvider,
                 pluginDependencyResolver,
-                nativeAssemblyUnloader,
-                String.Empty,
-                options.IgnorePlatformInconsistencies
+                nativeAssemblyUnloader
              )
         {
             this.httpClient = httpClientFactory.CreateClient();
@@ -59,12 +55,12 @@ namespace Prise
                 this.remoteTypesProvider.ProvideRemoteTypes(),
                 this.runtimePlatformContext,
                 this.depsFileProvider,
-                this.ignorePlatformInconsistencies);
+                this.options.IgnorePlatformInconsistencies);
 
             using (var pluginStream = LoadPluginFromNetwork(this.baseUrl, pluginAssemblyName))
             {
                 this.assemblyLoadStrategy = AssemblyLoadStrategyFactory
-                    .GetAssemblyLoadStrategy(this.dependencyLoadPreference, this.pluginDependencyContext);
+                    .GetAssemblyLoadStrategy(this.options.DependencyLoadPreference, this.pluginDependencyContext);
 
                 return base.LoadFromStream(pluginStream); // ==> AssemblyLoadContext.LoadFromStream(Stream stream);
             }
@@ -82,12 +78,12 @@ namespace Prise
                 this.remoteTypesProvider.ProvideRemoteTypes(),
                 this.runtimePlatformContext,
                 this.depsFileProvider,
-                this.ignorePlatformInconsistencies);
+                this.options.IgnorePlatformInconsistencies);
 
             using (var pluginStream = await LoadPluginFromNetworkAsync(this.baseUrl, pluginAssemblyName))
             {
                 this.assemblyLoadStrategy = AssemblyLoadStrategyFactory
-                    .GetAssemblyLoadStrategy(this.dependencyLoadPreference, this.pluginDependencyContext);
+                    .GetAssemblyLoadStrategy(this.options.DependencyLoadPreference, this.pluginDependencyContext);
 
                 return base.LoadFromStream(pluginStream); // ==> AssemblyLoadContext.LoadFromStream(Stream stream);
             }
@@ -173,9 +169,9 @@ namespace Prise
                 if (!String.IsNullOrEmpty(pathToDependency))
                 {
                     string runtimeCandidate = null;
-                    if (this.nativeDependencyLoadPreference == NativeDependencyLoadPreference.PreferInstalledRuntime)
+                    if (this.options.NativeDependencyLoadPreference == NativeDependencyLoadPreference.PreferInstalledRuntime)
                         // Prefer loading from runtime folder
-                        runtimeCandidate = this.pluginDependencyResolver.ResolvePlatformDependencyPathToRuntime(this.pluginPlatformVersion, pathToDependency);
+                        runtimeCandidate = this.pluginDependencyResolver.ResolvePlatformDependencyPathToRuntime(this.options.PluginPlatformVersion, pathToDependency);
 
                     return ValueOrProceed<string>.FromValue(runtimeCandidate ?? pathToDependency, false);
                 }
@@ -230,7 +226,6 @@ namespace Prise
 
                 this.loadedNativeLibraries = null;
                 this.nativeAssemblyUnloader = null;
-                this.rootPath = null;
                 this.pluginPath = null;
 
                 if (this.tempPathProvider != null)

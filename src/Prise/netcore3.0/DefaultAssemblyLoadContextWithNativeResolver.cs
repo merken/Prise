@@ -12,9 +12,9 @@ namespace Prise
         protected AssemblyDependencyResolver resolver;
 
         public DefaultAssemblyLoadContextWithNativeResolver(
-            IHostFrameworkProvider hostFrameworkProvider,
-            IRootPathProvider rootPathProvider,
             ILocalAssemblyLoaderOptions options,
+            IHostFrameworkProvider hostFrameworkProvider,
+            IPluginPathProvider pluginPathProvider,
             IHostTypesProvider hostTypesProvider,
             IRemoteTypesProvider remoteTypesProvider,
             IDependencyPathProvider dependencyPathProvider,
@@ -22,14 +22,11 @@ namespace Prise
             IRuntimePlatformContext runtimePlatformContext,
             IDepsFileProvider depsFileProvider,
             IPluginDependencyResolver pluginDependencyResolver,
-            INativeAssemblyUnloader nativeAssemblyUnloader,
-            string pluginPath
+            INativeAssemblyUnloader nativeAssemblyUnloader
         ) : base(
-                options.PluginPlatformVersion,
-                options.DependencyLoadPreference,
-                options.NativeDependencyLoadPreference,
+                options,
                 hostFrameworkProvider,
-                rootPathProvider,
+                pluginPathProvider,
                 hostTypesProvider,
                 remoteTypesProvider,
                 dependencyPathProvider,
@@ -37,9 +34,7 @@ namespace Prise
                 runtimePlatformContext,
                 depsFileProvider,
                 pluginDependencyResolver,
-                nativeAssemblyUnloader,
-                pluginPath,
-                options.IgnorePlatformInconsistencies
+                nativeAssemblyUnloader
             )
         { }
 
@@ -86,9 +81,9 @@ namespace Prise
             if (!String.IsNullOrEmpty(libraryPath))
             {
                 string runtimeCandidate = null;
-                if (this.nativeDependencyLoadPreference == NativeDependencyLoadPreference.PreferInstalledRuntime)
+                if (this.options.NativeDependencyLoadPreference == NativeDependencyLoadPreference.PreferInstalledRuntime)
                     // Prefer loading from runtime folder
-                    runtimeCandidate = this.pluginDependencyResolver.ResolvePlatformDependencyPathToRuntime(this.pluginPlatformVersion, libraryPath);
+                    runtimeCandidate = this.pluginDependencyResolver.ResolvePlatformDependencyPathToRuntime(this.options.PluginPlatformVersion, libraryPath);
 
                 return ValueOrProceed<string>.FromValue(runtimeCandidate ?? libraryPath, false);
             }
@@ -123,7 +118,6 @@ namespace Prise
 
                 this.nativeAssemblyUnloader = null;
                 this.loadedNativeLibraries = null;
-                this.rootPath = null;
                 this.pluginPath = null;
             }
             this.disposed = true;

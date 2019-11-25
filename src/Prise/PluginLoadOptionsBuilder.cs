@@ -2,14 +2,19 @@
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Extensions.DependencyInjection;
+using Prise.AssemblyScanning;
 using Prise.Infrastructure;
 
 namespace Prise
 {
     public class PluginLoadOptionsBuilder<T>
     {
-        internal IRootPathProvider rootPathProvider;
-        internal Type rootPathProviderType;
+        internal IAssemblyScanner<T> assemblyScanner;
+        internal Type assemblyScannerType;
+        internal IAssemblyScannerOptions<T> assemblyScannerOptions;
+        internal Type assemblyScannerOptionsType;
+        internal IPluginPathProvider pluginPathProvider;
+        internal Type pluginPathProviderType;
         internal ISharedServicesProvider sharedServicesProvider;
         internal Type sharedServicesProviderType;
         internal IRemotePluginActivator activator;
@@ -56,16 +61,16 @@ namespace Prise
         {
         }
 
-        public PluginLoadOptionsBuilder<T> WithRootPath(string path)
+        public PluginLoadOptionsBuilder<T> WithPluginPath(string path)
         {
-            this.rootPathProvider = new RootPathProvider(path);
+            this.pluginPathProvider = new DefaultPluginPathProvider(path);
             return this;
         }
 
-        public PluginLoadOptionsBuilder<T> WithRootPathProvider<TType>()
-            where TType : IRootPathProvider
+        public PluginLoadOptionsBuilder<T> WithPluginPathProvider<TType>()
+            where TType : IPluginPathProvider
         {
-            this.rootPathProviderType = typeof(TType);
+            this.pluginPathProviderType = typeof(TType);
             return this;
         }
 
@@ -396,12 +401,31 @@ namespace Prise
             return this;
         }
 
-        public PluginLoadOptionsBuilder<T> WithDefaultOptions(string rootPath = null)
+        public PluginLoadOptionsBuilder<T> ScanForAssemblies(Action<AssemblyScanningComposer<T>> composerOptions)
         {
-            if (String.IsNullOrEmpty(rootPath))
-                rootPath = GetLocalExecutionPath();
+            var composer = new AssemblyScanningComposer<T>();
+            composerOptions(composer.WithDefaultOptions<DefaultAssemblyScanner<T>, DefaultAssemblyScannerOptions<T>>());
+            var composition = composer.Compose();
 
-            this.rootPathProvider = new RootPathProvider(rootPath);
+            this.assemblyScanner = composition.Scanner;
+            this.assemblyScannerType = composition.ScannerType;
+            this.assemblyScannerOptions = composition.ScannerOptions;
+            this.assemblyScannerOptionsType = composition.ScannerOptionsType;
+
+            return this;
+        }
+
+        public PluginLoadOptionsBuilder<T> WithDefaultOptions(string pluginPath = null)
+        {
+            if (String.IsNullOrEmpty(pluginPath))
+                pluginPath = Path.Join(GetLocalExecutionPath(), "Plugins");
+
+            this.ScanForAssemblies(composer =>
+                composer.WithDefaultOptions<DefaultAssemblyScanner<T>, DefaultAssemblyScannerOptions<T>>());
+
+            this.runtimePlatformContext = new RuntimePlatformContext();
+            this.pluginPathProvider = new DefaultPluginPathProvider(pluginPath);
+            this.pluginAssemblyNameProvider = new PluginAssemblyNameProvider($"{typeof(T).Name}.dll");
             this.sharedServicesProvider = new DefaultSharedServicesProvider(new ServiceCollection());
             this.activator = new DefaultRemotePluginActivator(this.sharedServicesProvider);
             this.proxyCreator = new PluginProxyCreator<T>();
@@ -425,8 +449,7 @@ namespace Prise
                 DependencyLoadPreference.PreferDependencyContext,
                 NativeDependencyLoadPreference.PreferInstalledRuntime);
 
-            this.dependencyPathProvider = new DependencyPathProvider(Path.Combine(rootPath, "Plugins"));
-            this.pluginAssemblyNameProvider = new PluginAssemblyNameProvider($"{typeof(T).Name}.dll");
+            this.dependencyPathProvider = new DependencyPathProvider(Path.Combine(pluginPath, "Plugins"));
             this.probingPathsProvider = new ProbingPathsProvider();
 
             var hostTypesProvider = new HostTypesProvider();
@@ -436,8 +459,6 @@ namespace Prise
             this.hostTypesProvider = hostTypesProvider;
 
             this.remoteTypesProvider = new RemoteTypesProvider();
-
-            this.runtimePlatformContext = new RuntimePlatformContext();
 
             this.pluginSelector = new DefaultPluginSelector();
             this.depsFileProviderType = typeof(DefaultDepsFileProvider);
@@ -454,7 +475,9 @@ namespace Prise
         internal IServiceCollection RegisterOptions(IServiceCollection services)
         {
             services
-                .RegisterTypeOrInstance<IRootPathProvider>(rootPathProviderType, rootPathProvider)
+                .RegisterTypeOrInstance<IAssemblyScanner<T>>(assemblyScannerType, assemblyScanner)
+                .RegisterTypeOrInstance<IAssemblyScannerOptions<T>>(assemblyScannerOptionsType, assemblyScannerOptions)
+                .RegisterTypeOrInstance<IPluginPathProvider>(pluginPathProviderType, pluginPathProvider)
                 .RegisterTypeOrInstance<IProxyCreator<T>>(proxyCreatorType, proxyCreator)
                 .RegisterTypeOrInstance<ISharedServicesProvider>(sharedServicesProviderType, sharedServicesProvider)
                 .RegisterTypeOrInstance<IPluginAssemblyNameProvider>(pluginAssemblyNameProviderType, pluginAssemblyNameProvider)

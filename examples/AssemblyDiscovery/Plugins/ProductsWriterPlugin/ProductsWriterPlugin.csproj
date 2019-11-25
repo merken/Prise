@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\Prise.Plugin\Prise.Plugin.csproj" />
+    <ProjectReference Include="..\..\Contract\Contract.csproj" />
+    <ProjectReference Include="..\TableStorageConnector\TableStorageConnector.csproj" />
+  </ItemGroup>
+
+</Project>

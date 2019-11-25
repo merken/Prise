@@ -1,10 +1,12 @@
+using Prise.AssemblyScanning;
 using System;
 
 namespace Prise.Infrastructure
 {
     public interface IPluginLoadOptions<T> : IDisposable
     {
-        IRootPathProvider RootPathProvider { get; }
+        IPluginPathProvider PluginPathProvider { get; }
+        IAssemblyScanner<T> AssemblyScanner { get; }
         ISharedServicesProvider SharedServicesProvider { get; }
         IRemotePluginActivator Activator { get; }
         IResultConverter ResultConverter { get; }

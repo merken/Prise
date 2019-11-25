@@ -8,8 +8,8 @@ namespace Prise
     public class NetworkAssemblyLoader<T> : DisposableAssemblyUnLoader, IPluginAssemblyLoader<T>
     {
         public NetworkAssemblyLoader(
-            IRootPathProvider rootPathProvider,
             INetworkAssemblyLoaderOptions options,
+            IPluginPathProvider pluginPathProvider,
             IHostFrameworkProvider hostFrameworkProvider,
             IHostTypesProvider hostTypesProvider,
             IRemoteTypesProvider remoteTypesProvider,
@@ -24,9 +24,9 @@ namespace Prise
             )
         {
             this.loadContext = new NetworkAssemblyLoadContext(
-                hostFrameworkProvider,
-                rootPathProvider,
                 options,
+                hostFrameworkProvider,
+                pluginPathProvider,
                 hostTypesProvider,
                 remoteTypesProvider,
                 dependencyPathProvider,

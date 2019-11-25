@@ -5,24 +5,20 @@ using System.Threading.Tasks;
 
 namespace Prise
 {
-   public class DefaultDepsFileProvider : IDepsFileProvider
+    public class DefaultDepsFileProvider : IDepsFileProvider
     {
-        private readonly IRootPathProvider rootPathProvider;
-        private readonly ILocalAssemblyLoaderOptions options;
+        private readonly IPluginPathProvider pluginPathProvider;
         private Stream stream;
         private bool disposed = false;
 
-        public DefaultDepsFileProvider(
-            IRootPathProvider rootPathProvider,
-            ILocalAssemblyLoaderOptions options)
+        public DefaultDepsFileProvider(IPluginPathProvider pluginPathProvider)
         {
-            this.rootPathProvider = rootPathProvider;
-            this.options = options;
+            this.pluginPathProvider = pluginPathProvider;
         }
 
         public Task<Stream> ProvideDepsFile(string pluginAssemblyName)
         {
-            var pluginPath = Path.Join(this.rootPathProvider.GetRootPath(), this.options.PluginPath);
+            var pluginPath = this.pluginPathProvider.GetPluginPath();
             var depsFileLocation = Path.GetFullPath(Path.Join(pluginPath, $"{Path.GetFileNameWithoutExtension(pluginAssemblyName)}.deps.json"));
             this.stream = new MemoryStream();
 
