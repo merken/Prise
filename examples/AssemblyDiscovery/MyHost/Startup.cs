@@ -30,10 +30,10 @@ namespace MyHost
             services.AddHttpClient();
             services.AddHttpContextAccessor(); // Add the IHttpContextAccessor for use in the Tenant Aware middleware
 
-            AddPriseWithoutAssemblyScanning(services);
-            //AddPriseWithAssemblyScanning<IProductsReader>(services);
-            //AddPriseWithAssemblyScanning<IProductsWriter>(services);
-            //AddPriseWithAssemblyScanning<IProductsDeleter>(services);
+            //AddPriseWithoutAssemblyScanning(services);
+            AddPriseWithAssemblyScanning<IProductsReader>(services);
+            AddPriseWithAssemblyScanning<IProductsWriter>(services);
+            AddPriseWithAssemblyScanning<IProductsDeleter>(services);
         }
 
         private void AddPriseWithoutAssemblyScanning(IServiceCollection services)
