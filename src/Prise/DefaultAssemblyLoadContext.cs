@@ -8,37 +8,35 @@ using System.Threading.Tasks;
 
 namespace Prise
 {
-    public class DefaultAssemblyLoadContext : InMemoryAssemblyLoadContext, IAssemblyLoadContext
+    public class DefaultAssemblyLoadContext<T> : InMemoryAssemblyLoadContext, IAssemblyLoadContext
     {
         protected IHostFrameworkProvider hostFrameworkProvider;
         protected IHostTypesProvider hostTypesProvider;
-        protected IRemoteTypesProvider remoteTypesProvider;
-        protected IDependencyPathProvider dependencyPathProvider;
-        protected IProbingPathsProvider probingPathsProvider;
+        protected IRemoteTypesProvider<T> remoteTypesProvider;
+        protected IDependencyPathProvider<T> dependencyPathProvider;
+        protected IProbingPathsProvider<T> probingPathsProvider;
         protected IRuntimePlatformContext runtimePlatformContext;
-        protected IDepsFileProvider depsFileProvider;
-        protected IPluginDependencyResolver pluginDependencyResolver;
+        protected IDepsFileProvider<T> depsFileProvider;
+        protected IPluginDependencyResolver<T> pluginDependencyResolver;
         protected IPluginDependencyContext pluginDependencyContext;
         protected INativeAssemblyUnloader nativeAssemblyUnloader;
         protected IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider;
 
         internal IAssemblyLoadStrategy assemblyLoadStrategy;
-        internal IAssemblyLoadOptions options;
+        internal IAssemblyLoadOptions<T> options;
         protected bool disposed = false;
         protected ConcurrentDictionary<string, IntPtr> loadedNativeLibraries;
 
-        //private string pluginPath;
-
         public DefaultAssemblyLoadContext(
-            IAssemblyLoadOptions options,
+            IAssemblyLoadOptions<T> options,
             IHostFrameworkProvider hostFrameworkProvider,
             IHostTypesProvider hostTypesProvider,
-            IRemoteTypesProvider remoteTypesProvider,
-            IDependencyPathProvider dependencyPathProvider, // todo variable
-            IProbingPathsProvider probingPathsProvider,  // todo variable
+            IRemoteTypesProvider<T> remoteTypesProvider,
+            IDependencyPathProvider<T> dependencyPathProvider,
+            IProbingPathsProvider<T> probingPathsProvider,
             IRuntimePlatformContext runtimePlatformContext,
-            IDepsFileProvider depsFileProvider, // todo variable FIXED
-            IPluginDependencyResolver pluginDependencyResolver, // todo variable
+            IDepsFileProvider<T> depsFileProvider,
+            IPluginDependencyResolver<T> pluginDependencyResolver,
             INativeAssemblyUnloader nativeAssemblyUnloader,
             IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider)
         {
@@ -61,7 +59,7 @@ namespace Prise
             if (this.pluginDependencyContext != null)
                 throw new PrisePluginException($"Plugin {pluginLoadContext.PluginAssemblyName} was already loaded");
 
-            this.pluginDependencyContext = PluginDependencyContext.FromPluginAssembly(
+            this.pluginDependencyContext = PluginDependencyContext.FromPluginAssembly<T>(
                 pluginLoadContext,
                 this.hostFrameworkProvider,
                 this.hostTypesProvider.ProvideHostTypes(),

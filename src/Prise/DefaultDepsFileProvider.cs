@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Prise
 {
-    public class DefaultDepsFileProvider : IDepsFileProvider
+    public class DefaultDepsFileProvider<T> : IDepsFileProvider<T>
     {
         private Stream stream;
         private bool disposed = false;

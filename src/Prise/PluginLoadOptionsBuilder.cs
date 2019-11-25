@@ -13,11 +13,11 @@ namespace Prise
         internal Type assemblyScannerType;
         internal IAssemblyScannerOptions<T> assemblyScannerOptions;
         internal Type assemblyScannerOptionsType;
-        internal IPluginPathProvider pluginPathProvider;
+        internal IPluginPathProvider<T> pluginPathProvider;
         internal Type pluginPathProviderType;
         internal IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider;
         internal Type assemblyLoadStrategyProviderType = typeof(DefaultAssemblyLoadStrategyProvider);
-        internal ISharedServicesProvider sharedServicesProvider;
+        internal ISharedServicesProvider<T> sharedServicesProvider;
         internal Type sharedServicesProviderType;
         internal IRemotePluginActivator activator;
         internal Type activatorType;
@@ -29,30 +29,30 @@ namespace Prise
         internal Type parameterConverterType;
         internal IPluginAssemblyLoader<T> assemblyLoader;
         internal Type assemblyLoaderType;
-        internal IPluginAssemblyNameProvider pluginAssemblyNameProvider;
+        internal IPluginAssemblyNameProvider<T> pluginAssemblyNameProvider;
         internal Type pluginAssemblyNameProviderType;
-        internal IAssemblyLoadOptions assemblyLoadOptions;
+        internal IAssemblyLoadOptions<T> assemblyLoadOptions;
         internal Type assemblyLoadOptionsType;
-        internal INetworkAssemblyLoaderOptions networkAssemblyLoaderOptions;
+        internal INetworkAssemblyLoaderOptions<T> networkAssemblyLoaderOptions;
         internal Type networkAssemblyLoaderOptionsType;
         internal Action<IServiceCollection> configureServices;
         internal IHostTypesProvider hostTypesProvider;
         internal Type hostTypesProviderType;
-        internal IRemoteTypesProvider remoteTypesProvider;
+        internal IRemoteTypesProvider<T> remoteTypesProvider;
         internal Type remoteTypesProviderType;
-        internal IDependencyPathProvider dependencyPathProvider;
+        internal IDependencyPathProvider<T> dependencyPathProvider;
         internal Type dependencyPathProviderType;
-        internal IProbingPathsProvider probingPathsProvider;
+        internal IProbingPathsProvider<T> probingPathsProvider;
         internal Type probingPathsProviderType;
         internal IRuntimePlatformContext runtimePlatformContext;
         internal Type runtimePlatformContextType;
-        internal IPluginSelector pluginSelector;
+        internal IPluginSelector<T> pluginSelector;
         internal Type pluginSelectorType;
-        internal IDepsFileProvider depsFileProvider;
+        internal IDepsFileProvider<T> depsFileProvider;
         internal Type depsFileProviderType;
-        internal IPluginDependencyResolver pluginDependencyResolver;
+        internal IPluginDependencyResolver<T> pluginDependencyResolver;
         internal Type pluginDependencyResolverType;
-        internal ITempPathProvider tempPathProvider;
+        internal ITempPathProvider<T> tempPathProvider;
         internal Type tempPathProviderType;
         internal INativeAssemblyUnloader nativeAssemblyUnloader;
         internal Type nativeAssemblyUnloaderType;
@@ -65,12 +65,12 @@ namespace Prise
 
         public PluginLoadOptionsBuilder<T> WithPluginPath(string path)
         {
-            this.pluginPathProvider = new DefaultPluginPathProvider(path);
+            this.pluginPathProvider = new DefaultPluginPathProvider<T>(path);
             return this;
         }
 
         public PluginLoadOptionsBuilder<T> WithPluginPathProvider<TType>()
-            where TType : IPluginPathProvider
+            where TType : IPluginPathProvider<T>
         {
             this.pluginPathProviderType = typeof(TType);
             return this;
@@ -104,12 +104,12 @@ namespace Prise
 
         public PluginLoadOptionsBuilder<T> WithPluginAssemblyName(string pluginAssemblyName)
         {
-            this.pluginAssemblyNameProvider = new PluginAssemblyNameProvider(pluginAssemblyName);
+            this.pluginAssemblyNameProvider = new PluginAssemblyNameProvider<T>(pluginAssemblyName);
             return this;
         }
 
         public PluginLoadOptionsBuilder<T> WithPluginAssemblyNameProvider<TType>()
-                   where TType : IPluginAssemblyNameProvider
+                   where TType : IPluginAssemblyNameProvider<T>
         {
             this.pluginAssemblyNameProviderType = typeof(TType);
             return this;
@@ -175,7 +175,7 @@ namespace Prise
             if (pluginPlatformVersion == null)
                 pluginPlatformVersion = PluginPlatformVersion.Empty();
 
-            this.assemblyLoadOptions = new DefaultAssemblyLoadOptions(
+            this.assemblyLoadOptions = new DefaultAssemblyLoadOptions<T>(
                 pluginPlatformVersion,
                 false,
                 nativeDependencyLoadPreference);
@@ -189,7 +189,7 @@ namespace Prise
         }
 
         public PluginLoadOptionsBuilder<T> WithLocalDiskAssemblyLoader<TType>()
-            where TType : IAssemblyLoadOptions
+            where TType : IAssemblyLoadOptions<T>
         {
             this.assemblyLoadOptionsType = typeof(TType);
 
@@ -209,43 +209,43 @@ namespace Prise
             if (pluginPlatformVersion == null)
                 pluginPlatformVersion = PluginPlatformVersion.Empty();
 
-            this.networkAssemblyLoaderOptions = new NetworkAssemblyLoaderOptions(
+            this.networkAssemblyLoaderOptions = new NetworkAssemblyLoaderOptions<T>(
                 baseUrl,
                 pluginPlatformVersion,
                 false,
                 nativeDependencyLoadPreference);
 
-            this.depsFileProviderType = typeof(NetworkDepsFileProvider);
-            this.pluginDependencyResolverType = typeof(NetworkPluginDependencyResolver);
+            this.depsFileProviderType = typeof(NetworkDepsFileProvider<T>);
+            this.pluginDependencyResolverType = typeof(NetworkPluginDependencyResolver<T>);
             this.assemblyLoaderType = typeof(NetworkAssemblyLoader<T>);
             return this;
         }
 
         public PluginLoadOptionsBuilder<T> WithNetworkAssemblyLoader<TType>()
-            where TType : INetworkAssemblyLoaderOptions
+            where TType : INetworkAssemblyLoaderOptions<T>
         {
             this.networkAssemblyLoaderOptionsType = typeof(TType);
-            this.depsFileProviderType = typeof(NetworkDepsFileProvider);
-            this.pluginDependencyResolverType = typeof(NetworkPluginDependencyResolver);
+            this.depsFileProviderType = typeof(NetworkDepsFileProvider<T>);
+            this.pluginDependencyResolverType = typeof(NetworkPluginDependencyResolver<T>);
             this.assemblyLoaderType = typeof(NetworkAssemblyLoader<T>);
             return this;
         }
 
         public PluginLoadOptionsBuilder<T> WithNetworkTempPathProvider<TType>()
-           where TType : ITempPathProvider
+           where TType : ITempPathProvider<T>
         {
             this.tempPathProviderType = typeof(TType);
             return this;
         }
 
-        public PluginLoadOptionsBuilder<T> WithNetworkTempPathProvider(ITempPathProvider tempPathProvider)
+        public PluginLoadOptionsBuilder<T> WithNetworkTempPathProvider(ITempPathProvider<T> tempPathProvider)
         {
             this.tempPathProvider = tempPathProvider;
             return this;
         }
 
         public PluginLoadOptionsBuilder<T> WithSharedServicesProvider<TType>()
-           where TType : ISharedServicesProvider
+           where TType : ISharedServicesProvider<T>
         {
             this.sharedServicesProviderType = typeof(TType);
             return this;
@@ -271,13 +271,13 @@ namespace Prise
         }
 
         public PluginLoadOptionsBuilder<T> WithRemoteTypesProvider<TType>()
-            where TType : IRemoteTypesProvider
+            where TType : IRemoteTypesProvider<T>
         {
             this.remoteTypesProviderType = typeof(TType);
             return this;
         }
 
-        public PluginLoadOptionsBuilder<T> WithRemoteTypesProvider(IRemoteTypesProvider remoteTypesProvider)
+        public PluginLoadOptionsBuilder<T> WithRemoteTypesProvider(IRemoteTypesProvider<T> remoteTypesProvider)
         {
             this.remoteTypesProvider = remoteTypesProvider;
             return this;
@@ -285,12 +285,12 @@ namespace Prise
 
         public PluginLoadOptionsBuilder<T> WithSelector(Func<IEnumerable<Type>, IEnumerable<Type>> pluginSelector)
         {
-            this.pluginSelector = new PluginSelector(pluginSelector);
+            this.pluginSelector = new PluginSelector<T>(pluginSelector);
             return this;
         }
 
         public PluginLoadOptionsBuilder<T> WithSelector<TType>()
-            where TType : IPluginSelector
+            where TType : IPluginSelector<T>
         {
             this.pluginSelectorType = typeof(TType);
             return this;
@@ -307,15 +307,15 @@ namespace Prise
 
         public PluginLoadOptionsBuilder<T> WithRemoteType(Type type)
         {
-            var remoteTypesProvider = this.remoteTypesProvider as RemoteTypesProvider;
+            var remoteTypesProvider = this.remoteTypesProvider as RemoteTypesProvider<T>;
             if (remoteTypesProvider == null)
-                throw new PrisePluginException($"You're not using the default IRemoteTypesProvider {nameof(RemoteTypesProvider)}. Please add remote types using your own provider.");
+                throw new PrisePluginException($"You're not using the default IRemoteTypesProvider {nameof(RemoteTypesProvider<T>)}. Please add remote types using your own provider.");
             remoteTypesProvider.AddRemoteType(type);
             return this;
         }
 
         public PluginLoadOptionsBuilder<T> WithDependencyPathProvider<TType>()
-            where TType : IDependencyPathProvider
+            where TType : IDependencyPathProvider<T>
         {
             this.dependencyPathProviderType = typeof(TType);
             return this;
@@ -323,27 +323,27 @@ namespace Prise
 
         public PluginLoadOptionsBuilder<T> WithProbingPath(string path)
         {
-            var probingPathsProvider = this.probingPathsProvider as ProbingPathsProvider;
+            var probingPathsProvider = this.probingPathsProvider as ProbingPathsProvider<T>;
             if (probingPathsProvider == null)
-                throw new PrisePluginException($"You're not using the default IProbingPathsProvider {nameof(ProbingPathsProvider)}. Please add probing paths using your own provider.");
+                throw new PrisePluginException($"You're not using the default IProbingPathsProvider {nameof(ProbingPathsProvider<T>)}. Please add probing paths using your own provider.");
             probingPathsProvider.AddProbingPath(path);
             return this;
         }
 
         public PluginLoadOptionsBuilder<T> WithProbingPathsProvider<TType>()
-           where TType : IProbingPathsProvider
+           where TType : IProbingPathsProvider<T>
         {
             this.probingPathsProviderType = typeof(TType);
             return this;
         }
 
-        public PluginLoadOptionsBuilder<T> WithProbingPathsProvider(IProbingPathsProvider probingPathsProvider)
+        public PluginLoadOptionsBuilder<T> WithProbingPathsProvider(IProbingPathsProvider<T> probingPathsProvider)
         {
             this.probingPathsProvider = probingPathsProvider;
             return this;
         }
 
-        public PluginLoadOptionsBuilder<T> WithDependencyPathProvider(IDependencyPathProvider dependencyPathProvider)
+        public PluginLoadOptionsBuilder<T> WithDependencyPathProvider(IDependencyPathProvider<T> dependencyPathProvider)
         {
             this.dependencyPathProvider = dependencyPathProvider;
             return this;
@@ -369,13 +369,13 @@ namespace Prise
                 throw new PrisePluginException("Custom loaders and custom load options are not supported with IgnorePlatformInconsistencies(), please provide your own value for IgnorePlatformInconsistencies.");
 
             if (this.assemblyLoadOptions != null)
-                this.assemblyLoadOptions = new DefaultAssemblyLoadOptions(
+                this.assemblyLoadOptions = new DefaultAssemblyLoadOptions<T>(
                     this.assemblyLoadOptions.PluginPlatformVersion,
                     ignore,
                     this.assemblyLoadOptions.NativeDependencyLoadPreference);
 
             if (this.networkAssemblyLoaderOptions != null)
-                this.networkAssemblyLoaderOptions = new NetworkAssemblyLoaderOptions(
+                this.networkAssemblyLoaderOptions = new NetworkAssemblyLoaderOptions<T>(
                    this.networkAssemblyLoaderOptions.BaseUrl,
                    this.networkAssemblyLoaderOptions.PluginPlatformVersion,
                    ignore,
@@ -391,7 +391,7 @@ namespace Prise
         public PluginLoadOptionsBuilder<T> ConfigureSharedServices(Action<IServiceCollection> sharedServices)
         {
             if (this.sharedServicesProviderType != null)
-                throw new PrisePluginException($"A custom {typeof(ISharedServicesProvider).Name} type cannot be used in combination with {nameof(ConfigureSharedServices)}service");
+                throw new PrisePluginException($"A custom {typeof(ISharedServicesProvider<T>).Name} type cannot be used in combination with {nameof(ConfigureSharedServices)}service");
 
             var services = new ServiceCollection();
             sharedServices.Invoke(services);
@@ -402,8 +402,8 @@ namespace Prise
                     .WithHostType(sharedService.ImplementationType ?? sharedService.ImplementationInstance?.GetType() ?? sharedService.ImplementationFactory?.Method.ReturnType)
                 ; // If a shared service is added, it must be a added as a host type
 
-            this.sharedServicesProvider = new DefaultSharedServicesProvider(services);
-            this.activator = new DefaultRemotePluginActivator(this.sharedServicesProvider);
+            this.sharedServicesProvider = new DefaultSharedServicesProvider<T>(services);
+            this.activator = new DefaultRemotePluginActivator<T>(this.sharedServicesProvider);
             return this;
         }
 
@@ -426,17 +426,17 @@ namespace Prise
             if (String.IsNullOrEmpty(pluginPath))
                 pluginPath = Path.Join(GetLocalExecutionPath(), "Plugins");
 
-            this.pluginPathProvider = new DefaultPluginPathProvider(pluginPath);
-            this.dependencyPathProvider = new DependencyPathProvider(pluginPath);
+            this.pluginPathProvider = new DefaultPluginPathProvider<T>(pluginPath);
+            this.dependencyPathProvider = new DependencyPathProvider<T>(pluginPath);
 
             this.runtimePlatformContext = new RuntimePlatformContext();
             this.ScanForAssemblies(composer =>
                 composer.WithDefaultOptions<DefaultAssemblyScanner<T>, DefaultAssemblyScannerOptions<T>>());
 
             //this.pluginPathProvider = new DefaultPluginPathProvider(pluginPath);
-            this.pluginAssemblyNameProvider = new PluginAssemblyNameProvider($"{typeof(T).Name}.dll");
-            this.sharedServicesProvider = new DefaultSharedServicesProvider(new ServiceCollection());
-            this.activator = new DefaultRemotePluginActivator(this.sharedServicesProvider);
+            this.pluginAssemblyNameProvider = new PluginAssemblyNameProvider<T>($"{typeof(T).Name}.dll");
+            this.sharedServicesProvider = new DefaultSharedServicesProvider<T>(new ServiceCollection());
+            this.activator = new DefaultRemotePluginActivator<T>(this.sharedServicesProvider);
             this.proxyCreator = new PluginProxyCreator<T>();
 
             // Use System.Text.Json in 3.0
@@ -451,12 +451,12 @@ namespace Prise
             this.resultConverter = new NewtonsoftResultConverter();
             this.assemblyLoaderType = typeof(DefaultAssemblyLoader<T>);
 #endif
-            this.assemblyLoadOptions = new DefaultAssemblyLoadOptions(
+            this.assemblyLoadOptions = new DefaultAssemblyLoadOptions<T>(
                 PluginPlatformVersion.Empty(),
                 false,
                 NativeDependencyLoadPreference.PreferInstalledRuntime);
 
-            this.probingPathsProvider = new ProbingPathsProvider();
+            this.probingPathsProvider = new ProbingPathsProvider<T>();
 
             var hostTypesProvider = new HostTypesProvider();
             hostTypesProvider.AddHostType(typeof(T)); // Add the contract to the host types
@@ -464,13 +464,13 @@ namespace Prise
             hostTypesProvider.AddHostType(typeof(ServiceCollection));  // Adds the BuildServiceProvider assembly to the host types
             this.hostTypesProvider = hostTypesProvider;
 
-            this.remoteTypesProvider = new RemoteTypesProvider();
+            this.remoteTypesProvider = new RemoteTypesProvider<T>();
 
-            this.pluginSelector = new DefaultPluginSelector();
-            this.depsFileProviderType = typeof(DefaultDepsFileProvider);
-            this.pluginDependencyResolverType = typeof(DefaultPluginDependencyResolver);
+            this.pluginSelector = new DefaultPluginSelector<T>();
+            this.depsFileProviderType = typeof(DefaultDepsFileProvider<T>);
+            this.pluginDependencyResolverType = typeof(DefaultPluginDependencyResolver<T>);
             // Typically used for downloading and storing plugins from the network, but it could be useful for caching local plugins as well
-            this.tempPathProviderType = typeof(UserProfileTempPathProvider);
+            this.tempPathProviderType = typeof(UserProfileTempPathProvider<T>);
 
             this.nativeAssemblyUnloaderType = typeof(DefaultNativeAssemblyUnloader);
             this.hostFrameworkProviderType = typeof(HostFrameworkProvider);
@@ -481,45 +481,48 @@ namespace Prise
         internal IServiceCollection RegisterOptions(IServiceCollection services)
         {
             services
-                .RegisterTypeOrInstance<IPluginPathProvider>(pluginPathProviderType, pluginPathProvider)
-                .RegisterTypeOrInstance<IAssemblyLoadStrategyProvider>(assemblyLoadStrategyProviderType, assemblyLoadStrategyProvider)
+                // Plugin-specific services
+                .RegisterTypeOrInstance<IPluginPathProvider<T>>(pluginPathProviderType, pluginPathProvider)
                 .RegisterTypeOrInstance<IAssemblyScanner<T>>(assemblyScannerType, assemblyScanner)
                 .RegisterTypeOrInstance<IAssemblyScannerOptions<T>>(assemblyScannerOptionsType, assemblyScannerOptions)
                 .RegisterTypeOrInstance<IProxyCreator<T>>(proxyCreatorType, proxyCreator)
-                .RegisterTypeOrInstance<ISharedServicesProvider>(sharedServicesProviderType, sharedServicesProvider)
-                .RegisterTypeOrInstance<IPluginAssemblyNameProvider>(pluginAssemblyNameProviderType, pluginAssemblyNameProvider)
+                .RegisterTypeOrInstance<ISharedServicesProvider<T>>(sharedServicesProviderType, sharedServicesProvider)
+                .RegisterTypeOrInstance<IPluginAssemblyNameProvider<T>>(pluginAssemblyNameProviderType, pluginAssemblyNameProvider)
+                .RegisterTypeOrInstance<IPluginAssemblyLoader<T>>(assemblyLoaderType, assemblyLoader)
+                .RegisterTypeOrInstance<IRemoteTypesProvider<T>>(remoteTypesProviderType, remoteTypesProvider)
+                .RegisterTypeOrInstance<IDependencyPathProvider<T>>(dependencyPathProviderType, dependencyPathProvider)
+                .RegisterTypeOrInstance<IProbingPathsProvider<T>>(probingPathsProviderType, probingPathsProvider)
+                .RegisterTypeOrInstance<IPluginSelector<T>>(pluginSelectorType, pluginSelector)
+                .RegisterTypeOrInstance<IDepsFileProvider<T>>(depsFileProviderType, depsFileProvider)
+                .RegisterTypeOrInstance<IPluginDependencyResolver<T>>(pluginDependencyResolverType, pluginDependencyResolver)
+                .RegisterTypeOrInstance<ITempPathProvider<T>>(tempPathProviderType, tempPathProvider)
+
+                // Global services
+                .RegisterTypeOrInstance<IAssemblyLoadStrategyProvider>(assemblyLoadStrategyProviderType, assemblyLoadStrategyProvider)
                 .RegisterTypeOrInstance<IRemotePluginActivator>(activatorType, activator)
                 .RegisterTypeOrInstance<IResultConverter>(resultConverterType, resultConverter)
                 .RegisterTypeOrInstance<IParameterConverter>(parameterConverterType, parameterConverter)
-                .RegisterTypeOrInstance<IPluginAssemblyLoader<T>>(assemblyLoaderType, assemblyLoader)
                 .RegisterTypeOrInstance<IHostTypesProvider>(hostTypesProviderType, hostTypesProvider)
-                .RegisterTypeOrInstance<IRemoteTypesProvider>(remoteTypesProviderType, remoteTypesProvider)
-                .RegisterTypeOrInstance<IDependencyPathProvider>(dependencyPathProviderType, dependencyPathProvider)
-                .RegisterTypeOrInstance<IProbingPathsProvider>(probingPathsProviderType, probingPathsProvider)
                 .RegisterTypeOrInstance<IRuntimePlatformContext>(runtimePlatformContextType, runtimePlatformContext)
-                .RegisterTypeOrInstance<IPluginSelector>(pluginSelectorType, pluginSelector)
-                .RegisterTypeOrInstance<IDepsFileProvider>(depsFileProviderType, depsFileProvider)
-                .RegisterTypeOrInstance<IPluginDependencyResolver>(pluginDependencyResolverType, pluginDependencyResolver)
-                .RegisterTypeOrInstance<ITempPathProvider>(tempPathProviderType, tempPathProvider)
                 .RegisterTypeOrInstance<INativeAssemblyUnloader>(nativeAssemblyUnloaderType, nativeAssemblyUnloader)
                 .RegisterTypeOrInstance<IHostFrameworkProvider>(hostFrameworkProviderType, hostFrameworkProvider)
                 ;
 
             if (assemblyLoadOptions != null)
                 services
-                    .AddScoped<IAssemblyLoadOptions>(s => assemblyLoadOptions);
+                    .AddScoped<IAssemblyLoadOptions<T>>(s => assemblyLoadOptions);
             if (assemblyLoadOptionsType != null)
                 services
-                    .AddScoped(typeof(IAssemblyLoadOptions), assemblyLoadOptionsType);
+                    .AddScoped(typeof(IAssemblyLoadOptions<T>), assemblyLoadOptionsType);
 
             if (networkAssemblyLoaderOptions != null)
                 services
-                    .AddScoped<INetworkAssemblyLoaderOptions>(s => networkAssemblyLoaderOptions)
-                    .AddScoped<IAssemblyLoadOptions>(s => networkAssemblyLoaderOptions);
+                    .AddScoped<INetworkAssemblyLoaderOptions<T>>(s => networkAssemblyLoaderOptions)
+                    .AddScoped<IAssemblyLoadOptions<T>>(s => networkAssemblyLoaderOptions);
             if (networkAssemblyLoaderOptionsType != null)
                 services
-                    .AddScoped(typeof(INetworkAssemblyLoaderOptions), networkAssemblyLoaderOptionsType)
-                    .AddScoped(typeof(IAssemblyLoadOptions), networkAssemblyLoaderOptionsType);
+                    .AddScoped(typeof(INetworkAssemblyLoaderOptions<T>), networkAssemblyLoaderOptionsType)
+                    .AddScoped(typeof(IAssemblyLoadOptions<T>), networkAssemblyLoaderOptionsType);
 
             configureServices?.Invoke(services);
 

@@ -13,26 +13,6 @@ using System.Threading.Tasks;
 
 namespace MyHost
 {
-    public class FakeWriter : IProductsWriter
-    {
-        public Task<Product> Create(Product product)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Product> Update(Product product)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class FakeDeleter : IProductsDeleter
-    {
-        public Task Delete(int productId)
-        {
-            throw new NotImplementedException();
-        }
-    }
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -50,17 +30,51 @@ namespace MyHost
             services.AddHttpClient();
             services.AddHttpContextAccessor(); // Add the IHttpContextAccessor for use in the Tenant Aware middleware
 
-            services.AddScoped<IProductsWriter, FakeWriter>(); // TODO
-            services.AddScoped<IProductsDeleter, FakeDeleter>(); // TODO
+            AddPriseWithoutAssemblyScanning(services);
+            //AddPriseWithAssemblyScanning<IProductsReader>(services);
+            //AddPriseWithAssemblyScanning<IProductsWriter>(services);
+            //AddPriseWithAssemblyScanning<IProductsDeleter>(services);
+        }
 
+        private void AddPriseWithoutAssemblyScanning(IServiceCollection services)
+        {
             services.AddPrise<IProductsReader>(options => options
+                .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Path.Combine("Plugins", "ProductsReaderPlugin")))
+                .WithPluginAssemblyName("ProductsReaderPlugin.dll")
+                .ConfigureSharedServices(services =>
+                {
+                    services.AddSingleton(Configuration);
+                })
+            );
+
+            services.AddPrise<IProductsWriter>(options => options
+                .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Path.Combine("Plugins", "ProductsWriterPlugin")))
+                .WithPluginAssemblyName("ProductsWriterPlugin.dll")
+                .ConfigureSharedServices(services =>
+                {
+                    services.AddSingleton(Configuration);
+                })
+            );
+
+            services.AddPrise<IProductsDeleter>(options => options
+                .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Path.Combine("Plugins", "ProductsDeleterPlugin")))
+                .WithPluginAssemblyName("ProductsDeleterPlugin.dll")
+                .ConfigureSharedServices(services =>
+                {
+                    services.AddSingleton(Configuration);
+                })
+            );
+        }
+
+        private void AddPriseWithAssemblyScanning<T>(IServiceCollection services)
+            where T : class
+        {
+            services.AddPrise<T>(options => options
                 .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"))
                 .ScanForAssemblies(composer =>
                     composer.UseDiscovery())
                 .ConfigureSharedServices(services =>
                 {
-                    // Add the configuration for use in the plugins
-                    // this way, the plugins can read their own config section from the appsettings.json
                     services.AddSingleton(Configuration);
                 })
             );

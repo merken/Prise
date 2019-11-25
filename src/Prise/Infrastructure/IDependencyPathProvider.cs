@@ -2,7 +2,7 @@
 
 namespace Prise.Infrastructure
 {
-    public interface IDependencyPathProvider : IDisposable
+    public interface IDependencyPathProvider<T> : IDisposable
     {
         string GetDependencyPath();
     }

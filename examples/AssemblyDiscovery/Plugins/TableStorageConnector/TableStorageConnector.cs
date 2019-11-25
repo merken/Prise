@@ -44,12 +44,12 @@ namespace TableStorageConnector
             await table.CreateIfNotExistsAsync();
         }
 
-        protected async Task<IEnumerable<T>> GetAll()
+        protected async Task<IEnumerable<EntityAdapter<T>>> GetAll()
         {
             await ConnectToTableAsync();
             TableQuery<EntityAdapter<T>> query = new TableQuery<EntityAdapter<T>>();
 
-            List<T> results = new List<T>();
+            var results = new List<EntityAdapter<T>>();
             TableContinuationToken continuationToken = null;
             do
             {
@@ -57,20 +57,24 @@ namespace TableStorageConnector
                     await table.ExecuteQuerySegmentedAsync(query, continuationToken);
 
                 continuationToken = queryResults.ContinuationToken;
-                results.AddRange(queryResults.Results.Select(e => e.Value));
-
+                foreach (var entity in queryResults.Results)
+                {
+                    this.partitionKeySetter(entity.Value, entity.PartitionKey);
+                    this.rowKeySetter(entity.Value, entity.RowKey);
+                    results.Add(entity);
+                }
             } while (continuationToken != null);
 
             return results;
         }
 
-        protected async Task<IEnumerable<T>> Search(string term)
+        protected async Task<IEnumerable<EntityAdapter<T>>> Search(string term)
         {
             await ConnectToTableAsync();
             TableQuery<EntityAdapter<T>> query = new TableQuery<EntityAdapter<T>>();
             query.FilterString = term;
 
-            List<T> results = new List<T>();
+            var results = new List<EntityAdapter<T>>();
             TableContinuationToken continuationToken = null;
             do
             {
@@ -78,37 +82,40 @@ namespace TableStorageConnector
                     await table.ExecuteQuerySegmentedAsync(query, continuationToken);
 
                 continuationToken = queryResults.ContinuationToken;
-                results.AddRange(queryResults.Results.Select(e => e.Value));
-
+                foreach (var entity in queryResults.Results)
+                {
+                    this.partitionKeySetter(entity.Value, entity.PartitionKey);
+                    this.rowKeySetter(entity.Value, entity.RowKey);
+                    results.Add(entity);
+                }
             } while (continuationToken != null);
 
             return results;
         }
 
-        protected async Task<T> InsertOrUpdate(T entity)
+        protected async Task<EntityAdapter<T>> InsertOrUpdate(T entity)
         {
             await ConnectToTableAsync();
             var operation = TableOperation.InsertOrReplace(AsAdapter(entity));
-            await this.table.ExecuteAsync(operation);
-            return entity;
+            var result = await this.table.ExecuteAsync(operation);
+            return (EntityAdapter<T>)(dynamic)result.Result;
         }
 
-        protected async Task<T> GetItem(string partitionKey, string rowKey)
+        protected async Task<EntityAdapter<T>> GetItem(string partitionKey, string rowKey)
         {
             await ConnectToTableAsync();
             var adapter = AsAdapter(partitionKey, rowKey);
             var operation = TableOperation.Retrieve<EntityAdapter<T>>(partitionKey, rowKey);
             var result = await table.ExecuteAsync(operation);
 
-            return (T)(dynamic)result.Result;
+            return (EntityAdapter<T>)(dynamic)result.Result;
         }
 
         protected async Task Delete(string partitionKey, string rowKey)
         {
             await ConnectToTableAsync();
             var item = await GetItem(partitionKey, rowKey);
-            var adapter = AsAdapter(item);
-            var operation = TableOperation.Delete(adapter);
+            var operation = TableOperation.Delete(item);
             await this.table.ExecuteAsync(operation);
         }
 

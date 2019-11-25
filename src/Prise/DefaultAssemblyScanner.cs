@@ -8,10 +8,10 @@ namespace Prise
 {
     public class DefaultAssemblyScannerOptions<T> : IAssemblyScannerOptions<T>
     {
-        private readonly IPluginPathProvider pluginPathProvider;
+        private readonly IPluginPathProvider<T> pluginPathProvider;
         private readonly IRuntimePlatformContext runtimePlatformContext;
 
-        public DefaultAssemblyScannerOptions(IPluginPathProvider pluginPathProvider, IRuntimePlatformContext runtimePlatformContext)
+        public DefaultAssemblyScannerOptions(IPluginPathProvider<T> pluginPathProvider, IRuntimePlatformContext runtimePlatformContext)
         {
             this.pluginPathProvider = pluginPathProvider;
             this.runtimePlatformContext = runtimePlatformContext;
@@ -25,9 +25,9 @@ namespace Prise
     public class DefaultAssemblyScanner<T> : IAssemblyScanner<T>
     {
         private readonly IAssemblyScannerOptions<T> options;
-        private readonly IPluginAssemblyNameProvider pluginAssemblyNameProvider;
+        private readonly IPluginAssemblyNameProvider<T> pluginAssemblyNameProvider;
 
-        public DefaultAssemblyScanner(IAssemblyScannerOptions<T> options, IPluginAssemblyNameProvider pluginAssemblyNameProvider)
+        public DefaultAssemblyScanner(IAssemblyScannerOptions<T> options, IPluginAssemblyNameProvider<T> pluginAssemblyNameProvider)
         {
             this.options = options;
             this.pluginAssemblyNameProvider = pluginAssemblyNameProvider;

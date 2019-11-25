@@ -28,20 +28,20 @@ namespace ProductsReaderPlugin
             return new TableStorageProductsReader(config as TableStorageConfig);
         }
 
-        public Task<IEnumerable<Product>> All()
+        public async Task<IEnumerable<Product>> All()
         {
-            return base.GetAll();
+            return (await base.GetAll()).Select(e => e.Value);
         }
 
         public async Task<Product> Get(int productId)
         {
             var items = await base.Search($"id={productId}");
-            return items.FirstOrDefault();
+            return items.Select(e => e.Value).FirstOrDefault();
         }
 
-        public Task<IEnumerable<Product>> Search(string term)
+        public async Task<IEnumerable<Product>> Search(string term)
         {
-            return base.Search(term);
+            return (await base.Search(term)).Select(e => e.Value);
         }
     }
 }

@@ -8,26 +8,26 @@ using System.Threading.Tasks;
 
 namespace Prise
 {
-    public class NetworkAssemblyLoadContext : DefaultAssemblyLoadContext
+    public class NetworkAssemblyLoadContext<T> : DefaultAssemblyLoadContext<T>
     {
         private readonly HttpClient httpClient;
         private readonly string baseUrl;
-        private readonly ITempPathProvider tempPathProvider;
+        private readonly ITempPathProvider<T> tempPathProvider;
 
         public NetworkAssemblyLoadContext(
-            INetworkAssemblyLoaderOptions options,
+            INetworkAssemblyLoaderOptions<T> options,
             IHostFrameworkProvider hostFrameworkProvider,
             IHostTypesProvider hostTypesProvider,
-            IRemoteTypesProvider remoteTypesProvider,
-            IDependencyPathProvider dependencyPathProvider,
-            IProbingPathsProvider probingPathsProvider,
+            IRemoteTypesProvider<T> remoteTypesProvider,
+            IDependencyPathProvider<T> dependencyPathProvider,
+            IProbingPathsProvider<T> probingPathsProvider,
             IRuntimePlatformContext runtimePlatformContext,
-            IDepsFileProvider depsFileProvider,
-            IPluginDependencyResolver pluginDependencyResolver,
+            IDepsFileProvider<T> depsFileProvider,
+            IPluginDependencyResolver<T> pluginDependencyResolver,
             INativeAssemblyUnloader nativeAssemblyUnloader,
             IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider,
             IHttpClientFactory httpClientFactory,
-            ITempPathProvider tempPathProvider) : base(
+            ITempPathProvider<T> tempPathProvider) : base(
                 options,
                 hostFrameworkProvider,
                 hostTypesProvider,

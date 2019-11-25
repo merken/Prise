@@ -5,7 +5,7 @@ using System.Diagnostics;
 namespace Prise
 {
     [DebuggerDisplay("{GetDependencyPath()}")]
-    public class DependencyPathProvider : IDependencyPathProvider
+    public class DependencyPathProvider<T> : IDependencyPathProvider<T>
     {
         private readonly string dependencyPath;
         private bool disposed = false;

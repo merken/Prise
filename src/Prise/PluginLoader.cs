@@ -23,12 +23,20 @@ namespace Prise
         {
             var instances = new List<T>();
             var assemblies = pluginLoadOptions.AssemblyScanner.Scan().Result;
+
+            if (!assemblies.Any())
+                throw new PrisePluginException($"No plugins of type {typeof(T).Name} found while scanning assemblies.");
+
             foreach (var loadContext in assemblies.Select(a => PluginLoadContext<T>.FromAssemblyScanResult(a)))
             {
                 var pluginAssembly = pluginLoadOptions.AssemblyLoader.Load(loadContext);
                 this.pluginAssemblies.Add(pluginAssembly);
                 instances.AddRange(CreatePluginInstances(pluginLoadOptions, ref pluginAssembly));
             }
+
+            if (!instances.Any())
+                throw new PrisePluginException($"No plugins of type {typeof(T).Name} found from assemblies {String.Join(',', assemblies.Select(a => a.AssemblyPath))}");
+
             return instances.ToArray();
         }
 
@@ -36,12 +44,20 @@ namespace Prise
         {
             var instances = new List<T>();
             var assemblies = await pluginLoadOptions.AssemblyScanner.Scan();
+
+            if (!assemblies.Any())
+                throw new PrisePluginException($"No plugins of type {typeof(T).Name} found while scanning assemblies.");
+
             foreach (var loadContext in assemblies.Select(a => PluginLoadContext<T>.FromAssemblyScanResult(a)))
             {
                 var pluginAssembly = await pluginLoadOptions.AssemblyLoader.LoadAsync(loadContext);
                 this.pluginAssemblies.Add(pluginAssembly);
                 instances.AddRange(CreatePluginInstances(pluginLoadOptions, ref pluginAssembly));
             }
+
+            if (!instances.Any())
+                throw new PrisePluginException($"No plugins of type {typeof(T).Name} found from assemblies {String.Join(',', assemblies.Select(a => a.AssemblyPath))}");
+
             return instances.ToArray();
         }
 

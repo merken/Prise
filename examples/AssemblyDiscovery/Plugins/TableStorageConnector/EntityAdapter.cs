@@ -13,12 +13,16 @@ namespace TableStorageConnector
     {
         private static readonly object _syncLock = new object();
         private static List<AdditionalPropertyMetadata> _additionalProperties;
-        private readonly string partitionKey;
+        protected string partitionKey;
         private readonly Action<T, string> partitionKeySetter;
-        private readonly string rowKey;
+        protected string rowKey;
         private readonly Action<T, string> rowKeySetter;
 
-        public EntityAdapter() { }
+        public EntityAdapter()
+        {
+            this.Value = new T();
+        }
+
         public EntityAdapter(string partitionKey, string rowKey)
         {
             this.partitionKey = partitionKey;
@@ -283,7 +287,9 @@ namespace TableStorageConnector
             }
             set
             {
-                this.partitionKeySetter(Value, value);
+                this.partitionKey = value;
+                if (this.partitionKeySetter != null)
+                    this.partitionKeySetter(Value, value);
             }
         }
 
@@ -296,7 +302,9 @@ namespace TableStorageConnector
             }
             set
             {
-                this.rowKeySetter(Value, value);
+                this.rowKey = value;
+                if (this.rowKeySetter != null)
+                    this.rowKeySetter(Value, value);
             }
         }
 

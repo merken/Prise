@@ -8,22 +8,22 @@ namespace Prise
     public class NetworkAssemblyLoader<T> : DisposableAssemblyUnLoader, IPluginAssemblyLoader<T>
     {
         public NetworkAssemblyLoader(
-            INetworkAssemblyLoaderOptions options,
+            INetworkAssemblyLoaderOptions<T> options,
             IHostFrameworkProvider hostFrameworkProvider,
             IHostTypesProvider hostTypesProvider,
-            IRemoteTypesProvider remoteTypesProvider,
-            IDependencyPathProvider dependencyPathProvider,
-            IProbingPathsProvider probingPathsProvider,
+            IRemoteTypesProvider<T> remoteTypesProvider,
+            IDependencyPathProvider<T> dependencyPathProvider,
+            IProbingPathsProvider<T> probingPathsProvider,
             IRuntimePlatformContext runtimePlatformContext,
-            IDepsFileProvider depsFileProvider,
-            IPluginDependencyResolver pluginDependencyResolver,
+            IDepsFileProvider<T> depsFileProvider,
+            IPluginDependencyResolver<T> pluginDependencyResolver,
             INativeAssemblyUnloader nativeAssemblyUnloader,
             IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider,
-            ITempPathProvider tempPathProvider,
+            ITempPathProvider<T> tempPathProvider,
             IHttpClientFactory httpClientFactory
             )
         {
-            this.loadContext = new NetworkAssemblyLoadContext(
+            this.loadContext = new NetworkAssemblyLoadContext<T>(
                 options,
                 hostFrameworkProvider,
                 hostTypesProvider,

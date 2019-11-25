@@ -6,7 +6,7 @@ using System.Diagnostics;
 namespace Prise
 {
     [DebuggerDisplay("{ProvideSharedServices()?.Count()}")]
-    public class DefaultSharedServicesProvider : ISharedServicesProvider
+    public class DefaultSharedServicesProvider<T> : ISharedServicesProvider<T>
     {
         private readonly IServiceCollection services;
         protected bool disposed = false;

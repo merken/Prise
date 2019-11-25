@@ -3,7 +3,7 @@ using System;
 
 namespace Prise.Infrastructure
 {
-    public interface ISharedServicesProvider : IDisposable
+    public interface ISharedServicesProvider<T> : IDisposable
     {
         IServiceCollection ProvideSharedServices();
     }

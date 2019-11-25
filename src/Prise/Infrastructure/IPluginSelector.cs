@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace Prise.Infrastructure
 {
-    public interface IPluginSelector
+    public interface IPluginSelector<T>
     {
         IEnumerable<Type> SelectPlugins(IEnumerable<Type> pluginTypes);
     }
 
-    public class DefaultPluginSelector : IPluginSelector
+    public class DefaultPluginSelector<T> : IPluginSelector<T>
     {
         public IEnumerable<Type> SelectPlugins(IEnumerable<Type> pluginTypes)
         {
@@ -16,7 +16,7 @@ namespace Prise.Infrastructure
         }
     }
 
-    public class PluginSelector : IPluginSelector
+    public class PluginSelector<T> : IPluginSelector<T>
     {
         private readonly Func<IEnumerable<Type>, IEnumerable<Type>> pluginSelector;
 

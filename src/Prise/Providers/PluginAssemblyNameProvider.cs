@@ -5,7 +5,7 @@ using System.Diagnostics;
 namespace Prise
 {
     [DebuggerDisplay("{GetAssemblyName()}")]
-    public class PluginAssemblyNameProvider : IPluginAssemblyNameProvider
+    public class PluginAssemblyNameProvider<T> : IPluginAssemblyNameProvider<T>
     {
         private readonly string assemblyName;
         private bool disposed = false;
