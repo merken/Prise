@@ -39,27 +39,32 @@ namespace MyHost2
             services.AddHttpClient();
             services.AddHttpContextAccessor(); // Add the IHttpContextAccessor for use in the Tenant Aware middleware
 
+            var cla = services.BuildServiceProvider().GetRequiredService<ICommandLineArguments>();
+
             services.AddPrise<IProductsRepository>(options => options
                 // Plugins will be located at /bin/Debug/netcoreapp3.0/Plugins directory
                 // each plugin will have its own directory
+                // /CosmosDbPlugin
+                // /HttpPlugin
                 // /SQLPlugin
                 // /TableStoragePlugin
-                // /CosmosDbPlugin
                 .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"))
-                .WithPluginAssemblyNameProvider<TenantPluginAssemblyNameProvider>()
+                .WithPluginAssemblyNameProvider<TenantPluginAssemblyNameProvider<IProductsRepository>>()
+                .WithPluginPathProvider<TenantPluginPathProvider<IProductsRepository>>()
 
-                .WithLocalDiskAssemblyLoader<TenantPluginAssemblyLoadOptions>()
-                //.WithNetworkAssemblyLoader<TenantPluginNetworkLoadOptions>()
+                // Switches between network loader and local disk loader
+                .LocalOrNetwork<IProductsRepository>(cla.UseNetwork)
 
-                .WithDependencyPathProvider<TenantPluginDependencyPathProvider>()
+                .WithDependencyPathProvider<TenantPluginDependencyPathProvider<IProductsRepository>>()
                 .ConfigureSharedServices(sharedServices =>
                 {
-                    // Add the configuration for use in the plugins
-                    // this way, the plugins can read their own config section from the appsettings.json
-                    sharedServices.AddSingleton(Configuration);
+                        // Add the configuration for use in the plugins
+                        // this way, the plugins can read their own config section from the appsettings.json
+                        sharedServices.AddSingleton(Configuration);
                 })
                 .WithHostType<BinderOptions>()
-                .WithSelector<HttpClientPluginSelector>()
+                .WithSelector<HttpClientPluginSelector<IProductsRepository>>()
+                .WithHostFrameworkProvider<AppHostFrameworkProvider>()
             );
         }
 

@@ -27,12 +27,15 @@ namespace MyHost.Controllers
         }
 
         [HttpGet]
-        public Task<IEnumerable<Product>> Get([FromQuery] string searchTerm)
+        public async Task<IEnumerable<Product>> Get([FromQuery] string searchTerm)
         {
+            IEnumerable<Product> result = null;
             if (String.IsNullOrEmpty(searchTerm))
-                return repository.All();
+                result = await repository.All();
+            else
+                result = await repository.Search(searchTerm);
 
-            return repository.Search(searchTerm);
+            return result;
         }
 
         [HttpGet("{productId}")]

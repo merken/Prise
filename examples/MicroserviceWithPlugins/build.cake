@@ -98,17 +98,24 @@ Task("copy-to-apphost")
     CopyDirectory("publish/HttpPlugin", "MyHost/bin/debug/netcoreapp3.0/Plugins/HttpPlugin");
     CopyDirectory("publish/HttpPlugin", "MyHost2/bin/debug/netcoreapp2.1/Plugins/HttpPlugin");
     CopyDirectory("publish/HttpPlugin", "PluginServer/Plugins/HttpPlugin");
+    CopyDirectory("publish/HttpPlugin", "Tests/bin/debug/netcoreapp2.1/Plugins/HttpPlugin");
+    CopyDirectory("publish/HttpPlugin", "Tests/bin/debug/netcoreapp3.0/Plugins/HttpPlugin");
     CopyDirectory("publish/CosmosDbPlugin", "MyHost/bin/debug/netcoreapp3.0/Plugins/CosmosDbPlugin");
     CopyDirectory("publish/CosmosDbPlugin", "MyHost2/bin/debug/netcoreapp2.1/Plugins/CosmosDbPlugin");
     CopyDirectory("publish/CosmosDbPlugin", "PluginServer/Plugins/CosmosDbPlugin");
+    CopyDirectory("publish/CosmosDbPlugin", "Tests/bin/debug/netcoreapp3.0/Plugins/CosmosDbPlugin");
     CopyDirectory("publish/SQLPlugin", "MyHost/bin/debug/netcoreapp3.0/Plugins/SQLPlugin");
     CopyDirectory("publish/SQLPlugin", "MyHost2/bin/debug/netcoreapp2.1/Plugins/SQLPlugin");
     CopyDirectory("publish/SQLPlugin", "PluginServer/Plugins/SQLPlugin");
+    CopyDirectory("publish/SQLPlugin", "Tests/bin/debug/netcoreapp3.0/Plugins/SQLPlugin");
     CopyDirectory("publish/OldSQLPlugin", "MyHost/bin/debug/netcoreapp3.0/Plugins/OldSQLPlugin");
     CopyDirectory("publish/OldSQLPlugin", "MyHost2/bin/debug/netcoreapp2.1/Plugins/OldSQLPlugin");
+    CopyDirectory("publish/OldSQLPlugin", "Tests/bin/debug/netcoreapp2.1/Plugins/OldSQLPlugin");
+    CopyDirectory("publish/OldSQLPlugin", "Tests/bin/debug/netcoreapp3.0/Plugins/OldSQLPlugin");
     CopyDirectory("publish/TableStoragePlugin", "MyHost/bin/debug/netcoreapp3.0/Plugins/TableStoragePlugin");
     CopyDirectory("publish/TableStoragePlugin", "MyHost2/bin/debug/netcoreapp2.1/Plugins/TableStoragePlugin");
     CopyDirectory("publish/TableStoragePlugin", "PluginServer/Plugins/TableStoragePlugin");
+    CopyDirectory("publish/TableStoragePlugin", "Tests/bin/debug/netcoreapp3.0/Plugins/TableStoragePlugin");
   });
 
 Task("default")

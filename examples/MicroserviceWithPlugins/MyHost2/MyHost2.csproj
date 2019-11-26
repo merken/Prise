@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -7,18 +7,21 @@
   <ItemGroup>
     <Compile Include="..\MyHost\Controllers\ProductsController.cs" Link="Controllers\ProductsController.cs" />
     <Compile Include="..\MyHost\Controllers\ProductsUsingLoaderController.cs" Link="Controllers\ProductsUsingLoaderController.cs" />
+    <Compile Include="..\MyHost\Infrastructure\AppHostFrameworkProvider.cs" Link="Infrastructure\AppHostFrameworkProvider.cs" />
     <Compile Include="..\MyHost\Infrastructure\HttpClientPluginSelector.cs" Link="Infrastructure\HttpClientPluginSelector.cs" />
+    <Compile Include="..\MyHost\Infrastructure\ICommandLineArguments.cs" Link="Infrastructure\ICommandLineArguments.cs" />
+    <Compile Include="..\MyHost\Infrastructure\PluginLoadOptionsBuilderExtensions.cs" Link="Infrastructure\PluginLoadOptionsBuilderExtensions.cs" />
     <Compile Include="..\MyHost\Infrastructure\TenantAwarePluginMiddleware.cs" Link="Infrastructure\TenantAwarePluginMiddleware.cs" />
     <Compile Include="..\MyHost\Infrastructure\TenantConfig.cs" Link="Infrastructure\TenantConfig.cs" />
     <Compile Include="..\MyHost\Infrastructure\TenantPluginAssemblyLoadOptions.cs" Link="Infrastructure\TenantPluginAssemblyLoadOptions.cs" />
     <Compile Include="..\MyHost\Infrastructure\TenantPluginAssemblyNameProvider.cs" Link="Infrastructure\TenantPluginAssemblyNameProvider.cs" />
     <Compile Include="..\MyHost\Infrastructure\TenantPluginDependencyPathProvider.cs" Link="Infrastructure\TenantPluginDependencyPathProvider.cs" />
     <Compile Include="..\MyHost\Infrastructure\TenantPluginNetworkLoadOptions.cs" Link="Infrastructure\TenantPluginNetworkLoadOptions.cs" />
+    <Compile Include="..\MyHost\Infrastructure\TenantPluginPathProvider.cs" Link="Infrastructure\TenantPluginPathProvider.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Controllers\" />
-    <Folder Include="Infrastructure\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

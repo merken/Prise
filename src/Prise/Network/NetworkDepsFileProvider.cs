@@ -23,7 +23,7 @@ namespace Prise
 
         public virtual async Task<Stream> ProvideDepsFile(IPluginLoadContext pluginLoadContext)
         {
-            var url = $"{this.options.BaseUrl}/{Path.GetFileNameWithoutExtension(pluginLoadContext.PluginAssemblyPath)}.deps.json";
+            var url = $"{this.options.BaseUrl}/{Path.GetFileNameWithoutExtension(pluginLoadContext.PluginAssemblyName)}.deps.json";
             var response = await this.client.GetAsync(url);
 
             if (response.StatusCode == System.Net.HttpStatusCode.NotFound)

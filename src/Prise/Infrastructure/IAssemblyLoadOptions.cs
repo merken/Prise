@@ -32,7 +32,7 @@ namespace Prise.Infrastructure
         private readonly bool ignorePlatformInconsistencies;
         private readonly NativeDependencyLoadPreference nativeDependencyLoadPreference;
         public DefaultAssemblyLoadOptions(
-            PluginPlatformVersion pluginPlatformVersion,
+            PluginPlatformVersion pluginPlatformVersion = null,
             bool ignorePlatformInconsistencies = false,
             NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime)
         {

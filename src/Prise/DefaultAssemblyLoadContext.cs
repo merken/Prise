@@ -24,8 +24,9 @@ namespace Prise
 
         internal IAssemblyLoadStrategy assemblyLoadStrategy;
         internal IAssemblyLoadOptions<T> options;
-        protected bool disposed = false;
         protected ConcurrentDictionary<string, IntPtr> loadedNativeLibraries;
+        protected bool disposed = false;
+        protected bool disposing = false;
 
         public DefaultAssemblyLoadContext(
             IAssemblyLoadOptions<T> options,
@@ -213,6 +214,10 @@ namespace Prise
 
         protected override Assembly Load(AssemblyName assemblyName)
         {
+            // This fixes the issue where the ALC is still alive and utilized in the host
+            if (this.disposed || this.disposing)
+                return null;
+
             return assemblyLoadStrategy.LoadAssembly(
                     assemblyName,
                     LoadFromDependencyContext,
@@ -223,6 +228,10 @@ namespace Prise
 
         protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
         {
+            // This fixes the issue where the ALC is still alive and utilized in the host
+            if (this.disposed || this.disposing)
+                return IntPtr.Zero; 
+
             IntPtr library = IntPtr.Zero;
 
             var nativeAssembly = assemblyLoadStrategy.LoadUnmanagedDll(
@@ -309,6 +318,11 @@ namespace Prise
         {
             if (!this.disposed && disposing)
             {
+                this.disposing = true;
+
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
                 this.hostTypesProvider = null;
                 this.remoteTypesProvider = null;
                 this.dependencyPathProvider = null;
@@ -325,7 +339,6 @@ namespace Prise
 
                 this.loadedNativeLibraries = null;
                 this.nativeAssemblyUnloader = null;
-                //this.pluginPath = null;
             }
             this.disposed = true;
         }

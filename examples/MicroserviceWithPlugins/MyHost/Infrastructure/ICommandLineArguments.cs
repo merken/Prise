@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Configuration;
 
-namespace AppHost
+namespace MyHost.Infrastructure
 {
     public interface ICommandLineArguments
     {
-        bool UseLazyService { get; }
+        bool UseNetwork { get; }
     }
 
     public class CommandLineArguments : ICommandLineArguments
@@ -15,12 +15,12 @@ namespace AppHost
             this.config = config;
         }
 
-        public bool UseLazyService
+        public bool UseNetwork
         {
             get
             {
-                if (bool.TryParse(this.config["uselazyservice"], out var uselazyservice))
-                    return uselazyservice;
+                if (bool.TryParse(this.config["usenetwork"], out var usenetwork))
+                    return usenetwork;
                 return false;
             }
         }

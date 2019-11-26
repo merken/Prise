@@ -30,6 +30,8 @@ namespace MyHost
             Configuration.Bind("TenantConfig", tenantConfig);
             services.AddSingleton(tenantConfig); // Add the tenantConfig for use in the Tenant Aware middleware
 
+            var cla = services.BuildServiceProvider().GetRequiredService<ICommandLineArguments>();
+
             services.AddHttpClient();
             services.AddHttpContextAccessor(); // Add the IHttpContextAccessor for use in the Tenant Aware middleware
 
@@ -40,19 +42,22 @@ namespace MyHost
                 // /TableStoragePlugin
                 // /CosmosDbPlugin
                 .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"))
-                .WithPluginAssemblyNameProvider<TenantPluginAssemblyNameProvider>()
+                .WithPluginAssemblyNameProvider<TenantPluginAssemblyNameProvider<IProductsRepository>>()
+                .WithPluginPathProvider<TenantPluginPathProvider<IProductsRepository>>()
 
-                .WithLocalDiskAssemblyLoader<TenantPluginAssemblyLoadOptions>()
-                //.WithNetworkAssemblyLoader<TenantPluginNetworkLoadOptions>()
+                // Switches between network loader and local disk loader
+                .LocalOrNetwork<IProductsRepository>(cla.UseNetwork)
 
-                .WithDependencyPathProvider<TenantPluginDependencyPathProvider>()
+                .WithDependencyPathProvider<TenantPluginDependencyPathProvider<IProductsRepository>>()
                 .ConfigureSharedServices(services =>
                 {
                     // Add the configuration for use in the plugins
                     // this way, the plugins can read their own config section from the appsettings.json
                     services.AddSingleton(Configuration);
                 })
-                .WithSelector<HttpClientPluginSelector>()
+                //.WithHostType<BinderOptions>()
+                .WithSelector<HttpClientPluginSelector<IProductsRepository>>()
+                .WithHostFrameworkProvider<AppHostFrameworkProvider>()
             );
         }
 

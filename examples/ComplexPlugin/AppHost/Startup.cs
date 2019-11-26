@@ -47,14 +47,13 @@ namespace AppHost
             // This will look for a custom plugin based on the context
             return services.AddPrise<ICalculationPlugin>(options =>
                  options
-                     .WithDefaultOptions(Path.Combine(GetExecutionDirectory(), "Plugins"))
-                     .WithPluginAssemblyNameProvider<ContextPluginAssemblyNameProvider>()
-                     .WithLocalDiskAssemblyLoader<ContextPluginAssemblyLoadOptions>()
+                     .WithDefaultOptions()
+                     .IgnorePlatformInconsistencies()
+                     .WithPluginPathProvider<ContextPluginPathProvider<ICalculationPlugin>>()
+                     .WithPluginAssemblyNameProvider<ContextPluginAssemblyNameProvider<ICalculationPlugin>>()
                      .WithHostFrameworkProvider<AppHostFrameworkProvider>()
              );
         }
-
-        private string GetExecutionDirectory() => AppDomain.CurrentDomain.BaseDirectory;
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 #if NETCORE3_0

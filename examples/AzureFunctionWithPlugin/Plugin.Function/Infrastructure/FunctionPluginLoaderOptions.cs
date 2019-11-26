@@ -1,4 +1,5 @@
 ﻿using Contract;
+using Prise;
 using Prise.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -10,38 +11,40 @@ namespace Plugin.Function.Infrastructure
     public class FunctionPluginLoaderOptions
     {
         internal readonly IPluginLoadOptions<IHelloPlugin> HelloPluginLoadOptions;
-        internal readonly IRootPathProvider RootPathProvider;
+        internal readonly IPluginPathProvider<IHelloPlugin> PluginPathProvider;
         internal readonly IHostTypesProvider HostTypesProvider;
         internal readonly IRuntimePlatformContext RuntimePlatformContext;
         internal readonly IHostFrameworkProvider HostFrameworkProvider;
-        internal readonly IDependencyPathProvider DependencyPathProvider;
-        internal readonly IProbingPathsProvider ProbingPathsProvider;
-        internal readonly IDepsFileProvider DepsFileProvider;
-        internal readonly IPluginDependencyResolver PluginDependencyResolver;
+        internal readonly IDependencyPathProvider<IHelloPlugin> DependencyPathProvider;
+        internal readonly IProbingPathsProvider<IHelloPlugin> ProbingPathsProvider;
+        internal readonly IDepsFileProvider<IHelloPlugin> DepsFileProvider;
+        internal readonly IPluginDependencyResolver<IHelloPlugin> PluginDependencyResolver;
         internal readonly INativeAssemblyUnloader NativeAssemblyUnloader;
+        internal readonly IRemoteTypesProvider<IHelloPlugin> RemoteTypesProvider;
+        internal readonly ITempPathProvider<IHelloPlugin> TempPathProvider;
+        internal readonly IAssemblyLoadStrategyProvider AssemblyLoadStrategyProvider;
         internal readonly IPluginServerOptions PluginServerOptions;
         internal readonly IHttpClientFactory HttpFactory;
-        internal readonly IRemoteTypesProvider RemoteTypesProvider;
-        internal readonly ITempPathProvider TempPathProvider;
 
         public FunctionPluginLoaderOptions(
             IPluginLoadOptions<IHelloPlugin> helloPluginLoadOptions,
-            IRootPathProvider rootPathProvider, 
+            IPluginPathProvider<IHelloPlugin> pluginPathProvider, 
             IHostTypesProvider hostTypesProvider,
-            IRemoteTypesProvider remoteTypesProvider,
+            IRemoteTypesProvider<IHelloPlugin> remoteTypesProvider,
             IRuntimePlatformContext runtimePlatformContext,
             IHostFrameworkProvider hostFrameworkProvider,
-            IDependencyPathProvider dependencyPathProvider,
-            IProbingPathsProvider probingPathsProvider,
-            IDepsFileProvider depsFileProvider,
-            IPluginDependencyResolver pluginDependencyResolver,
+            IDependencyPathProvider<IHelloPlugin> dependencyPathProvider,
+            IProbingPathsProvider<IHelloPlugin> probingPathsProvider,
+            IDepsFileProvider<IHelloPlugin> depsFileProvider,
+            IPluginDependencyResolver<IHelloPlugin> pluginDependencyResolver,
             INativeAssemblyUnloader nativeAssemblyUnloader,
-            ITempPathProvider tempPathProvider,
+            ITempPathProvider<IHelloPlugin> tempPathProvider,
+            IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider,
             IPluginServerOptions pluginServerOptions,
             IHttpClientFactory httpFactory)
         {
             HelloPluginLoadOptions = helloPluginLoadOptions;
-            RootPathProvider = rootPathProvider;
+            PluginPathProvider = pluginPathProvider;
             HostTypesProvider = hostTypesProvider;
             RemoteTypesProvider = remoteTypesProvider;
             RuntimePlatformContext = runtimePlatformContext;
@@ -52,6 +55,7 @@ namespace Plugin.Function.Infrastructure
             PluginDependencyResolver = pluginDependencyResolver;
             NativeAssemblyUnloader = nativeAssemblyUnloader;
             TempPathProvider = tempPathProvider;
+            AssemblyLoadStrategyProvider = assemblyLoadStrategyProvider;
             PluginServerOptions = pluginServerOptions;
             HttpFactory = httpFactory;
         }

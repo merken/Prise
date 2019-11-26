@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace MyHost.Infrastructure
 {
-    public class HttpClientPluginSelector : IPluginSelector
+    public class HttpClientPluginSelector<T> : IPluginSelector<T>
     {
         private readonly IHttpContextAccessor httpContextAccessor;
 

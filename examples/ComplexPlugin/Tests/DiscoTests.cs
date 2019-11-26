@@ -37,6 +37,7 @@ namespace Tests
         public async Task PluginA_Description_Works()
         {
             // Arrange, Act
+            
             var result = await GetRaw(_client, "PluginA", "/disco/description");
 
             // Assert
