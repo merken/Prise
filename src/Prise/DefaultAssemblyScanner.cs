@@ -17,7 +17,7 @@ namespace Prise
             this.runtimePlatformContext = runtimePlatformContext;
         }
 
-        public string PathToScan => pluginPathProvider.GetPluginPath();
+        public string PathToScan => this.pluginPathProvider.GetPluginPath();
 
         public IEnumerable<string> FileTypesToScan => runtimePlatformContext.GetPluginDependencyNames("*");
     }
