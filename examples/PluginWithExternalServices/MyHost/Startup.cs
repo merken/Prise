@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Prise;
+using System;
+using System.IO;
 
 namespace MyHost
 {
@@ -25,7 +27,7 @@ namespace MyHost
             services.AddScoped<IExternalService, AcceptHeaderlanguageService>();
 
             services.AddPrise<IHelloPlugin>(options => options
-                .WithLocalDiskAssemblyLoader("Plugins\\LanguageBased.Plugin")
+                .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins", "LanguageBased.Plugin"))
                 .WithPluginAssemblyName("LanguageBased.Plugin.dll")
                 .IgnorePlatformInconsistencies() // The plugin is a netstandard library, the host is a netcoreapp, ignore this inconsistency
                 .ConfigureSharedServices(sharedServices =>

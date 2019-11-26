@@ -24,7 +24,7 @@ namespace MyHost
             services.AddHttpContextAccessor(); // Required to read out HTTP Headers from request
             
             services.AddPrise<IHelloPlugin>(options => options
-                .IgnorePlatformInconsistencies()
+                .IgnorePlatformInconsistencies() // The plugin is a netstandard library, the host is a netcoreapp, ignore this inconsistency
                 .WithPluginPathProvider<LanguageBasedPluginPathProvider<IHelloPlugin>>()
                 .WithPluginAssemblyNameProvider<LanguageBasedAssemblyNameProvider<IHelloPlugin>>()
             );
