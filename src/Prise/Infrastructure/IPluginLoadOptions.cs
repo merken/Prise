@@ -6,11 +6,11 @@ namespace Prise.Infrastructure
     public interface IPluginLoadOptions<T> : IDisposable
     {
         IAssemblyScanner<T> AssemblyScanner { get; }
+        IPluginAssemblyLoader<T> AssemblyLoader { get; }
         ISharedServicesProvider<T> SharedServicesProvider { get; }
         IRemotePluginActivator Activator { get; }
         IResultConverter ResultConverter { get; }
         IParameterConverter ParameterConverter { get; }
-        IPluginAssemblyLoader<T> AssemblyLoader { get; }
         IProxyCreator<T> ProxyCreator { get; }
         IHostTypesProvider HostTypesProvider { get; }
         IRemoteTypesProvider<T> RemoteTypesProvider { get; }

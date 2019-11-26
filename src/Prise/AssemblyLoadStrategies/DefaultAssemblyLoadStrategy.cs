@@ -5,18 +5,21 @@ using Prise.Infrastructure;
 
 namespace Prise
 {
-    internal class DefaultAssemblyLoadStrategy : IAssemblyLoadStrategy
+    /// <summary>
+    /// 
+    /// </summary>
+    public class DefaultAssemblyLoadStrategy : IAssemblyLoadStrategy
     {
         protected IPluginLoadContext pluginLoadContext;
         protected IPluginDependencyContext pluginDependencyContext;
 
-        internal DefaultAssemblyLoadStrategy(IPluginLoadContext pluginLoadContext, IPluginDependencyContext pluginDependencyContext)
+        public DefaultAssemblyLoadStrategy(IPluginLoadContext pluginLoadContext, IPluginDependencyContext pluginDependencyContext)
         {
             this.pluginLoadContext = pluginLoadContext;
             this.pluginDependencyContext = pluginDependencyContext;
         }
 
-        public Assembly LoadAssembly(AssemblyName assemblyName,
+        public virtual Assembly LoadAssembly(AssemblyName assemblyName,
             Func<IPluginLoadContext, AssemblyName, ValueOrProceed<Assembly>> loadFromDependencyContext,
             Func<IPluginLoadContext, AssemblyName, ValueOrProceed<Assembly>> loadFromRemote,
             Func<IPluginLoadContext, AssemblyName, ValueOrProceed<Assembly>> loadFromAppDomain)
@@ -42,7 +45,7 @@ namespace Prise
             return valueOrProceed.Value;
         }
 
-        public NativeAssembly LoadUnmanagedDll(string unmanagedDllName,
+        public virtual NativeAssembly LoadUnmanagedDll(string unmanagedDllName,
             Func<IPluginLoadContext, string, ValueOrProceed<string>> loadFromDependencyContext,
             Func<IPluginLoadContext, string, ValueOrProceed<string>> loadFromRemote,
             Func<IPluginLoadContext, string, ValueOrProceed<IntPtr>> loadFromAppDomain)
@@ -61,7 +64,7 @@ namespace Prise
             return NativeAssembly.Create(valueOrProceed.Value, ptrValueOrProceed.Value);
         }
 
-        protected bool IsHostAssembly(AssemblyName assemblyName) => this.pluginDependencyContext.HostDependencies.Any(h => h.DependencyName.Name == assemblyName.Name);
-        protected bool IsRemoteAssembly(AssemblyName assemblyName) => this.pluginDependencyContext.RemoteDependencies.Any(r => r.DependencyName.Name == assemblyName.Name);
+        protected virtual bool IsHostAssembly(AssemblyName assemblyName) => this.pluginDependencyContext.HostDependencies.Any(h => h.DependencyName.Name == assemblyName.Name);
+        protected virtual bool IsRemoteAssembly(AssemblyName assemblyName) => this.pluginDependencyContext.RemoteDependencies.Any(r => r.DependencyName.Name == assemblyName.Name);
     }
 }
