@@ -8,6 +8,7 @@ using Prise;
 using System;
 using Prise.Infrastructure;
 using AppHost.Infrastructure;
+using System.IO;
 
 namespace AppHost
 {
@@ -30,15 +31,15 @@ namespace AppHost
             services.AddSingleton<MainWindowViewModel>();
             services.AddPrise<IAppComponent>(options =>
                options
-                   .WithPluginAssemblyName("Components.dll")
-                   .WithResultConverter<AvaloniaPluginResultConverter>()
-                   // TODO .WithRootPath(GetRootPath())
+                    .WithPluginPath(GetRootPath())
+                    .WithPluginAssemblyName("Components.dll")
+                    .WithResultConverter<AvaloniaPluginResultConverter>()
            );
         }
 
         private static string GetRootPath()
         {
-            return AppDomain.CurrentDomain.BaseDirectory;
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins");
         }
     }
 }

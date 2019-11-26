@@ -25,14 +25,13 @@ namespace Plugin.Function.Infrastructure
 
         private PluginLoadOptions<IHelloPlugin> GetOptions()
         {
-            var networkAssemblyLoaderOptions = new NetworkAssemblyLoaderOptions(
+            var networkAssemblyLoaderOptions = new NetworkAssemblyLoaderOptions<IHelloPlugin>(
                                 $"{this.functionPluginLoaderOptions.PluginServerOptions.PluginServerUrl}/{this.componentName}",
                                 ignorePlatformInconsistencies: true); // The plugins are netstandard, so we must ignore inconsistencies
 
-            var depsFileProvider = new NetworkDepsFileProvider(networkAssemblyLoaderOptions, this.functionPluginLoaderOptions.HttpFactory);
+            var depsFileProvider = new NetworkDepsFileProvider<IHelloPlugin>(networkAssemblyLoaderOptions, this.functionPluginLoaderOptions.HttpFactory);
 
             var networkAssemblyLoader = new NetworkAssemblyLoader<IHelloPlugin>(
-                    this.functionPluginLoaderOptions.RootPathProvider,
                     networkAssemblyLoaderOptions,
                     this.functionPluginLoaderOptions.HostFrameworkProvider,
                     this.functionPluginLoaderOptions.HostTypesProvider,
@@ -43,17 +42,17 @@ namespace Plugin.Function.Infrastructure
                     depsFileProvider,
                     this.functionPluginLoaderOptions.PluginDependencyResolver,
                     this.functionPluginLoaderOptions.NativeAssemblyUnloader,
+                    this.functionPluginLoaderOptions.AssemblyLoadStrategyProvider,
                     this.functionPluginLoaderOptions.TempPathProvider,
                     this.functionPluginLoaderOptions.HttpFactory);
 
             return new PluginLoadOptions<IHelloPlugin>(
-                this.functionPluginLoaderOptions.HelloPluginLoadOptions.RootPathProvider,
+                new FunctionPluginStaticAssemblyScanner($"{this.componentName}.dll"),
                 this.functionPluginLoaderOptions.HelloPluginLoadOptions.SharedServicesProvider,
                 this.functionPluginLoaderOptions.HelloPluginLoadOptions.Activator,
                 this.functionPluginLoaderOptions.HelloPluginLoadOptions.ParameterConverter,
                 this.functionPluginLoaderOptions.HelloPluginLoadOptions.ResultConverter,
                 networkAssemblyLoader,
-                new PluginAssemblyNameProvider($"{this.componentName}.dll"),
                 this.functionPluginLoaderOptions.HelloPluginLoadOptions.ProxyCreator,
                 this.functionPluginLoaderOptions.HelloPluginLoadOptions.HostTypesProvider,
                 this.functionPluginLoaderOptions.HelloPluginLoadOptions.RemoteTypesProvider,
@@ -99,8 +98,8 @@ namespace Plugin.Function.Infrastructure
                 foreach (var disposable in this.disposables)
                     disposable.Dispose();
 
-                // Remove the lock on the loaded assembly
-                this.pluginAssembly = null;
+                // Remove the lock on the loaded assemblies
+                this.pluginAssemblies = null;
                 // Disposes all configured services for the PluginLoadOptions
                 // Including the AssemblyLoader
                 this.functionPluginLoaderOptions?.HelloPluginLoadOptions?.Dispose();

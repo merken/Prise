@@ -24,8 +24,8 @@ namespace Prise
 
     public class DefaultAssemblyScanner<T> : IAssemblyScanner<T>
     {
-        private readonly IAssemblyScannerOptions<T> options;
-        private readonly IPluginAssemblyNameProvider<T> pluginAssemblyNameProvider;
+        protected readonly IAssemblyScannerOptions<T> options;
+        protected readonly IPluginAssemblyNameProvider<T> pluginAssemblyNameProvider;
 
         public DefaultAssemblyScanner(IAssemblyScannerOptions<T> options, IPluginAssemblyNameProvider<T> pluginAssemblyNameProvider)
         {
@@ -33,7 +33,7 @@ namespace Prise
             this.pluginAssemblyNameProvider = pluginAssemblyNameProvider;
         }
 
-        public Task<IEnumerable<AssemblyScanResult<T>>> Scan()
+        public virtual Task<IEnumerable<AssemblyScanResult<T>>> Scan()
         {
             return Task.FromResult(new[] {
                 new AssemblyScanResult<T> {

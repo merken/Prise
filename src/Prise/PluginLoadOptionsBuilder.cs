@@ -433,7 +433,6 @@ namespace Prise
             this.ScanForAssemblies(composer =>
                 composer.WithDefaultOptions<DefaultAssemblyScanner<T>, DefaultAssemblyScannerOptions<T>>());
 
-            //this.pluginPathProvider = new DefaultPluginPathProvider(pluginPath);
             this.pluginAssemblyNameProvider = new PluginAssemblyNameProvider<T>($"{typeof(T).Name}.dll");
             this.sharedServicesProvider = new DefaultSharedServicesProvider<T>(new ServiceCollection());
             this.activator = new DefaultRemotePluginActivator<T>(this.sharedServicesProvider);

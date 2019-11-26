@@ -11,6 +11,7 @@ namespace MyHost.Infrastructure
     {
         protected readonly IHttpContextAccessor contextAccessor;
         protected readonly TenantConfig tenantConfig;
+
         public TenantAwarePluginMiddleware(IHttpContextAccessor contextAccessor, TenantConfig tenantConfig)
         {
             this.tenantConfig = tenantConfig;

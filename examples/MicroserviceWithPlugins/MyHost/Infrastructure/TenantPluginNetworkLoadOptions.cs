@@ -4,7 +4,7 @@ using Prise;
 
 namespace MyHost.Infrastructure
 {
-    public class TenantPluginNetworkLoadOptions : TenantAwarePluginMiddleware, INetworkAssemblyLoaderOptions
+    public class TenantPluginNetworkLoadOptions<T> : TenantAwarePluginMiddleware, INetworkAssemblyLoaderOptions<T>
     {
         public TenantPluginNetworkLoadOptions(IHttpContextAccessor contextAccessor, TenantConfig tenantConfig)
            : base(contextAccessor, tenantConfig) { }
@@ -12,7 +12,6 @@ namespace MyHost.Infrastructure
         public string BaseUrl => $"https://localhost:5003/Plugins/{GetPluginPathFromContext()}";
         public PluginPlatformVersion PluginPlatformVersion => PluginPlatformVersion.Empty();
         public bool IgnorePlatformInconsistencies => false;
-        public DependencyLoadPreference DependencyLoadPreference => DependencyLoadPreference.PreferDependencyContext;
         public NativeDependencyLoadPreference NativeDependencyLoadPreference => NativeDependencyLoadPreference.PreferInstalledRuntime;
 
     }

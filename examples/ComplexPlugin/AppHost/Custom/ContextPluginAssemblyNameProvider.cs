@@ -5,7 +5,7 @@ using Prise;
 
 namespace AppHost.Custom
 {
-    public class ContextPluginAssemblyNameProvider : PluginAssemblyNameProvider
+    public class ContextPluginAssemblyNameProvider<T> : PluginAssemblyNameProvider<T>
     {
         private readonly IHttpContextAccessor contextAccessor;
         public ContextPluginAssemblyNameProvider(IHttpContextAccessor contextAccessor)

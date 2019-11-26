@@ -211,6 +211,11 @@ namespace Prise
         {
             if (!this.disposed && disposing)
             {
+                this.disposing = true;
+
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
                 this.hostTypesProvider = null;
                 this.remoteTypesProvider = null;
                 this.dependencyPathProvider = null;
@@ -226,7 +231,6 @@ namespace Prise
 
                 this.loadedNativeLibraries = null;
                 this.nativeAssemblyUnloader = null;
-                //this.pluginPath = null;
 
                 if (this.tempPathProvider != null)
                     this.tempPathProvider.Dispose();

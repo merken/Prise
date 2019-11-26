@@ -17,7 +17,7 @@ namespace Prise.Infrastructure
             this.pluginPath = pluginPath;
         }
 
-        public string GetPluginPath() => this.pluginPath;
+        public virtual string GetPluginPath() => this.pluginPath;
 
         protected virtual void Dispose(bool disposing)
         {

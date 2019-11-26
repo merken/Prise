@@ -2,15 +2,15 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Prise.Infrastructure;
 using System;
+using System.IO;
 
 namespace AppHost.Custom
 {
-    public class ContextPluginAssemblyLoadOptions : LocalAssemblyLoaderOptions
+    public class ContextPluginPathProvider<T> : DefaultPluginPathProvider<T>
     {
         private readonly IHttpContextAccessor contextAccessor;
-        public ContextPluginAssemblyLoadOptions(IHttpContextAccessor contextAccessor)
-            : base(String.Empty, // PluginPath will be provided at runtime
-                  ignorePlatformInconsistencies: true) // The plugins are of type netstandard, while the host is a netcoreapp. To ignore this inconsistency, set this flag to true.
+        public ContextPluginPathProvider(IHttpContextAccessor contextAccessor)
+            : base(String.Empty) // Empty string, the actual value will be provided at runtime
         {
             this.contextAccessor = contextAccessor;
         }
@@ -23,13 +23,10 @@ namespace AppHost.Custom
         /// After this, the ContextPluginAssemblyNameProvider will suffix the PluginPath with the correct assembly name.
         /// </summary>
         /// <value>The returned value will be /bin/debug/netcoreapp3.0/Plugins/PluginA, for example</value>
-        public override string PluginPath
+        public override string GetPluginPath()
         {
-            get
-            {
-                var pluginType = this.contextAccessor.HttpContext.Request.Headers["PluginType"].First();
-                return pluginType;
-            }
+            var pluginType = this.contextAccessor.HttpContext.Request.Headers["PluginType"].First();
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins", pluginType);
         }
     }
 }
