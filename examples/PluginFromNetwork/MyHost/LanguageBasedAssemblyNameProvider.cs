@@ -5,7 +5,7 @@ using Prise.Infrastructure;
 
 namespace MyHost
 {
-    public class LanguageBasedAssemblyNameProvider : IPluginAssemblyNameProvider
+    public class LanguageBasedAssemblyNameProvider<T> : IPluginAssemblyNameProvider<T>
     {
         private bool disposed = false;
         private readonly IHttpContextAccessor contextAccessor;
