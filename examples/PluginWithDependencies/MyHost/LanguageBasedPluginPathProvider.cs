@@ -16,7 +16,7 @@ namespace MyHost
             this.contextAccessor = contextAccessor;
         }
 
-        public virtual string GetPluginPath()
+        public override string GetPluginPath()
         {
             var language = this.contextAccessor.HttpContext.Request.Headers["Accept-Language"].First();
             var plugin = "Random.Plugin";
