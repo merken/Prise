@@ -24,8 +24,8 @@ namespace MyHost
             services.AddHttpContextAccessor(); // Required to read out HTTP Headers from request
             
             services.AddPrise<IHelloPlugin>(options => options
-                .WithLocalDiskAssemblyLoader<LanguageBasedPluginLoadOptions>()
-                .WithPluginAssemblyNameProvider<LanguageBasedAssemblyNameProvider>()
+                .WithPluginPathProvider<LanguageBasedPluginPathProvider<IHelloPlugin>>()
+                .WithPluginAssemblyNameProvider<LanguageBasedAssemblyNameProvider<IHelloPlugin>>()
             );
         }
 

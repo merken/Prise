@@ -41,12 +41,12 @@ If you want to have more control over the loading of the plugin, you can inject 
 
 
 ### TOO LONG DID NOT READ
-Launch the PluginServer using the `dotnet run --urls=https://localhost:5001` command from inside the PluginServer directory.
+Launch the PluginServer using the `dotnet run --urls=https://localhost:5003` command from inside the PluginServer directory.
 
 Publish all the components using the `cake` command from inside the Plugins directory.
 
 Open your browser to https://localhost:5001/Plugins to see al the plugins.
 
-Launch the MyHost application using the `dotnet run --urls=https://localhost:5003` command from inside the MyHost directory.
+Launch the MyHost application using the `dotnet run --urls=https://localhost:5001` command from inside the MyHost directory.
 
 Open your browser to https://localhost:5003/hello?input=Maarten or use Postman to change the Accept-Header in order to see the results.

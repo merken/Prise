@@ -5,7 +5,7 @@ using Prise;
 
 namespace MyHost
 {
-    public class LanguageBasedAssemblyNameProvider : PluginAssemblyNameProvider
+    public class LanguageBasedAssemblyNameProvider<T> : PluginAssemblyNameProvider<T>
     {
         private readonly IHttpContextAccessor contextAccessor;
         public LanguageBasedAssemblyNameProvider(IHttpContextAccessor contextAccessor)

@@ -6,7 +6,7 @@ using Prise.Infrastructure;
 
 namespace MyHost
 {
-    public class LanguageBasedPluginLoadOptions : NetworkAssemblyLoaderOptions
+    public class LanguageBasedPluginLoadOptions<T> : NetworkAssemblyLoaderOptions<T>
     {
         private readonly IHttpContextAccessor contextAccessor;
         private readonly IConfiguration configuration;

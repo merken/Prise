@@ -13,7 +13,6 @@
     <Compile Include="..\MyHost\Infrastructure\PluginLoadOptionsBuilderExtensions.cs" Link="Infrastructure\PluginLoadOptionsBuilderExtensions.cs" />
     <Compile Include="..\MyHost\Infrastructure\TenantAwarePluginMiddleware.cs" Link="Infrastructure\TenantAwarePluginMiddleware.cs" />
     <Compile Include="..\MyHost\Infrastructure\TenantConfig.cs" Link="Infrastructure\TenantConfig.cs" />
-    <Compile Include="..\MyHost\Infrastructure\TenantPluginAssemblyLoadOptions.cs" Link="Infrastructure\TenantPluginAssemblyLoadOptions.cs" />
     <Compile Include="..\MyHost\Infrastructure\TenantPluginAssemblyNameProvider.cs" Link="Infrastructure\TenantPluginAssemblyNameProvider.cs" />
     <Compile Include="..\MyHost\Infrastructure\TenantPluginDependencyPathProvider.cs" Link="Infrastructure\TenantPluginDependencyPathProvider.cs" />
     <Compile Include="..\MyHost\Infrastructure\TenantPluginNetworkLoadOptions.cs" Link="Infrastructure\TenantPluginNetworkLoadOptions.cs" />
