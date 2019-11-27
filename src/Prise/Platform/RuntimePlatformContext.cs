@@ -9,13 +9,13 @@ namespace Prise
     public class RuntimePlatformContext : IRuntimePlatformContext
     {
         public IEnumerable<string> GetPlatformExtensions() => GetPlatformDependencyFileExtensions();
+
         public IEnumerable<string> GetPluginDependencyNames(string nameWithoutFileExtension) =>
             GetPluginDependencyFileExtensions()
                 .Select(ext => $"{nameWithoutFileExtension}{ext}");
 
         public IEnumerable<string> GetPlatformDependencyNames(string nameWithoutFileExtension) =>
-             GetPlatformDependencyFileExtensions()
-                .Select(ext => $"{nameWithoutFileExtension}{ext}");
+             GetPlatformDependencyFileCandidates(nameWithoutFileExtension);
 
         public Prise.Infrastructure.RuntimeInformation GetRuntimeInformation()
         {
@@ -71,6 +71,16 @@ namespace Prise
                 ".exe",
                 ".ni.exe"
             };
+        }
+
+        private string[] GetPlatformDependencyFileCandidates(string fileNameWithoutExtension)
+        {
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return new[] { $"{fileNameWithoutExtension}.dll" };
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return new[] { $"{fileNameWithoutExtension}.so", $"{fileNameWithoutExtension}.so.1", $"lib{fileNameWithoutExtension}.so", $"lib{fileNameWithoutExtension}.so.1" };
+            //if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            throw new PrisePluginException("Platform is not supported");
         }
 
         private string[] GetPlatformDependencyFileExtensions()
