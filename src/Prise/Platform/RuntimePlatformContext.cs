@@ -77,8 +77,9 @@ namespace Prise
         {
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return new[] { ".dll" };
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return new[] { ".so", ".so.1" };
             //if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            //if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             throw new PrisePluginException("Platform is not supported");
         }
     }
