@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.28" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj" />
     <ProjectReference Include="..\..\..\src\Prise.Plugin\Prise.Plugin.csproj" />
     <ProjectReference Include="..\..\..\src\Prise\Prise.csproj" />
     <ProjectReference Include="..\Contract\Contract.csproj" />
