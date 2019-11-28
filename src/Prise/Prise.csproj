@@ -8,7 +8,14 @@
     <Authors>Maarten Merken</Authors>
     <Company>MRKN</Company>
     <PackageTags>plugin;framework;prise;decoupling;assembly;dispatchproxy;proxy</PackageTags>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
+
+  <Target DependsOnTargets="ResolveReferences" Name="CopyProjectReferencesToPackage">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))"/>
+    </ItemGroup>
+  </Target>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
     <DefineConstants>NETCORE2_1</DefineConstants>
@@ -43,7 +50,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj" />
-    <ProjectReference Include="..\Prise.Plugin\Prise.Plugin.csproj" />
+    <ProjectReference Include="..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj">
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <IncludeAssets>Prise.AssemblyScanning.dll</IncludeAssets>
+    </ProjectReference>
+    <ProjectReference Include="..\Prise.Plugin\Prise.Plugin.csproj">
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <IncludeAssets>Prise.Plugin.dll</IncludeAssets>
+    </ProjectReference>
   </ItemGroup>
 </Project>

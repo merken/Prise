@@ -8,7 +8,14 @@
     <Company>MRKN</Company>
     <PackageTags>plugin;framework;prise;decoupling;assembly;dispatchproxy;proxy</PackageTags>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
+
+  <Target DependsOnTargets="ResolveReferences" Name="CopyProjectReferencesToPackage">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))"/>
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <None Include="../icon.png">
@@ -22,7 +29,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj" />
+    <ProjectReference Include="..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj">
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <IncludeAssets>Prise.AssemblyScanning.dll</IncludeAssets>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>
