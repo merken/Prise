@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <Title>Prise.Plugin</Title>
     <PackageId>Prise.Plugin</PackageId>
     <PackageDescription>Prise, A .NET Core plugin framework!</PackageDescription>
@@ -20,10 +21,6 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
-
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-  </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>NETSTANDARD2_0</DefineConstants>
