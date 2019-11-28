@@ -22,6 +22,28 @@ namespace Prise
         public IEnumerable<string> FileTypesToScan => runtimePlatformContext.GetPluginDependencyNames("*");
     }
 
+    public class StaticAssemblyScanner<T> : IAssemblyScanner<T>
+    {
+        protected readonly string assemblyName;
+        protected readonly string path;
+
+        public StaticAssemblyScanner(string assemblyName, string path)
+        {
+            this.assemblyName = assemblyName;
+            this.path = path;
+        }
+
+        public virtual Task<IEnumerable<AssemblyScanResult<T>>> Scan()
+        {
+            return Task.FromResult(new[] {
+                new AssemblyScanResult<T> {
+                    AssemblyName = this.assemblyName,
+                    AssemblyPath = this.path
+                }
+            }.AsEnumerable());
+        }
+    }
+
     public class DefaultAssemblyScanner<T> : IAssemblyScanner<T>
     {
         protected readonly IAssemblyScannerOptions<T> options;
