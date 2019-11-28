@@ -25,4 +25,4 @@ jobs:
       run: dotnet build src/Prise.Plugin/Prise.Plugin.csproj --configuration Release -f netstandard2.1
       
     - name: Build Prise.AssemblyScanning.Discovery with netstandard2.0
-      run: dotnet build src/Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj --configuration Release -f netstandard2.1
+      run: dotnet build src/Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj --configuration Release -f netstandard2.0
