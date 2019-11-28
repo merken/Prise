@@ -1,6 +1,9 @@
 # Prise
 A .NET Core Plugin Frawework!
 
+## 1.4.0
+Introduction of Assembly Discovery via the Prise.AssemblyScanning.Discovery package.
+
 ## 1.3.3
 
 *New APIs:*

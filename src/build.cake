@@ -1,9 +1,11 @@
 var target = Argument("target", "default");
 var configuration = Argument("configuration", "Release");
+var apikey = Argument("apikey", "");
 var outputDir = "../dist";
-var semVer = "1.4.0";
-var version = "1.4.0";
-var infoVer = "1.4.0";
+var semVer = "1.4.2";
+var version = "1.4.2";
+var infoVer = "1.4.2";
+var nugetSource = "https://api.nuget.org/v3/index.json";
 
 Task("build").Does( () =>
 { 
@@ -40,8 +42,11 @@ Task("publish")
   .IsDependentOn("build")
   .Does(() =>
   { 
+    // delete the dist folder
+    CleanDirectories(outputDir);
+
     var settings = new DotNetCorePackSettings {
-        NoBuild = true,
+        NoBuild = false,
         Configuration = configuration,
         OutputDirectory = outputDir,
         ArgumentCustomization = (args) => {
@@ -57,6 +62,22 @@ Task("publish")
     DotNetCorePack("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", settings);
     DotNetCorePack("Prise.Plugin/Prise.Plugin.csproj", settings);
     DotNetCorePack("Prise/Prise.csproj", settings);
+  });
+
+
+Task("push")
+  .IsDependentOn("publish")
+  .Does(() =>
+  { 
+    var settings = new DotNetCoreNuGetPushSettings 
+    { 
+        Source = nugetSource,
+        ApiKey = apikey
+    };
+
+    DotNetCoreNuGetPush(outputDir + "/Prise." + version +  ".nupkg", settings); 
+    DotNetCoreNuGetPush(outputDir + "/Prise.Plugin." + version +  ".nupkg", settings); 
+    DotNetCoreNuGetPush(outputDir + "/Prise.AssemblyScanning.Discovery." + version +  ".nupkg", settings); 
   });
 
 Task("default")
