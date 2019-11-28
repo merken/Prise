@@ -16,11 +16,10 @@ namespace Plugin.Function
 
             builder.Services.AddTransient<FunctionPluginLoaderOptions>(); // This class encapsulates all the Prise services
 
-            builder.Services.AddPriseWithPluginLoader<IHelloPlugin, FunctionPluginLoader>(options =>
+            builder.Services.AddPrise<IHelloPlugin>(options =>
             {
                 var serverUrl = GetEnvironmentVariable("PluginServerUrl");
                 options
-                    .WithNetworkAssemblyLoader(serverUrl)
                     .ConfigureServices(services =>
                         services
                         .AddScoped<IPluginServerOptions>(s => new PluginServerOptions(serverUrl))

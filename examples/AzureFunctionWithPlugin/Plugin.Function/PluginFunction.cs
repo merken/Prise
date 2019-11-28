@@ -14,11 +14,11 @@ namespace Plugin.Function
 {
     public class PluginFunction
     {
-        private readonly FunctionPluginLoader pluginLoader;
+        private readonly FunctionPluginLoaderOptions pluginLoadOptions;
 
-        public PluginFunction(IPluginLoader<IHelloPlugin> pluginLoader)
+        public PluginFunction(FunctionPluginLoaderOptions pluginLoadOptions)
         {
-            this.pluginLoader = pluginLoader as FunctionPluginLoader;
+            this.pluginLoadOptions = pluginLoadOptions;
         }
 
         [FunctionName("ComponentFunction")]
@@ -26,23 +26,14 @@ namespace Plugin.Function
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
-            try
+            var componentName = req.Query["component"].First();
+            var input = req.Query["input"].First();
+            using (var pluginLoader = this.pluginLoadOptions.CreateLoaderForComponent(componentName))
             {
-                var componentName = req.Query["component"].First();
-                var input = req.Query["input"].First();
-
-                this.pluginLoader.SetComponentToLoad(componentName);
-
-                var plugin = await this.pluginLoader.Load();
+                var plugin = await pluginLoader.Load();
                 var result = await plugin.SayHello(input);
                 return (ActionResult)new OkObjectResult(result);
             }
-            catch (Exception ex)
-            {
-            }
-
-            return null;
-
         }
     }
 }
