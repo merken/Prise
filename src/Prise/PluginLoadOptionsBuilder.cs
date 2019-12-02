@@ -458,7 +458,7 @@ namespace Prise
             this.probingPathsProvider = new ProbingPathsProvider<T>();
 
             var hostTypesProvider = new HostTypesProvider();
-            hostTypesProvider.AddHostType(typeof(T)); // Add the contract to the host types
+            //hostTypesProvider.AddHostType(typeof(T)); // Add the contract to the host types
             hostTypesProvider.AddHostType(typeof(Prise.Plugin.PluginAttribute)); // Add the Prise.Infrastructure assembly to the host types
             hostTypesProvider.AddHostType(typeof(ServiceCollection));  // Adds the BuildServiceProvider assembly to the host types
             this.hostTypesProvider = hostTypesProvider;
