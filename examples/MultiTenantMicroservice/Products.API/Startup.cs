@@ -52,7 +52,7 @@ namespace Products.API
                     // this way, the plugins can read their own config section from the appsettings.json
                     sharedServices.AddSingleton(Configuration);
                })
-               .WithHostType<BinderOptions>()
+               //.WithHostType<BinderOptions>()
            );
         }
 

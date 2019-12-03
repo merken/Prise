@@ -5,6 +5,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <ActiveDebugProfile>AppHost</ActiveDebugProfile>
-    <ActiveDebugFramework>netcoreapp3.0</ActiveDebugFramework>
+    <ActiveDebugFramework>netcoreapp2.1</ActiveDebugFramework>
   </PropertyGroup>
 </Project>
