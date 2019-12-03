@@ -24,39 +24,11 @@ namespace OldSQLPlugin
             return new SqlProductsRepository(service as ProductsDbContext);
         }
 
-        public async Task<Product> Create(Product product)
-        {
-            await this.dbContext.Products.AddAsync(product);
-            return product;
-        }
-
-        public async Task Delete(int productId)
-        {
-            var product = new Product { Id = productId };
-            this.dbContext.Products.Attach(product);
-            this.dbContext.Products.Remove(product);
-            await this.dbContext.SaveChangesAsync();
-        }
-
         public async Task<IEnumerable<Product>> All()
         {
             return await dbContext.Products
                 .AsNoTracking()
                 .ToListAsync();
-        }
-
-        public Task<Product> Get(int productId)
-        {
-            return this.dbContext.Products
-                .AsNoTracking()
-                .SingleOrDefaultAsync(p => p.Id == productId);
-        }
-
-        public async Task<Product> Update(Product product)
-        {
-            this.dbContext.Products.Attach(product);
-            await this.dbContext.SaveChangesAsync();
-            return product;
         }
     }
 }

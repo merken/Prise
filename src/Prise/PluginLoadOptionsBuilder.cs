@@ -458,12 +458,13 @@ namespace Prise
             this.probingPathsProvider = new ProbingPathsProvider<T>();
 
             var hostTypesProvider = new HostTypesProvider();
-            //hostTypesProvider.AddHostType(typeof(T)); // Add the contract to the host types
             hostTypesProvider.AddHostType(typeof(Prise.Plugin.PluginAttribute)); // Add the Prise.Infrastructure assembly to the host types
             hostTypesProvider.AddHostType(typeof(ServiceCollection));  // Adds the BuildServiceProvider assembly to the host types
             this.hostTypesProvider = hostTypesProvider;
 
-            this.remoteTypesProvider = new RemoteTypesProvider<T>();
+            var remoteTypesProvider = new RemoteTypesProvider<T>();
+            remoteTypesProvider.AddRemoteType(typeof(T)); // Add the contract to the remote types, so that we can have backwards compatibility
+            this.remoteTypesProvider = remoteTypesProvider;
 
             this.pluginSelector = new DefaultPluginSelector<T>();
             this.depsFileProviderType = typeof(DefaultDepsFileProvider<T>);

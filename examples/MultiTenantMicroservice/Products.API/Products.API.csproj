@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Prise\src\Prise\Prise.csproj" />
+    <ProjectReference Include="..\..\..\..\Prise\src\Prise\Prise.csproj" />
     <ProjectReference Include="..\Contract\Contract.csproj" />
   </ItemGroup>
 
