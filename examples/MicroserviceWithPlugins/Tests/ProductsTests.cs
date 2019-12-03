@@ -33,7 +33,7 @@ namespace Tests
         public async Task Http_Works()
         {
             // Arrange, Act
-            var results = await Get<List<Product>>(_client, "Lenovo", "/products", true);
+            var results = await Get<List<Product>>(_client, "LG", "/products", true);
 
             // Assert
             Assert.NotEmpty(results);
@@ -44,7 +44,7 @@ namespace Tests
         public async Task NewSql_Works()
         {
             // Arrange, Act
-            var results = await Get<List<Product>>(_client, "HP", "/products");
+            var results = await Get<List<Product>>(_client, "Dell", "/products");
 
             // Assert
             Assert.NotEmpty(results);
@@ -54,7 +54,7 @@ namespace Tests
         public async Task TableStorage_Works()
         {
             // Arrange, Act
-            var results = await Get<List<Product>>(_client, "Dell", "/products");
+            var results = await Get<List<Product>>(_client, "Lenovo", "/products");
 
             // Assert
             Assert.NotEmpty(results);
@@ -64,7 +64,7 @@ namespace Tests
         public async Task CosmosDb_Works()
         {
             // Arrange, Act
-            var results = await Get<List<Product>>(_client, "Apple", "/products");
+            var results = await Get<List<Product>>(_client, "HP", "/products");
 
             // Assert
             Assert.NotEmpty(results);
