@@ -26,5 +26,11 @@ namespace Products.API.Controllers
         {
             return this.productsRepository.All();
         }
+
+        [HttpGet("{id}")]
+        public Task<Product> Get(string id)
+        {
+            return this.productsRepository.Get(int.Parse(id));
+        }
     }
 }
