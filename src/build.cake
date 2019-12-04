@@ -2,9 +2,9 @@ var target = Argument("target", "default");
 var configuration = Argument("configuration", "Release");
 var apikey = Argument("apikey", "");
 var outputDir = "../dist";
-var semVer = "1.4.2";
-var version = "1.4.2";
-var infoVer = "1.4.2";
+var priseVersion = "1.4.3";
+var pluginVersion = "1.4.2";
+var assemblyDiscoveryVersion = "1.4.3";
 var nugetSource = "https://api.nuget.org/v3/index.json";
 
 Task("build").Does( () =>
@@ -38,14 +38,8 @@ Task("build").Does( () =>
     DotNetCoreBuild("Prise/Prise.csproj", netcoreapp3);
 });
 
-Task("publish")
-  .IsDependentOn("build")
-  .Does(() =>
-  { 
-    // delete the dist folder
-    CleanDirectories(outputDir);
-
-    var settings = new DotNetCorePackSettings {
+private DotNetCorePackSettings GetPackSettings(string version){
+  return new DotNetCorePackSettings {
         NoBuild = false,
         Configuration = configuration,
         OutputDirectory = outputDir,
@@ -53,15 +47,24 @@ Task("publish")
             args.Append("--include-source");
 
             return args
-                .Append("/p:Version={0}", semVer)
+                .Append("/p:Version={0}", version)
                 .Append("/p:AssemblyVersion={0}", version)
                 .Append("/p:FileVersion={0}", version)
-                .Append("/p:AssemblyInformationalVersion={0}", infoVer);
+                .Append("/p:AssemblyInformationalVersion={0}", version);
         }
     };
-    DotNetCorePack("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", settings);
-    DotNetCorePack("Prise.Plugin/Prise.Plugin.csproj", settings);
-    DotNetCorePack("Prise/Prise.csproj", settings);
+}
+
+Task("publish")
+  .IsDependentOn("build")
+  .Does(() =>
+  { 
+    // delete the dist folder
+    CleanDirectories(outputDir);
+
+    DotNetCorePack("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", GetPackSettings(assemblyDiscoveryVersion));
+    DotNetCorePack("Prise.Plugin/Prise.Plugin.csproj", GetPackSettings(pluginVersion));
+    DotNetCorePack("Prise/Prise.csproj", GetPackSettings(priseVersion));
   });
 
 
@@ -74,10 +77,30 @@ Task("push")
         Source = nugetSource,
         ApiKey = apikey
     };
-
-    DotNetCoreNuGetPush(outputDir + "/Prise." + version +  ".nupkg", settings); 
-    DotNetCoreNuGetPush(outputDir + "/Prise.Plugin." + version +  ".nupkg", settings); 
-    DotNetCoreNuGetPush(outputDir + "/Prise.AssemblyScanning.Discovery." + version +  ".nupkg", settings); 
+    try
+    {
+      DotNetCoreNuGetPush(outputDir + "/Prise." + priseVersion +  ".nupkg", settings); 
+    }
+    catch(Exception ex)
+    {
+      Console.WriteLine(ex.Message);
+    }
+    try
+    {
+      DotNetCoreNuGetPush(outputDir + "/Prise.Plugin." + pluginVersion +  ".nupkg", settings); 
+    }
+    catch(Exception ex)
+    {
+      Console.WriteLine(ex.Message);
+    }
+    try
+    {
+      DotNetCoreNuGetPush(outputDir + "/Prise.AssemblyScanning.Discovery." + assemblyDiscoveryVersion +  ".nupkg", settings); 
+    }
+    catch(Exception ex)
+    {
+      Console.WriteLine(ex.Message);      
+    }
   });
 
 Task("default")
