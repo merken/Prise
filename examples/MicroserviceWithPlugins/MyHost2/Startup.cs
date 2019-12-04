@@ -62,7 +62,7 @@ namespace MyHost2
                         // this way, the plugins can read their own config section from the appsettings.json
                         sharedServices.AddSingleton(Configuration);
                 })
-                //.WithHostType<BinderOptions>()
+                .WithHostType<BinderOptions>()
                 .WithSelector<HttpClientPluginSelector<IProductsRepository>>()
                 .WithHostFrameworkProvider<AppHostFrameworkProvider>()
             );
