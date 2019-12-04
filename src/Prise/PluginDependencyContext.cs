@@ -52,8 +52,10 @@ namespace Prise
                 LoadAssemblyAndReferencesFromCurrentAppDomain(type.Assembly.GetName(), hostDependencies);
 
             foreach (var type in remoteTypes)
-                // Load remote types from current app domain
-                LoadAssemblyAndReferencesFromCurrentAppDomain(type.Assembly.GetName(), remoteDependencies);
+                remoteDependencies.Add(new RemoteDependency
+                {
+                    DependencyName = type.Assembly.GetName()
+                });
 
             var hostFramework = hostFrameworkProvider.ProvideHostFramwork();
             var dependencyContext = GetDependencyContextFromPluginAssembly(pluginLoadContext, depsFileProvider);
@@ -92,8 +94,10 @@ namespace Prise
                 LoadAssemblyAndReferencesFromCurrentAppDomain(type.Assembly.GetName(), hostDependencies);
 
             foreach (var type in remoteTypes)
-                // Load remote types from current app domain
-                LoadAssemblyAndReferencesFromCurrentAppDomain(type.Assembly.GetName(), remoteDependencies);
+                remoteDependencies.Add(new RemoteDependency
+                {
+                    DependencyName = type.Assembly.GetName()
+                });
 
             var hostFramework = hostFrameworkProvider.ProvideHostFramwork();
             var dependencyContext = await GetDependencyContextFromPluginAssemblyAsync(pluginLoadContext, depsFileProvider);
@@ -147,6 +151,8 @@ namespace Prise
 
         private static void LoadAssemblyAndReferencesFromCurrentAppDomain(AssemblyName assemblyName, List<HostDependency> hostDependencies)
         {
+            Debug.WriteLine($"==========Loading {assemblyName.Name}");
+            Console.WriteLine($"==========Loading {assemblyName.Name}");
             if (assemblyName?.Name == null || hostDependencies.Any(h => h.DependencyName.Name == assemblyName.Name))
                 return; // Break condition
 
@@ -160,20 +166,20 @@ namespace Prise
                 LoadAssemblyAndReferencesFromCurrentAppDomain(reference, hostDependencies);
         }
 
-        private static void LoadAssemblyAndReferencesFromCurrentAppDomain(AssemblyName assemblyName, List<RemoteDependency> remoteDependencies)
-        {
-            if (assemblyName?.Name == null || remoteDependencies.Any(h => h.DependencyName.Name == assemblyName.Name))
-                return; // Break condition
+        //private static void LoadAssemblyAndReferencesFromCurrentAppDomain(AssemblyName assemblyName, List<RemoteDependency> remoteDependencies)
+        //{
+        //    if (assemblyName?.Name == null || remoteDependencies.Any(h => h.DependencyName.Name == assemblyName.Name))
+        //        return; // Break condition
 
-            remoteDependencies.Add(new RemoteDependency
-            {
-                DependencyName = assemblyName
-            });
+        //    remoteDependencies.Add(new RemoteDependency
+        //    {
+        //        DependencyName = assemblyName
+        //    });
 
-            var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
-            foreach (var reference in assembly.GetReferencedAssemblies())
-                LoadAssemblyAndReferencesFromCurrentAppDomain(reference, remoteDependencies);
-        }
+        //    var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
+        //    foreach (var reference in assembly.GetReferencedAssemblies())
+        //        LoadAssemblyAndReferencesFromCurrentAppDomain(reference, remoteDependencies);
+        //}
 
         private static IEnumerable<PluginDependency> GetPluginDependencies(DependencyContext pluginDependencyContext)
         {
