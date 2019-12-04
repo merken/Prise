@@ -17,6 +17,11 @@
     </ItemGroup>
   </Target>
 
+  <PropertyGroup>
+    <PackageIcon>icon.png</PackageIcon>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="../icon.png">
       <Pack>True</Pack>
