@@ -209,7 +209,7 @@ namespace Prise
             if (pluginPlatformVersion == null)
                 pluginPlatformVersion = PluginPlatformVersion.Empty();
 
-            this.networkAssemblyLoaderOptions = new NetworkAssemblyLoaderOptions<T>(
+            this.networkAssemblyLoaderOptions = new DefaultNetworkAssemblyLoaderOptions<T>(
                 baseUrl,
                 pluginPlatformVersion,
                 false,
@@ -285,7 +285,7 @@ namespace Prise
 
         public PluginLoadOptionsBuilder<T> WithSelector(Func<IEnumerable<Type>, IEnumerable<Type>> pluginSelector)
         {
-            this.pluginSelector = new PluginSelector<T>(pluginSelector);
+            this.pluginSelector = new DefaultPluginSelector<T>(pluginSelector);
             return this;
         }
 
@@ -375,7 +375,7 @@ namespace Prise
                     this.assemblyLoadOptions.NativeDependencyLoadPreference);
 
             if (this.networkAssemblyLoaderOptions != null)
-                this.networkAssemblyLoaderOptions = new NetworkAssemblyLoaderOptions<T>(
+                this.networkAssemblyLoaderOptions = new DefaultNetworkAssemblyLoaderOptions<T>(
                    this.networkAssemblyLoaderOptions.BaseUrl,
                    this.networkAssemblyLoaderOptions.PluginPlatformVersion,
                    ignore,
