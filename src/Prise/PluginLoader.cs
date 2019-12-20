@@ -27,7 +27,7 @@ namespace Prise
             if (!assemblies.Any())
                 throw new PrisePluginException($"No plugins of type {typeof(T).Name} found while scanning assemblies.");
 
-            foreach (var loadContext in assemblies.Select(a => PluginLoadContext<T>.FromAssemblyScanResult(a)))
+            foreach (var loadContext in assemblies.Select(a => DefaultPluginLoadContext<T>.FromAssemblyScanResult(a)))
             {
                 var pluginAssembly = pluginLoadOptions.AssemblyLoader.Load(loadContext);
                 this.pluginAssemblies.Add(pluginAssembly);
@@ -48,7 +48,7 @@ namespace Prise
             if (!assemblies.Any())
                 throw new PrisePluginException($"No plugins of type {typeof(T).Name} found while scanning assemblies.");
 
-            foreach (var loadContext in assemblies.Select(a => PluginLoadContext<T>.FromAssemblyScanResult(a)))
+            foreach (var loadContext in assemblies.Select(a => DefaultPluginLoadContext<T>.FromAssemblyScanResult(a)))
             {
                 var pluginAssembly = await pluginLoadOptions.AssemblyLoader.LoadAsync(loadContext);
                 this.pluginAssemblies.Add(pluginAssembly);

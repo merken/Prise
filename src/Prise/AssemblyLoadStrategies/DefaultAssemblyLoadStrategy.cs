@@ -6,7 +6,11 @@ using Prise.Infrastructure;
 namespace Prise
 {
     /// <summary>
-    /// 
+    /// This is the default assembly load strategy for any requested assembly.
+    /// Firstly, the assembly is loaded from the App Domain, keeping into account that a requested assembly is a host assemly and not explicitly setup to be loaded from the remote.
+    /// Secondly, the assembly is loaded from the plugin dependency context. If the plugin requires this assembly based on the deps.json file.
+    /// Thirdly, the assembly is loaded from the remote location
+    /// The loading strategy is a pipeline, if the return value is allowed to proceed, it will continue, otherwise it will exit the pipe.
     /// </summary>
     public class DefaultAssemblyLoadStrategy : IAssemblyLoadStrategy
     {
