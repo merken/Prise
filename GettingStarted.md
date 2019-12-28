@@ -47,4 +47,6 @@ When the controller is consumed, the plugin will be loaded on demand and execute
 
 ## Example of Shared dependencies between the Host and the Plugin : https://github.com/merken/Prise.Examples/tree/master/PluginWithSharedDependencies
 
+## Example of loadin a plugin based on Assembly Scanning : https://github.com/merken/Prise.Examples/tree/master/AssemblyDiscovery
+
 ## Example of a Microservice loading a plugin based on the HTTPContext : https://github.com/merken/Prise.Examples/tree/master/MicroserviceWithPlugins
