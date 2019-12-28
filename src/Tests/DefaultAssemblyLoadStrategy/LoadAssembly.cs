@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections;
+﻿using Prise.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using Prise.Infrastructure;
 using Xunit;
 
 namespace Prise.Tests.DefaultAssemblyLoadStrategy
 {
-    public class LoadAssembly : TestBase
+    public class LoadAssembly : DefaultAssemblyLoadStrategyBase
     {
         [Fact]
         public void Returns_Null_For_Empty_AssemblyName()
@@ -131,9 +128,5 @@ namespace Prise.Tests.DefaultAssemblyLoadStrategy
             Assert.Equal(someAssembly, sut.LoadAssembly(someAssemblyName, loadFromDependencyContext, loadFromRemote, loadFromAppDomain));
         }
 
-        // You cannot create an instance of the Abstract Assembly class, instead of constructing a valid Assembly, return the entry assembly from the unit test
-        private Assembly GetRealAssembly() => System.Reflection.Assembly.GetEntryAssembly();
-
-        private Func<IPluginLoadContext, AssemblyName, ValueOrProceed<Assembly>> CreateLookupFunction(Func<IPluginLoadContext, AssemblyName, ValueOrProceed<Assembly>> func) => func;
-    }
+       }
 }
