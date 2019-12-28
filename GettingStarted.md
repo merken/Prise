@@ -31,18 +31,20 @@ When the controller is consumed, the plugin will be loaded on demand and execute
 
 # Check out the example projects!
 
-## Getting started example: https://github.com/merken/Prise/tree/master/examples/SimplePlugin
+## Getting started example: https://github.com/merken/Prise.Examples/tree/master/SimplePlugin
 
-## Example using all possible features of Prise: https://github.com/merken/Prise/tree/master/examples/ComplexPlugin
+## Example using all possible features of Prise: https://github.com/merken/Prise.Examples/tree/master/ComplexPlugin
 
-## Example of loading Plugins over the network : https://github.com/merken/Prise/tree/master/examples/PluginFromNetwork
+## Example of loading Plugins over the network : https://github.com/merken/Prise.Examples/tree/master/PluginFromNetwork
 
-## Example of loading Plugins with dependencies : https://github.com/merken/Prise/tree/master/examples/PluginWithDependencies
+## Example of loading Plugins with dependencies : https://github.com/merken/Prise.Examples/tree/master/PluginWithDependencies
 
-## Example of an Avalonia App using UserControls as Plugins : https://github.com/merken/Prise/tree/master/examples/AvaloniaAppWithPlugin
+## Example of an Avalonia App using UserControls as Plugins : https://github.com/merken/Prise.Examples/tree/master/AvaloniaAppWithPlugin
 
-## Example of an Azure Function loading Plugins : https://github.com/merken/Prise/tree/master/examples/AzureFunctionWithPlugin
+## Example of an Azure Function loading Plugins : https://github.com/merken/Prise.Examples/tree/master/AzureFunctionWithPlugin
 
-## Example of loading a Plugin with an Async Contract : https://github.com/merken/Prise/tree/master/examples/PluginWithAsyncContract
+## Example of loading a Plugin with an Async Contract : https://github.com/merken/Prise.Examples/tree/master/PluginWithAsyncContract
 
-## Example of Shared dependencies between the Host and the Plugin : https://github.com/merken/Prise/tree/master/examples/PluginWithSharedDependencies
+## Example of Shared dependencies between the Host and the Plugin : https://github.com/merken/Prise.Examples/tree/master/PluginWithSharedDependencies
+
+## Example of a Microservice loading a plugin based on the HTTPContext : https://github.com/merken/Prise.Examples/tree/master/MicroserviceWithPlugins
