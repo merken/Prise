@@ -19,6 +19,9 @@ jobs:
     - name: Build Prise with netcoreapp3.0
       run: dotnet build src/Prise/Prise.csproj --configuration Release -f netcoreapp3.0
       
+    - name: Test Prise with netcoreapp3.0
+      run: dotnet test src/Tests/Prise.Tests.csproj --configuration Release -f netcoreapp3.0
+      
     - name: Build Prise.Plugin with netstandard2.0
       run: dotnet build src/Prise.Plugin/Prise.Plugin.csproj --configuration Release -f netstandard2.0  
     - name: Build Prise.Plugin with netstandard2.1
