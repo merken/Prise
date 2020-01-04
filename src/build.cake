@@ -4,7 +4,7 @@ var apikey = Argument("apikey", "");
 var outputDir = "../dist";
 var priseVersion = "1.4.3";
 var pluginVersion = "1.4.2";
-var assemblyDiscoveryVersion = "1.4.3";
+var assemblyDiscoveryVersion = "1.4.4";
 var nugetSource = "https://api.nuget.org/v3/index.json";
 
 Task("build").Does( () =>
@@ -31,7 +31,8 @@ Task("build").Does( () =>
         Framework = "netstandard2.1"
     };
 
-    DotNetCoreBuild("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", netstandard2);
+    DotNetCoreBuild("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", netcoreapp2);
+    DotNetCoreBuild("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", netcoreapp3);
     DotNetCoreBuild("Prise.Plugin/Prise.Plugin.csproj", netstandard2);
     DotNetCoreBuild("Prise.Plugin/Prise.Plugin.csproj", netstandard2_1);
     DotNetCoreBuild("Prise/Prise.csproj", netcoreapp2);
