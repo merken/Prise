@@ -1,5 +1,4 @@
-﻿#if NETCORE2_1
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -84,4 +83,3 @@ namespace Prise.AssemblyScanning.Discovery
         }
     }
 }
-#endif

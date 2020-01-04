@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-#if NETCORE2_1
 using System.IO.MemoryMappedFiles;
+using System.Linq;
 using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
 using System.Reflection.PortableExecutable;
-#endif
 using System.Threading.Tasks;
 
 namespace Prise.AssemblyScanning.Discovery
@@ -25,16 +24,10 @@ namespace Prise.AssemblyScanning.Discovery
         {
             var typeToFind = typeof(T).Name;
             var namespaceToFind = typeof(T).Namespace;
+            var results = new List<AssemblyScanResult<T>>();
             var startingPath = this.options.PathToScan;
             var searchPatterns = this.options.FileTypesToScan;
 
-            return Task.FromResult(DiscoverAssemblies(startingPath, searchPatterns, typeToFind, namespaceToFind));
-        }
-
-#if NETCORE2_1
-        private IEnumerable<AssemblyScanResult<T>> DiscoverAssemblies(string startingPath, IEnumerable<string> searchPatterns, string typeToFind, string namespaceToFind)
-        {
-            var results = new List<AssemblyScanResult<T>>();
             var assemblies = new List<DiscoveredAssembly>();
             foreach (var directoryPath in Directory.GetDirectories(startingPath))
             {
@@ -71,7 +64,8 @@ namespace Prise.AssemblyScanning.Discovery
                     });
                 }
             }
-            return results;
+
+            return Task.FromResult(results.AsEnumerable());
         }
 
         private unsafe DiscoveredAssembly DiscoverAssembly(string assemblyPath)
@@ -94,37 +88,5 @@ namespace Prise.AssemblyScanning.Discovery
                 }
             }
         }
-#endif
-
-#if NETCORE3_0
-        private IEnumerable<AssemblyScanResult<T>> DiscoverAssemblies(string startingPath, IEnumerable<string> searchPatterns, string typeToFind, string namespaceToFind)
-        {
-            var results = new List<AssemblyScanResult<T>>();
-            foreach (var directoryPath in Directory.GetDirectories(startingPath))
-            {
-                var files = searchPatterns.SelectMany(p => Directory.GetFiles(directoryPath, p, SearchOption.AllDirectories));
-                foreach (var assemblyFilePath in files)
-                {
-                    if (DoesAssemblyContainImplementationsOfType(typeToFind, namespaceToFind, assemblyFilePath))
-                        results.Add(new AssemblyScanResult<T>
-                        {
-                            AssemblyName = Path.GetFileName(assemblyFilePath),
-                            AssemblyPath = Path.GetDirectoryName(assemblyFilePath)
-                        });
-                }
-            }
-            return results;
-        }
-
-        private bool DoesAssemblyContainImplementationsOfType(string type, string @namespace, string assemblyFullPath)
-        {
-            var resolver = new DefaultAssemblyResolver(assemblyFullPath);
-            using (var loadContext = new MetadataLoadContext(resolver))
-            {
-                var assembly = loadContext.LoadFromAssemblyName(Path.GetFileNameWithoutExtension(assemblyFullPath));
-                return assembly.GetTypes().Any(t => t.GetInterfaces().Any(i => i.Name == type && i.Namespace == @namespace));
-            }
-        }
-#endif
     }
 }
