@@ -6,10 +6,13 @@ namespace Prise.AssemblyScanning
     {
         public AssemblyScanResult()
         {
-            this.PluginType = typeof(T);
+            this.ContractType = typeof(T);
         }
 
-        public Type PluginType { get; private set; }
+        public Type ContractType { get; private set; }
+        public Type PluginType { get; set; }
+        public string PluginTypeName { get; set; }
+        public string PluginTypeNamespace { get; set; }
         public string AssemblyPath { get; set; }
         public string AssemblyName { get; set; }
     }
