@@ -27,11 +27,17 @@ namespace Prise
             if (!assemblies.Any())
                 throw new PrisePluginException($"No plugins of type {typeof(T).Name} found while scanning assemblies.");
 
+            // Only do this in case a PluginType is returned and this MetadataLoadContext was used, this can be removed after deprecation
+            if (assemblies.Any(a => a.PluginType != null))
+                // Filter out assemblies that have the corresponding plugins used by the PluginSelector
+                assemblies = assemblies.Where(a => pluginLoadOptions.PluginSelector.SelectPlugins(new[] { a.PluginType }).Any());
+
             foreach (var loadContext in assemblies.Select(a => DefaultPluginLoadContext<T>.FromAssemblyScanResult(a)))
             {
                 var pluginAssembly = pluginLoadOptions.AssemblyLoader.Load(loadContext);
                 this.pluginAssemblies.Add(pluginAssembly);
-                instances.AddRange(CreatePluginInstances(pluginLoadOptions, ref pluginAssembly));
+                var pluginInstances = CreatePluginInstances(pluginLoadOptions, ref pluginAssembly);
+                instances.AddRange(pluginInstances);
             }
 
             if (!instances.Any())

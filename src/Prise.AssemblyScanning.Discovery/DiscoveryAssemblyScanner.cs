@@ -62,12 +62,15 @@ namespace Prise.AssemblyScanning.Discovery
 
             foreach (var assembly in assemblies)
             {
-                if (assembly.ResolvedTypes.Any(t => t.Interfaces != null && t.Interfaces.Any(i => i?.Name == foundType.Name)))
+                // Iterate all found plugin types
+                foreach (var type in assembly.ResolvedTypes.Where(t => t.Interfaces != null && t.Interfaces.Any(i => i?.Name == foundType.Name)))
                 {
                     results.Add(new AssemblyScanResult<T>
                     {
                         AssemblyName = Path.GetFileName(assembly.Path),
-                        AssemblyPath = Path.GetDirectoryName(assembly.Path)
+                        AssemblyPath = Path.GetDirectoryName(assembly.Path),
+                        PluginTypeName = type.Name,
+                        PluginTypeNamespace = type.Namespace
                     });
                 }
             }
@@ -105,24 +108,30 @@ namespace Prise.AssemblyScanning.Discovery
                 var files = searchPatterns.SelectMany(p => Directory.GetFiles(directoryPath, p, SearchOption.AllDirectories));
                 foreach (var assemblyFilePath in files)
                 {
-                    if (DoesAssemblyContainImplementationsOfType(typeToFind, namespaceToFind, assemblyFilePath))
+                    foreach (var implementation in GetImplementationsOfTypeFromAssembly(assemblyFilePath))
                         results.Add(new AssemblyScanResult<T>
                         {
                             AssemblyName = Path.GetFileName(assemblyFilePath),
-                            AssemblyPath = Path.GetDirectoryName(assemblyFilePath)
+                            AssemblyPath = Path.GetDirectoryName(assemblyFilePath),
+                            PluginType = implementation
                         });
                 }
             }
             return results;
         }
 
-        private bool DoesAssemblyContainImplementationsOfType(string type, string @namespace, string assemblyFullPath)
+        private IEnumerable<Type> GetImplementationsOfTypeFromAssembly(string assemblyFullPath)
         {
             var resolver = new DefaultAssemblyResolver(assemblyFullPath);
             using (var loadContext = new MetadataLoadContext(resolver))
             {
                 var assembly = loadContext.LoadFromAssemblyName(Path.GetFileNameWithoutExtension(assemblyFullPath));
-                return assembly.GetTypes().Any(t => t.GetInterfaces().Any(i => i.Name == type && i.Namespace == @namespace));
+                return assembly.GetTypes()
+                            .Where(t => t.CustomAttributes
+                                .Any(c => c.AttributeType.Name == "PluginAttribute"
+                                && (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Name == typeof(T).Name))
+                            .OrderBy(t => t.Name)
+                            .ToList();
             }
         }
 #endif
