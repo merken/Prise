@@ -2,9 +2,9 @@ var target = Argument("target", "default");
 var configuration = Argument("configuration", "Release");
 var apikey = Argument("apikey", "");
 var outputDir = "../dist";
-var priseVersion = "1.4.3";
-var pluginVersion = "1.4.2";
-var assemblyDiscoveryVersion = "1.4.4";
+var priseVersion = "1.4.5";
+var pluginVersion = "1.4.5";
+var assemblyDiscoveryVersion = "1.4.5";
 var nugetSource = "https://api.nuget.org/v3/index.json";
 
 Task("build").Does( () =>
