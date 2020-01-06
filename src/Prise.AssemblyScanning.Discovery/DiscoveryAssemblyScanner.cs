@@ -17,12 +17,16 @@ namespace Prise.AssemblyScanning.Discovery
         private readonly IAssemblyScannerOptions<T> options;
         protected bool disposed = false;
 #if NETCORE3_0
-        private MetadataLoadContext metadataLoadContext;
+        // Use a list of IDisposables so that we can clean up later
+        private IList<MetadataLoadContext> metadataLoadContexts;
 #endif
 
         public DiscoveryAssemblyScanner(IAssemblyScannerOptions<T> options)
         {
             this.options = options;
+#if NETCORE3_0
+            this.metadataLoadContexts = new List<MetadataLoadContext>();
+#endif
         }
 
         protected virtual void Dispose(bool disposing)
@@ -30,8 +34,9 @@ namespace Prise.AssemblyScanning.Discovery
             if (!this.disposed && disposing)
             {
 #if NETCORE3_0
-                if (metadataLoadContext != null)
-                    metadataLoadContext.Dispose();
+                if (this.metadataLoadContexts != null && this.metadataLoadContexts.Any())
+                    foreach (var context in this.metadataLoadContexts)
+                        context.Dispose();
 #endif
                 GC.Collect(); // collects all unused memory
                 GC.WaitForPendingFinalizers(); // wait until GC has finished its work
@@ -146,17 +151,16 @@ namespace Prise.AssemblyScanning.Discovery
 
         private IEnumerable<Type> GetImplementationsOfTypeFromAssembly(string assemblyFullPath)
         {
-            var resolver = new DefaultAssemblyResolver(assemblyFullPath);
-            using (var loadContext = new MetadataLoadContext(resolver))
-            {
-                var assembly = loadContext.LoadFromAssemblyName(Path.GetFileNameWithoutExtension(assemblyFullPath));
-                return assembly.GetTypes()
-                            .Where(t => t.CustomAttributes
-                                .Any(c => c.AttributeType.Name == typeof(Prise.Plugin.PluginAttribute).Name
-                                && (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Name == typeof(T).Name))
-                            .OrderBy(t => t.Name)
-                            .ToList();
-            }
+            var context = new MetadataLoadContext(new DefaultAssemblyResolver(assemblyFullPath));
+            var assembly = context.LoadFromAssemblyName(Path.GetFileNameWithoutExtension(assemblyFullPath));
+            this.metadataLoadContexts.Add(context);
+
+            return assembly.GetTypes()
+                        .Where(t => t.CustomAttributes
+                            .Any(c => c.AttributeType.Name == typeof(Prise.Plugin.PluginAttribute).Name
+                            && (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Name == typeof(T).Name))
+                        .OrderBy(t => t.Name)
+                        .ToList();
         }
 #endif
     }
