@@ -128,6 +128,8 @@ namespace Prise.AssemblyScanning.Discovery
         }
 #endif
 
+        private IEnumerable<string> ExcludeRuntimesFolder(IEnumerable<string> files) => files.Where(f => !f.Contains($"{Path.DirectorySeparatorChar}runtimes{Path.DirectorySeparatorChar}"));
+
 #if NETCORE3_0
         private IEnumerable<AssemblyScanResult<T>> DiscoverAssemblies(string startingPath, IEnumerable<string> searchPatterns, string typeToFind, string namespaceToFind)
         {
@@ -135,7 +137,7 @@ namespace Prise.AssemblyScanning.Discovery
             foreach (var directoryPath in Directory.GetDirectories(startingPath))
             {
                 var files = searchPatterns.SelectMany(p => Directory.GetFiles(directoryPath, p, SearchOption.AllDirectories));
-                foreach (var assemblyFilePath in files)
+                foreach (var assemblyFilePath in ExcludeRuntimesFolder(files))
                 {
                     foreach (var implementation in GetImplementationsOfTypeFromAssembly(assemblyFilePath))
                         results.Add(new AssemblyScanResult<T>
