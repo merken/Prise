@@ -1,24 +1,24 @@
-﻿using Prise.Infrastructure;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using Prise.AssemblyScanning;
+using Prise.Infrastructure;
 
 namespace Prise
 {
     public class DefaultAssemblySelector<T> : IAssemblySelector<T>
     {
-        private readonly Func<IEnumerable<Type>, IEnumerable<Type>> pluginSelector;
+        private readonly Func<IEnumerable<AssemblyScanResult<T>>, IEnumerable<AssemblyScanResult<T>>> assemblySelector;
 
-        public DefaultPluginSelector(Func<IEnumerable<Type>, IEnumerable<Type>> pluginSelector = null)
+        public DefaultAssemblySelector(Func<IEnumerable<AssemblyScanResult<T>>, IEnumerable<AssemblyScanResult<T>>> assemblySelector = null)
         {
-            this.pluginSelector = pluginSelector;
+            this.assemblySelector = assemblySelector;
         }
 
-        public IEnumerable<Type> SelectPlugins(IEnumerable<Type> pluginTypes)
+        public IEnumerable<AssemblyScanResult<T>> SelectAssemblies(IEnumerable<AssemblyScanResult<T>> scanResults)
         {
-            if (pluginSelector == null)
-                return pluginTypes;
-            return pluginSelector.Invoke(pluginTypes);
+            if (assemblySelector == null)
+                return scanResults;
+            return assemblySelector.Invoke(scanResults);
         }
     }
 }

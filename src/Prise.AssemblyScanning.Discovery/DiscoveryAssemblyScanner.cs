@@ -15,10 +15,34 @@ namespace Prise.AssemblyScanning.Discovery
     public class DiscoveryAssemblyScanner<T> : IAssemblyScanner<T>
     {
         private readonly IAssemblyScannerOptions<T> options;
+        protected bool disposed = false;
+#if NETCORE3_0
+        private MetadataLoadContext metadataLoadContext;
+#endif
 
         public DiscoveryAssemblyScanner(IAssemblyScannerOptions<T> options)
         {
             this.options = options;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed && disposing)
+            {
+#if NETCORE3_0
+                if (metadataLoadContext != null)
+                    metadataLoadContext.Dispose();
+#endif
+                GC.Collect(); // collects all unused memory
+                GC.WaitForPendingFinalizers(); // wait until GC has finished its work
+            }
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public Task<IEnumerable<AssemblyScanResult<T>>> Scan()
@@ -128,7 +152,7 @@ namespace Prise.AssemblyScanning.Discovery
                 var assembly = loadContext.LoadFromAssemblyName(Path.GetFileNameWithoutExtension(assemblyFullPath));
                 return assembly.GetTypes()
                             .Where(t => t.CustomAttributes
-                                .Any(c => c.AttributeType.Name == "PluginAttribute"
+                                .Any(c => c.AttributeType.Name == typeof(Prise.Plugin.PluginAttribute).Name
                                 && (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Name == typeof(T).Name))
                             .OrderBy(t => t.Name)
                             .ToList();

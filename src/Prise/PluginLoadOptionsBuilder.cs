@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Prise.AssemblyScanning;
 using Prise.Infrastructure;
@@ -46,6 +47,8 @@ namespace Prise
         internal Type probingPathsProviderType;
         internal IRuntimePlatformContext runtimePlatformContext;
         internal Type runtimePlatformContextType;
+        internal IAssemblySelector<T> assemblySelector;
+        internal Type assemblySelectorType;
         internal IPluginSelector<T> pluginSelector;
         internal Type pluginSelectorType;
         internal IDepsFileProvider<T> depsFileProvider;
@@ -283,6 +286,19 @@ namespace Prise
             return this;
         }
 
+        public PluginLoadOptionsBuilder<T> WithAssemblySelector(Func<IEnumerable<AssemblyScanResult<T>>, IEnumerable<AssemblyScanResult<T>>> assemblySelector)
+        {
+            this.assemblySelector = new DefaultAssemblySelector<T>(assemblySelector);
+            return this;
+        }
+
+        public PluginLoadOptionsBuilder<T> WithAssemblySelector<TType>()
+            where TType : IAssemblySelector<T>
+        {
+            this.assemblySelectorType = typeof(TType);
+            return this;
+        }
+
         public PluginLoadOptionsBuilder<T> WithSelector(Func<IEnumerable<Type>, IEnumerable<Type>> pluginSelector)
         {
             this.pluginSelector = new DefaultPluginSelector<T>(pluginSelector);
@@ -450,6 +466,7 @@ namespace Prise
             this.resultConverter = new NewtonsoftResultConverter();
             this.assemblyLoaderType = typeof(DefaultAssemblyLoader<T>);
 #endif
+            this.assemblySelector = new DefaultAssemblySelector<T>();
             this.assemblyLoadOptions = new DefaultAssemblyLoadOptions<T>(
                 PluginPlatformVersion.Empty(),
                 false,
@@ -492,6 +509,7 @@ namespace Prise
                 .RegisterTypeOrInstance<IRemoteTypesProvider<T>>(remoteTypesProviderType, remoteTypesProvider)
                 .RegisterTypeOrInstance<IDependencyPathProvider<T>>(dependencyPathProviderType, dependencyPathProvider)
                 .RegisterTypeOrInstance<IProbingPathsProvider<T>>(probingPathsProviderType, probingPathsProvider)
+                .RegisterTypeOrInstance<IAssemblySelector<T>>(assemblySelectorType, assemblySelector)
                 .RegisterTypeOrInstance<IPluginSelector<T>>(pluginSelectorType, pluginSelector)
                 .RegisterTypeOrInstance<IDepsFileProvider<T>>(depsFileProviderType, depsFileProvider)
                 .RegisterTypeOrInstance<IPluginDependencyResolver<T>>(pluginDependencyResolverType, pluginDependencyResolver)
