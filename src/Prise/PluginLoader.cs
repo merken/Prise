@@ -25,12 +25,11 @@ namespace Prise
             var assemblies = pluginLoadOptions.AssemblyScanner.Scan().Result;
 
             if (!assemblies.Any())
-                throw new PrisePluginException($"No plugins of type {typeof(T).Name} found while scanning assemblies.");
+                throw new PrisePluginException($"No plugins of type {typeof(T).Name} found after scanning assemblies.");
 
-            // Only do this in case a PluginType is returned and this MetadataLoadContext was used, this can be removed after deprecation
-            if (assemblies.Any(a => a.PluginType != null))
-                // Filter out assemblies that have the corresponding plugins used by the PluginSelector
-                assemblies = assemblies.Where(a => pluginLoadOptions.PluginSelector.SelectPlugins(new[] { a.PluginType }).Any());
+            assemblies = pluginLoadOptions.AssemblySelector.SelectAssemblies(assemblies);
+            if (!assemblies.Any())
+                throw new PrisePluginException($@"AssemblySelector returned no assemblies. Requested plugin type: {typeof(T).Name}. Please add the {nameof(PluginAttribute)} to your plugin class and specify the PluginType: [Plugin(PluginType = typeof({typeof(T).Name}))]");
 
             foreach (var loadContext in assemblies.Select(a => DefaultPluginLoadContext<T>.FromAssemblyScanResult(a)))
             {
@@ -52,13 +51,18 @@ namespace Prise
             var assemblies = await pluginLoadOptions.AssemblyScanner.Scan();
 
             if (!assemblies.Any())
-                throw new PrisePluginException($"No plugins of type {typeof(T).Name} found while scanning assemblies.");
+                throw new PrisePluginException($"No plugins of type {typeof(T).Name} found after scanning assemblies.");
+
+            assemblies = pluginLoadOptions.AssemblySelector.SelectAssemblies(assemblies);
+            if (!assemblies.Any())
+                throw new PrisePluginException($@"AssemblySelector returned no assemblies. Requested plugin type: {typeof(T).Name}. Please add the {nameof(PluginAttribute)} to your plugin class and specify the PluginType: [Plugin(PluginType = typeof({typeof(T).Name}))]");
 
             foreach (var loadContext in assemblies.Select(a => DefaultPluginLoadContext<T>.FromAssemblyScanResult(a)))
             {
                 var pluginAssembly = await pluginLoadOptions.AssemblyLoader.LoadAsync(loadContext);
                 this.pluginAssemblies.Add(pluginAssembly);
-                instances.AddRange(CreatePluginInstances(pluginLoadOptions, ref pluginAssembly));
+                var pluginInstances = CreatePluginInstances(pluginLoadOptions, ref pluginAssembly);
+                instances.AddRange(pluginInstances);
             }
 
             if (!instances.Any())

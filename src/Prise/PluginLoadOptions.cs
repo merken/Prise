@@ -16,6 +16,7 @@ namespace Prise
         private readonly IHostTypesProvider hostTypesProvider;
         private readonly IRemoteTypesProvider<T> remoteTypesProvider;
         private readonly IRuntimePlatformContext runtimePlatformContext;
+        private readonly IAssemblySelector<T> assemblySelector;
         private readonly IPluginSelector<T> pluginSelector;
         protected bool disposed = false;
 
@@ -30,6 +31,7 @@ namespace Prise
             IHostTypesProvider hostTypesProvider,
             IRemoteTypesProvider<T> remoteTypesProvider,
             IRuntimePlatformContext runtimePlatformContext,
+            IAssemblySelector<T> assemblySelector,
             IPluginSelector<T> pluginSelector
             )
         {
@@ -43,6 +45,7 @@ namespace Prise
             this.hostTypesProvider = hostTypesProvider;
             this.remoteTypesProvider = remoteTypesProvider;
             this.runtimePlatformContext = runtimePlatformContext;
+            this.assemblySelector = assemblySelector;
             this.pluginSelector = pluginSelector;
         }
 
@@ -56,6 +59,7 @@ namespace Prise
         public IHostTypesProvider HostTypesProvider => this.hostTypesProvider;
         public IRemoteTypesProvider<T> RemoteTypesProvider => this.remoteTypesProvider;
         public IRuntimePlatformContext RuntimePlatformContext => this.runtimePlatformContext;
+        public IAssemblySelector<T> AssemblySelector => this.assemblySelector;
         public IPluginSelector<T> PluginSelector => this.pluginSelector;
 
         protected virtual void Dispose(bool disposing)
@@ -72,6 +76,7 @@ namespace Prise
                 this.hostTypesProvider.Dispose();
                 this.remoteTypesProvider.Dispose();
                 this.assemblyLoader.Dispose();
+                this.assemblyScanner.Dispose();
             }
             this.disposed = true;
         }

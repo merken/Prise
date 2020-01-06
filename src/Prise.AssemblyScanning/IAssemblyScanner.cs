@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Prise.AssemblyScanning
 {
-    public interface IAssemblyScanner<T>
+    public interface IAssemblyScanner<T> : IDisposable
     {
         Task<IEnumerable<AssemblyScanResult<T>>> Scan();
     }

@@ -15,6 +15,7 @@ namespace Prise.Infrastructure
         IHostTypesProvider HostTypesProvider { get; }
         IRemoteTypesProvider<T> RemoteTypesProvider { get; }
         IRuntimePlatformContext RuntimePlatformContext { get; }
+        IAssemblySelector<T> AssemblySelector { get; }
         IPluginSelector<T> PluginSelector { get; }
     }
 }

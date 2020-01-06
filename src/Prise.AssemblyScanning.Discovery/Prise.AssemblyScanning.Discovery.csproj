@@ -50,6 +50,10 @@
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>Prise.AssemblyScanning.dll</IncludeAssets>
     </ProjectReference>
+    <ProjectReference Include="..\Prise.Plugin\Prise.Plugin.csproj" >
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <IncludeAssets>Prise.Plugin.dll</IncludeAssets>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>

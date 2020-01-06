@@ -1,8 +1,5 @@
-﻿using Prise.AssemblyScanning;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using Prise.AssemblyScanning;
 
 namespace Prise.Infrastructure
 {
@@ -11,6 +8,6 @@ namespace Prise.Infrastructure
     /// </summary>
     public interface IAssemblySelector<T>
     {
-        Task<IEnumerable<AssemblyScanResult<T>>> SelectAssemblies(IEnumerable<AssemblyScanResult<T>>);
+        IEnumerable<AssemblyScanResult<T>> SelectAssemblies(IEnumerable<AssemblyScanResult<T>> scanResults);
     }
 }
