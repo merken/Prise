@@ -7,13 +7,25 @@ namespace Prise
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddPrise<T>(this IServiceCollection services, Action<PluginLoadOptionsBuilder<T>> config = null)
+        public static IServiceCollection AddPrise<T>(this IServiceCollection services,
+            Action<PluginLoadOptionsBuilder<T>> config = null,
+            ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
             where T : class
         {
-            return services.AddPriseWithPluginLoader<T, PrisePluginLoader<T>>(config);
+            return services.AddPriseWithPluginLoader<T, PrisePluginLoader<T>>(config, serviceLifetime);
         }
 
-        public static IServiceCollection AddPriseWithPluginLoader<T, TPluginLoader>(this IServiceCollection services, Action<PluginLoadOptionsBuilder<T>> config = null)
+        public static IServiceCollection AddPriseAsSingleton<T>(this IServiceCollection services,
+            Action<PluginLoadOptionsBuilder<T>> config = null)
+            where T : class
+        {
+            return services.AddPrise<T>(config, ServiceLifetime.Singleton);
+        }
+
+        public static IServiceCollection AddPriseWithPluginLoader<T, TPluginLoader>(
+                this IServiceCollection services,
+                Action<PluginLoadOptionsBuilder<T>> config = null,
+                ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
             where T : class
             where TPluginLoader : class, IPluginLoader<T>, IPluginResolver<T>
         {
@@ -23,18 +35,25 @@ namespace Prise
             services = optionsBuilder.RegisterOptions(services);
 
             return services
-                .AddScoped<IPluginLoader<T>, TPluginLoader>()
-                .AddScoped<IPluginResolver<T>, TPluginLoader>()
-                .AddScoped<T>((s) =>
+                .AddService(new ServiceDescriptor(typeof(IPluginLoader<T>), typeof(TPluginLoader), serviceLifetime))
+                .AddService(new ServiceDescriptor(typeof(IPluginResolver<T>), typeof(TPluginLoader), serviceLifetime))
+                .AddService(new ServiceDescriptor(typeof(T), (s) =>
                 {
                     // Synchronous plugin loading
                     return s.GetRequiredService<IPluginResolver<T>>().Load();
-                })
-                .AddScoped<IEnumerable<T>>((s) =>
+                }, serviceLifetime))
+                .AddService(new ServiceDescriptor(typeof(IEnumerable<T>), (s) =>
                 {
-                    // Synchronous plugins loading
+                    // Synchronous plugin loading
                     return s.GetRequiredService<IPluginResolver<T>>().LoadAll();
-                });
+                }, serviceLifetime));
+        }
+
+        private static IServiceCollection AddService(this IServiceCollection services, ServiceDescriptor serviceDescriptor)
+        {
+            services
+               .Add(serviceDescriptor);
+            return services;
         }
     }
 }
