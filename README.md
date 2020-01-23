@@ -14,6 +14,9 @@ Prise features:
 - Loading plugins over the network
 - Supporting backwards compatibility for older plugins
 
+
+![alt text](https://github.com/merken/prise/workflows/Prise%20Build%20Pipeline/badge.svg "Prise Build Pipeline")
+
 ## Latest version
 [Prise](https://www.nuget.org/packages/Prise) ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise)
 
