@@ -14,8 +14,15 @@ Prise features:
 - Loading plugins over the network
 - Supporting backwards compatibility for older plugins
 
+![alt text](https://github.com/merken/prise/workflows/prise build .net core 2/badge.svg "Prise Build .NET CORE 2")
 
-![alt text](https://github.com/merken/prise/workflows/Prise%20Build%20Pipeline/badge.svg "Prise Build Pipeline")
+![alt text](https://github.com/merken/prise/workflows/prise build .net core 3/badge.svg "Prise Build .NET CORE 3")
+
+![alt text](https://github.com/merken/prise/workflows/prise unit tests/badge.svg "Prise Unit Tests")
+
+![alt text](https://github.com/merken/prise/workflows/prise integration tests .net core 2/badge.svg "Prise Build .NET CORE 2")
+
+![alt text](https://github.com/merken/prise/workflows/prise integration tests .net core 3/badge.svg "Prise Build .NET CORE 3")
 
 ## Latest version
 [Prise](https://www.nuget.org/packages/Prise) ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise)
