@@ -28,6 +28,8 @@ Prise features:
 ## Latest version
 ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise) [Prise](https://www.nuget.org/packages/Prise) 
 
+![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.Mvc) [Prise.Mvc](https://www.nuget.org/packages/Prise.Mvc)
+
 ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.Proxy) [Prise.Proxy](https://www.nuget.org/packages/Prise.Proxy) 
 
 ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.Plugin) [Prise.Plugin](https://www.nuget.org/packages/Prise.Plugin) 
@@ -36,7 +38,6 @@ Prise features:
 
 ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.AssemblyScanning.Discovery) [Prise.AssemblyScanning.Discovery](https://www.nuget.org/packages/Prise.AssemblyScanning.Discovery)
 
-![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.Mvc) [Prise.Mvc](https://www.nuget.org/packages/Prise.Mvc)
 
 # How does Prise work ?
 At the heart, Prise uses a **DispatchProxy** of your contract. Every call to a method channels through this proxy and is delegated to the loaded plugin.
