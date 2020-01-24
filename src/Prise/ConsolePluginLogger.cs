@@ -6,6 +6,14 @@ using Prise.Plugin;
 
 namespace Prise
 {
+    public class NullPluginLogger<T> : PluginLoggerBase<T>
+    {
+        protected override void Log(string message)
+        {
+            // Nothing is done in this logger
+        }
+    }
+
     public class ConsolePluginLogger<T> : PluginLoggerBase<T>
     {
         protected override void Log(string message)

@@ -507,13 +507,19 @@ namespace Prise
             return this;
         }
 
+        public PluginLoadOptionsBuilder<T> LogToConsole()
+        {
+            this.loggerType = typeof(ConsolePluginLogger<T>);
+            return this;
+        }
+
         public PluginLoadOptionsBuilder<T> WithDefaultOptions(string pluginPath = null, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
         {
             if (String.IsNullOrEmpty(pluginPath))
                 pluginPath = Path.Join(GetLocalExecutionPath(), "Plugins");
 
             this.priseServiceLifetime = ServiceLifetime.Scoped;
-            this.loggerType = typeof(ConsolePluginLogger<T>);
+            this.loggerType = typeof(NullPluginLogger<T>);
             this.pluginPathProvider = new DefaultPluginPathProvider<T>(pluginPath);
             this.dependencyPathProvider = new DependencyPathProvider<T>(pluginPath);
             this.cacheOptions = CacheOptions<IPluginCache<T>>.ScopedPluginCache();
