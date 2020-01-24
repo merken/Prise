@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Prise.Infrastructure
 {
-    public interface IHostTypesProvider : IDisposable
+    public interface IHostTypesProvider<T> : IDisposable
     {
         IEnumerable<Type> ProvideHostTypes();
     }

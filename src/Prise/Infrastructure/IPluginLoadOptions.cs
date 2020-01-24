@@ -12,11 +12,11 @@ namespace Prise.Infrastructure
         ISharedServicesProvider<T> SharedServicesProvider { get; }
         IPluginTypesProvider<T> PluginTypesProvider { get; }
         IPluginActivationContextProvider<T> PluginActivationContextProvider { get; }
-        IRemotePluginActivator Activator { get; }
+        IRemotePluginActivator<T> Activator { get; }
         IResultConverter ResultConverter { get; }
         IParameterConverter ParameterConverter { get; }
         IPluginProxyCreator<T> ProxyCreator { get; }
-        IHostTypesProvider HostTypesProvider { get; }
+        IHostTypesProvider<T> HostTypesProvider { get; }
         IRemoteTypesProvider<T> RemoteTypesProvider { get; }
         IRuntimePlatformContext RuntimePlatformContext { get; }
         IAssemblySelector<T> AssemblySelector { get; }
