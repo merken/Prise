@@ -26,17 +26,17 @@ Prise features:
 ![alt text](https://github.com/merken/prise/workflows/Prise%20integration%20tests%20.net%20core%203/badge.svg "Prise Build .NET CORE 3")
 
 ## Latest version
-[Prise](https://www.nuget.org/packages/Prise) ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise)
+![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise) [Prise](https://www.nuget.org/packages/Prise) 
 
-[Prise.Proxy](https://www.nuget.org/packages/Prise.Proxy) ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.Proxy)
+![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.Proxy) [Prise.Proxy](https://www.nuget.org/packages/Prise.Proxy) 
 
-[Prise.Plugin](https://www.nuget.org/packages/Prise.Plugin) ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.Plugin)
+![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.Plugin) [Prise.Plugin](https://www.nuget.org/packages/Prise.Plugin) 
 
-[Prise.PluginBridge](https://www.nuget.org/packages/Prise.PluginBridge) ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.PluginBridge)
+![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.PluginBridge) [Prise.PluginBridge](https://www.nuget.org/packages/Prise.PluginBridge) 
 
-[Prise.AssemblyScanning.Discovery](https://www.nuget.org/packages/Prise.AssemblyScanning.Discovery) ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.AssemblyScanning.Discovery)
+![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.AssemblyScanning.Discovery) [Prise.AssemblyScanning.Discovery](https://www.nuget.org/packages/Prise.AssemblyScanning.Discovery)
 
-[Prise.Mvc](https://www.nuget.org/packages/Prise.Mvc) ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.Mvc)
+![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.Mvc) [Prise.Mvc](https://www.nuget.org/packages/Prise.Mvc)
 
 # How does Prise work ?
 At the heart, Prise uses a **DispatchProxy** of your contract. Every call to a method channels through this proxy and is delegated to the loaded plugin.
