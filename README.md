@@ -14,7 +14,7 @@ Prise features:
 - Loading plugins over the network
 - Supporting backwards compatibility for older plugins
 
-![alt text](https://github.com/merken/prise/workflows/prise%20Build%20.net%20core%202/badge.svg "Prise Build .NET CORE 2")
+![alt text](https://github.com/merken/prise/workflows/Prise%20Build%20.net%20core%202/badge.svg "Prise Build .NET CORE 2")
 
 ![alt text](https://github.com/merken/prise/workflows/Prise%20Build%20.net%20core%203/badge.svg "Prise Build .NET CORE 3")
 
