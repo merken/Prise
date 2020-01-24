@@ -1,15 +1,16 @@
-﻿using Prise.Infrastructure;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Prise.Infrastructure;
 
 namespace Prise
 {
     public class DefaultAssemblyLoadContext<T> : InMemoryAssemblyLoadContext, IAssemblyLoadContext
     {
+        protected IPluginLogger<T> logger;
         protected IHostFrameworkProvider hostFrameworkProvider;
         protected IHostTypesProvider hostTypesProvider;
         protected IRemoteTypesProvider<T> remoteTypesProvider;
@@ -27,8 +28,10 @@ namespace Prise
         protected ConcurrentDictionary<string, IntPtr> loadedNativeLibraries;
         protected bool disposed = false;
         protected bool disposing = false;
+        protected ConcurrentBag<string> loadedPlugins;
 
         public DefaultAssemblyLoadContext(
+            IPluginLogger<T> logger,
             IAssemblyLoadOptions<T> options,
             IHostFrameworkProvider hostFrameworkProvider,
             IHostTypesProvider hostTypesProvider,
@@ -41,6 +44,7 @@ namespace Prise
             INativeAssemblyUnloader nativeAssemblyUnloader,
             IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider)
         {
+            this.logger = logger;
             this.options = options;
             this.hostFrameworkProvider = hostFrameworkProvider;
             this.hostTypesProvider = hostTypesProvider;
@@ -53,12 +57,26 @@ namespace Prise
             this.nativeAssemblyUnloader = nativeAssemblyUnloader;
             this.assemblyLoadStrategyProvider = assemblyLoadStrategyProvider;
             this.loadedNativeLibraries = new ConcurrentDictionary<string, IntPtr>();
+            this.loadedPlugins = new ConcurrentBag<string>();
+        }
+
+        private void GuardIfAlreadyLoaded(string pluginAssemblyName)
+        {
+            if (this.disposed || this.disposing)
+                throw new PrisePluginException($"Cannot load Plugin {pluginAssemblyName} when disposed.");
+
+            if (String.IsNullOrEmpty(pluginAssemblyName))
+                throw new PrisePluginException($"Cannot load empty Plugin. {nameof(pluginAssemblyName)} was null or empty.");
+
+            if (this.loadedPlugins.Contains(pluginAssemblyName))
+                throw new PrisePluginException($"Plugin {pluginAssemblyName} was already loaded.");
+
+            this.loadedPlugins.Add(pluginAssemblyName);
         }
 
         public virtual Assembly LoadPluginAssembly(IPluginLoadContext pluginLoadContext)
         {
-            if (this.pluginDependencyContext != null)
-                throw new PrisePluginException($"Plugin {pluginLoadContext.PluginAssemblyName} was already loaded");
+            GuardIfAlreadyLoaded(pluginLoadContext?.PluginAssemblyName);
 
             this.pluginDependencyContext = PluginDependencyContext.FromPluginAssembly<T>(
                 pluginLoadContext,
@@ -71,7 +89,7 @@ namespace Prise
 
             using (var pluginStream = LoadFileFromLocalDisk(pluginLoadContext.PluginAssemblyPath, pluginLoadContext.PluginAssemblyName))
             {
-                this.assemblyLoadStrategy = this.assemblyLoadStrategyProvider.ProvideAssemblyLoadStrategy(pluginLoadContext, this.pluginDependencyContext);
+                this.assemblyLoadStrategy = this.assemblyLoadStrategyProvider.ProvideAssemblyLoadStrategy(this.logger, pluginLoadContext, this.pluginDependencyContext);
 
                 return base.LoadFromStream(pluginStream); // ==> AssemblyLoadContext.LoadFromStream(Stream stream);
             }
@@ -79,8 +97,7 @@ namespace Prise
 
         public virtual async Task<Assembly> LoadPluginAssemblyAsync(IPluginLoadContext pluginLoadContext)
         {
-            if (this.pluginDependencyContext != null)
-                throw new PrisePluginException($"Plugin {pluginLoadContext.PluginAssemblyName} was already loaded");
+            GuardIfAlreadyLoaded(pluginLoadContext?.PluginAssemblyName);
 
             this.pluginDependencyContext = await PluginDependencyContext.FromPluginAssemblyAsync(
                 pluginLoadContext,
@@ -93,7 +110,7 @@ namespace Prise
 
             using (var pluginStream = await LoadFileFromLocalDiskAsync(pluginLoadContext.PluginAssemblyPath, pluginLoadContext.PluginAssemblyName))
             {
-                this.assemblyLoadStrategy = this.assemblyLoadStrategyProvider.ProvideAssemblyLoadStrategy(pluginLoadContext, this.pluginDependencyContext);
+                this.assemblyLoadStrategy = this.assemblyLoadStrategyProvider.ProvideAssemblyLoadStrategy(this.logger, pluginLoadContext, this.pluginDependencyContext);
 
                 return base.LoadFromStream(pluginStream); // ==> AssemblyLoadContext.LoadFromStream(Stream stream);
             }
@@ -107,7 +124,11 @@ namespace Prise
                 if (assembly != null)
                     return ValueOrProceed<Assembly>.FromValue(assembly, false);
             }
-            catch (FileNotFoundException) { }
+            catch (FileNotFoundException) { } // This can happen if the plugin uses a newer version of a package referenced in the host
+
+            var hostAssembly = this.pluginDependencyContext.HostDependencies.FirstOrDefault(h => h.DependencyName.Name == assemblyName.Name);
+            if (hostAssembly != null)
+                this.logger.VersionMismatch(assemblyName, hostAssembly.DependencyName);
 
             return ValueOrProceed<Assembly>.Proceed();
         }
@@ -218,6 +239,8 @@ namespace Prise
             if (this.disposed || this.disposing)
                 return null;
 
+            this.logger.LoadReferenceAssembly(assemblyName);
+
             return assemblyLoadStrategy.LoadAssembly(
                     assemblyName,
                     LoadFromDependencyContext,
@@ -230,7 +253,9 @@ namespace Prise
         {
             // This fixes the issue where the ALC is still alive and utilized in the host
             if (this.disposed || this.disposing)
-                return IntPtr.Zero; 
+                return IntPtr.Zero;
+
+            this.logger.LoadUnmanagedDll(unmanagedDllName);
 
             IntPtr library = IntPtr.Zero;
 

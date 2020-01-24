@@ -37,12 +37,12 @@ namespace Prise
 
         public virtual async Task Unload()
         {
-            await this.pluginLoadOptions.AssemblyLoader.UnloadAsync();
+            await this.pluginLoadOptions.AssemblyLoader.UnloadAllAsync();
         }
 
         void IPluginResolver<T>.Unload()
         {
-            this.pluginLoadOptions.AssemblyLoader.Unload();
+            this.pluginLoadOptions.AssemblyLoader.UnloadAll();
         }
 
         protected virtual void Dispose(bool disposing)

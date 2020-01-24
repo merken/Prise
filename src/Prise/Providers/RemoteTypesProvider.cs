@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace Prise
 {
+    // TODO this must be plugin context specific
     public class RemoteTypesProvider<T> : IRemoteTypesProvider<T>
     {
         private IList<Type> remoteTypes;

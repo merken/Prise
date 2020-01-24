@@ -1,0 +1,14 @@
+{
+  "commands": {
+    "BuildBeta": {
+      "FileName": "cmd.exe",
+      "WorkingDirectory": "src",
+      "Arguments": "/c cake -target=beta"
+    },
+    "Publish Test Plugins": {
+      "FileName": "cmd.exe",
+      "WorkingDirectory": "src/Tests",
+      "Arguments": "/c cake"
+    }
+  }
+}

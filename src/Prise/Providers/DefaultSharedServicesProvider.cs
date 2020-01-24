@@ -1,22 +1,25 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Prise.Infrastructure;
-using System;
+﻿using System;
 using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
+using Prise.Infrastructure;
 
 namespace Prise
 {
-    [DebuggerDisplay("{ProvideSharedServices()?.Count()}")]
     public class DefaultSharedServicesProvider<T> : ISharedServicesProvider<T>
     {
-        private readonly IServiceCollection services;
+        private readonly IServiceCollection hostServices;
+        private readonly IServiceCollection sharedServices;
         protected bool disposed = false;
 
-        public DefaultSharedServicesProvider(IServiceCollection services)
+        public DefaultSharedServicesProvider(IServiceCollection hostServices, IServiceCollection sharedServices)
         {
-            this.services = services;
+            this.hostServices = hostServices;
+            this.sharedServices = sharedServices;
         }
 
-        public IServiceCollection ProvideSharedServices() => this.services;
+        public IServiceCollection ProvideHostServices() => this.hostServices;
+
+        public IServiceCollection ProvideSharedServices() => this.sharedServices;
 
         protected virtual void Dispose(bool disposing)
         {

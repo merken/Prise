@@ -29,7 +29,8 @@ namespace Prise
             where T : class
             where TPluginLoader : class, IPluginLoader<T>, IPluginResolver<T>
         {
-            var optionsBuilder = new PluginLoadOptionsBuilder<T>().WithDefaultOptions();
+            var optionsBuilder = new PluginLoadOptionsBuilder<T>()
+                .WithDefaultOptions(serviceLifetime: serviceLifetime);
             config?.Invoke(optionsBuilder);
 
             services = optionsBuilder.RegisterOptions(services);

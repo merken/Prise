@@ -1,18 +1,22 @@
 using System;
 using Prise.AssemblyScanning;
 using Prise.Infrastructure;
+using Prise.Proxy;
 
 namespace Prise
 {
     public class PluginLoadOptions<T> : IPluginLoadOptions<T>
     {
+        private readonly IPluginLogger<T> logger;
         private readonly IAssemblyScanner<T> assemblyScanner;
         private readonly ISharedServicesProvider<T> sharedServicesProvider;
+        private readonly IPluginTypesProvider<T> pluginTypesProvider;
+        private readonly IPluginActivationContextProvider<T> pluginActivationContextProvider;
         private readonly IRemotePluginActivator activator;
         private readonly IResultConverter resultConverter;
         private readonly IParameterConverter parameterConverter;
         private readonly IPluginAssemblyLoader<T> assemblyLoader;
-        private readonly IProxyCreator<T> proxyCreator;
+        private readonly IPluginProxyCreator<T> proxyCreator;
         private readonly IHostTypesProvider hostTypesProvider;
         private readonly IRemoteTypesProvider<T> remoteTypesProvider;
         private readonly IRuntimePlatformContext runtimePlatformContext;
@@ -20,14 +24,18 @@ namespace Prise
         private readonly IPluginSelector<T> pluginSelector;
         protected bool disposed = false;
 
+        // Use the ASP.NET Core DI system to inject these dependencies
         public PluginLoadOptions(
+            IPluginLogger<T> logger,
             IAssemblyScanner<T> assemblyScanner,
             ISharedServicesProvider<T> sharedServicesProvider,
+            IPluginTypesProvider<T> pluginTypesProvider,
+            IPluginActivationContextProvider<T> pluginActivationContextProvider,
             IRemotePluginActivator activator,
             IParameterConverter parameterConverter,
             IResultConverter resultConverter,
             IPluginAssemblyLoader<T> assemblyLoader,
-            IProxyCreator<T> proxyCreator,
+            IPluginProxyCreator<T> proxyCreator,
             IHostTypesProvider hostTypesProvider,
             IRemoteTypesProvider<T> remoteTypesProvider,
             IRuntimePlatformContext runtimePlatformContext,
@@ -35,8 +43,11 @@ namespace Prise
             IPluginSelector<T> pluginSelector
             )
         {
+            this.logger = logger;
             this.assemblyScanner = assemblyScanner;
             this.sharedServicesProvider = sharedServicesProvider;
+            this.pluginTypesProvider = pluginTypesProvider;
+            this.pluginActivationContextProvider = pluginActivationContextProvider;
             this.activator = activator;
             this.parameterConverter = parameterConverter;
             this.resultConverter = resultConverter;
@@ -49,13 +60,16 @@ namespace Prise
             this.pluginSelector = pluginSelector;
         }
 
+        public IPluginLogger<T> Logger => this.logger;
         public IAssemblyScanner<T> AssemblyScanner => this.assemblyScanner;
         public ISharedServicesProvider<T> SharedServicesProvider => this.sharedServicesProvider;
+        public IPluginTypesProvider<T> PluginTypesProvider => this.pluginTypesProvider;
+        public IPluginActivationContextProvider<T> PluginActivationContextProvider => this.pluginActivationContextProvider;
         public IRemotePluginActivator Activator => this.activator;
         public IResultConverter ResultConverter => this.resultConverter;
         public IParameterConverter ParameterConverter => this.parameterConverter;
         public IPluginAssemblyLoader<T> AssemblyLoader => this.assemblyLoader;
-        public IProxyCreator<T> ProxyCreator => this.proxyCreator;
+        public IPluginProxyCreator<T> ProxyCreator => this.proxyCreator;
         public IHostTypesProvider HostTypesProvider => this.hostTypesProvider;
         public IRemoteTypesProvider<T> RemoteTypesProvider => this.remoteTypesProvider;
         public IRuntimePlatformContext RuntimePlatformContext => this.runtimePlatformContext;

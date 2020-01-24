@@ -20,11 +20,16 @@ namespace Prise
     /// </summary>
     public class DefaultAssemblyLoadStrategy : IAssemblyLoadStrategy
     {
+        protected IPluginLogger logger;
         protected IPluginLoadContext pluginLoadContext;
         protected IPluginDependencyContext pluginDependencyContext;
 
-        public DefaultAssemblyLoadStrategy(IPluginLoadContext pluginLoadContext, IPluginDependencyContext pluginDependencyContext)
+        public DefaultAssemblyLoadStrategy(
+            IPluginLogger logger,
+            IPluginLoadContext pluginLoadContext,
+            IPluginDependencyContext pluginDependencyContext)
         {
+            this.logger = logger.ThrowIfNull(nameof(logger));
             this.pluginLoadContext = pluginLoadContext.ThrowIfNull(nameof(pluginLoadContext));
             this.pluginDependencyContext = pluginDependencyContext.ThrowIfNull(nameof(pluginDependencyContext));
         }
@@ -39,18 +44,35 @@ namespace Prise
 
             ValueOrProceed<Assembly> valueOrProceed = ValueOrProceed<Assembly>.FromValue(null, true);
 
-            if (IsHostAssembly(assemblyName) && !IsRemoteAssembly(assemblyName)) // Load from Default App Domain (host)
+            var isHostAssembly = IsHostAssembly(assemblyName);
+            var isRemoteAssembly = IsRemoteAssembly(assemblyName);
+
+            if (isHostAssembly)
+                this.logger.IsHostAssembly(assemblyName);
+            if (isRemoteAssembly)
+                this.logger.IsRemoteAssembly(assemblyName);
+
+            if (isHostAssembly && !isRemoteAssembly) // Load from Default App Domain (host)
             {
                 valueOrProceed = loadFromAppDomain(this.pluginLoadContext, assemblyName);
                 if (valueOrProceed.Value != null)
+                {
+                    this.logger.LoadedFromAppDomain(assemblyName);
                     return null; // fallback to default loading mechanism
+                }
             }
 
             if (valueOrProceed.CanProceed)
+            {
                 valueOrProceed = loadFromDependencyContext(this.pluginLoadContext, assemblyName);
+                this.logger.LoadedFromDependencyContext(assemblyName, valueOrProceed);
+            }
 
             if (valueOrProceed.CanProceed)
+            {
                 valueOrProceed = loadFromRemote(this.pluginLoadContext, assemblyName);
+                this.logger.LoadedFromRemote(assemblyName, valueOrProceed);
+            }
 
             return valueOrProceed.Value;
         }
@@ -64,12 +86,19 @@ namespace Prise
             ValueOrProceed<IntPtr> ptrValueOrProceed = ValueOrProceed<IntPtr>.FromValue(IntPtr.Zero, true);
 
             valueOrProceed = loadFromDependencyContext(this.pluginLoadContext, unmanagedDllName);
+            this.logger.LoadedUnmanagedFromDependencyContext(unmanagedDllName, valueOrProceed);
 
             if (valueOrProceed.CanProceed)
+            {
                 ptrValueOrProceed = loadFromAppDomain(this.pluginLoadContext, unmanagedDllName);
+                this.logger.LoadedUnmanagedFromAppDomain(unmanagedDllName, ptrValueOrProceed);
+            }
 
             if (valueOrProceed.CanProceed && ptrValueOrProceed.CanProceed)
+            {
                 valueOrProceed = loadFromRemote(this.pluginLoadContext, unmanagedDllName);
+                this.logger.LoadedUnmanagedFromRemote(unmanagedDllName, valueOrProceed);
+            }
 
             return NativeAssembly.Create(valueOrProceed.Value, ptrValueOrProceed.Value);
         }

@@ -1,0 +1,19 @@
+name: Prise unit tests
+
+on: [push]
+
+jobs:
+  run-unit-tests:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+        
+      - name: Setup .NET Core 3.0
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.0.100
+
+      - name: Test Prise.Tests with netcoreapp3.0
+        run: dotnet test src/Tests/Prise.Tests/Prise.Tests.csproj -f netcoreapp3.0

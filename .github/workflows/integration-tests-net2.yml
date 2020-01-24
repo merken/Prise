@@ -1,0 +1,32 @@
+name: Prise integration tests .net core 2
+
+on: [push]
+
+jobs:
+  run-integration-tests:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+        
+      - name: Setup .NET Core 2.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 2.1.802
+
+        # Publishes all plugins to publish directory
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginA/PluginA.net2.csproj -o publish/PluginA
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginB/PluginB.net2.csproj -o publish/PluginB
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginC/PluginC.net2.csproj -o publish/PluginC
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginD/PluginD.net2.csproj -o publish/PluginD -f netcoreapp2.1
+
+      # Copies all published plugins to integration test directory
+      - run: mkdir -p src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
+      - run: cp -r src/Tests/IntegrationTestsPlugins/PluginA/publish/PluginA src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
+      - run: cp -r src/Tests/IntegrationTestsPlugins/PluginB/publish/PluginB src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
+      - run: cp -r src/Tests/IntegrationTestsPlugins/PluginC/publish/PluginC src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
+      - run: cp -r src/Tests/IntegrationTestsPlugins/PluginD/publish/PluginD src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
+
+      - name: Test Prise.IntegrationTests with netcoreapp2.1
+        run: dotnet test src/Tests/Prise.IntegrationTests/Prise.IntegrationTests.net2.csproj

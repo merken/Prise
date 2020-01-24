@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Prise.IntegrationTests": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "LOCAL": "true"
+      }
+    }
+  }
+}

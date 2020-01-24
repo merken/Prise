@@ -7,6 +7,6 @@ namespace Prise.Infrastructure
     public interface IRemotePluginActivator : IDisposable
     {
         object CreateRemoteBootstrapper(Type bootstrapperType, Assembly assembly);
-        object CreateRemoteInstance(Type pluginType, IPluginBootstrapper bootstrapper, MethodInfo factoryMethod, Assembly assembly);
+        object CreateRemoteInstance(PluginActivationContext pluginActivationContext, IPluginBootstrapper bootstrapper = null);
     }
 }

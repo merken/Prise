@@ -10,3 +10,4 @@ publish
 *.sln
 appsettings.Development.json
 !Monorepo.sln
+Plugins

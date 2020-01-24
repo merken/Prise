@@ -5,6 +5,7 @@ namespace Prise
     public interface IAssemblyLoadStrategyProvider
     {
         IAssemblyLoadStrategy ProvideAssemblyLoadStrategy(
+            IPluginLogger logger,
             IPluginLoadContext pluginLoadContext,
             IPluginDependencyContext pluginDependencyContext);
     }
@@ -12,10 +13,11 @@ namespace Prise
     public class DefaultAssemblyLoadStrategyProvider : IAssemblyLoadStrategyProvider
     {
         public IAssemblyLoadStrategy ProvideAssemblyLoadStrategy(
+            IPluginLogger logger,
             IPluginLoadContext pluginLoadContext,
             IPluginDependencyContext pluginDependencyContext)
         {
-            return new DefaultAssemblyLoadStrategy(pluginLoadContext, pluginDependencyContext);
+            return new DefaultAssemblyLoadStrategy(logger, pluginLoadContext, pluginDependencyContext);
         }
     }
 }

@@ -10,17 +10,17 @@ namespace Prise
         private Stream stream;
         private bool disposed = false;
 
-        public Task<Stream> ProvideDepsFile(IPluginLoadContext pluginLoadContext)
+        public async Task<Stream> ProvideDepsFile(IPluginLoadContext pluginLoadContext)
         {
             var pluginPath = pluginLoadContext.PluginAssemblyPath;
             var depsFileLocation = Path.GetFullPath(Path.Join(pluginPath, $"{Path.GetFileNameWithoutExtension(pluginLoadContext.PluginAssemblyName)}.deps.json"));
             this.stream = new MemoryStream();
 
             using (var fileStream = File.OpenRead(depsFileLocation))
-                fileStream.CopyTo(this.stream);
+                await fileStream.CopyToAsync(this.stream);
 
             stream.Seek(0, SeekOrigin.Begin);
-            return Task<Stream>.FromResult(this.stream);
+            return this.stream;
         }
 
         protected virtual void Dispose(bool disposing)

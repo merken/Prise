@@ -1,31 +1,23 @@
 using System;
 using Prise.Infrastructure;
+using Prise.Proxy;
 using Prise.Plugin;
 
 namespace Prise
 {
-    public abstract class PluginProxyCreator
-    {
-        public static TProxyType CreateProxy<TProxyType>(object remoteObject, IParameterConverter parameterConverter, IResultConverter resultConverter)
-        {
-            var proxy = PluginProxy<TProxyType>.Create();
-            ((PluginProxy<TProxyType>)proxy)
-                .SetRemoteObject(remoteObject)
-                .SetParameterConverter(parameterConverter)
-                .SetResultConverter(resultConverter);
-            return (TProxyType)proxy;
-        }
-    }
-
-    public class PluginProxyCreator<T> : PluginProxyCreator,  IProxyCreator<T>
+    /// <summary>
+    /// This proxy creator uses the Prise.Proxy package to create a proxy for the plugin
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class PluginProxyCreator<T> :  IPluginProxyCreator<T>
     {
         protected bool disposed = false;
 
         public IPluginBootstrapper CreateBootstrapperProxy(object remoteBootstrapper) =>
-            CreateProxy<IPluginBootstrapper>(remoteBootstrapper, new PassthroughParameterConverter(), new PassthroughResultConverter());
+            ProxyCreator.CreateProxy<IPluginBootstrapper>(remoteBootstrapper);
 
-        public T CreatePluginProxy(object remoteObject, IPluginLoadOptions<T> options) =>
-            CreateProxy<T>(remoteObject, options.ParameterConverter, options.ResultConverter);
+        public T CreatePluginProxy(object remoteObject, IParameterConverter parameterConverter, IResultConverter resultConverter) =>
+            ProxyCreator.CreateProxy<T>(remoteObject, parameterConverter, resultConverter);
 
         protected virtual void Dispose(bool disposing)
         {

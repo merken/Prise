@@ -6,25 +6,19 @@ namespace Prise
 {
     public class UserProfileTempPathProvider<T> : ITempPathProvider<T>
     {
-        private static string PluginTempPath = "plugins";
-        private readonly string pluginAssemblyName;
+        private const string PluginTempPath = "plugins";
         private string tempPath = String.Empty;
         private bool disposed = false;
 
-        public UserProfileTempPathProvider(IPluginAssemblyNameProvider<T> pluginAssemblyNameProvider)
-        {
-            this.pluginAssemblyName = Path.GetFileNameWithoutExtension(pluginAssemblyNameProvider.GetAssemblyName());
-        }
+        public string ProvideTempPath(string assemblyName) => Path.Join(EnsureTempPath(assemblyName), assemblyName);
 
-        public string ProvideTempPath(string assemblyName) => Path.Join(EnsureTempPath(), assemblyName);
-
-        private string EnsureTempPath()
+        private string EnsureTempPath(string assemblyName)
         {
             if (!String.IsNullOrEmpty(tempPath))
                 return tempPath;
 
             var systemTempPath = System.IO.Path.GetTempPath();
-            var randomTempPath = $"{Path.Join(systemTempPath, Path.Join(PluginTempPath, this.pluginAssemblyName))}";
+            var randomTempPath = $"{Path.Join(systemTempPath, Path.Join(PluginTempPath, assemblyName))}";
             if (!Directory.Exists(randomTempPath))
                 Directory.CreateDirectory(randomTempPath);
 

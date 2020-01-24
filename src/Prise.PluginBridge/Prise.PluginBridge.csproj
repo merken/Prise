@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp3.0</TargetFrameworks>
+    <Title>Prise.PluginBridge</Title>
+    <PackageId>Prise.PluginBridge</PackageId>
+    <PackageDescription>Adds support for sharing services between a Prise host and a Prise Plugin</PackageDescription>
+    <Authors>Maarten Merken</Authors>
+    <Company>MRKN</Company>
+    <PackageTags>plugin;framework;prise;decoupling;assembly;dispatchproxy;proxy</PackageTags>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+
+  <Target DependsOnTargets="ResolveReferences" Name="CopyProjectReferencesToPackage">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
+    </ItemGroup>
+  </Target>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+    <DefineConstants>NETCORE2_1</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+    <DefineConstants>NETCORE3_0</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Include="..\Prise.Proxy\Exceptions\PriseProxyException.cs" Link="PriseProxyException.cs" />
+    <Compile Include="..\Prise.Proxy\Infrastructure\IParameterConverter.cs" Link="IParameterConverter.cs" />
+    <Compile Include="..\Prise.Proxy\Infrastructure\IResultConverter.cs" Link="IResultConverter.cs" />
+    <Compile Include="..\Prise.Proxy\PassthroughParameterConverter.cs" Link="PassthroughParameterConverter.cs" />
+    <Compile Include="..\Prise.Proxy\PassthroughResultConverter.cs" Link="PassthroughResultConverter.cs" />
+    <Compile Include="..\Prise.Proxy\PriseProxy.cs" Link="PriseProxy.cs" />
+    <Compile Include="..\Prise.Proxy\ResultConverter.cs" Link="ResultConverter.cs" />
+    <Compile Include="..\Prise.Proxy\TaskCompletionSource.cs" Link="TaskCompletionSource.cs" />
+    <Compile Include="..\Prise\JsonSerializerParameterConverter.cs" Link="JsonSerializerParameterConverter.cs" />
+    <Compile Include="..\Prise\JsonSerializerResultConverter.cs" Link="JsonSerializerResultConverter.cs" />
+    <Compile Include="..\Prise\NewtonsoftParameterConverter.cs" Link="NewtonsoftParameterConverter.cs" />
+    <Compile Include="..\Prise\NewtonsoftResultConverter.cs" Link="NewtonsoftResultConverter.cs" />
+  </ItemGroup>
+
+</Project>

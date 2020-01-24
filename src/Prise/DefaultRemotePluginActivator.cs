@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Prise.Infrastructure;
 using Prise.Plugin;
+using Prise.Proxy;
 
 namespace Prise
 {
@@ -30,8 +33,13 @@ namespace Prise
             return assembly.CreateInstance(bootstrapperType.FullName);
         }
 
-        public object CreateRemoteInstance(Type pluginType, IPluginBootstrapper bootstrapper, MethodInfo factoryMethod, Assembly assembly)
+        public virtual object CreateRemoteInstance(PluginActivationContext pluginActivationContext, IPluginBootstrapper bootstrapper = null)
         {
+            // TODO Check out RuntimeHelpers.GetUninitializedObject(pluginType);
+            var pluginType = pluginActivationContext.PluginType;
+            var pluginAssembly = pluginActivationContext.PluginAssembly;
+            var factoryMethod = pluginActivationContext.PluginFactoryMethod;
+
             var contructors = pluginType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
 
             if (contructors.Count() > 1)
@@ -39,20 +47,41 @@ namespace Prise
 
             var firstCtor = contructors.FirstOrDefault();
             if (firstCtor != null && !firstCtor.GetParameters().Any())
-                return assembly.CreateInstance(pluginType.FullName);
+                return pluginAssembly.CreateInstance(pluginType.FullName);
 
             if (factoryMethod == null)
                 throw new PrisePluginException($@"Plugins must either provide a default parameterless constructor or implement a static factory method.
-                    Like; 'public static {pluginType.Name} CreatePlugin(IServiceProvider serviceProvider)");
+                    Example; 'public static {pluginType.Name} CreatePlugin(IServiceProvider serviceProvider)");
 
+            var hostServices = this.sharedServicesProvider.ProvideHostServices();
             var sharedServices = this.sharedServicesProvider.ProvideSharedServices();
+            var allServices = new ServiceCollection();
+
+            foreach (var service in hostServices)
+                allServices.Add(service);
+
+            foreach (var service in sharedServices)
+                allServices.Add(service);
 
             if (bootstrapper != null)
-                sharedServices = bootstrapper.Bootstrap(sharedServices);
+                sharedServices = bootstrapper.Bootstrap(allServices);
 
-            var serviceProvider = sharedServices.BuildServiceProvider();
+            allServices.AddScoped<IPluginServiceProvider>(sp => new DefaultPluginServiceProvider(
+                sp,
+                hostServices.Select(d => d.ServiceType),
+                sharedServices.Select(d => d.ServiceType)
+            ));
 
-            return factoryMethod.Invoke(null, new[] { serviceProvider });
+            var localProvider = allServices.BuildServiceProvider();
+
+            if (pluginActivationContext.PluginFactoryMethodWithPluginServiceProvider != null)
+            {
+                var factoryMethodWithPluginServiceProvider = pluginActivationContext.PluginFactoryMethodWithPluginServiceProvider;
+
+                return factoryMethodWithPluginServiceProvider.Invoke(null, new[] { localProvider.GetService<IPluginServiceProvider>() });
+            }
+
+            return factoryMethod.Invoke(null, new[] { localProvider });
         }
 
         protected virtual void Dispose(bool disposing)

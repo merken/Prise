@@ -1,4 +1,5 @@
 ﻿using Prise.Infrastructure;
+using System.IO;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -7,7 +8,23 @@ namespace Prise
 {
     public class NetworkAssemblyLoader<T> : DisposableAssemblyUnLoader, IPluginAssemblyLoader<T>
     {
+        private readonly IPluginLogger<T> logger;
+        private readonly INetworkAssemblyLoaderOptions<T> options;
+        private readonly IHostFrameworkProvider hostFrameworkProvider;
+        private readonly IHostTypesProvider hostTypesProvider;
+        private readonly IRemoteTypesProvider<T> remoteTypesProvider;
+        private readonly IDependencyPathProvider<T> dependencyPathProvider;
+        private readonly IProbingPathsProvider<T> probingPathsProvider;
+        private readonly IRuntimePlatformContext runtimePlatformContext;
+        private readonly IDepsFileProvider<T> depsFileProvider;
+        private readonly IPluginDependencyResolver<T> pluginDependencyResolver;
+        private readonly INativeAssemblyUnloader nativeAssemblyUnloader;
+        private readonly IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider;
+        private readonly ITempPathProvider<T> tempPathProvider;
+        private readonly IHttpClientFactory httpClientFactory;
+
         public NetworkAssemblyLoader(
+            IPluginLogger<T> logger,
             INetworkAssemblyLoaderOptions<T> options,
             IHostFrameworkProvider hostFrameworkProvider,
             IHostTypesProvider hostTypesProvider,
@@ -23,32 +40,72 @@ namespace Prise
             IHttpClientFactory httpClientFactory
             )
         {
-            this.loadContext = new NetworkAssemblyLoadContext<T>(
-                options,
-                hostFrameworkProvider,
-                hostTypesProvider,
-                remoteTypesProvider,
-                dependencyPathProvider,
-                probingPathsProvider,
-                runtimePlatformContext,
-                depsFileProvider,
-                pluginDependencyResolver,
-                nativeAssemblyUnloader,
-                assemblyLoadStrategyProvider,
-                httpClientFactory,
-                tempPathProvider
-            );
-            this.assemblyLoadContextReference = new System.WeakReference(this.loadContext);
+            this.logger = logger;
+            this.options = options;
+            this.hostFrameworkProvider = hostFrameworkProvider;
+            this.hostTypesProvider = hostTypesProvider;
+            this.remoteTypesProvider = remoteTypesProvider;
+            this.dependencyPathProvider = dependencyPathProvider;
+            this.probingPathsProvider = probingPathsProvider;
+            this.runtimePlatformContext = runtimePlatformContext;
+            this.depsFileProvider = depsFileProvider;
+            this.pluginDependencyResolver = pluginDependencyResolver;
+            this.nativeAssemblyUnloader = nativeAssemblyUnloader;
+            this.assemblyLoadStrategyProvider = assemblyLoadStrategyProvider;
+            this.tempPathProvider = tempPathProvider;
+            this.httpClientFactory = httpClientFactory;
         }
 
         public virtual Assembly Load(IPluginLoadContext pluginLoadContext)
         {
-            return this.loadContext.LoadPluginAssembly(pluginLoadContext);
+            var pluginAssemblyName = Path.GetFileNameWithoutExtension(pluginLoadContext.PluginAssemblyName);
+            var loadContext = new NetworkAssemblyLoadContext<T>(
+               logger,
+               options,
+               hostFrameworkProvider,
+               hostTypesProvider,
+               remoteTypesProvider,
+               dependencyPathProvider,
+               probingPathsProvider,
+               runtimePlatformContext,
+               depsFileProvider,
+               pluginDependencyResolver,
+               nativeAssemblyUnloader,
+               assemblyLoadStrategyProvider,
+               httpClientFactory,
+               tempPathProvider
+           );
+
+            this.loadContexts[pluginAssemblyName] = loadContext;
+            this.loadContextReferences[pluginAssemblyName] = new System.WeakReference(loadContext);
+
+            return loadContext.LoadPluginAssembly(pluginLoadContext);
         }
 
         public virtual Task<Assembly> LoadAsync(IPluginLoadContext pluginLoadContext)
         {
-            return this.loadContext.LoadPluginAssemblyAsync(pluginLoadContext);
+            var pluginAssemblyName = Path.GetFileNameWithoutExtension(pluginLoadContext.PluginAssemblyName);
+            var loadContext = new NetworkAssemblyLoadContext<T>(
+               logger,
+               options,
+               hostFrameworkProvider,
+               hostTypesProvider,
+               remoteTypesProvider,
+               dependencyPathProvider,
+               probingPathsProvider,
+               runtimePlatformContext,
+               depsFileProvider,
+               pluginDependencyResolver,
+               nativeAssemblyUnloader,
+               assemblyLoadStrategyProvider,
+               httpClientFactory,
+               tempPathProvider
+           );
+
+            this.loadContexts[pluginAssemblyName] = loadContext;
+            this.loadContextReferences[pluginAssemblyName] = new System.WeakReference(loadContext);
+
+            return loadContext.LoadPluginAssemblyAsync(pluginLoadContext);
         }
     }
 }

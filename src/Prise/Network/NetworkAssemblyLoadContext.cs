@@ -15,6 +15,7 @@ namespace Prise
         private readonly ITempPathProvider<T> tempPathProvider;
 
         public NetworkAssemblyLoadContext(
+            IPluginLogger<T> logger,
             INetworkAssemblyLoaderOptions<T> options,
             IHostFrameworkProvider hostFrameworkProvider,
             IHostTypesProvider hostTypesProvider,
@@ -28,6 +29,7 @@ namespace Prise
             IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider,
             IHttpClientFactory httpClientFactory,
             ITempPathProvider<T> tempPathProvider) : base(
+                logger,
                 options,
                 hostFrameworkProvider,
                 hostTypesProvider,
@@ -59,7 +61,7 @@ namespace Prise
 
             using (var pluginStream = LoadPluginFromNetwork(this.baseUrl, pluginLoadContext.PluginAssemblyName))
             {
-                this.assemblyLoadStrategy = this.assemblyLoadStrategyProvider.ProvideAssemblyLoadStrategy(pluginLoadContext, this.pluginDependencyContext);
+                this.assemblyLoadStrategy = this.assemblyLoadStrategyProvider.ProvideAssemblyLoadStrategy(this.logger, pluginLoadContext, this.pluginDependencyContext);
 
                 return base.LoadFromStream(pluginStream); // ==> AssemblyLoadContext.LoadFromStream(Stream stream);
             }
@@ -81,7 +83,7 @@ namespace Prise
 
             using (var pluginStream = await LoadPluginFromNetworkAsync(this.baseUrl, pluginLoadContext.PluginAssemblyName))
             {
-                this.assemblyLoadStrategy = this.assemblyLoadStrategyProvider.ProvideAssemblyLoadStrategy(pluginLoadContext, this.pluginDependencyContext);
+                this.assemblyLoadStrategy = this.assemblyLoadStrategyProvider.ProvideAssemblyLoadStrategy(this.logger, pluginLoadContext, this.pluginDependencyContext);
 
                 return base.LoadFromStream(pluginStream); // ==> AssemblyLoadContext.LoadFromStream(Stream stream);
             }

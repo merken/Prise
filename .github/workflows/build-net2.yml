@@ -1,0 +1,36 @@
+name: Prise Build .net core 2
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+      
+    - name: Setup .NET Core 2.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.1.802
+        
+    - name: Build Prise with netcoreapp2.1
+      run: dotnet build src/Prise/Prise.net2.csproj --configuration Release
+
+    - name: Build Prise.AssemblyScanning with netstandard2.0
+      run: dotnet build src/Prise.AssemblyScanning/Prise.AssemblyScanning.csproj --configuration Release -f netstandard2.0
+
+    - name: Build Prise.AssemblyScanning.Discovery with netcoreapp2.1
+      run: dotnet build src/Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.net2.csproj --configuration Release -f netcoreapp2.1
+
+    - name: Build Prise.Mvc with netcoreapp2.1
+      run: dotnet build src/Prise.Mvc/Prise.Mvc.net2.csproj --configuration Release -f netcoreapp2.1
+        
+    - name: Build Prise.Plugin with netstandard2.0
+      run: dotnet build src/Prise.Plugin/Prise.Plugin.net2.csproj --configuration Release -f netstandard2.0
+
+    - name: Build Prise.PluginBridge with netcoreapp2.1
+      run: dotnet build src/Prise.PluginBridge/Prise.PluginBridge.net2.csproj --configuration Release -f netcoreapp2.1
+
+    - name: Build Prise.Proxy with netcoreapp2.1
+      run: dotnet build src/Prise.Proxy/Prise.Proxy.net2.csproj --configuration Release -f netcoreapp2.1
