@@ -16,7 +16,7 @@ namespace Prise
             IPluginLogger<T> logger,
             IAssemblyLoadOptions<T> options,
             IHostFrameworkProvider hostFrameworkProvider,
-            IHostTypesProvider hostTypesProvider,
+            IHostTypesProvider<T> hostTypesProvider,
             IRemoteTypesProvider<T> remoteTypesProvider,
             IDependencyPathProvider<T> dependencyPathProvider,
             IProbingPathsProvider<T> probingPathsProvider,

@@ -12,7 +12,7 @@ namespace Prise
     {
         protected IPluginLogger<T> logger;
         protected IHostFrameworkProvider hostFrameworkProvider;
-        protected IHostTypesProvider hostTypesProvider;
+        protected IHostTypesProvider<T> hostTypesProvider;
         protected IRemoteTypesProvider<T> remoteTypesProvider;
         protected IDependencyPathProvider<T> dependencyPathProvider;
         protected IProbingPathsProvider<T> probingPathsProvider;
@@ -34,7 +34,7 @@ namespace Prise
             IPluginLogger<T> logger,
             IAssemblyLoadOptions<T> options,
             IHostFrameworkProvider hostFrameworkProvider,
-            IHostTypesProvider hostTypesProvider,
+            IHostTypesProvider<T> hostTypesProvider,
             IRemoteTypesProvider<T> remoteTypesProvider,
             IDependencyPathProvider<T> dependencyPathProvider,
             IProbingPathsProvider<T> probingPathsProvider,
