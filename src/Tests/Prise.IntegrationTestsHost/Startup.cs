@@ -96,7 +96,22 @@ namespace Prise.IntegrationTestsHost
                             // This encourages backwards compatability
                             sharedServices.AddTransient<ICurrentLanguageProvider, AcceptHeaderLanguageProvider>();
                         })
-                 );
+                 )
+
+                .AddPrise<IAuthenticatedDataService>(options =>
+                     options
+                        .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"))
+                        .WithPluginAssemblyName("PluginE.dll")
+                        .WithHostFrameworkProvider<AppHostFrameworkProvider>()
+                 )
+
+                .AddPrise<ITokenService>(options =>
+                     options
+                        .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"))
+                        .WithPluginAssemblyName("PluginE.dll")
+                        .WithHostFrameworkProvider<AppHostFrameworkProvider>()
+                 )
+                ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
