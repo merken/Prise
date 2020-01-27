@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace Prise
 {
     // TODO this must be plugin context specific
-    public class HostTypesProvider : IHostTypesProvider
+    public class HostTypesProvider<T> : IHostTypesProvider<T>
     {
         private IList<Type> hostTypes;
         protected bool disposed = false;
@@ -29,13 +29,13 @@ namespace Prise
             GC.SuppressFinalize(this);
         }
 
-        public HostTypesProvider AddHostType(Type type)
+        public HostTypesProvider<T> AddHostType(Type type)
         {
             this.hostTypes.Add(type);
             return this;
         }
 
-        public HostTypesProvider AddHostType<T>() => AddHostType(typeof(T));
+        public HostTypesProvider<T> AddHostType<THostType>() => AddHostType(typeof(THostType));
 
         public IEnumerable<Type> ProvideHostTypes() => this.hostTypes;
     }

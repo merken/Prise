@@ -20,6 +20,7 @@ jobs:
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginB/PluginB.net2.csproj -o publish/PluginB
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginC/PluginC.net2.csproj -o publish/PluginC
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginD/PluginD.net2.csproj -o publish/PluginD -f netcoreapp2.1
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginE/PluginE.net2.csproj -o publish/PluginE -f netcoreapp2.1
 
       # Copies all published plugins to integration test directory
       - run: mkdir -p src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
@@ -27,6 +28,7 @@ jobs:
       - run: cp -r src/Tests/IntegrationTestsPlugins/PluginB/publish/PluginB src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
       - run: cp -r src/Tests/IntegrationTestsPlugins/PluginC/publish/PluginC src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
       - run: cp -r src/Tests/IntegrationTestsPlugins/PluginD/publish/PluginD src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
+      - run: cp -r src/Tests/IntegrationTestsPlugins/PluginE/publish/PluginE src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
 
       - name: Test Prise.IntegrationTests with netcoreapp2.1
         run: dotnet test src/Tests/Prise.IntegrationTests/Prise.IntegrationTests.net2.csproj

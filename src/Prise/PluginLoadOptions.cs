@@ -12,12 +12,12 @@ namespace Prise
         private readonly ISharedServicesProvider<T> sharedServicesProvider;
         private readonly IPluginTypesProvider<T> pluginTypesProvider;
         private readonly IPluginActivationContextProvider<T> pluginActivationContextProvider;
-        private readonly IRemotePluginActivator activator;
+        private readonly IRemotePluginActivator<T> activator;
         private readonly IResultConverter resultConverter;
         private readonly IParameterConverter parameterConverter;
         private readonly IPluginAssemblyLoader<T> assemblyLoader;
         private readonly IPluginProxyCreator<T> proxyCreator;
-        private readonly IHostTypesProvider hostTypesProvider;
+        private readonly IHostTypesProvider<T> hostTypesProvider;
         private readonly IRemoteTypesProvider<T> remoteTypesProvider;
         private readonly IRuntimePlatformContext runtimePlatformContext;
         private readonly IAssemblySelector<T> assemblySelector;
@@ -31,12 +31,12 @@ namespace Prise
             ISharedServicesProvider<T> sharedServicesProvider,
             IPluginTypesProvider<T> pluginTypesProvider,
             IPluginActivationContextProvider<T> pluginActivationContextProvider,
-            IRemotePluginActivator activator,
+            IRemotePluginActivator<T> activator,
             IParameterConverter parameterConverter,
             IResultConverter resultConverter,
             IPluginAssemblyLoader<T> assemblyLoader,
             IPluginProxyCreator<T> proxyCreator,
-            IHostTypesProvider hostTypesProvider,
+            IHostTypesProvider<T> hostTypesProvider,
             IRemoteTypesProvider<T> remoteTypesProvider,
             IRuntimePlatformContext runtimePlatformContext,
             IAssemblySelector<T> assemblySelector,
@@ -65,12 +65,12 @@ namespace Prise
         public ISharedServicesProvider<T> SharedServicesProvider => this.sharedServicesProvider;
         public IPluginTypesProvider<T> PluginTypesProvider => this.pluginTypesProvider;
         public IPluginActivationContextProvider<T> PluginActivationContextProvider => this.pluginActivationContextProvider;
-        public IRemotePluginActivator Activator => this.activator;
+        public IRemotePluginActivator<T> Activator => this.activator;
         public IResultConverter ResultConverter => this.resultConverter;
         public IParameterConverter ParameterConverter => this.parameterConverter;
         public IPluginAssemblyLoader<T> AssemblyLoader => this.assemblyLoader;
         public IPluginProxyCreator<T> ProxyCreator => this.proxyCreator;
-        public IHostTypesProvider HostTypesProvider => this.hostTypesProvider;
+        public IHostTypesProvider<T> HostTypesProvider => this.hostTypesProvider;
         public IRemoteTypesProvider<T> RemoteTypesProvider => this.remoteTypesProvider;
         public IRuntimePlatformContext RuntimePlatformContext => this.runtimePlatformContext;
         public IAssemblySelector<T> AssemblySelector => this.assemblySelector;

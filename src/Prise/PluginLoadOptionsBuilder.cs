@@ -24,7 +24,7 @@ namespace Prise
         internal Type assemblyLoadStrategyProviderType = typeof(DefaultAssemblyLoadStrategyProvider);
         internal ISharedServicesProvider<T> sharedServicesProvider;
         internal Type sharedServicesProviderType;
-        internal IRemotePluginActivator activator;
+        internal IRemotePluginActivator<T> activator;
         internal IPluginActivationContextProvider<T> pluginActivationContextProvider;
         internal Type pluginActivationContextProviderType;
         internal IPluginTypesProvider<T> pluginTypesProvider;
@@ -45,7 +45,7 @@ namespace Prise
         internal INetworkAssemblyLoaderOptions<T> networkAssemblyLoaderOptions;
         internal Type networkAssemblyLoaderOptionsType;
         internal Action<IServiceCollection> configureServices;
-        internal IHostTypesProvider hostTypesProvider;
+        internal IHostTypesProvider<T> hostTypesProvider;
         internal Type hostTypesProviderType;
         internal IRemoteTypesProvider<T> remoteTypesProvider;
         internal Type remoteTypesProviderType;
@@ -157,14 +157,14 @@ namespace Prise
             return this;
         }
 
-        public PluginLoadOptionsBuilder<T> WithActivator(IRemotePluginActivator activator)
+        public PluginLoadOptionsBuilder<T> WithActivator(IRemotePluginActivator<T> activator)
         {
             this.activator = activator;
             return this;
         }
 
         public PluginLoadOptionsBuilder<T> WithActivator<TType>()
-            where TType : IRemotePluginActivator
+            where TType : IRemotePluginActivator<T>
         {
             this.activatorType = typeof(TType);
             return this;
@@ -300,13 +300,13 @@ namespace Prise
         }
 
         public PluginLoadOptionsBuilder<T> WithHostTypeProvider<TType>()
-            where TType : IHostTypesProvider
+            where TType : IHostTypesProvider<T>
         {
             this.hostTypesProviderType = typeof(TType);
             return this;
         }
 
-        public PluginLoadOptionsBuilder<T> WithHostTypeProvider(IHostTypesProvider hostTypesProvider)
+        public PluginLoadOptionsBuilder<T> WithHostTypeProvider(IHostTypesProvider<T> hostTypesProvider)
         {
             this.hostTypesProvider = hostTypesProvider;
             return this;
@@ -353,9 +353,9 @@ namespace Prise
 
         public PluginLoadOptionsBuilder<T> WithHostType(Type type)
         {
-            var hostTypesProvider = this.hostTypesProvider as HostTypesProvider;
+            var hostTypesProvider = this.hostTypesProvider as HostTypesProvider<T>;
             if (hostTypesProvider == null)
-                throw new PrisePluginException($"You're not using the default IHostTypesProvider {nameof(HostTypesProvider)}. Please add host types using your own provider.");
+                throw new PrisePluginException($"You're not using the default IHostTypesProvider {nameof(HostTypesProvider<T>)}. Please add host types using your own provider.");
             hostTypesProvider.AddHostType(type);
             return this;
         }
@@ -555,7 +555,7 @@ namespace Prise
 
             this.probingPathsProvider = new ProbingPathsProvider<T>();
 
-            var hostTypesProvider = new HostTypesProvider();
+            var hostTypesProvider = new HostTypesProvider<T>();
             hostTypesProvider.AddHostType(typeof(Prise.Plugin.PluginAttribute)); // Add the Prise.Infrastructure assembly to the host types
             hostTypesProvider.AddHostType(typeof(ServiceCollection));  // Adds the BuildServiceProvider assembly to the host types
             this.hostTypesProvider = hostTypesProvider;
@@ -604,10 +604,10 @@ namespace Prise
 
                 // Global services
                 .RegisterTypeOrInstance<IAssemblyLoadStrategyProvider>(assemblyLoadStrategyProviderType, assemblyLoadStrategyProvider, this.priseServiceLifetime)
-                .RegisterTypeOrInstance<IRemotePluginActivator>(activatorType, activator, this.priseServiceLifetime)
+                .RegisterTypeOrInstance<IRemotePluginActivator<T>>(activatorType, activator, this.priseServiceLifetime)
                 .RegisterTypeOrInstance<IResultConverter>(resultConverterType, resultConverter, this.priseServiceLifetime)
                 .RegisterTypeOrInstance<IParameterConverter>(parameterConverterType, parameterConverter, this.priseServiceLifetime)
-                .RegisterTypeOrInstance<IHostTypesProvider>(hostTypesProviderType, hostTypesProvider, this.priseServiceLifetime)
+                .RegisterTypeOrInstance<IHostTypesProvider<T>>(hostTypesProviderType, hostTypesProvider, this.priseServiceLifetime)
                 .RegisterTypeOrInstance<IRuntimePlatformContext>(runtimePlatformContextType, runtimePlatformContext, this.priseServiceLifetime)
                 .RegisterTypeOrInstance<INativeAssemblyUnloader>(nativeAssemblyUnloaderType, nativeAssemblyUnloader, this.priseServiceLifetime)
                 .RegisterTypeOrInstance<IHostFrameworkProvider>(hostFrameworkProviderType, hostFrameworkProvider, this.priseServiceLifetime)

@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "name": "Test",
+    "amount": 15.55,
+    "children": [
+      {
+        "id": 10,
+        "name": "Test10",
+        "amount": 15.55
+      },
+      {
+        "id": 11,
+        "name": "Test11",
+        "amount": 15.55
+      },
+      {
+        "id": 12,
+        "name": "Test12",
+        "amount": 15.55
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "name": "Test",
+    "amount": 15.55
+  }
+]

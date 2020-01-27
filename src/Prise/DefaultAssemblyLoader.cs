@@ -12,7 +12,7 @@ namespace Prise
         private readonly IPluginLogger<T> logger;
         private readonly IAssemblyLoadOptions<T> options;
         private readonly IHostFrameworkProvider hostFrameworkProvider;
-        private readonly IHostTypesProvider hostTypesProvider;
+        private readonly IHostTypesProvider<T> hostTypesProvider;
         private readonly IRemoteTypesProvider<T> remoteTypesProvider;
         private readonly IDependencyPathProvider<T> dependencyPathProvider;
         private readonly IProbingPathsProvider<T> probingPathsProvider;
@@ -26,7 +26,7 @@ namespace Prise
             IPluginLogger<T> logger,
             IAssemblyLoadOptions<T> options,
             IHostFrameworkProvider hostFrameworkProvider,
-            IHostTypesProvider hostTypesProvider,
+            IHostTypesProvider<T> hostTypesProvider,
             IRemoteTypesProvider<T> remoteTypesProvider,
             IDependencyPathProvider<T> dependencyPathProvider,
             IProbingPathsProvider<T> probingPathsProvider,

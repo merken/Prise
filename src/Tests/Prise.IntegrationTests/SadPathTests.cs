@@ -7,14 +7,14 @@ using Xunit;
 
 namespace Prise.IntegrationTests
 {
-    public class SadPathTests : PluginTestBase,
+    public class SadPathTests : CalculationPluginTestsBase,
          IClassFixture<AppHostWebApplicationFactory>
     {
         public SadPathTests(
                  AppHostWebApplicationFactory factory) : base(factory) { }
 
         [Fact]
-        public async Task PluginE_DoesNotExists()
+        public async Task PluginG_DoesNotExists()
         {
             // Arrange
             var payload = new CalculationRequestModel
@@ -25,10 +25,10 @@ namespace Prise.IntegrationTests
 
             //Act
 #if NETCORE3_0
-            await Assert.ThrowsAsync<InvalidOperationException>(async () => await Post<CalculationResponseModel>(_client, "PluginE", "/eager", payload));
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await Post<CalculationResponseModel>(_client, "PluginG", "/eager", payload));
 #endif
 #if NETCORE2_1
-            await Assert.ThrowsAsync<System.Exception>(async () => await Post<CalculationResponseModel>(_client, "PluginE", "/eager", payload));
+            await Assert.ThrowsAsync<System.Exception>(async () => await Post<CalculationResponseModel>(_client, "PluginG", "/eager", payload));
 #endif
         }
 
