@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using Prise.AssemblyScanning.Discovery;
 using ExternalServices;
+using Prise.IntegrationTestsHost.Controllers;
 
 namespace Prise.IntegrationTestsHost
 {
@@ -44,12 +45,15 @@ namespace Prise.IntegrationTestsHost
                 services.AddScoped<ICalculationService, EagerCalculationService>();
             }
 
-            AddPriseWithContextBasedPluginLoading(services);
+            AddPriseCalculationPlugins(services);
+            AddPriseNetworkCalculationPlugins(services);
+            AddPriseTranslationPlugins(services);
+            AddPriseDataServicesPlugin(services);
+            AddPriseSerializerPlugin(services, cla.UseCollectibleAssemblies);
         }
 
-        private IServiceCollection AddPriseWithContextBasedPluginLoading(IServiceCollection services)
+        protected virtual IServiceCollection AddPriseCalculationPlugins(IServiceCollection services)
         {
-            var localServices = services.BuildServiceProvider();
             // This will look for a custom plugin based on the context
             return services
                 // Registers the default ICalculationPlugin
@@ -60,8 +64,12 @@ namespace Prise.IntegrationTestsHost
                         .WithPluginPathProvider<ContextPluginPathProvider<ICalculationPlugin>>()
                         .WithPluginAssemblyNameProvider<ContextPluginAssemblyNameProvider<ICalculationPlugin>>()
                         .WithHostFrameworkProvider<AppHostFrameworkProvider>()
-                 )
+                 );
+        }
 
+        protected virtual IServiceCollection AddPriseNetworkCalculationPlugins(IServiceCollection services)
+        {
+            return services
                 // Registers the plugin that will be loaded over the network
                 .AddPrise<INetworkCalculationPlugin>(options =>
                      options
@@ -74,9 +82,13 @@ namespace Prise.IntegrationTestsHost
                                 sharedServices
                                 .AddSingleton(Configuration)
                             )
-                 )
-
-                 // Registers the plugin that will be loaded via scanning
+                 );
+        }
+        
+        protected virtual IServiceCollection AddPriseTranslationPlugins(IServiceCollection services)
+        {
+            return services
+                // Registers the plugin that will be loaded via scanning
                 .AddPrise<ITranslationPlugin>(options =>
                      options
                         .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"))
@@ -96,8 +108,12 @@ namespace Prise.IntegrationTestsHost
                             // This encourages backwards compatability
                             sharedServices.AddTransient<ICurrentLanguageProvider, AcceptHeaderLanguageProvider>();
                         })
-                 )
+                 );
+        }
 
+        protected virtual IServiceCollection AddPriseDataServicesPlugin(IServiceCollection services)
+        {
+            return services
                 .AddPrise<IAuthenticatedDataService>(options =>
                      options
                         .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins", "PluginE"))
@@ -110,8 +126,20 @@ namespace Prise.IntegrationTestsHost
                         .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins", "PluginE"))
                         .WithPluginAssemblyName("PluginE.dll")
                         .WithHostFrameworkProvider<AppHostFrameworkProvider>()
-                 )
-                ;
+                 );
+        }
+
+        protected virtual IServiceCollection AddPriseSerializerPlugin(IServiceCollection services, bool isCollectable)
+        {
+            return services
+                .AddPrise<IPluginWithSerializer>(options =>
+                         options
+                            .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins", "PluginF"))
+                            .WithPluginAssemblyName("PluginF.dll")
+                            .WithSelector<SerializationPluginSelector>()
+                            .UseCollectibleAssemblies(isCollectable)
+                            .WithHostFrameworkProvider<AppHostFrameworkProvider>()
+                     );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

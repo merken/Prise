@@ -4,11 +4,9 @@ using Xunit;
 
 namespace Prise.IntegrationTests
 {
-    public class ServiceCalculationTests : CalculationPluginTestsBase,
-         IClassFixture<AppHostWebApplicationFactory>
+    public class ServiceCalculationTests : CalculationPluginTestsBase
     {
-        public ServiceCalculationTests(
-                 AppHostWebApplicationFactory factory) : base(factory) { }
+        public ServiceCalculationTests() : base(AppHostWebApplicationFactory.Default()) { }
 
         [Fact]
         public async Task PluginA_Works()

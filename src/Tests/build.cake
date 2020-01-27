@@ -2,7 +2,7 @@ var target = Argument("target", "default");
 var configuration = Argument("configuration", "Debug");
 var plugins = new[] { "PluginA", "PluginB", "PluginC", "PluginCFromNetwork" };
 var defaultPlugins = new[] { "PluginA", "PluginB", "PluginC" };
-var multiPlatformPlugins = new[] { "PluginD", "PluginE" };
+var multiPlatformPlugins = new[] { "PluginD", "PluginE", "PluginF" };
 var networkPlugins = new[] { "PluginCFromNetwork" };
 
 private void CleanProject(string projectDirectory){

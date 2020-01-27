@@ -15,11 +15,11 @@ namespace Prise.IntegrationTests
         {
             return Host.CreateDefaultBuilder()
                 .ConfigureServices((hostContext, services) =>
-                    services.AddSingleton<ICommandLineArguments>(new CommandLineArgumentsLazy()))
+                    services.AddSingleton<ICommandLineArguments>((s) => this.commandLineArguments))
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Prise.IntegrationTestsHost.Startup>();
-                    webBuilder.ConfigureAppConfiguration(builder => builder.AddInMemoryCollection(settings));
+                    webBuilder.ConfigureAppConfiguration(builder => builder.AddInMemoryCollection(this.settings));
                 });
         }
 #endif

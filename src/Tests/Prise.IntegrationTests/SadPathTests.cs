@@ -7,11 +7,9 @@ using Xunit;
 
 namespace Prise.IntegrationTests
 {
-    public class SadPathTests : CalculationPluginTestsBase,
-         IClassFixture<AppHostWebApplicationFactory>
+    public class SadPathTests : CalculationPluginTestsBase
     {
-        public SadPathTests(
-                 AppHostWebApplicationFactory factory) : base(factory) { }
+        public SadPathTests() : base(AppHostWebApplicationFactory.Default()) { }
 
         [Fact]
         public async Task PluginG_DoesNotExists()
