@@ -14,20 +14,26 @@ namespace Prise.IntegrationTestsHost.Controllers
         private readonly ITokenService tokenService;
         private readonly IAuthenticatedDataService dataService;
         private readonly ICalculationPlugin calculationPlugin;
+#if NETCORE3_0
         private readonly ITranslationPlugin translationPlugin;
-
+#endif
         public DataController(
             ILogger<DataController> logger,
             ITokenService tokenService,
             IAuthenticatedDataService dataService,
-            ICalculationPlugin calculationPlugin,
-            ITranslationPlugin translationPlugin)
+#if NETCORE3_0
+            ITranslationPlugin translationPlugin,
+#endif
+            ICalculationPlugin calculationPlugin
+            )
         {
             this.logger = logger;
             this.tokenService = tokenService;
             this.dataService = dataService;
-            this.calculationPlugin = calculationPlugin;
+#if NETCORE3_0
             this.translationPlugin = translationPlugin;
+#endif
+            this.calculationPlugin = calculationPlugin;
         }
 
         [HttpGet]
@@ -36,6 +42,7 @@ namespace Prise.IntegrationTestsHost.Controllers
             return await this.tokenService.GenerateToken();
         }
 
+#if NETCORE3_0
         [HttpGet("{token}")]
         public async Task<IEnumerable<Data>> GetData(string token)
         {
@@ -43,6 +50,7 @@ namespace Prise.IntegrationTestsHost.Controllers
             await this.translationPlugin.Translate(new TranslationInput { ContentToTranslate = "dog" });
             return await this.dataService.GetData(token);
         }
+#endif
 
         [HttpGet("{token}/V1")]
         public async Task<IEnumerable<Data>> GetDataV1(string token)
