@@ -6,11 +6,9 @@ using Xunit;
 
 namespace Prise.IntegrationTests
 {
-    public class LazyLoadingTests : CalculationPluginTestsBase,
-         IClassFixture<AppHostWebApplicationFactory>
+    public class LazyLoadingTests : CalculationPluginTestsBase
     {
-        public LazyLoadingTests(
-                 AppHostWebApplicationFactory factory) : base(factory) { }
+        public LazyLoadingTests() : base(AppHostWebApplicationFactory.Default()) { }
 
         [Fact]
         public async Task PluginA_Works()

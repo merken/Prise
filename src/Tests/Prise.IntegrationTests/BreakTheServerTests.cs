@@ -7,11 +7,9 @@ using Xunit;
 namespace Prise.IntegrationTests
 {
 #if NETCORE3_0
-    public class BreakTheServerTests : CalculationPluginTestsBase,
-         IClassFixture<AppHostWebApplicationFactory>
+    public class BreakTheServerTests : CalculationPluginTestsBase
     {
-        public BreakTheServerTests(
-                 AppHostWebApplicationFactory factory) : base(factory) { }
+        public BreakTheServerTests() : base(AppHostWebApplicationFactory.Default()) { }
 
         [Fact]
         public async Task BreakWithLoop()

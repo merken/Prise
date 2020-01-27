@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <DefineConstants>NETCORE2_1</DefineConstants>
+    <AssemblyName>PluginF</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Prise.Plugin\Prise.Plugin.net2.csproj" />
+    <ProjectReference Include="..\..\Prise.IntegrationTestsContract\Prise.IntegrationTestsContract.csproj" />
+    <ProjectReference Include="..\XmlSerializerLib\XmlSerializerLib.csproj" />
+  </ItemGroup>
+
+</Project>

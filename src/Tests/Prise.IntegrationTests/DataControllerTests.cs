@@ -10,11 +10,9 @@ using Xunit;
 
 namespace Prise.IntegrationTests
 {
-    public class DataControllerTests : PluginTestBase,
-     IClassFixture<AppHostWebApplicationFactory>
+    public class DataControllerTests : PluginTestBase
     {
-        public DataControllerTests(
-                 AppHostWebApplicationFactory factory) : base(factory) { }
+        public DataControllerTests() : base(AppHostWebApplicationFactory.Default()) { }
 
         [Fact]
         public async Task Get_Token_Works()

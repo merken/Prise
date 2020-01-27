@@ -3,11 +3,9 @@ using Xunit;
 
 namespace Prise.IntegrationTests
 {
-    public class DiscoTests : CalculationPluginTestsBase,
-         IClassFixture<AppHostWebApplicationFactory>
+    public class DiscoTests : CalculationPluginTestsBase
     {
-        public DiscoTests(
-                 AppHostWebApplicationFactory factory) : base(factory) { }
+        public DiscoTests() : base(AppHostWebApplicationFactory.Default()) { }
 
         [Fact]
         public async Task PluginA_Works()

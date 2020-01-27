@@ -6,25 +6,21 @@ namespace Prise.IntegrationTests
 {
     public class CommandLineArgumentsLazy : ICommandLineArguments
     {
-        public bool UseLazyService => true;
+        public bool UseLazyService { get; set; }
+        public bool UseCollectibleAssemblies { get; set; }
     }
 
     public partial class AppHostWebApplicationFactory
        : WebApplicationFactory<Prise.IntegrationTestsHost.Startup>
     {
-        private bool useLazyServices = false;
-        private Dictionary<string, string> settings;
+        internal static AppHostWebApplicationFactory Default() => new AppHostWebApplicationFactory(new CommandLineArgumentsLazy(), null);
 
-        public AppHostWebApplicationFactory ConfigureLazyService()
+        private readonly Dictionary<string, string> settings;
+        private readonly ICommandLineArguments commandLineArguments;
+        public AppHostWebApplicationFactory(ICommandLineArguments commandLineArguments, Dictionary<string, string> settings = null)
         {
-            this.useLazyServices = true;
-            return this;
-        }
-
-        public AppHostWebApplicationFactory AddInMemoryConfig(Dictionary<string, string> settings)
-        {
+            this.commandLineArguments = commandLineArguments;
             this.settings = settings;
-            return this;
         }
     }
 }

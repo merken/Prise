@@ -6,11 +6,9 @@ using Xunit;
 
 namespace Prise.IntegrationTests
 {
-    public class EagerLoadingTests : CalculationPluginTestsBase,
-         IClassFixture<AppHostWebApplicationFactory>
+    public class EagerLoadingTests : CalculationPluginTestsBase
     {
-        public EagerLoadingTests(
-                 AppHostWebApplicationFactory factory) : base(factory) { }
+        public EagerLoadingTests() : base(AppHostWebApplicationFactory.Default()) { }
 
         [Fact]
         public async Task PluginA_Works()

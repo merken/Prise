@@ -16,7 +16,7 @@ namespace Prise.IntegrationTests
             builder.ConfigureAppConfiguration((c, b) => b.AddInMemoryCollection(this.settings));
             builder.ConfigureServices(services =>
             {
-                services.AddSingleton<ICommandLineArguments>(new CommandLineArgumentsLazy());
+                services.AddSingleton<ICommandLineArguments>((s) => this.commandLineArguments);
             });
         }
 #endif
