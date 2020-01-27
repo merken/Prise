@@ -20,7 +20,7 @@ jobs:
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginB/PluginB.csproj -o publish/PluginB
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginC/PluginC.csproj -o publish/PluginC
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginD/PluginD.csproj -o publish/PluginD -f netcoreapp3.0
-      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginE/PluginE.csproj -o publish/PluginE
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginE/PluginE.csproj -o publish/PluginE -f netcoreapp3.0
 
       # Copies all published plugins to integration test directory
       - run: mkdir -p src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
