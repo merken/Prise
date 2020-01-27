@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Prise.IntegrationTests
 {
-    public class DiscoTests : PluginTestBase,
+    public class DiscoTests : CalculationPluginTestsBase,
          IClassFixture<AppHostWebApplicationFactory>
     {
         public DiscoTests(

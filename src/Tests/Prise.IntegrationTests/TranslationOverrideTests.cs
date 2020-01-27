@@ -7,7 +7,7 @@ namespace Prise.IntegrationTests
 {
  // These tests do not succeed (System.PlatformNotSupportedException: Named maps are not supported)
 #if NETCORE3_0
-    public class TranslationOverrideTests : PluginTestBase,
+    public class TranslationOverrideTests : TranslationTestsBase,
          IClassFixture<AppHostWebApplicationFactory>
     {
         public TranslationOverrideTests(

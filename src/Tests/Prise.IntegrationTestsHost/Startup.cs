@@ -100,14 +100,14 @@ namespace Prise.IntegrationTestsHost
 
                 .AddPrise<IAuthenticatedDataService>(options =>
                      options
-                        .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"))
+                        .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins", "PluginE"))
                         .WithPluginAssemblyName("PluginE.dll")
                         .WithHostFrameworkProvider<AppHostFrameworkProvider>()
                  )
 
                 .AddPrise<ITokenService>(options =>
                      options
-                        .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"))
+                        .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins", "PluginE"))
                         .WithPluginAssemblyName("PluginE.dll")
                         .WithHostFrameworkProvider<AppHostFrameworkProvider>()
                  )
