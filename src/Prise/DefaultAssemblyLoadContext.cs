@@ -43,6 +43,9 @@ namespace Prise
             IPluginDependencyResolver<T> pluginDependencyResolver,
             INativeAssemblyUnloader nativeAssemblyUnloader,
             IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider)
+#if NETCORE3_0
+            : base(options.UseCollectibleAssemblies)
+#endif
         {
             this.logger = logger;
             this.options = options;
@@ -114,6 +117,16 @@ namespace Prise
 
                 return base.LoadFromStream(pluginStream); // ==> AssemblyLoadContext.LoadFromStream(Stream stream);
             }
+        }
+
+        void IAssemblyLoadContext.Unload()
+        {
+            // What to do for unloading in NETCOREAPP2_1?
+            // ==> Nothing, this is only available in .NET Core 3.0+
+#if NETCORE3_0
+            if (this.isCollectible)
+                base.Unload();
+#endif
         }
 
         protected virtual ValueOrProceed<Assembly> LoadFromDefaultContext(IPluginLoadContext pluginLoadContext, AssemblyName assemblyName)
@@ -373,13 +386,5 @@ namespace Prise
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
-#if NETCOREAPP2_1
-        public void Unload()
-        {
-            // What to do for unloading in NETCOREAPP2_1?
-            // ==> Nothing, this is only available in .NET Core 3.0+
-        }
-#endif
     }
 }

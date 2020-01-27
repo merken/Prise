@@ -6,15 +6,20 @@ using System.Runtime.Loader;
 namespace Prise
 {
     /// <summary>
-    /// This base class will load all assemblies in memory by default and is Collectable by default
+    /// This base class will load all assemblies in memory by default and is Collectible by default
     /// </summary>
     public abstract class InMemoryAssemblyLoadContext : AssemblyLoadContext
     {
-        protected InMemoryAssemblyLoadContext()
+        protected bool isCollectible = false;
+        protected InMemoryAssemblyLoadContext() { }
+
+        // Provide the opt-in for collectible assemblies in netcore 3
 #if NETCOREAPP3_0
-            : base($"PriseInMemoryAssemblyLoadContext{Guid.NewGuid().ToString("N")}", isCollectible: true)
+        protected InMemoryAssemblyLoadContext(bool isCollectible) : base($"PriseInMemoryAssemblyLoadContext{Guid.NewGuid().ToString("N")}", isCollectible: isCollectible)
+        {
+            this.isCollectible = isCollectible;
+        }
 #endif
-        { }
 
         public new Assembly LoadFromAssemblyPath(string path)
         {
