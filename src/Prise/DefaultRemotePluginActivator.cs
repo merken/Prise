@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Prise.Infrastructure;
 using Prise.Plugin;
-using Prise.Proxy;
 
 namespace Prise
 {
@@ -35,7 +34,6 @@ namespace Prise
 
         public virtual object CreateRemoteInstance(PluginActivationContext pluginActivationContext, IPluginBootstrapper bootstrapper = null)
         {
-            // TODO Check out RuntimeHelpers.GetUninitializedObject(pluginType);
             var pluginType = pluginActivationContext.PluginType;
             var pluginAssembly = pluginActivationContext.PluginAssembly;
             var factoryMethod = pluginActivationContext.PluginFactoryMethod;
@@ -45,14 +43,60 @@ namespace Prise
             if (contructors.Count() > 1)
                 throw new PrisePluginException($"Multiple public constructors found for remote plugin {pluginType.Name}");
 
+            var serviceProvider = GetServiceProvider(bootstrapper);
+
+            if (factoryMethod != null)
+                return factoryMethod.Invoke(null, new[] { serviceProvider });
+
             var firstCtor = contructors.FirstOrDefault();
-            if (firstCtor != null && !firstCtor.GetParameters().Any())
-                return pluginAssembly.CreateInstance(pluginType.FullName);
+            if (firstCtor != null && !firstCtor.GetParameters().Any()) // Empty default CTOR
+            {
+                var pluginServiceProvider = serviceProvider.GetService<IPluginServiceProvider>();
+                var remoteInstance = pluginAssembly.CreateInstance(pluginType.FullName);
+                remoteInstance = InjectFieldsWithServices(remoteInstance, pluginServiceProvider, pluginActivationContext.PluginServices);
+                return remoteInstance;
+            }
 
-            if (factoryMethod == null)
-                throw new PrisePluginException($@"Plugins must either provide a default parameterless constructor or implement a static factory method.
-                    Example; 'public static {pluginType.Name} CreatePlugin(IServiceProvider serviceProvider)");
+            throw new PrisePluginException($"Plugin of type {typeof(T).Name} could not be activated.");
+        }
 
+        protected virtual object InjectFieldsWithServices(object remoteInstance, IPluginServiceProvider pluginServiceProvider, IEnumerable<PluginService> pluginServices)
+        {
+            foreach (var pluginService in pluginServices)
+            {
+                object serviceInstance = null;
+                switch (pluginService.ProvidedBy)
+                {
+                    case ProvidedBy.Host:
+                        serviceInstance = pluginServiceProvider.GetHostService(pluginService.ServiceType);
+                        break;
+                    case ProvidedBy.Plugin:
+                        serviceInstance = pluginServiceProvider.GetPluginService(pluginService.ServiceType);
+                        break;
+                }
+                try
+                {
+                    remoteInstance.GetType().GetTypeInfo().DeclaredFields.First(f => f.Name == pluginService.FieldName).SetValue(remoteInstance, serviceInstance);
+                    continue;
+                }
+                catch (ArgumentException ex) { }
+
+                if (pluginService.BridgeType == null)
+                    throw new PrisePluginException($"Field {pluginService.FieldName} could not be set, please consider using a PluginBridge.");
+                var bridgeConstructor = pluginService.BridgeType
+                        .GetConstructors(BindingFlags.Public | BindingFlags.Instance)
+                        .FirstOrDefault(c => c.GetParameters().Count() == 1 && c.GetParameters().First().ParameterType == typeof(object));
+                if (bridgeConstructor == null)
+                    throw new PrisePluginException($"PluginBridge {pluginService.BridgeType.Name} must have a single public constructor with one parameter of type object.");
+                var bridgeInstance = bridgeConstructor.Invoke(new[] { serviceInstance });
+                remoteInstance.GetType().GetTypeInfo().DeclaredFields.First(f => f.Name == pluginService.FieldName).SetValue(remoteInstance, bridgeInstance);
+            }
+
+            return remoteInstance;
+        }
+
+        protected virtual IServiceProvider GetServiceProvider(IPluginBootstrapper bootstrapper)
+        {
             var hostServices = this.sharedServicesProvider.ProvideHostServices();
             var sharedServices = this.sharedServicesProvider.ProvideSharedServices();
             var allServices = new ServiceCollection();
@@ -72,16 +116,7 @@ namespace Prise
                 sharedServices.Select(d => d.ServiceType)
             ));
 
-            var localProvider = allServices.BuildServiceProvider();
-
-            if (pluginActivationContext.PluginFactoryMethodWithPluginServiceProvider != null)
-            {
-                var factoryMethodWithPluginServiceProvider = pluginActivationContext.PluginFactoryMethodWithPluginServiceProvider;
-
-                return factoryMethodWithPluginServiceProvider.Invoke(null, new[] { localProvider.GetService(typeof(IPluginServiceProvider)) });
-            }
-
-            return factoryMethod.Invoke(null, new[] { localProvider });
+            return allServices.BuildServiceProvider();
         }
 
         protected virtual void Dispose(bool disposing)

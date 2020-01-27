@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Prise.IntegrationTestsContract;
 using Prise.Plugin;
@@ -11,18 +12,8 @@ namespace PluginE
     [Plugin(PluginType = typeof(IAuthenticatedDataService))]
     public class AuthenticatedDataService : IAuthenticatedDataService
     {
+        [PluginService(ServiceType =typeof(ITokenService))]
         private readonly ITokenService tokenService;
-        internal AuthenticatedDataService(ITokenService tokenService)
-        {
-            this.tokenService = tokenService;
-        }
-
-        [PluginFactory]
-        public static AuthenticatedDataService Factory(IPluginServiceProvider pluginServiceProvider)
-        {
-            var tokenService = pluginServiceProvider.GetPluginService<ITokenService>();
-            return new AuthenticatedDataService(tokenService);
-        }
 
         public async Task<IEnumerable<Data>> GetData(string token)
         {

@@ -13,15 +13,41 @@ namespace LanguageBased.Plugin
     [Plugin(PluginType = typeof(ITranslationPlugin))]
     public class TranslationPlugin : ITranslationPlugin
     {
-        [PluginService(ServiceType = typeof(IConfiguration), ProvidedBy = ProvidedBy.Host)]
         private readonly IConfiguration configuration;
-        [PluginService(
-            ServiceType = typeof(ICurrentLanguageProvider),
-            ProvidedBy = ProvidedBy.Host, 
-            BridgeType = typeof(CurrentLanguageProviderBridge))]
         private readonly ICurrentLanguageProvider languageProvider;
-        [PluginService(ServiceType = typeof(IDictionaryService))]
         private readonly IDictionaryService dictionaryService;
+
+        internal TranslationPlugin(IConfiguration configuration, ICurrentLanguageProvider languageProvider, IDictionaryService dictionaryService)
+        {
+            // This will guard us from possible nullpointers
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+            if (languageProvider == null)
+                throw new ArgumentNullException(nameof(languageProvider));
+            if (dictionaryService == null)
+                throw new ArgumentNullException(nameof(dictionaryService));
+
+            this.configuration = configuration;
+            this.languageProvider = languageProvider;
+            this.dictionaryService = dictionaryService;
+        }
+
+        [PluginFactory]
+        public static TranslationPlugin ThisIsTheFactoryMethod(IServiceProvider pluginServices, IServiceProvider hostServices)
+        {
+            var configFromHost = hostServices.GetService<IConfiguration>();
+
+            var hostService = hostServices.GetService(typeof(ICurrentLanguageProvider));
+            var hostServiceBridge = new CurrentLanguageProviderBridge(hostService);
+
+            var dictionaryService = pluginServices.GetService<IDictionaryService>();
+
+            return new TranslationPlugin(
+                configFromHost, // This service is provided by the Prise.IntegrationTestsHost application and is registered as a Host Type
+                hostServiceBridge, // This service is provided by the Prise.IntegrationTestsHost application and is registered as a Remote Type
+                dictionaryService // This service is provided by the plugin using the PluginBootstrapper
+            );
+        }
 
         public async Task<IEnumerable<TranslationOutput>> Translate(TranslationInput input)
         {

@@ -16,29 +16,17 @@ namespace Prise
             this.sharedTypes = sharedTypes;
         }
 
-        public T GetPluginService<T>()
+        public object GetPluginService(Type type)
         {
-            var instance = (T)this.localProvider.GetService(typeof(T));
-            if (instance == null)
-                throw new PrisePluginException($"Could not resolve Plugin Service <{typeof(T).Name}> Please check if this type is registered for plugin.");
+            var instance = this.localProvider.GetService(type);
 
             return instance;
         }
 
-        public T GetHostService<T>()
-        {
-            var instance = (T)this.localProvider.GetService(typeof(T));
-            if (instance == null)
-                throw new PrisePluginException($"Could not resolve Host Service <{typeof(T).Name}> Could there be a version mismatch?");
-            return instance;
-        }
-
-        public object GetSharedHostService(Type type)
+        public object GetHostService(Type type)
         {
             var instanceType = this.sharedTypes.FirstOrDefault(t => t.Name == type.Name);
             var instance = this.localProvider.GetService(instanceType);
-            if (instance == null)
-                throw new PrisePluginException($"Could not resolve Shared Host Service <{type.Name}> Please check the registration.");
 
             return instance;
         }
