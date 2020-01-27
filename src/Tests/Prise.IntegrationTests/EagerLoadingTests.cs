@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Prise.IntegrationTests
 {
-    public class EagerLoadingTests : PluginTestBase,
+    public class EagerLoadingTests : CalculationPluginTestsBase,
          IClassFixture<AppHostWebApplicationFactory>
     {
         public EagerLoadingTests(

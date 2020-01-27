@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Prise.IntegrationTests
 {
-    public class NetworkTests : PluginTestBase,
+    public class NetworkTests : CalculationPluginTestsBase,
          IClassFixture<AppHostWebApplicationFactory>
     {
         public NetworkTests(

@@ -1,12 +1,10 @@
-using System.Net.Http;
 using System.Threading.Tasks;
 using Prise.IntegrationTestsHost.Models;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
 namespace Prise.IntegrationTests
 {
-    public class ServiceCalculationTests : PluginTestBase,
+    public class ServiceCalculationTests : CalculationPluginTestsBase,
          IClassFixture<AppHostWebApplicationFactory>
     {
         public ServiceCalculationTests(

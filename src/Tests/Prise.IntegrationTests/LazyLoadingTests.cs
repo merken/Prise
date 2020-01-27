@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Prise.IntegrationTests
 {
-    public class LazyLoadingTests : PluginTestBase,
+    public class LazyLoadingTests : CalculationPluginTestsBase,
          IClassFixture<AppHostWebApplicationFactory>
     {
         public LazyLoadingTests(
