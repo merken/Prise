@@ -38,6 +38,7 @@ namespace Prise.IntegrationTests
             Assert.Equal(2, result.Count());
         }
 
+#if NETCORE3_0
         [Fact]
         public async Task Get_Data_Works()
         {
@@ -48,7 +49,7 @@ namespace Prise.IntegrationTests
             // Assert
             Assert.Equal(2, result.Count());
         }
-
+#endif
 
         protected async Task<string> GetToken(HttpClient client, string pluginType, string endpoint)
         {

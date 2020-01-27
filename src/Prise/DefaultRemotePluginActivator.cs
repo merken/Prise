@@ -78,7 +78,7 @@ namespace Prise
             {
                 var factoryMethodWithPluginServiceProvider = pluginActivationContext.PluginFactoryMethodWithPluginServiceProvider;
 
-                return factoryMethodWithPluginServiceProvider.Invoke(null, new[] { localProvider.GetService<IPluginServiceProvider>() });
+                return factoryMethodWithPluginServiceProvider.Invoke(null, new[] { localProvider.GetService(typeof(IPluginServiceProvider)) });
             }
 
             return factoryMethod.Invoke(null, new[] { localProvider });
