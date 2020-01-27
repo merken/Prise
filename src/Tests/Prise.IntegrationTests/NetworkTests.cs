@@ -5,11 +5,9 @@ using Xunit;
 
 namespace Prise.IntegrationTests
 {
-    public class NetworkTests : CalculationPluginTestsBase,
-         IClassFixture<AppHostWebApplicationFactory>
+    public class NetworkTests : CalculationPluginTestsBase
     {
-        public NetworkTests(
-                 AppHostWebApplicationFactory factory) : base(factory) { }
+        public NetworkTests() : base(AppHostWebApplicationFactory.Default()) { }
 
         [SkippableFact]
         public async Task PluginCFromNetwork_Works()

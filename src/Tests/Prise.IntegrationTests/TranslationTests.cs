@@ -6,11 +6,9 @@ namespace Prise.IntegrationTests
 {
     // These tests do not succeed (System.PlatformNotSupportedException: Named maps are not supported)
 #if NETCORE3_0
-    public class TranslationTests : TranslationTestsBase,
-         IClassFixture<AppHostWebApplicationFactory>
+    public class TranslationTests : TranslationTestsBase
     {
-        public TranslationTests(
-                 AppHostWebApplicationFactory factory) : base(factory) { }
+        public TranslationTests() : base(AppHostWebApplicationFactory.Default()) { }
 
         [Fact]
         public async Task PluginD_DE_Works()

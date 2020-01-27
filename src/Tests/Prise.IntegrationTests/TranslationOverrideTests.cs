@@ -7,11 +7,9 @@ namespace Prise.IntegrationTests
 {
  // These tests do not succeed (System.PlatformNotSupportedException: Named maps are not supported)
 #if NETCORE3_0
-    public class TranslationOverrideTests : TranslationTestsBase,
-         IClassFixture<AppHostWebApplicationFactory>
+    public class TranslationOverrideTests : TranslationTestsBase
     {
-        public TranslationOverrideTests(
-                 AppHostWebApplicationFactory factory) : base(factory.AddInMemoryConfig(new Dictionary<string, string>()
+        public TranslationOverrideTests() : base(new AppHostWebApplicationFactory(new CommandLineArgumentsLazy(), new Dictionary<string, string>()
             { { "LanguageOverride", "de-DE" } })) { }
 
         [Theory]

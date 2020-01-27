@@ -11,11 +11,13 @@ namespace Prise
     {
         private readonly PluginPlatformVersion pluginPlatformVersion;
         private readonly bool ignorePlatformInconsistencies;
+        private readonly bool useCollectibleAssemblies;
         private readonly NativeDependencyLoadPreference nativeDependencyLoadPreference;
 
         public DefaultAssemblyLoadOptions(
             PluginPlatformVersion pluginPlatformVersion = null,
             bool ignorePlatformInconsistencies = false,
+            bool useCollectibleAssemblies = true,
             NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime)
         {
             if (pluginPlatformVersion == null)
@@ -24,11 +26,13 @@ namespace Prise
                 this.pluginPlatformVersion = pluginPlatformVersion;
 
             this.ignorePlatformInconsistencies = ignorePlatformInconsistencies;
+            this.useCollectibleAssemblies = useCollectibleAssemblies;
             this.nativeDependencyLoadPreference = nativeDependencyLoadPreference;
         }
 
         public PluginPlatformVersion PluginPlatformVersion => this.pluginPlatformVersion;
         public bool IgnorePlatformInconsistencies => this.ignorePlatformInconsistencies;
+        public bool UseCollectibleAssemblies => this.useCollectibleAssemblies;
         public NativeDependencyLoadPreference NativeDependencyLoadPreference => this.nativeDependencyLoadPreference;
     }
 }

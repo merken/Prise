@@ -157,6 +157,18 @@ namespace Prise
             return this;
         }
 
+        private bool useCollectibleAssemblies = true;
+        public PluginLoadOptionsBuilder<T> UseCollectibleAssemblies(bool useCollectibleAssemblies)
+        {
+            this.useCollectibleAssemblies = useCollectibleAssemblies;
+            this.assemblyLoadOptions = new DefaultAssemblyLoadOptions<T>(
+                PluginPlatformVersion.Empty(),
+                false,
+                this.useCollectibleAssemblies,
+                NativeDependencyLoadPreference.PreferInstalledRuntime);
+            return this;
+        }
+
         public PluginLoadOptionsBuilder<T> WithActivator(IRemotePluginActivator<T> activator)
         {
             this.activator = activator;
@@ -211,6 +223,7 @@ namespace Prise
 
         public PluginLoadOptionsBuilder<T> WithLocalDiskAssemblyLoader(
             PluginPlatformVersion pluginPlatformVersion = null,
+            bool useCollectibleAssemblies = true,
             NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime
             )
         {
@@ -220,6 +233,7 @@ namespace Prise
             this.assemblyLoadOptions = new DefaultAssemblyLoadOptions<T>(
                 pluginPlatformVersion,
                 false,
+                useCollectibleAssemblies,
                 nativeDependencyLoadPreference);
 
 #if NETCORE3_0
@@ -433,6 +447,7 @@ namespace Prise
                 this.assemblyLoadOptions = new DefaultAssemblyLoadOptions<T>(
                     this.assemblyLoadOptions.PluginPlatformVersion,
                     ignore,
+                    this.useCollectibleAssemblies,
                     this.assemblyLoadOptions.NativeDependencyLoadPreference);
 
             if (this.networkAssemblyLoaderOptions != null)
@@ -551,6 +566,7 @@ namespace Prise
             this.assemblyLoadOptions = new DefaultAssemblyLoadOptions<T>(
                 PluginPlatformVersion.Empty(),
                 false,
+                this.useCollectibleAssemblies,
                 NativeDependencyLoadPreference.PreferInstalledRuntime);
 
             this.probingPathsProvider = new ProbingPathsProvider<T>();
