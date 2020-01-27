@@ -10,7 +10,7 @@ namespace Prise
             bool ignorePlatformInconsistencies = false,
             NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime
         )
-         : base(pluginPlatformVersion, ignorePlatformInconsistencies, nativeDependencyLoadPreference)
+         : base(pluginPlatformVersion, ignorePlatformInconsistencies, ignorePlatformInconsistencies, nativeDependencyLoadPreference)
         {
             this.baseUrl = baseUrl;
         }
