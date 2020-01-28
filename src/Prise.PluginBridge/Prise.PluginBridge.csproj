@@ -23,11 +23,11 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
     <DefineConstants>NETCORE3_0</DefineConstants>
   </PropertyGroup>
-  
+
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Compile Include="..\Prise.Proxy\Exceptions\PriseProxyException.cs" Link="PriseProxyException.cs" />
     <Compile Include="..\Prise.Proxy\Infrastructure\IParameterConverter.cs" Link="IParameterConverter.cs" />
@@ -42,6 +42,10 @@
     <Compile Include="..\Prise\NewtonsoftParameterConverter.cs" Link="NewtonsoftParameterConverter.cs" />
     <Compile Include="..\Prise\NewtonsoftResultConverter.cs" Link="NewtonsoftResultConverter.cs" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <PackageIcon>icon.png</PackageIcon>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Include="../icon.png">
