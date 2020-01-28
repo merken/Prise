@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Prise.Plugin
+namespace Prise.Infrastructure
 {
     public interface IPluginServiceProvider
     {
