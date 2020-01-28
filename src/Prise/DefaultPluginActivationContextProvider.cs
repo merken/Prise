@@ -30,14 +30,28 @@ namespace Prise
                 pluginServices = pluginServiceFields.Select(f => ParsePluginService(f)).ToList();
             }
 
+            var pluginActivatedMethod = GetPluginActivatedMethod(remoteType);
+
             return new PluginActivationContext
             {
                 PluginType = remoteType,
                 PluginAssembly = pluginAssembly,
                 PluginBootstrapperType = bootstrapper,
                 PluginFactoryMethod = factoryMethod,
-                PluginServices = pluginServices
+                PluginServices = pluginServices,
+                PluginActivatedMethod = pluginActivatedMethod
             };
+        }
+
+        private static MethodInfo GetPluginActivatedMethod(Type type)
+        {
+            var pluginActivatedMethods = type.GetMethods()
+                .Where(m => m.CustomAttributes.Any(c => c.AttributeType.Name == typeof(Prise.Plugin.PluginActivatedAttribute).Name));
+
+            if (pluginActivatedMethods.Count() > 1)
+                throw new PrisePluginException($"Type {type.Name} contains multiple PluginActivated methods, please provide only one public void OnActivated(){{}} method and annotate it with the PluginActivated Attribute.");
+
+            return pluginActivatedMethods.FirstOrDefault();
         }
 
         private static IEnumerable<FieldInfo> GetFieldsOfCustomAttribute(TypeInfo type, string typeName)
