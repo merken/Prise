@@ -19,6 +19,7 @@ namespace Prise.Infrastructure
         public Type PluginType { get; set; }
         public Type PluginBootstrapperType { get; set; }
         public MethodInfo PluginFactoryMethod { get; set; }
+        public MethodInfo PluginActivatedMethod { get; set; }
         public IEnumerable<PluginService> PluginServices { get; set; }
     }
 }
