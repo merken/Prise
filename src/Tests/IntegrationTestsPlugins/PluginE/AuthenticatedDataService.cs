@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Prise.IntegrationTestsContract;
 using Prise.Plugin;
@@ -15,8 +14,19 @@ namespace PluginE
         [PluginService(ServiceType =typeof(ITokenService))]
         private readonly ITokenService tokenService;
 
+        private string wasPluginActivated = String.Empty;
+
+        [PluginActivated]
+        public void OnActivated()
+        {
+            this.wasPluginActivated = "ACTIVATED!";
+        }
+
         public async Task<IEnumerable<Data>> GetData(string token)
         {
+            if (String.IsNullOrEmpty(this.wasPluginActivated))
+                throw new ArgumentException($"Plugin was not activated!");
+
             await this.tokenService.ValidateToken(token);
             return await this.GetDataFromDisk();
         }

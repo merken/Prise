@@ -54,10 +54,21 @@ namespace Prise
                 var pluginServiceProvider = serviceProvider.GetService<IPluginServiceProvider>();
                 var remoteInstance = pluginAssembly.CreateInstance(pluginType.FullName);
                 remoteInstance = InjectFieldsWithServices(remoteInstance, pluginServiceProvider, pluginActivationContext.PluginServices);
+                
+                ActivateIfNecessary(remoteInstance, pluginActivationContext);
+                
                 return remoteInstance;
             }
 
             throw new PrisePluginException($"Plugin of type {typeof(T).Name} could not be activated.");
+        }
+
+        protected virtual void ActivateIfNecessary(object remoteInstance, PluginActivationContext pluginActivationContext)
+        {
+            if (pluginActivationContext.PluginActivatedMethod == null)
+                return;
+
+            remoteInstance.GetType().GetMethod(pluginActivationContext.PluginActivatedMethod.Name).Invoke(remoteInstance, null);
         }
 
         protected virtual object InjectFieldsWithServices(object remoteInstance, IPluginServiceProvider pluginServiceProvider, IEnumerable<PluginService> pluginServices)
