@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Prise.Plugin;
+using Prise.Infrastructure;
 
 namespace Prise
 {
