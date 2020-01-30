@@ -37,6 +37,7 @@ namespace Prise
 
         public static PluginDependencyContext FromPluginAssembly<T>(
             IPluginLoadContext pluginLoadContext,
+            IPluginLogger<T> pluginLogger,
             IHostFrameworkProvider hostFrameworkProvider,
             IEnumerable<Type> hostTypes,
             IEnumerable<Type> remoteTypes,
@@ -49,7 +50,7 @@ namespace Prise
 
             foreach (var type in hostTypes)
                 // Load host types from current app domain
-                LoadAssemblyAndReferencesFromCurrentAppDomain(type.Assembly.GetName(), hostDependencies);
+                LoadAssemblyAndReferencesFromCurrentAppDomain(pluginLogger, type.Assembly.GetName(), hostDependencies);
 
             foreach (var type in remoteTypes)
                 remoteDependencies.Add(new RemoteDependency
@@ -79,6 +80,7 @@ namespace Prise
 
         public static async Task<PluginDependencyContext> FromPluginAssemblyAsync<T>(
             IPluginLoadContext pluginLoadContext,
+            IPluginLogger<T> pluginLogger,
             IHostFrameworkProvider hostFrameworkProvider,
             IEnumerable<Type> hostTypes,
             IEnumerable<Type> remoteTypes,
@@ -91,7 +93,7 @@ namespace Prise
 
             foreach (var type in hostTypes)
                 // Load host types from current app domain
-                LoadAssemblyAndReferencesFromCurrentAppDomain(type.Assembly.GetName(), hostDependencies);
+                LoadAssemblyAndReferencesFromCurrentAppDomain(pluginLogger, type.Assembly.GetName(), hostDependencies);
 
             foreach (var type in remoteTypes)
                 remoteDependencies.Add(new RemoteDependency
@@ -149,7 +151,7 @@ namespace Prise
             }
         }
 
-        private static void LoadAssemblyAndReferencesFromCurrentAppDomain(AssemblyName assemblyName, List<HostDependency> hostDependencies)
+        private static void LoadAssemblyAndReferencesFromCurrentAppDomain(IPluginLogger logger, AssemblyName assemblyName, List<HostDependency> hostDependencies)
         {
             if (assemblyName?.Name == null || hostDependencies.Any(h => h.DependencyName.Name == assemblyName.Name))
                 return; // Break condition
@@ -159,9 +161,17 @@ namespace Prise
                 DependencyName = assemblyName
             });
 
-            var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
-            foreach (var reference in assembly.GetReferencedAssemblies())
-                LoadAssemblyAndReferencesFromCurrentAppDomain(reference, hostDependencies);
+            try
+            {
+                var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
+                foreach (var reference in assembly.GetReferencedAssemblies())
+                    LoadAssemblyAndReferencesFromCurrentAppDomain(logger, reference, hostDependencies);
+            }
+            catch (FileNotFoundException)
+            {
+                // This happens when the assembly is a platform assembly, log it
+                logger.LoadReferenceFromAppDomainFailed(assemblyName);
+            }
         }
 
         private static IEnumerable<PluginDependency> GetPluginDependencies(DependencyContext pluginDependencyContext)

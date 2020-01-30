@@ -28,6 +28,11 @@ namespace Prise
 
         protected abstract void Log(string message);
 
+        public void LoadReferenceFromAppDomainFailed(AssemblyName assemblyName)
+        {
+            Log($"Plugin<{this.pluginType}> assembly {assemblyName.Name} could not be loaded from AssemblyLoadContext.Default.LoadFromAssemblyName {assemblyName.Name}. This is possibly a platform assemly.");
+        }
+
         public void IsHostAssembly(AssemblyName assemblyName)
         {
             Log($"Plugin<{this.pluginType}> assembly {assemblyName.Name} was registered as a Host type");

@@ -83,6 +83,7 @@ namespace Prise
 
             this.pluginDependencyContext = PluginDependencyContext.FromPluginAssembly<T>(
                 pluginLoadContext,
+                this.logger,
                 this.hostFrameworkProvider,
                 this.hostTypesProvider.ProvideHostTypes(),
                 this.remoteTypesProvider.ProvideRemoteTypes(),
@@ -104,6 +105,7 @@ namespace Prise
 
             this.pluginDependencyContext = await PluginDependencyContext.FromPluginAssemblyAsync(
                 pluginLoadContext,
+                this.logger,
                 this.hostFrameworkProvider,
                 this.hostTypesProvider.ProvideHostTypes(),
                 this.remoteTypesProvider.ProvideRemoteTypes(),
