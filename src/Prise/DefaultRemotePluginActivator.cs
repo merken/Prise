@@ -85,6 +85,7 @@ namespace Prise
                         serviceInstance = pluginServiceProvider.GetPluginService(pluginService.ServiceType);
                         break;
                 }
+
                 try
                 {
                     remoteInstance.GetType().GetTypeInfo().DeclaredFields.First(f => f.Name == pluginService.FieldName).SetValue(remoteInstance, serviceInstance);
@@ -94,11 +95,14 @@ namespace Prise
 
                 if (pluginService.BridgeType == null)
                     throw new PrisePluginException($"Field {pluginService.FieldName} could not be set, please consider using a PluginBridge.");
+
                 var bridgeConstructor = pluginService.BridgeType
                         .GetConstructors(BindingFlags.Public | BindingFlags.Instance)
                         .FirstOrDefault(c => c.GetParameters().Count() == 1 && c.GetParameters().First().ParameterType == typeof(object));
+                
                 if (bridgeConstructor == null)
                     throw new PrisePluginException($"PluginBridge {pluginService.BridgeType.Name} must have a single public constructor with one parameter of type object.");
+
                 var bridgeInstance = bridgeConstructor.Invoke(new[] { serviceInstance });
                 remoteInstance.GetType().GetTypeInfo().DeclaredFields.First(f => f.Name == pluginService.FieldName).SetValue(remoteInstance, bridgeInstance);
             }

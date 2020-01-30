@@ -50,6 +50,7 @@ namespace Prise.IntegrationTestsHost
             AddPriseTranslationPlugins(services);
             AddPriseDataServicesPlugin(services);
             AddPriseSerializerPlugin(services, cla.UseCollectibleAssemblies);
+            AddPriseLegacyPlugin(services);
         }
 
         protected virtual IServiceCollection AddPriseCalculationPlugins(IServiceCollection services)
@@ -140,6 +141,24 @@ namespace Prise.IntegrationTestsHost
                             .UseCollectibleAssemblies(isCollectable)
                             .WithHostFrameworkProvider<AppHostFrameworkProvider>()
                      );
+        }
+
+        protected virtual IServiceCollection AddPriseLegacyPlugin(IServiceCollection services)
+        {
+            return services
+                .AddPrise<Legacy.Domain.ITranslationPlugin>(options =>
+                     options
+                        .WithDefaultOptions()
+                        .IgnorePlatformInconsistencies()
+                        .WithPluginPathProvider<LegacyPluginPathProvider>()
+                        .WithSelector<LegacyLanguageBasedPluginSelector>()
+                        .WithPluginAssemblyName("LegacyPlugin.dll") // Depending on what is copied over, the 1.4 or 1.5 plugin will be loaded
+                        .WithHostFrameworkProvider<AppHostFrameworkProvider>()
+                        .ConfigureHostServices(hostService =>
+                        {
+                            hostService.AddSingleton<IConfiguration>(Configuration);
+                        })
+                 );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
