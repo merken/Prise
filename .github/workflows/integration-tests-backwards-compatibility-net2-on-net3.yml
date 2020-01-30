@@ -1,4 +1,4 @@
-name: Prise backwards compatibility tests .net core 3
+name: Prise backwards compatibility tests .net core 2 on 3
 
 on: [push]
 
@@ -20,9 +20,9 @@ jobs:
       - run: cp -r src/Tests/compatibility/PluginA src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
       - run: cp -r src/Tests/compatibility/PluginB src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
       - run: cp -r src/Tests/compatibility/PluginC src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
-      - run: cp -r src/Tests/compatibility/netcoreapp3.0/PluginD src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
-      - run: cp -r src/Tests/compatibility/netcoreapp3.0/PluginE src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
-      - run: cp -r src/Tests/compatibility/netcoreapp3.0/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
+      - run: cp -r src/Tests/compatibility/netcoreapp2.1/PluginD src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
+      - run: cp -r src/Tests/compatibility/netcoreapp2.1/PluginE src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
+      - run: cp -r src/Tests/compatibility/netcoreapp2.1/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
       - run: cp -r src/Tests/compatibility/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
       - run: cp -r src/Tests/compatibility/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
 
