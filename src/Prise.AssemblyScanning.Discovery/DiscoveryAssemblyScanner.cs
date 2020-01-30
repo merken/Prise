@@ -160,7 +160,8 @@ namespace Prise.AssemblyScanning.Discovery
             return assembly.GetTypes()
                         .Where(t => t.CustomAttributes
                             .Any(c => c.AttributeType.Name == typeof(Prise.Plugin.PluginAttribute).Name
-                            && (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Name == typeof(T).Name))
+                            && (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Name == typeof(T).Name
+                            && (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Namespace == typeof(T).Namespace))
                         .OrderBy(t => t.Name)
                         .ToList();
         }

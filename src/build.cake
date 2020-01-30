@@ -7,7 +7,7 @@ var proxyVersion = "1.5.0";
 var pluginVersion = "1.5.3";
 var pluginBridgeVersion = "1.5.3";
 var mvcVersion = "1.5.0";
-var assemblyDiscoveryVersion = "1.5.0";
+var assemblyDiscoveryVersion = "1.5.3";
 var nugetSource = "https://api.nuget.org/v3/index.json";
 var betaVersion = "1";
 
