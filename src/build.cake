@@ -134,7 +134,7 @@ Task("push")
     }
     try
     {
-      DotNetCoreNuGetPush(outputDir + "/Prise.MVC." + pluginVersion +  ".nupkg", settings); 
+      DotNetCoreNuGetPush(outputDir + "/Prise.MVC." + mvcVersion +  ".nupkg", settings); 
     }
     catch(Exception ex)
     {
