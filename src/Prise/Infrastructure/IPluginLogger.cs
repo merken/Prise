@@ -26,6 +26,7 @@ namespace Prise.Infrastructure
         void RemoteInstanceCreated(object instance);
         void LoadReferenceAssembly(AssemblyName assemblyName);
         void LoadUnmanagedDll(string unmanagedDllName);
+        void LoadReferenceFromAppDomainFailed(AssemblyName assemblyName);
         void IsHostAssembly(AssemblyName assemblyName);
         void IsRemoteAssembly(AssemblyName assemblyName);
         void LoadedFromAppDomain(AssemblyName assemblyName);

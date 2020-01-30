@@ -2,7 +2,7 @@ var target = Argument("target", "default");
 var configuration = Argument("configuration", "Release");
 var apikey = Argument("apikey", "");
 var outputDir = "../dist";
-var priseVersion = "1.5.3";
+var priseVersion = "1.5.4";
 var proxyVersion = "1.5.0";
 var pluginVersion = "1.5.3";
 var pluginBridgeVersion = "1.5.3";
@@ -134,7 +134,7 @@ Task("push")
     }
     try
     {
-      DotNetCoreNuGetPush(outputDir + "/Prise.MVC." + pluginVersion +  ".nupkg", settings); 
+      DotNetCoreNuGetPush(outputDir + "/Prise.MVC." + mvcVersion +  ".nupkg", settings); 
     }
     catch(Exception ex)
     {
