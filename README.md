@@ -21,9 +21,15 @@ Prise features:
 
 ![alt text](https://github.com/merken/prise/workflows/Prise%20unit%20tests/badge.svg "Prise Unit Tests")
 
-![alt text](https://github.com/merken/prise/workflows/Prise%20integration%20tests%20.net%20core%202/badge.svg "Prise Build .NET CORE 2")
+![alt text](https://github.com/merken/prise/workflows/Prise%20integration%20tests%20.net%20core%202/badge.svg "")
 
-![alt text](https://github.com/merken/prise/workflows/Prise%20integration%20tests%20.net%20core%203/badge.svg "Prise Build .NET CORE 3")
+![alt text](https://github.com/merken/prise/workflows/Prise%20integration%20tests%20.net%20core%203/badge.svg "")
+
+![alt text](https://github.com/merken/prise/workflows/Prise%20backwards%20compatibility%20tests%20.net%20core%202%20on%203/badge.svg "")
+
+![alt text](https://github.com/merken/prise/workflows/Prise%20backwards%20compatibility%20tests%20.net%20core%203/badge.svg "")
+
+![alt text](https://github.com/merken/prise/workflows/Prise%20backwards%20compatibility%20.net%20core%202/badge.svg "")
 
 ## Latest version
 ![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise) [Prise](https://www.nuget.org/packages/Prise) 
