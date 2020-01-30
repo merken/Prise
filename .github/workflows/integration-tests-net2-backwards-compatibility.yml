@@ -1,4 +1,4 @@
-name: Prise integration tests .net core 2
+name: Prise backwards compatibility .net core 2
 
 on: [push]
 
