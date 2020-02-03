@@ -15,13 +15,6 @@ namespace Prise
             return services.AddPriseWithPluginLoader<T, PrisePluginLoader<T>>(config, serviceLifetime);
         }
 
-        public static IServiceCollection AddPriseAsSingleton<T>(this IServiceCollection services,
-            Action<PluginLoadOptionsBuilder<T>> config = null)
-            where T : class
-        {
-            return services.AddPrise<T>(config, ServiceLifetime.Singleton);
-        }
-
         public static IServiceCollection AddPriseWithPluginLoader<T, TPluginLoader>(
                 this IServiceCollection services,
                 Action<PluginLoadOptionsBuilder<T>> config = null,
