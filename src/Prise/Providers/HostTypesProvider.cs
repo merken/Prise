@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 namespace Prise
 {
-    // TODO this must be plugin context specific
     public class HostTypesProvider<T> : IHostTypesProvider<T>
     {
         private IList<Type> hostTypes;

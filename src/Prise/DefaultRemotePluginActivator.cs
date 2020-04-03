@@ -19,7 +19,7 @@ namespace Prise
             this.sharedServicesProvider = sharedServicesProvider;
         }
 
-        public object CreateRemoteBootstrapper(Type bootstrapperType, Assembly assembly)
+        public virtual object CreateRemoteBootstrapper(Type bootstrapperType, Assembly assembly)
         {
             var contructors = bootstrapperType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
             var firstCtor = contructors.First();
