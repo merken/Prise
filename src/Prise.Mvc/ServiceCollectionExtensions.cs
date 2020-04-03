@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Razor;
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
 using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 #endif
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -93,7 +93,7 @@ namespace Prise.Mvc
                     options.FileProviders.Add(new PrisePluginViewsAssemblyFileProvider<T>(webRootPath));
                 })
 #endif
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
                 .Configure<MvcRazorRuntimeCompilationOptions>(options =>
                 {
                     options.FileProviders.Add(new PrisePluginViewsAssemblyFileProvider<T>(webRootPath));

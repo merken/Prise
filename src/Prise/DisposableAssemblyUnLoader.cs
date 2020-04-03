@@ -58,7 +58,7 @@ namespace Prise
         {
             var pluginName = Path.GetFileNameWithoutExtension(pluginAssemblyName);
             var loadContext = this.loadContexts[pluginName];
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
             loadContext.Unload();
 #endif
             loadContext.Dispose();
@@ -72,7 +72,7 @@ namespace Prise
             if (loadContexts != null)
                 foreach (var loadContext in loadContexts.Values)
                 {
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
                     loadContext.Unload();
 #endif
                     loadContext.Dispose();
