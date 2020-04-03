@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Prise.AssemblyScanning;
 using Prise.Infrastructure;
@@ -236,7 +237,7 @@ namespace Prise
                 useCollectibleAssemblies,
                 nativeDependencyLoadPreference);
 
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
             return this.WithAssemblyLoader<DefaultAssemblyLoaderWithNativeResolver<T>>();
 #endif
 #if NETCORE2_1
@@ -249,7 +250,7 @@ namespace Prise
         {
             this.assemblyLoadOptionsType = typeof(TType);
 
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
             return this.WithAssemblyLoader<DefaultAssemblyLoaderWithNativeResolver<T>>();
 #endif
 #if NETCORE2_1
@@ -466,6 +467,50 @@ namespace Prise
 
         private IServiceCollection hostServices = new ServiceCollection();
         private IServiceCollection sharedServices = new ServiceCollection();
+
+        private bool IsPriseService(Type type) => type.Namespace.StartsWith("Prise.");
+        private bool Includes(Type type, IEnumerable<Type> includeTypes)
+        {
+            if (includeTypes == null)
+                return true;
+            return includeTypes.Contains(type);
+        }
+
+        private bool Excludes(Type type, IEnumerable<Type> excludeTypes)
+        {
+            if (excludeTypes == null)
+                return true;
+            return !excludeTypes.Contains(type);
+        }
+
+        public PluginLoadOptionsBuilder<T> UseHostServices(
+            IServiceCollection hostServices,
+            IEnumerable<Type> includeTypes = null,
+            IEnumerable<Type> excludeTypes = null)
+        {
+            if (this.sharedServicesProviderType != null)
+                throw new PrisePluginException($"A custom {typeof(ISharedServicesProvider<T>).Name} type cannot be used in combination with {nameof(ConfigureSharedServices)}service");
+
+            this.hostServices = new ServiceCollection();
+            foreach (var service in hostServices.Where(s =>
+                                                        !IsPriseService(s.ServiceType) &&
+                                                        Includes(s.ServiceType, includeTypes) &&
+                                                        Excludes(s.ServiceType, excludeTypes)))
+                this.hostServices.Add(service);
+
+            foreach (var hostService in this.hostServices)
+                this
+                    // A host type will always live inside the host
+                    .WithHostType(hostService.ServiceType)
+                    // The implementation type will always exist on the Host, since it will be created here
+                    .WithHostType(hostService.ImplementationType ?? hostService.ImplementationInstance?.GetType() ?? hostService.ImplementationFactory?.Method.ReturnType)
+                ;
+
+            this.sharedServicesProvider = new DefaultSharedServicesProvider<T>(this.hostServices, this.sharedServices);
+            this.activator = new DefaultRemotePluginActivator<T>(this.sharedServicesProvider);
+            return this;
+        }
+
         public PluginLoadOptionsBuilder<T> ConfigureHostServices(Action<IServiceCollection> hostServicesConfig)
         {
             if (this.sharedServicesProviderType != null)
@@ -550,8 +595,8 @@ namespace Prise
             this.activator = new DefaultRemotePluginActivator<T>(this.sharedServicesProvider);
             this.proxyCreator = new PluginProxyCreator<T>();
 
-            // Use System.Text.Json in 3.0
-#if NETCORE3_0
+            // Use System.Text.Json in 3.0 and 3.1
+#if NETCORE3_0 || NETCORE3_1
             this.parameterConverter = new JsonSerializerParameterConverter();
             this.resultConverter = new JsonSerializerResultConverter();
             this.assemblyLoaderType = typeof(DefaultAssemblyLoaderWithNativeResolver<T>);
