@@ -14,14 +14,14 @@ namespace Prise.IntegrationTestsHost.Controllers
         private readonly ITokenService tokenService;
         private readonly IAuthenticatedDataService dataService;
         private readonly ICalculationPlugin calculationPlugin;
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
         private readonly ITranslationPlugin translationPlugin;
 #endif
         public DataController(
             ILogger<DataController> logger,
             ITokenService tokenService,
             IAuthenticatedDataService dataService,
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
             ITranslationPlugin translationPlugin,
 #endif
             ICalculationPlugin calculationPlugin
@@ -30,7 +30,7 @@ namespace Prise.IntegrationTestsHost.Controllers
             this.logger = logger;
             this.tokenService = tokenService;
             this.dataService = dataService;
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
             this.translationPlugin = translationPlugin;
 #endif
             this.calculationPlugin = calculationPlugin;
@@ -42,7 +42,7 @@ namespace Prise.IntegrationTestsHost.Controllers
             return await this.tokenService.GenerateToken();
         }
 
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
         [HttpGet("{token}")]
         public async Task<IEnumerable<Data>> GetData(string token)
         {

@@ -16,7 +16,7 @@ namespace Prise.IntegrationTestsHost
 {
     public partial class Startup
     {
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
         private void ConfigureTargetFramework(IServiceCollection services)
         {
             services.AddControllers();
@@ -25,7 +25,7 @@ namespace Prise.IntegrationTestsHost
 #endif
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
         private void ConfigureTargetFramework(IApplicationBuilder app)
         {
             app.UseRouting();

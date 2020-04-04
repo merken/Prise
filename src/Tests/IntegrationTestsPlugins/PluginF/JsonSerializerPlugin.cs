@@ -8,7 +8,7 @@ namespace PluginF
     {
         public string SerializeObject(ObjectToSerialize obj)
         {
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
             return System.Text.Json.JsonSerializer.Serialize(obj);
 #endif
 #if NETCORE2_1

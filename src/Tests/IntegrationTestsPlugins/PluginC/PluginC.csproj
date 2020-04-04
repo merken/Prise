@@ -7,6 +7,5 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Prise.IntegrationTestsContract\Prise.IntegrationTestsContract.csproj" />
     <ProjectReference Include="..\DomainForPluginC\DomainForPluginC.csproj" />
-    <ProjectReference Include="..\..\..\Prise.Plugin\Prise.Plugin.csproj" />
   </ItemGroup>
 </Project>
