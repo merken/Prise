@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Dictionary.Domain;
 using ExternalServices;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Prise.IntegrationTestsContract;
 using Prise.Plugin;
 

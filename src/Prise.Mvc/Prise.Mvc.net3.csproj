@@ -62,7 +62,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Prise\Prise.csproj">
+    <ProjectReference Include="..\Prise\Prise.net3.csproj">
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>Prise.dll</IncludeAssets>
     </ProjectReference>

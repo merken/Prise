@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
@@ -19,7 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Prise.AssemblyScanning.Discovery\Prise.AssemblyScanning.Discovery.net3.csproj" />
     <ProjectReference Include="..\..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj" />
+    <ProjectReference Include="..\..\Prise\Prise.net3.csproj" />
     <ProjectReference Include="..\IntegrationTestsPlugins\ExternalServiceForPluginD\ExternalServiceForPluginD.csproj" />
     <ProjectReference Include="..\IntegrationTestsPlugins\Legacy.Contract\Legacy.Contract.csproj" />
     <ProjectReference Include="..\Prise.IntegrationTestsContract\Prise.IntegrationTestsContract.csproj" />
