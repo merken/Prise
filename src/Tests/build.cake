@@ -1,6 +1,6 @@
 var target = Argument("target", "default");
 var configuration = Argument("configuration", "Debug");
-var plugins = new[] { "PluginA", "PluginB", "PluginC", "PluginCFromNetwork","LegacyPlugin1.4", "LegacyPlugin1.5" };
+var plugins = new[] { "PluginA", "PluginB", "PluginC", "PluginCFromNetwork", "LegacyPlugin1.4", "LegacyPlugin1.5" };
 var defaultPlugins = new[] { "PluginA", "PluginB", "PluginC" };
 var multiPlatformPlugins = new[] { "PluginD", "PluginE", "PluginF", "PluginG" };
 var legacyPlugins = new[] { "LegacyPlugin1.4", "LegacyPlugin1.5" };
