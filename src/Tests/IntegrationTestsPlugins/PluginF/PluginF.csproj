@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
-    <DefineConstants>NETCORE3_0</DefineConstants>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <DefineConstants>NETCORE3_1</DefineConstants>
     <OutputType>Library</OutputType>
   </PropertyGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Prise.Plugin\Prise.Plugin.csproj" />
     <ProjectReference Include="..\..\Prise.IntegrationTestsContract\Prise.IntegrationTestsContract.csproj" />
     <ProjectReference Include="..\XmlSerializerLib\XmlSerializerLib.csproj" />
   </ItemGroup>

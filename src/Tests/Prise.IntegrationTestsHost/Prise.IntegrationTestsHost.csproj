@@ -19,7 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Prise.AssemblyScanning.Discovery\Prise.AssemblyScanning.Discovery.csproj" />
     <ProjectReference Include="..\..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj" />
+    <ProjectReference Include="..\..\Prise.Mvc\Prise.Mvc.csproj" />
+    <ProjectReference Include="..\..\Prise.Proxy\Prise.Proxy.csproj" />
+    <ProjectReference Include="..\..\Prise\Prise.csproj" />
     <ProjectReference Include="..\IntegrationTestsPlugins\ExternalServiceForPluginD\ExternalServiceForPluginD.csproj" />
     <ProjectReference Include="..\IntegrationTestsPlugins\Legacy.Contract\Legacy.Contract.csproj" />
     <ProjectReference Include="..\Prise.IntegrationTestsContract\Prise.IntegrationTestsContract.csproj" />

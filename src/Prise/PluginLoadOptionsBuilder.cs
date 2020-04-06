@@ -479,8 +479,8 @@ namespace Prise
         private bool Excludes(Type type, IEnumerable<Type> excludeTypes)
         {
             if (excludeTypes == null)
-                return true;
-            return !excludeTypes.Contains(type);
+                return false;
+            return excludeTypes.Contains(type);
         }
 
         public PluginLoadOptionsBuilder<T> UseHostServices(
@@ -492,10 +492,15 @@ namespace Prise
                 throw new PrisePluginException($"A custom {typeof(ISharedServicesProvider<T>).Name} type cannot be used in combination with {nameof(ConfigureSharedServices)}service");
 
             this.hostServices = new ServiceCollection();
-            foreach (var service in hostServices.Where(s =>
-                                                        !IsPriseService(s.ServiceType) &&
-                                                        Includes(s.ServiceType, includeTypes) &&
-                                                        Excludes(s.ServiceType, excludeTypes)))
+
+            var priseServices = hostServices.Where(s => IsPriseService(s.ServiceType));
+            var includeServices = hostServices.Where(s => Includes(s.ServiceType, includeTypes));
+            var excludeServices = hostServices.Where(s => Excludes(s.ServiceType, excludeTypes));
+
+            foreach (var service in hostServices
+                .Except(priseServices)
+                .Union(includeServices)
+                .Except(excludeServices))
                 this.hostServices.Add(service);
 
             foreach (var hostService in this.hostServices)

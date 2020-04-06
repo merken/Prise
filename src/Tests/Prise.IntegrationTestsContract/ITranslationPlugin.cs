@@ -19,4 +19,8 @@ namespace Prise.IntegrationTestsContract
     {
         Task<IEnumerable<TranslationOutput>> Translate(TranslationInput input);
     }
+
+    public interface ITranslationPlugin2 : ITranslationPlugin
+    {
+    }
 }

@@ -71,6 +71,7 @@
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>Prise.Plugin.dll</IncludeAssets>
     </ProjectReference>
+    <ProjectReference Include="..\Prise\Prise.csproj" />
   </ItemGroup>
 
 </Project>
