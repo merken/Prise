@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <DefineConstants>NETCORE3_0</DefineConstants>
     <OutputType>Library</OutputType>
+    <AssemblyName>PluginF</AssemblyName>
   </PropertyGroup>
   
   <ItemGroup>
