@@ -25,7 +25,7 @@ Prise features:
 
 ![alt text](https://github.com/merken/prise/workflows/Prise%20integration%20tests%20.net%20core%203.0/badge.svg "Prise Integration Tests .Net Core 3.0")
 
-![alt text](https://github.com/merken/prise/workflows/Prise%20backwards%20compatibility%20tests%20.net%20core%202%20on%203.1/badge.svg/badge.svg "Prise Backwards Compatibility Tests .Net Core 2 on 3")
+![alt text](https://github.com/merken/prise/workflows/Prise%20backwards%20compatibility%20tests%20.net%20core%202%20on%203.1/badge.svg "Prise Backwards Compatibility Tests .Net Core 2 on 3")
 
 ![alt text](https://github.com/merken/prise/workflows/Prise%20backwards%20compatibility%20tests%20.net%20core%203.1/badge.svg "Prise Backwards Compatibility Tests .Net Core 3.1")
 
