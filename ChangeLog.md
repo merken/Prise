@@ -1,6 +1,29 @@
 # Prise
 A .NET Core Plugin Frawework!
 
+## 1.6.0
+This release introduced a new API in the PluginOptionsBuilder in order to make all Host services available to the plugin **UseHostServices()**
+Aligned all Prise versions to 1.6.0
+
+## 1.5.5
+This release addressed a bug.
+
+- Singleton issue for MVC
+
+## 1.5.4
+This release addressed a bug.
+
+- Platform Assembly not found
+
+## 1.5.3
+This release focused mostly on getting around the fake-ctor-injection method used in plugins via the [PluginFactory] method.
+To date, Prise supports both the previous [PluginFactory] injection method as well as the **new field injection**.
+
+*Miscellanious*
+- Fix bug: Assembly not found from Assembly Scanner
+- Refactoring
+- Added more Github Actions (tests)
+
 ## 1.5.0
 This release has focused on allowing Prise to load MVC plugins using the Prise.Mvc package.
 

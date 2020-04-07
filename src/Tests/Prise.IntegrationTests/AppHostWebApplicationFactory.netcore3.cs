@@ -10,7 +10,7 @@ namespace Prise.IntegrationTests
     public partial class AppHostWebApplicationFactory
        : WebApplicationFactory<Prise.IntegrationTestsHost.Startup>
     {
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
         protected override IHostBuilder CreateHostBuilder()
         {
             return Host.CreateDefaultBuilder()

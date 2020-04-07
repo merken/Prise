@@ -14,7 +14,7 @@ namespace Prise
         protected InMemoryAssemblyLoadContext() { }
 
         // Provide the opt-in for collectible assemblies in netcore 3
-#if NETCOREAPP3_0
+#if NETCORE3_0 || NETCORE3_1
         protected InMemoryAssemblyLoadContext(bool isCollectible) : base($"PriseInMemoryAssemblyLoadContext{Guid.NewGuid().ToString("N")}", isCollectible: isCollectible)
         {
             this.isCollectible = isCollectible;

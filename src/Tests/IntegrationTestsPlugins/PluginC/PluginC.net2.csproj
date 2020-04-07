@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Prise.Plugin\Prise.Plugin.net2.csproj" />
     <ProjectReference Include="..\..\Prise.IntegrationTestsContract\Prise.IntegrationTestsContract.csproj" />
     <ProjectReference Include="..\DomainForPluginC\DomainForPluginC.csproj" />
-    <ProjectReference Include="..\..\..\Prise.Plugin\Prise.Plugin.net2.csproj" />
   </ItemGroup>
 </Project>

@@ -36,7 +36,7 @@ namespace Prise.IntegrationTests
             Assert.Equal(2, result.Count());
         }
 
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
         [Fact]
         public async Task Get_Data_Works()
         {

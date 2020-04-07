@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
@@ -9,6 +9,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
     <DefineConstants>NETCORE3_0</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <DefineConstants>NETCORE3_1</DefineConstants>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
     <PackageReference Include="Microsoft.AspNetCore.App" />
@@ -19,7 +22,6 @@
     <ProjectReference Include="..\..\Prise.AssemblyScanning.Discovery\Prise.AssemblyScanning.Discovery.csproj" />
     <ProjectReference Include="..\..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj" />
     <ProjectReference Include="..\..\Prise.Mvc\Prise.Mvc.csproj" />
-    <ProjectReference Include="..\..\Prise.Plugin\Prise.Plugin.csproj" />
     <ProjectReference Include="..\..\Prise.Proxy\Prise.Proxy.csproj" />
     <ProjectReference Include="..\..\Prise\Prise.csproj" />
     <ProjectReference Include="..\IntegrationTestsPlugins\ExternalServiceForPluginD\ExternalServiceForPluginD.csproj" />

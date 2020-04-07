@@ -40,7 +40,7 @@ namespace Prise.IntegrationTests
             Assert.Equal(expectedJson, result);
         }
 
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
         [Fact]
         public async Task PluginF_DOES_NOT_Work_WithXml()
         {

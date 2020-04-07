@@ -1,0 +1,31 @@
+name: Prise backwards compatibility tests .net core 2 on 3.1
+
+on: [push]
+
+jobs:
+  run-integration-tests:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+        
+      - name: Setup .NET Core 3.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.101
+
+      # Copies all plugins to integration test directory
+      - run: mkdir -p src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r src/Tests/compatibility/PluginA src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r src/Tests/compatibility/PluginB src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r src/Tests/compatibility/PluginC src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r src/Tests/compatibility/netcoreapp3.0/PluginD src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r src/Tests/compatibility/netcoreapp3.0/PluginE src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r src/Tests/compatibility/netcoreapp3.0/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r src/Tests/compatibility/netcoreapp3.0/PluginG src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r src/Tests/compatibility/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r src/Tests/compatibility/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+
+      - name: Test Prise.IntegrationTests with netcoreapp3.1
+        run: dotnet test src/Tests/Prise.IntegrationTests/Prise.IntegrationTests.csproj

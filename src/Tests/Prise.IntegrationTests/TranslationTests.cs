@@ -5,7 +5,7 @@ using Xunit;
 namespace Prise.IntegrationTests
 {
     // These tests do not succeed (System.PlatformNotSupportedException: Named maps are not supported)
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
     public class TranslationTests : TranslationTestsBase
     {
         public TranslationTests() : base(AppHostWebApplicationFactory.Default()) { }

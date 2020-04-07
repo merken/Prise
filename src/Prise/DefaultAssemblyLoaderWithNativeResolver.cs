@@ -1,4 +1,4 @@
-﻿#if NETCORE3_0
+﻿#if NETCORE3_0 || NETCORE3_1
 using Prise.Infrastructure;
 using System;
 using System.Collections.Generic;

@@ -1,8 +1,8 @@
 var target = Argument("target", "default");
 var configuration = Argument("configuration", "Debug");
-var plugins = new[] { "PluginA", "PluginB", "PluginC", "PluginCFromNetwork","LegacyPlugin1.4", "LegacyPlugin1.5" };
+var plugins = new[] { "PluginA", "PluginB", "PluginC", "PluginCFromNetwork", "LegacyPlugin1.4", "LegacyPlugin1.5" };
 var defaultPlugins = new[] { "PluginA", "PluginB", "PluginC" };
-var multiPlatformPlugins = new[] { "PluginD", "PluginE", "PluginF" };
+var multiPlatformPlugins = new[] { "PluginD", "PluginE", "PluginF", "PluginG" };
 var legacyPlugins = new[] { "LegacyPlugin1.4", "LegacyPlugin1.5" };
 var networkPlugins = new[] { "PluginCFromNetwork" };
 
@@ -55,6 +55,11 @@ Task("build")
 
     foreach (var plugin in multiPlatformPlugins)
     {
+      DotNetCoreBuild($"IntegrationTestsPlugins/{plugin}/{plugin}.net3.csproj", settings);
+    }
+
+    foreach (var plugin in multiPlatformPlugins)
+    {
       DotNetCoreBuild($"IntegrationTestsPlugins/{plugin}/{plugin}.net2.csproj", settings);
     }
 });
@@ -81,12 +86,21 @@ Task("publish")
           Framework = "netcoreapp2.1",
           OutputDirectory = $"publish/netcoreapp2.1/{plugin}"
       });
-      DotNetCorePublish($"IntegrationTestsPlugins/{plugin}/{plugin}.csproj", new DotNetCorePublishSettings
+
+      DotNetCorePublish($"IntegrationTestsPlugins/{plugin}/{plugin}.net3.csproj", new DotNetCorePublishSettings
       {
           NoBuild = false,
           Configuration = configuration,
           Framework = "netcoreapp3.0",
           OutputDirectory = $"publish/netcoreapp3.0/{plugin}"
+      });
+
+      DotNetCorePublish($"IntegrationTestsPlugins/{plugin}/{plugin}.csproj", new DotNetCorePublishSettings
+      {
+          NoBuild = false,
+          Configuration = configuration,
+          Framework = "netcoreapp3.1",
+          OutputDirectory = $"publish/netcoreapp3.1/{plugin}"
       });
     }
   });
@@ -95,12 +109,14 @@ Task("copy-to-testhost")
   .IsDependentOn("publish")
   .Does(() =>
   {
-    foreach (var plugin in defaultPlugins)
+    foreach (var plugin in defaultPlugins.Union(legacyPlugins))
     {
       CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTests/bin/debug/netcoreapp2.1/Plugins/{plugin}");
       CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp2.1/Plugins/{plugin}");
       CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTests/bin/debug/netcoreapp3.0/Plugins/{plugin}");
       CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.0/Plugins/{plugin}");
+      CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTests/bin/debug/netcoreapp3.1/Plugins/{plugin}");
+      CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.1/Plugins/{plugin}");
     }
 
     foreach (var plugin in multiPlatformPlugins)
@@ -109,14 +125,8 @@ Task("copy-to-testhost")
       CopyDirectory($"publish/netcoreapp2.1/{plugin}", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp2.1/Plugins/{plugin}");
       CopyDirectory($"publish/netcoreapp3.0/{plugin}", $"Prise.IntegrationTests/bin/debug/netcoreapp3.0/Plugins/{plugin}");
       CopyDirectory($"publish/netcoreapp3.0/{plugin}", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.0/Plugins/{plugin}");
-    }
-
-    foreach (var plugin in legacyPlugins)
-    {
-      CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTests/bin/debug/netcoreapp2.1/Plugins/{plugin}");
-      CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp2.1/Plugins/{plugin}");
-      CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTests/bin/debug/netcoreapp3.0/Plugins/{plugin}");
-      CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.0/Plugins/{plugin}");
+      CopyDirectory($"publish/netcoreapp3.1/{plugin}", $"Prise.IntegrationTests/bin/debug/netcoreapp3.1/Plugins/{plugin}");
+      CopyDirectory($"publish/netcoreapp3.1/{plugin}", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.1/Plugins/{plugin}");
     }
 
     foreach (var plugin in networkPlugins)

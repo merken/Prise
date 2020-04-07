@@ -43,7 +43,7 @@ namespace Prise
             IPluginDependencyResolver<T> pluginDependencyResolver,
             INativeAssemblyUnloader nativeAssemblyUnloader,
             IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider)
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
             : base(options.UseCollectibleAssemblies)
 #endif
         {
@@ -125,7 +125,7 @@ namespace Prise
         {
             // What to do for unloading in NETCOREAPP2_1?
             // ==> Nothing, this is only available in .NET Core 3.0+
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
             if (this.isCollectible)
                 base.Unload();
 #endif

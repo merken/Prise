@@ -19,7 +19,7 @@ namespace Prise
             this.sharedServicesProvider = sharedServicesProvider;
         }
 
-        public object CreateRemoteBootstrapper(Type bootstrapperType, Assembly assembly)
+        public virtual object CreateRemoteBootstrapper(Type bootstrapperType, Assembly assembly)
         {
             var contructors = bootstrapperType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
             var firstCtor = contructors.First();
@@ -54,9 +54,9 @@ namespace Prise
                 var pluginServiceProvider = serviceProvider.GetService<IPluginServiceProvider>();
                 var remoteInstance = pluginAssembly.CreateInstance(pluginType.FullName);
                 remoteInstance = InjectFieldsWithServices(remoteInstance, pluginServiceProvider, pluginActivationContext.PluginServices);
-                
+
                 ActivateIfNecessary(remoteInstance, pluginActivationContext);
-                
+
                 return remoteInstance;
             }
 
@@ -88,10 +88,15 @@ namespace Prise
 
                 try
                 {
-                    remoteInstance.GetType().GetTypeInfo().DeclaredFields.First(f => f.Name == pluginService.FieldName).SetValue(remoteInstance, serviceInstance);
+                    remoteInstance
+                        .GetType()
+                        .GetTypeInfo()
+                            .DeclaredFields
+                                .First(f => f.Name == pluginService.FieldName)
+                                .SetValue(remoteInstance, serviceInstance);
                     continue;
                 }
-                catch (ArgumentException ex) { }
+                catch (ArgumentException) { }
 
                 if (pluginService.BridgeType == null)
                     throw new PrisePluginException($"Field {pluginService.FieldName} could not be set, please consider using a PluginBridge.");
@@ -99,7 +104,7 @@ namespace Prise
                 var bridgeConstructor = pluginService.BridgeType
                         .GetConstructors(BindingFlags.Public | BindingFlags.Instance)
                         .FirstOrDefault(c => c.GetParameters().Count() == 1 && c.GetParameters().First().ParameterType == typeof(object));
-                
+
                 if (bridgeConstructor == null)
                     throw new PrisePluginException($"PluginBridge {pluginService.BridgeType.Name} must have a single public constructor with one parameter of type object.");
 

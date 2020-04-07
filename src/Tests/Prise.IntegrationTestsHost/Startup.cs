@@ -48,6 +48,10 @@ namespace Prise.IntegrationTestsHost
             AddPriseCalculationPlugins(services);
             AddPriseNetworkCalculationPlugins(services);
             AddPriseTranslationPlugins(services);
+
+            services.AddSingleton<IConfiguration>(Configuration);
+
+            AddPriseTranslationPlugins2(services);
             AddPriseDataServicesPlugin(services);
             AddPriseSerializerPlugin(services, cla.UseCollectibleAssemblies);
             AddPriseLegacyPlugin(services);
@@ -85,7 +89,7 @@ namespace Prise.IntegrationTestsHost
                             )
                  );
         }
-        
+
         protected virtual IServiceCollection AddPriseTranslationPlugins(IServiceCollection services)
         {
             return services
@@ -108,6 +112,30 @@ namespace Prise.IntegrationTestsHost
                             // The AcceptHeaderlanguageService is known in the Host, but the type is registered as a remote type
                             // This encourages backwards compatability
                             sharedServices.AddTransient<ICurrentLanguageProvider, AcceptHeaderLanguageProvider>();
+                        })
+                 );
+        }
+
+        protected virtual IServiceCollection AddPriseTranslationPlugins2(IServiceCollection services)
+        {
+            services
+                // This is required for AcceptHeaderLanguageProvider2
+                .AddTransient<IContextLanguageProvider, HttpContextLanguageProvider>();
+
+            return services
+                // Registers the plugin that will be loaded via scanning
+                .AddPrise<ITranslationPlugin2>(options =>
+                     options
+                        .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"))
+                        .ScanForAssemblies(composer =>
+                            composer.UseDiscovery())
+                        .WithHostFrameworkProvider<AppHostFrameworkProvider>()
+                        .UseHostServices(services, new[] { typeof(IContextLanguageProvider) }) // this includes IContextLanguageProvider, IHttpContextAccessor and IConfiguration
+                        .ConfigureSharedServices(sharedServices =>
+                        {
+                            // The AcceptHeaderlanguageService is known in the Host, but the type is registered as a remote type
+                            // This encourages backwards compatability
+                            sharedServices.AddTransient<ICurrentLanguageProvider, AcceptHeaderLanguageProvider2>();
                         })
                  );
         }
@@ -162,7 +190,7 @@ namespace Prise.IntegrationTestsHost
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 #endif
 #if NETCORE2_1

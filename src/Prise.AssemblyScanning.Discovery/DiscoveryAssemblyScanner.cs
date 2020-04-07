@@ -16,7 +16,7 @@ namespace Prise.AssemblyScanning.Discovery
     {
         private readonly IAssemblyScannerOptions<T> options;
         protected bool disposed = false;
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
         // Use a list of IDisposables so that we can clean up later
         private IList<MetadataLoadContext> metadataLoadContexts;
 #endif
@@ -24,7 +24,7 @@ namespace Prise.AssemblyScanning.Discovery
         public DiscoveryAssemblyScanner(IAssemblyScannerOptions<T> options)
         {
             this.options = options;
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
             this.metadataLoadContexts = new List<MetadataLoadContext>();
 #endif
         }
@@ -33,7 +33,7 @@ namespace Prise.AssemblyScanning.Discovery
         {
             if (!this.disposed && disposing)
             {
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
                 if (this.metadataLoadContexts != null && this.metadataLoadContexts.Any())
                     foreach (var context in this.metadataLoadContexts)
                         context.Dispose();
@@ -130,7 +130,7 @@ namespace Prise.AssemblyScanning.Discovery
 
         private IEnumerable<string> ExcludeRuntimesFolder(IEnumerable<string> files) => files.Where(f => !f.Contains($"{Path.DirectorySeparatorChar}runtimes{Path.DirectorySeparatorChar}"));
 
-#if NETCORE3_0
+#if NETCORE3_0 || NETCORE3_1
         private IEnumerable<AssemblyScanResult<T>> DiscoverAssemblies(string startingPath, IEnumerable<string> searchPatterns, string typeToFind, string namespaceToFind)
         {
             var results = new List<AssemblyScanResult<T>>();

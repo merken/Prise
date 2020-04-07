@@ -1,7 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0;netcoreapp2.1</TargetFrameworks>
+    <!--<TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netcoreapp2.1</TargetFrameworks>-->
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -11,6 +12,9 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
     <DefineConstants>NETCORE3_0</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <DefineConstants>NETCORE3_1</DefineConstants>
+  </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="2.1.0" />
@@ -18,6 +22,11 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>
