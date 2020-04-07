@@ -12,7 +12,7 @@ namespace Prise.IntegrationTests
         public SadPathTests() : base(AppHostWebApplicationFactory.Default()) { }
 
         [Fact]
-        public async Task PluginG_DoesNotExists()
+        public async Task PluginZ_DoesNotExists()
         {
             // Arrange
             var payload = new CalculationRequestModel
@@ -23,10 +23,10 @@ namespace Prise.IntegrationTests
 
             //Act
 #if NETCORE3_0 || NETCORE3_1
-            await Assert.ThrowsAsync<InvalidOperationException>(async () => await Post<CalculationResponseModel>(_client, "PluginG", "/eager", payload));
+            await Assert.ThrowsAsync<InvalidOperationException>(async () => await Post<CalculationResponseModel>(_client, "PluginZ", "/eager", payload));
 #endif
 #if NETCORE2_1
-            await Assert.ThrowsAsync<System.Exception>(async () => await Post<CalculationResponseModel>(_client, "PluginG", "/eager", payload));
+            await Assert.ThrowsAsync<System.Exception>(async () => await Post<CalculationResponseModel>(_client, "PluginZ", "/eager", payload));
 #endif
         }
 
