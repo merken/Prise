@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!--<TargetFrameworks>netcoreapp2.1;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>-->
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
     <Title>Prise.AssemblyScanning.Discovery</Title>
     <PackageId>Prise.AssemblyScanning.Discovery</PackageId>
     <PackageDescription>Adds assembly scanning to the Prise Plugin Framework</PackageDescription>

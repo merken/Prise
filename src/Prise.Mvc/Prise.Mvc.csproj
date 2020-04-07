@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!--<TargetFrameworks>netcoreapp2.1;netcoreapp3.0;netcoreapp3.1;</TargetFrameworks>-->
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
     <Title>Prise.Mvc</Title>
     <PackageId>Prise.Mvc</PackageId>
     <PackageDescription>Adds ASP.NET Core MVC features to an existing Prise setup!</PackageDescription>
@@ -71,7 +70,10 @@
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>Prise.Plugin.dll</IncludeAssets>
     </ProjectReference>
-    <ProjectReference Include="..\Prise\Prise.csproj" />
+    <ProjectReference Include="..\Prise\Prise.csproj">
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <IncludeAssets>Prise.dll</IncludeAssets>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>

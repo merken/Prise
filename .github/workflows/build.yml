@@ -10,15 +10,17 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       
-    - name: Setup .NET Core 3.0
+    - name: Setup .NET Core 3.1
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.0.100
+        dotnet-version: 3.1.101
         
     - name: Build Prise with netcoreapp2.1
       run: dotnet build src/Prise/Prise.csproj --configuration Release -f netcoreapp2.1
     - name: Build Prise with netcoreapp3.0
       run: dotnet build src/Prise/Prise.csproj --configuration Release -f netcoreapp3.0
+    - name: Build Prise with netcoreapp3.1
+      run: dotnet build src/Prise/Prise.csproj --configuration Release -f netcoreapp3.1
 
     - name: Build Prise.AssemblyScanning with netstandard2.0
       run: dotnet build src/Prise.AssemblyScanning/Prise.AssemblyScanning.csproj --configuration Release -f netstandard2.0
@@ -27,11 +29,15 @@ jobs:
       run: dotnet build src/Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj --configuration Release -f netcoreapp2.1
     - name: Build Prise.AssemblyScanning.Discovery with netcoreapp3.0
       run: dotnet build src/Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj --configuration Release -f netcoreapp3.0
+    - name: Build Prise.AssemblyScanning.Discovery with netcoreapp3.1
+      run: dotnet build src/Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj --configuration Release -f netcoreapp3.1
 
     - name: Build Prise.Mvc with netcoreapp2.1
       run: dotnet build src/Prise.Mvc/Prise.Mvc.csproj --configuration Release -f netcoreapp2.1
     - name: Build Prise.Mvc with netcoreapp3.0
       run: dotnet build src/Prise.Mvc/Prise.Mvc.csproj --configuration Release -f netcoreapp3.0
+    - name: Build Prise.Mvc with netcoreapp3.1
+      run: dotnet build src/Prise.Mvc/Prise.Mvc.csproj --configuration Release -f netcoreapp3.1
         
     - name: Build Prise.Plugin with netstandard2.0
       run: dotnet build src/Prise.Plugin/Prise.Plugin.csproj --configuration Release -f netstandard2.0
@@ -42,8 +48,12 @@ jobs:
       run: dotnet build src/Prise.PluginBridge/Prise.PluginBridge.csproj --configuration Release -f netcoreapp2.1
     - name: Build Prise.PluginBridge with netcoreapp3.0
       run: dotnet build src/Prise.PluginBridge/Prise.PluginBridge.csproj --configuration Release -f netcoreapp3.0
+    - name: Build Prise.PluginBridge with netcoreapp3.1
+      run: dotnet build src/Prise.PluginBridge/Prise.PluginBridge.csproj --configuration Release -f netcoreapp3.1
 
     - name: Build Prise.Proxy with netcoreapp2.1
       run: dotnet build src/Prise.Proxy/Prise.Proxy.csproj --configuration Release -f netcoreapp2.1
     - name: Build Prise.Proxy with netcoreapp3.0
       run: dotnet build src/Prise.Proxy/Prise.Proxy.csproj --configuration Release -f netcoreapp3.0
+    - name: Build Prise.Proxy with netcoreapp3.1
+      run: dotnet build src/Prise.Proxy/Prise.Proxy.csproj --configuration Release -f netcoreapp3.1

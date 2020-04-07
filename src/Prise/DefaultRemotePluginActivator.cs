@@ -96,7 +96,7 @@ namespace Prise
                                 .SetValue(remoteInstance, serviceInstance);
                     continue;
                 }
-                catch (ArgumentException ex) { }
+                catch (ArgumentException) { }
 
                 if (pluginService.BridgeType == null)
                     throw new PrisePluginException($"Field {pluginService.FieldName} could not be set, please consider using a PluginBridge.");
