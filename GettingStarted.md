@@ -50,3 +50,5 @@ When the controller is consumed, the plugin will be loaded on demand and execute
 ## Example of loadin a plugin based on Assembly Scanning : https://github.com/merken/Prise.Examples/tree/master/AssemblyDiscovery
 
 ## Example of a Microservice loading a plugin based on the HTTPContext : https://github.com/merken/Prise.Examples/tree/master/MicroserviceWithPlugins
+
+## Example of an MVC app that can load Razor libraries and API Controllers from plugins : https://github.com/merken/Prise.Examples/tree/master/MVCPlugins
