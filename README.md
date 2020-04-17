@@ -34,18 +34,17 @@ Prise features:
 ![alt text](https://github.com/merken/prise/workflows/Prise%20backwards%20compatibility%20.net%20core%202/badge.svg "Prise Backwards Compatibility Tests .Net Core 2")
 
 ## Latest version
-![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise) [Prise](https://www.nuget.org/packages/Prise) 
+[![NuGet Badge](https://buildstats.info/nuget/Prise)](https://www.nuget.org/packages/Prise/)
 
-![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.Mvc) [Prise.Mvc](https://www.nuget.org/packages/Prise.Mvc)
+[![NuGet Badge](https://buildstats.info/nuget/Prise.Mvc)](https://www.nuget.org/packages/Prise.Mvc/)
 
-![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.Proxy) [Prise.Proxy](https://www.nuget.org/packages/Prise.Proxy) 
+[![NuGet Badge](https://buildstats.info/nuget/Prise.Proxy)](https://www.nuget.org/packages/Prise.Proxy/)
 
-![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.Plugin) [Prise.Plugin](https://www.nuget.org/packages/Prise.Plugin) 
+[![NuGet Badge](https://buildstats.info/nuget/Prise.Plugin)](https://www.nuget.org/packages/Prise.Plugin/)
 
-![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.PluginBridge) [Prise.PluginBridge](https://www.nuget.org/packages/Prise.PluginBridge) 
+[![NuGet Badge](https://buildstats.info/nuget/Prise.PluginBridge)](https://www.nuget.org/packages/Prise.PluginBridge/)
 
-![Nuget (with prereleases)](https://img.shields.io/nuget/vpre/Prise.AssemblyScanning.Discovery) [Prise.AssemblyScanning.Discovery](https://www.nuget.org/packages/Prise.AssemblyScanning.Discovery)
-
+[![NuGet Badge](https://buildstats.info/nuget/Prise.AssemblyScanning.Discovery)](https://www.nuget.org/packages/Prise.AssemblyScanning.Discovery/)
 
 # How does Prise work ?
 At the heart, Prise uses a **DispatchProxy** of your contract. Every call to a method channels through this proxy and is delegated to the loaded plugin.
