@@ -1,8 +1,8 @@
-﻿using Prise.Infrastructure;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Prise.Infrastructure;
 
 namespace Prise
 {
@@ -24,6 +24,8 @@ namespace Prise
                 runtimeBasePath = "C:\\Program Files\\dotnet\\shared";
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 runtimeBasePath = "/usr/share/dotnet/shared";
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                runtimeBasePath = "/usr/local/share/dotnet/shared";
 
             var platformIndependendPath = System.IO.Path.GetFullPath(runtimeBasePath);
             var runtimes = new List<Runtime>();
@@ -78,9 +80,17 @@ namespace Prise
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 return new[] { $"{fileNameWithoutExtension}.dll" };
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                return new[] { $"{fileNameWithoutExtension}.so", $"{fileNameWithoutExtension}.so.1", $"lib{fileNameWithoutExtension}.so", $"lib{fileNameWithoutExtension}.so.1" };
-            //if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            throw new PrisePluginException("Platform is not supported");
+                return new[] {
+                    $"{fileNameWithoutExtension}.so",
+                    $"{fileNameWithoutExtension}.so.1",
+                    $"lib{fileNameWithoutExtension}.so",
+                    $"lib{fileNameWithoutExtension}.so.1" };
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                return new[] {
+                    $"{fileNameWithoutExtension}.dylib",
+                    $"lib{fileNameWithoutExtension}.dylib" };
+
+            throw new PrisePluginException($"Platform {System.Runtime.InteropServices.RuntimeInformation.OSDescription} is not supported");
         }
 
         private string[] GetPlatformDependencyFileExtensions()
@@ -89,8 +99,10 @@ namespace Prise
                 return new[] { ".dll" };
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 return new[] { ".so", ".so.1" };
-            //if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            throw new PrisePluginException("Platform is not supported");
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                return new[] { ".dylib" };
+
+            throw new PrisePluginException($"Platform {System.Runtime.InteropServices.RuntimeInformation.OSDescription} is not supported");
         }
     }
 }
