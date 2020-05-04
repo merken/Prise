@@ -87,8 +87,7 @@ namespace Prise
                     $"lib{fileNameWithoutExtension}.so.1" };
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 return new[] {
-                    $"{fileNameWithoutExtension}.dylib",
-                    $"lib{fileNameWithoutExtension}.dylib" };
+                    $"{fileNameWithoutExtension}.dll" };
 
             throw new PrisePluginException($"Platform {System.Runtime.InteropServices.RuntimeInformation.OSDescription} is not supported");
         }
@@ -100,7 +99,7 @@ namespace Prise
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 return new[] { ".so", ".so.1" };
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                return new[] { ".dylib" };
+                return new[] { ".dll" };
 
             throw new PrisePluginException($"Platform {System.Runtime.InteropServices.RuntimeInformation.OSDescription} is not supported");
         }
