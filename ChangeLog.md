@@ -1,6 +1,9 @@
 # Prise
 A .NET Core Plugin Frawework!
 
+## 1.6.1
+This release introduces OSX support, special thanks to https://github.com/Duan112358 for investigating.
+
 ## 1.6.0
 This release introduced a new API in the PluginOptionsBuilder in order to make all Host services available to the plugin **UseHostServices()**
 Aligned all Prise versions to 1.6.0
