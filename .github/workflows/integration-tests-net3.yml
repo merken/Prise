@@ -26,7 +26,7 @@ jobs:
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/LegacyPlugin1.5/LegacyPlugin1.5.csproj -o publish/LegacyPlugin1.5
 
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginG/PluginG.net3.csproj -f netcoreapp3.0
-      - run: dotnet pack src/Tests/IntegrationTestsPlugins/PluginG/PluginG.net3.csproj /p:nuspecfile=PluginG.net3.nuspec --o publish
+      - run: dotnet pack src/Tests/IntegrationTestsPlugins/PluginG/PluginG.net3.csproj /p:nuspecfile=PluginG.net3.nuspec -o publish
 
       # Copies all published plugins to integration test directory
       - run: mkdir -p src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
