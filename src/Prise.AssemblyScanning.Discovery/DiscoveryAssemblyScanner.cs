@@ -14,7 +14,7 @@ namespace Prise.AssemblyScanning.Discovery
 {
     public class DiscoveryAssemblyScanner<T> : IAssemblyScanner<T>
     {
-        private readonly IAssemblyScannerOptions<T> options;
+        protected readonly IAssemblyScannerOptions<T> options;
         protected bool disposed = false;
 #if NETCORE3_0 || NETCORE3_1
         // Use a list of IDisposables so that we can clean up later
