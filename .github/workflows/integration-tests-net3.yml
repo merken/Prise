@@ -22,9 +22,11 @@ jobs:
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginD/PluginD.net3.csproj -o publish/PluginD -f netcoreapp3.0
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginE/PluginE.net3.csproj -o publish/PluginE -f netcoreapp3.0
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginF/PluginF.net3.csproj -o publish/PluginF -f netcoreapp3.0
-      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginG/PluginG.net3.csproj -o publish/PluginG -f netcoreapp3.0
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/LegacyPlugin1.4/LegacyPlugin1.4.csproj -o publish/LegacyPlugin1.4
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/LegacyPlugin1.5/LegacyPlugin1.5.csproj -o publish/LegacyPlugin1.5
+
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginG/PluginG.net3.csproj -f netcoreapp3.0
+      - run: dotnet pack src/Tests/IntegrationTestsPlugins/PluginG/PluginG.net3.csproj /p:nuspecfile=PluginG.net3.nuspec
 
       # Copies all published plugins to integration test directory
       - run: mkdir -p src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
@@ -34,9 +36,10 @@ jobs:
       - run: cp -r publish/PluginD src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
       - run: cp -r publish/PluginE src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
       - run: cp -r publish/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
-      - run: cp -r publish/PluginG src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
       - run: cp -r publish/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
       - run: cp -r publish/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
 
+      - run: cp -r publish/PluginG/*.nupkg src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
+      
       - name: Test Prise.IntegrationTests with netcoreapp3.1
         run: dotnet test src/Tests/Prise.IntegrationTests/Prise.IntegrationTests.net3.csproj

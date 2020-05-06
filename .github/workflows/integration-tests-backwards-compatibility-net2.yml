@@ -23,7 +23,7 @@ jobs:
       - run: cp -r src/Tests/compatibility/netcoreapp2.1/PluginD src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
       - run: cp -r src/Tests/compatibility/netcoreapp2.1/PluginE src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
       - run: cp -r src/Tests/compatibility/netcoreapp2.1/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r src/Tests/compatibility/netcoreapp2.1/PluginG src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r src/Tests/compatibility/netcoreapp2.1/PluginG/*.nupkg src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
       - run: cp -r src/Tests/compatibility/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
       - run: cp -r src/Tests/compatibility/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
 
