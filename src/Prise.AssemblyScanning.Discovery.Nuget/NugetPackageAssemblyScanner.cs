@@ -52,18 +52,22 @@ namespace Prise.AssemblyScanning.Discovery.Nuget
                 if (hasAlreadyBeenExtracted && !hasMultipleVersions)
                     continue;
 
-                var currentNuspec = Directory.GetFiles(extractionDirectory, $"*.{NuspecExtension}", SearchOption.AllDirectories).FirstOrDefault();
-                var currentVersionAsString = XDocument.Load(currentNuspec).Root
-                                    .DescendantNodes().OfType<XElement>()
-                                    .FirstOrDefault(x => x.Name.LocalName.Equals("version"))?.Value;
+                if (hasAlreadyBeenExtracted)
+                {
+                    var currentNuspec = Directory.GetFiles(extractionDirectory, $"*.{NuspecExtension}", SearchOption.AllDirectories).FirstOrDefault();
+                    var currentVersionAsString = XDocument.Load(currentNuspec).Root
+                                        .DescendantNodes().OfType<XElement>()
+                                        .FirstOrDefault(x => x.Name.LocalName.Equals("version"))?.Value;
 
-                var currentVersion = !String.IsNullOrEmpty(currentVersionAsString) ? new Version(currentVersionAsString) : new Version("0.0.0");
-                var hasNewerVersion = latestVersion > currentVersion;
-                if (!hasNewerVersion)
-                    continue;
+                    var currentVersion = !String.IsNullOrEmpty(currentVersionAsString) ? new Version(currentVersionAsString) : new Version("0.0.0");
+                    var hasNewerVersion = latestVersion > currentVersion;
+                    if (!hasNewerVersion)
+                        continue;
 
-                // Newer version was detected, delete and extract latest
-                Directory.Delete(extractionDirectory, true);
+                    // Newer version was detected, delete the current version
+                    Directory.Delete(extractionDirectory, true);
+                }
+
                 ZipFile.ExtractToDirectory(package.FullPath, extractionDirectory, true);
             }
 
