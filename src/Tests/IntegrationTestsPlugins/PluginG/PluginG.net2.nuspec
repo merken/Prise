@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>PluginG</id>
+    <title>PluginG</title>
+    <version>1.0.0</version>
+    <authors>Merken</authors>
+    <owners>Merken</owners>
+    <description>PluginG</description>
+    <copyright>Copyright 2019</copyright>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="bin\Debug\netcoreapp2.1\publish\*.*" target="lib\netcoreapp2.1" />
+  </files>
+</package>

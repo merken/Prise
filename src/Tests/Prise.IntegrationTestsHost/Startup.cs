@@ -14,6 +14,7 @@ using System;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using Prise.AssemblyScanning.Discovery;
+using Prise.AssemblyScanning.Discovery.Nuget;
 using ExternalServices;
 using Prise.IntegrationTestsHost.Controllers;
 
@@ -128,7 +129,7 @@ namespace Prise.IntegrationTestsHost
                      options
                         .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"))
                         .ScanForAssemblies(composer =>
-                            composer.UseDiscovery())
+                            composer.UseNugetPackageDiscovery())
                         .WithHostFrameworkProvider<AppHostFrameworkProvider>()
                         .UseHostServices(services, new[] { typeof(IContextLanguageProvider) }) // this includes IContextLanguageProvider, IHttpContextAccessor and IConfiguration
                         .ConfigureSharedServices(sharedServices =>
