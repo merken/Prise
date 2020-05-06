@@ -26,7 +26,7 @@ jobs:
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/LegacyPlugin1.5/LegacyPlugin1.5.csproj -o publish/LegacyPlugin1.5
 
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginG/PluginG.net2.csproj -f netcoreapp2.1
-      - run: dotnet pack src/Tests/IntegrationTestsPlugins/PluginG/PluginG.net2.csproj /p:nuspecfile=PluginG.net2.nuspec -o publish
+      - run: dotnet pack src/Tests/IntegrationTestsPlugins/PluginG/PluginG.net2.csproj /p:nuspecfile=PluginG.net2.nuspec -o ../../publish
 
       # Copies all published plugins to integration test directory
       - run: mkdir -p src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
@@ -39,7 +39,7 @@ jobs:
       - run: cp -r src/Tests/IntegrationTestsPlugins/LegacyPlugin1.4/publish/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
       - run: cp -r src/Tests/IntegrationTestsPlugins/LegacyPlugin1.5/publish/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
 
-      - run: cp publish/*.nupkg src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
+      - run: cp src/Tests/IntegrationTestsPlugins/publish/*.nupkg src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
 
       - name: Test Prise.IntegrationTests with netcoreapp2.1
         run: dotnet test src/Tests/Prise.IntegrationTests/Prise.IntegrationTests.net2.csproj
