@@ -16,28 +16,28 @@ jobs:
           dotnet-version: 3.1.101
 
         # Publishes all plugins to publish directory
-      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginA/PluginA.csproj -o publish/PluginA
-      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginB/PluginB.csproj -o publish/PluginB
-      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginC/PluginC.csproj -o publish/PluginC
-      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginD/PluginD.csproj -o publish/PluginD -f netcoreapp3.1
-      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginE/PluginE.csproj -o publish/PluginE -f netcoreapp3.1
-      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginF/PluginF.csproj -o publish/PluginF -f netcoreapp3.1
-      - run: dotnet publish src/Tests/IntegrationTestsPlugins/LegacyPlugin1.4/LegacyPlugin1.4.csproj -o publish/LegacyPlugin1.4
-      - run: dotnet publish src/Tests/IntegrationTestsPlugins/LegacyPlugin1.5/LegacyPlugin1.5.csproj -o publish/LegacyPlugin1.5
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginA/PluginA.csproj -o ~/publish/PluginA
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginB/PluginB.csproj -o ~/publish/PluginB
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginC/PluginC.csproj -o ~/publish/PluginC
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginD/PluginD.csproj -o ~/publish/PluginD -f netcoreapp3.1
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginE/PluginE.csproj -o ~/publish/PluginE -f netcoreapp3.1
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginF/PluginF.csproj -o ~/publish/PluginF -f netcoreapp3.1
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/LegacyPlugin1.4/LegacyPlugin1.4.csproj -o ~/publish/LegacyPlugin1.4
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/LegacyPlugin1.5/LegacyPlugin1.5.csproj -o ~/publish/LegacyPlugin1.5
 
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginG/PluginG.csproj -f netcoreapp3.1
       - run: dotnet pack src/Tests/IntegrationTestsPlugins/PluginG/PluginG.csproj /p:nuspecfile=PluginG.nuspec -o ~/publish
 
       # Copies all published plugins to integration test directory
       - run: mkdir -p src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r publish/PluginA src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r publish/PluginB src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r publish/PluginC src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r publish/PluginD src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r publish/PluginE src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r publish/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r publish/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r publish/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r ~/publish/PluginA src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r ~/publish/PluginB src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r ~/publish/PluginC src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r ~/publish/PluginD src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r ~/publish/PluginE src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r ~/publish/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r ~/publish/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r ~/publish/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
 
       - run: cp ~/publish/*.nupkg src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
 
