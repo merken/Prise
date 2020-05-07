@@ -38,6 +38,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Prise.AssemblyScanning.Discovery\Prise.AssemblyScanning.Discovery.net2.csproj">
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <IncludeAssets>Prise.AssemblyScanning.Discovery.dll</IncludeAssets>
+    </ProjectReference>
     <ProjectReference Include="..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj">
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>Prise.AssemblyScanning.dll</IncludeAssets>

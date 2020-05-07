@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <Title>Prise.AssemblyScanning.Discovery</Title>
-    <PackageId>Prise.AssemblyScanning.Discovery</PackageId>
-    <PackageDescription>Adds assembly scanning to the Prise Plugin Framework</PackageDescription>
+    <Title>Prise.AssemblyScanning.Discovery.Nuget</Title>
+    <PackageId>Prise.AssemblyScanning.Discovery.Nuget</PackageId>
+    <PackageDescription>Adds nuget package scanning to the Prise Plugin Framework</PackageDescription>
     <Authors>Maarten Merken</Authors>
     <Company>MRKN</Company>
     <PackageTags>plugin;framework;prise;decoupling;assembly;dispatchproxy;proxy</PackageTags>
@@ -37,6 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
+   <ProjectReference Include="..\Prise.AssemblyScanning.Discovery\Prise.AssemblyScanning.Discovery.net3.csproj">
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <IncludeAssets>Prise.AssemblyScanning.Discovery.dll</IncludeAssets>
+    </ProjectReference>
     <ProjectReference Include="..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj">
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>Prise.AssemblyScanning.dll</IncludeAssets>
