@@ -39,7 +39,7 @@ jobs:
       - run: cp -r src/Tests/IntegrationTestsPlugins/LegacyPlugin1.4/publish/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
       - run: cp -r src/Tests/IntegrationTestsPlugins/LegacyPlugin1.5/publish/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
 
-      - run: cp ~/publish/*.nupkg src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
+      - run: cp ~/publish/*.nupkg src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
 
       - name: Test Prise.IntegrationTests with netcoreapp2.1
         run: dotnet test src/Tests/Prise.IntegrationTests/Prise.IntegrationTests.net2.csproj
