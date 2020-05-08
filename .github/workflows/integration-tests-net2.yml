@@ -19,13 +19,13 @@ jobs:
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginA/PluginA.net2.csproj -o ~/publish/PluginA
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginB/PluginB.net2.csproj -o ~/publish/PluginB
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginC/PluginC.net2.csproj -o ~/publish/PluginC
-      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginD/PluginD.net2.csproj -o ~/publish/PluginD -f netcoreapp2.1
-      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginE/PluginE.net2.csproj -o ~/publish/PluginE -f netcoreapp2.1
-      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginF/PluginF.net2.csproj -o ~/publish/PluginF -f netcoreapp2.1
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginD/PluginD.net2.csproj -o ~/publish/PluginD
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginE/PluginE.net2.csproj -o ~/publish/PluginE
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginF/PluginF.net2.csproj -o ~/publish/PluginF
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/LegacyPlugin1.4/LegacyPlugin1.4.csproj -o ~/publish/LegacyPlugin1.4
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/LegacyPlugin1.5/LegacyPlugin1.5.csproj -o ~/publish/LegacyPlugin1.5
 
-      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginG/PluginG.net2.csproj -f netcoreapp2.1
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginG/PluginG.net2.csproj
       - run: dotnet pack src/Tests/IntegrationTestsPlugins/PluginG/PluginG.net2.csproj /p:nuspecfile=PluginG.net2.nuspec -o ~/publish
 
       # Copies all published plugins to integration test directory
