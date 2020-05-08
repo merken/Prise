@@ -22,7 +22,7 @@ namespace Prise.AssemblyScanning.Discovery.Nuget
             var startingPath = this.options.PathToScan;
             var searchPattern = $"*.{NugetExtension}";
             var packageFiles = Directory.GetFiles(startingPath, searchPattern, SearchOption.AllDirectories);
-            var packages = new List<NugetPackage>();
+            var packages = new List<PluginNugetPackage>();
 
             foreach (var packageFile in packageFiles)
             {
@@ -31,9 +31,9 @@ namespace Prise.AssemblyScanning.Discovery.Nuget
                 var version = new Version(versionString);
                 var packageFileName = Path.GetFileName(packageFile);
                 var packageNameWithoutVersion = packageFileName.Replace($".{versionString}", String.Empty);
-                var packageNameWithoutExtension = packageNameWithoutVersion.Split($".{NugetExtension}")[0];
+                var packageNameWithoutExtension = packageNameWithoutVersion.Split(new[] { $".{NugetExtension}" }, StringSplitOptions.RemoveEmptyEntries)[0];
 
-                packages.Add(new NugetPackage
+                packages.Add(new PluginNugetPackage
                 {
                     Version = version,
                     FullPath = packageFile,
@@ -68,7 +68,7 @@ namespace Prise.AssemblyScanning.Discovery.Nuget
                     Directory.Delete(extractionDirectory, true);
                 }
 
-                ZipFile.ExtractToDirectory(package.FullPath, extractionDirectory, true);
+                ZipFile.ExtractToDirectory(package.FullPath, extractionDirectory);
             }
 
             // Continue with assembly scanning

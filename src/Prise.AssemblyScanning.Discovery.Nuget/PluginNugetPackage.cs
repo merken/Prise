@@ -2,7 +2,7 @@
 
 namespace Prise.AssemblyScanning.Discovery.Nuget
 {
-    internal class NugetPackage
+    internal class PluginNugetPackage
     {
         public Version Version { get; set; }
         public string FullPath { get; set; }
