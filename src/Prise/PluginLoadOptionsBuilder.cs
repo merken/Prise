@@ -600,17 +600,12 @@ namespace Prise
             this.activator = new DefaultRemotePluginActivator<T>(this.sharedServicesProvider);
             this.proxyCreator = new PluginProxyCreator<T>();
 
-            // Use System.Text.Json in 3.0 and 3.1
-#if NETCORE3_0 || NETCORE3_1
             this.parameterConverter = new JsonSerializerParameterConverter();
             this.resultConverter = new JsonSerializerResultConverter();
-            this.assemblyLoaderType = typeof(DefaultAssemblyLoaderWithNativeResolver<T>);
-#endif
-            // Use Newtonsoft.Json in 2.1
-#if NETCORE2_1
-            this.parameterConverter = new NewtonsoftParameterConverter();
-            this.resultConverter = new NewtonsoftResultConverter();
+
             this.assemblyLoaderType = typeof(DefaultAssemblyLoader<T>);
+#if NETCORE3_0 || NETCORE3_1 // Replace with 3.x loader
+            this.assemblyLoaderType = typeof(DefaultAssemblyLoaderWithNativeResolver<T>);
 #endif
             this.assemblySelector = new DefaultAssemblySelector<T>();
             this.assemblyLoadOptions = new DefaultAssemblyLoadOptions<T>(

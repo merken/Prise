@@ -2,16 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <DefineConstants>NETCORE2_1</DefineConstants>
     <AssemblyName>PluginF</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="System.Text.Json" Version="4.6.1" />
   </ItemGroup>
-  
+
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Prise.Plugin\Prise.Plugin.net2.csproj" />
+    <ProjectReference Include="..\..\..\Prise.Plugin\Prise.Plugin.csproj" />
     <ProjectReference Include="..\..\Prise.IntegrationTestsContract\Prise.IntegrationTestsContract.csproj" />
     <ProjectReference Include="..\XmlSerializerLib\XmlSerializerLib.csproj" />
   </ItemGroup>

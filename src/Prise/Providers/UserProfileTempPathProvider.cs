@@ -18,7 +18,7 @@ namespace Prise
                 return tempPath;
 
             var systemTempPath = System.IO.Path.GetTempPath();
-            var randomTempPath = $"{Path.Join(systemTempPath, Path.Join(PluginTempPath, assemblyName))}";
+            var randomTempPath = $"{Path.Combine(systemTempPath, Path.Combine(PluginTempPath, assemblyName))}";
             if (!Directory.Exists(randomTempPath))
                 Directory.CreateDirectory(randomTempPath);
 

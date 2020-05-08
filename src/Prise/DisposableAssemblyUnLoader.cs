@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Prise.Infrastructure;
 
@@ -93,7 +92,7 @@ namespace Prise
                 }
 
             this.loadContextReferences.Clear();
-            this.loadContextReferences= null;
+            this.loadContextReferences = null;
 
             GC.Collect(); // collects all unused memory
             GC.WaitForPendingFinalizers(); // wait until GC has finished its work

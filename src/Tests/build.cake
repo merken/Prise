@@ -1,14 +1,51 @@
 var target = Argument("target", "default");
 var configuration = Argument("configuration", "Debug");
-var plugins = new[] { "PluginA", "PluginB", "PluginC", "PluginCFromNetwork", "LegacyPlugin1.4", "LegacyPlugin1.5" };
-var defaultPlugins = new[] { "PluginA", "PluginB", "PluginC" };
-var multiPlatformPlugins = new[] { "PluginD", "PluginE", "PluginF", "PluginG" };
-var nugetPlugins = new[] { "PluginG" };
-var legacyPlugins = new[] { "LegacyPlugin1.4", "LegacyPlugin1.5" };
+var plugins = new[] { 
+  "LegacyPlugin1.4", 
+  "LegacyPlugin1.5",
+  "PluginA", 
+  "PluginB",
+  "PluginC", 
+  "PluginCFromNetwork", 
+  "PluginD", 
+  "PluginDWithFactory", 
+  "PluginE", 
+  "PluginF", 
+  "PluginG"
+};
 var networkPlugins = new[] { "PluginCFromNetwork" };
 
-private void CleanProject(string projectDirectory){
-    var projectFile = $"IntegrationTestsPlugins/{projectDirectory}/{projectDirectory}.csproj";
+public string[] GetPublishedPlugins(string target){
+  var path = $"publish/{target}";
+  if(System.IO.Directory.Exists(path))
+    return System.IO.Directory.GetDirectories(path);
+  return new string[0];
+}
+
+public string[] GetAllProjectsFromPluginDir(string dir)
+{
+  return System.IO.Directory.GetFiles(dir, "*.csproj");
+}
+
+public string GetNuspecFileForProject(string project)
+{
+  var dir = System.IO.Path.GetDirectoryName(project);
+  var projectNameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(project);
+  var nuspecs = System.IO.Directory.GetFiles(dir, "*.nuspec");
+
+  return nuspecs.FirstOrDefault(n => System.IO.Path.GetFileNameWithoutExtension(n) == projectNameWithoutExtension);
+}
+
+public string GetTargetFrameworkFromProject(string project)
+{
+  var targetFramework = System.Xml.Linq.XDocument.Load(project).Root.DescendantNodes().OfType<System.Xml.Linq.XElement>()
+      .FirstOrDefault(x => x.Name.LocalName.Equals("TargetFramework"));
+
+  return targetFramework?.Value;
+}
+
+private void CleanProject(string projectDirectory, string projectFile){
+    // var projectFile = $"IntegrationTestsPlugins/{projectDirectory}/{projectDirectory}.csproj";
     var bin = $"IntegrationTestsPlugins/{projectDirectory}/bin";
     var obj = $"IntegrationTestsPlugins/{projectDirectory}/obj";
 
@@ -36,33 +73,10 @@ Task("clean").Does( () =>
 { 
   foreach (var plugin in plugins)
   {
-    CleanProject(plugin);
+    var projects = GetAllProjectsFromPluginDir($"IntegrationTestsPlugins/{plugin}");
+    foreach (var project in projects)
+      CleanProject(plugin, project);
   }
-});
-
-Task("build")
-  .IsDependentOn("clean")
-  .Does( () =>
-{ 
-    var settings = new DotNetCoreBuildSettings
-    {
-        Configuration = configuration
-    };
-
-    foreach (var plugin in plugins)
-    {
-      DotNetCoreBuild($"IntegrationTestsPlugins/{plugin}/{plugin}.csproj", settings);
-    }
-
-    foreach (var plugin in multiPlatformPlugins)
-    {
-      DotNetCoreBuild($"IntegrationTestsPlugins/{plugin}/{plugin}.net3.csproj", settings);
-    }
-
-    foreach (var plugin in multiPlatformPlugins)
-    {
-      DotNetCoreBuild($"IntegrationTestsPlugins/{plugin}/{plugin}.net2.csproj", settings);
-    }
 });
 
 private void FixAssemblyIssues(string pathToDlls)
@@ -74,135 +88,84 @@ private void FixAssemblyIssues(string pathToDlls)
 }
 
 Task("publish")
-  .IsDependentOn("build")
+  .IsDependentOn("clean")
   .Does(() =>
   { 
     foreach (var plugin in plugins)
     {
-      DotNetCorePublish($"IntegrationTestsPlugins/{plugin}/{plugin}.csproj", new DotNetCorePublishSettings
+      var projects = GetAllProjectsFromPluginDir($"IntegrationTestsPlugins/{plugin}");
+      foreach (var project in projects)
       {
-          NoBuild = true,
-          Configuration = configuration,
-          OutputDirectory = $"publish/{plugin}"
-      });
+        var targetFramework = GetTargetFrameworkFromProject(project);
+        var nuspecForProject = GetNuspecFileForProject(project);
+        var outputDir = $"publish/{targetFramework}/{plugin}";
+        if(nuspecForProject!= null)
+          outputDir = null;
+        
+        DotNetCorePublish(project, new DotNetCorePublishSettings
+        {
+            NoBuild = false,
+            Configuration = configuration,
+            Framework = targetFramework,
+            OutputDirectory = outputDir
+        });
+
+        if(nuspecForProject!= null){
+            FixAssemblyIssues($"IntegrationTestsPlugins/{plugin}/bin/{configuration}/{targetFramework}/publish");
+            var nuspecFilename = System.IO.Path.GetFileName(nuspecForProject);
+            DotNetCorePack(project, new DotNetCorePackSettings
+            {
+                NoBuild = true,
+                Configuration = configuration,
+                OutputDirectory = $"publish/{targetFramework}",
+                ArgumentCustomization = (args) => args.Append($"/p:nuspecfile={nuspecFilename}")
+            });
+        }
     }
-    foreach (var plugin in multiPlatformPlugins.Except(nugetPlugins))
-    {
-      DotNetCorePublish($"IntegrationTestsPlugins/{plugin}/{plugin}.net2.csproj", new DotNetCorePublishSettings
-      {
-          NoBuild = false,
-          Configuration = configuration,
-          Framework = "netcoreapp2.1",
-          OutputDirectory = $"publish/netcoreapp2.1/{plugin}"
-      });
+  }
+});
 
-      DotNetCorePublish($"IntegrationTestsPlugins/{plugin}/{plugin}.net3.csproj", new DotNetCorePublishSettings
-      {
-          NoBuild = false,
-          Configuration = configuration,
-          Framework = "netcoreapp3.0",
-          OutputDirectory = $"publish/netcoreapp3.0/{plugin}"
-      });
-
-      DotNetCorePublish($"IntegrationTestsPlugins/{plugin}/{plugin}.csproj", new DotNetCorePublishSettings
-      {
-          NoBuild = false,
-          Configuration = configuration,
-          Framework = "netcoreapp3.1",
-          OutputDirectory = $"publish/netcoreapp3.1/{plugin}"
-      });
-    }
-
-    foreach (var plugin in nugetPlugins)
-    {
-      DotNetCorePublish($"IntegrationTestsPlugins/{plugin}/{plugin}.net2.csproj", new DotNetCorePublishSettings
-      {
-          NoBuild = false,
-          Configuration = configuration,
-          Framework = "netcoreapp2.1"
-      });
-      FixAssemblyIssues($"IntegrationTestsPlugins/{plugin}/bin/{configuration}/netcoreapp2.1/publish");
-      DotNetCorePack($"IntegrationTestsPlugins/{plugin}/{plugin}.net2.csproj", new DotNetCorePackSettings
-      {
-          NoBuild = true,
-          Configuration = configuration,
-          OutputDirectory = $"publish/netcoreapp2.1",
-          ArgumentCustomization = (args) => args.Append("/p:nuspecfile=PluginG.net2.nuspec")
-      });
-
-      DotNetCorePublish($"IntegrationTestsPlugins/{plugin}/{plugin}.net3.csproj", new DotNetCorePublishSettings
-      {
-          NoBuild = false,
-          Configuration = configuration,
-          Framework = "netcoreapp3.0"
-      });
-      FixAssemblyIssues($"IntegrationTestsPlugins/{plugin}/bin/{configuration}/netcoreapp3.0/publish");
-      DotNetCorePack($"IntegrationTestsPlugins/{plugin}/{plugin}.net3.csproj", new DotNetCorePackSettings
-      {
-          NoBuild = true,
-          Configuration = configuration,
-          OutputDirectory = $"publish/netcoreapp3.0",
-          ArgumentCustomization = (args) => args.Append("/p:nuspecfile=PluginG.net3.nuspec")
-      });
-
-      DotNetCorePublish($"IntegrationTestsPlugins/{plugin}/{plugin}.csproj", new DotNetCorePublishSettings
-      {
-          NoBuild = false,
-          Configuration = configuration,
-          Framework = "netcoreapp3.1"
-      });
-      FixAssemblyIssues($"IntegrationTestsPlugins/{plugin}/bin/{configuration}/netcoreapp3.1/publish");
-      DotNetCorePack($"IntegrationTestsPlugins/{plugin}/{plugin}.csproj", new DotNetCorePackSettings
-      {
-          NoBuild = true,
-          Configuration = configuration,
-          OutputDirectory = $"publish/netcoreapp3.1",
-          ArgumentCustomization = (args) => args.Append("/p:nuspecfile=PluginG.nuspec")
-      });
-    }
-  });
-
-Task("copy-to-testhost")
+Task("copy-to-testhosts")
   .IsDependentOn("publish")
   .Does(() =>
   {
-    foreach (var plugin in defaultPlugins.Union(legacyPlugins))
-    {
-      CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTests/bin/debug/netcoreapp2.1/Plugins/{plugin}");
-      CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp2.1/Plugins/{plugin}");
-      CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTests/bin/debug/netcoreapp3.0/Plugins/{plugin}");
-      CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.0/Plugins/{plugin}");
-      CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTests/bin/debug/netcoreapp3.1/Plugins/{plugin}");
-      CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.1/Plugins/{plugin}");
+    foreach(var netstandard20 in GetPublishedPlugins("netstandard2.0")){
+      CopyDirectory(netstandard20, $"Prise.IntegrationTests/bin/debug/netcoreapp2.1/Plugins");
+      CopyDirectory(netstandard20, $"Prise.IntegrationTestsHost/bin/debug/netcoreapp2.1/Plugins");
+      CopyDirectory(netstandard20, $"Prise.IntegrationTests/bin/debug/netcoreapp3.0/Plugins");
+      CopyDirectory(netstandard20, $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.0/Plugins");
+      CopyDirectory(netstandard20, $"Prise.IntegrationTests/bin/debug/netcoreapp3.1/Plugins");
+      CopyDirectory(netstandard20, $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.1/Plugins");
     }
-
-    foreach (var plugin in multiPlatformPlugins.Except(nugetPlugins))
-    {
-      CopyDirectory($"publish/netcoreapp2.1/{plugin}", $"Prise.IntegrationTests/bin/debug/netcoreapp2.1/Plugins/{plugin}");
-      CopyDirectory($"publish/netcoreapp2.1/{plugin}", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp2.1/Plugins/{plugin}");
-      CopyDirectory($"publish/netcoreapp3.0/{plugin}", $"Prise.IntegrationTests/bin/debug/netcoreapp3.0/Plugins/{plugin}");
-      CopyDirectory($"publish/netcoreapp3.0/{plugin}", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.0/Plugins/{plugin}");
-      CopyDirectory($"publish/netcoreapp3.1/{plugin}", $"Prise.IntegrationTests/bin/debug/netcoreapp3.1/Plugins/{plugin}");
-      CopyDirectory($"publish/netcoreapp3.1/{plugin}", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.1/Plugins/{plugin}");
+    foreach(var netstandard21 in GetPublishedPlugins("netstandard2.1")){
+      CopyDirectory(netstandard21, $"Prise.IntegrationTests/bin/debug/netcoreapp2.1/Plugins");
+      CopyDirectory(netstandard21, $"Prise.IntegrationTestsHost/bin/debug/netcoreapp2.1/Plugins");
+      CopyDirectory(netstandard21, $"Prise.IntegrationTests/bin/debug/netcoreapp3.0/Plugins");
+      CopyDirectory(netstandard21, $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.0/Plugins");
+      CopyDirectory(netstandard21, $"Prise.IntegrationTests/bin/debug/netcoreapp3.1/Plugins");
+      CopyDirectory(netstandard21, $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.1/Plugins");
     }
-
-    foreach (var plugin in nugetPlugins)
-    {
-      CopyFiles($"publish/netcoreapp2.1/*.nupkg", $"Prise.IntegrationTests/bin/debug/netcoreapp2.1/Plugins");
-      CopyFiles($"publish/netcoreapp2.1/*.nupkg", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp2.1/Plugins");
-      CopyFiles($"publish/netcoreapp3.0/*.nupkg", $"Prise.IntegrationTests/bin/debug/netcoreapp3.0/Plugins");
-      CopyFiles($"publish/netcoreapp3.0/*.nupkg", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.0/Plugins");
-      CopyFiles($"publish/netcoreapp3.1/*.nupkg", $"Prise.IntegrationTests/bin/debug/netcoreapp3.1/Plugins");
-      CopyFiles($"publish/netcoreapp3.1/*.nupkg", $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.1/Plugins");
+    foreach(var netcoreapp21 in GetPublishedPlugins("netcoreapp2.1")){
+      CopyDirectory(netcoreapp21, $"Prise.IntegrationTests/bin/debug/netcoreapp2.1/Plugins");
+      CopyDirectory(netcoreapp21, $"Prise.IntegrationTestsHost/bin/debug/netcoreapp2.1/Plugins");
+      CopyDirectory(netcoreapp21, $"Prise.IntegrationTests/bin/debug/netcoreapp3.0/Plugins");
+      CopyDirectory(netcoreapp21, $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.0/Plugins");
+      CopyDirectory(netcoreapp21, $"Prise.IntegrationTests/bin/debug/netcoreapp3.1/Plugins");
+      CopyDirectory(netcoreapp21, $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.1/Plugins");
     }
-
-    foreach (var plugin in networkPlugins)
-    {
-      CopyDirectory($"publish/{plugin}", $"Prise.IntegrationTestsHost/Plugins/{plugin}");
+    foreach(var netcoreapp30 in GetPublishedPlugins("netcoreapp3.0")){
+      CopyDirectory(netcoreapp30, $"Prise.IntegrationTests/bin/debug/netcoreapp3.0/Plugins");
+      CopyDirectory(netcoreapp30, $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.0/Plugins");
+      CopyDirectory(netcoreapp30, $"Prise.IntegrationTests/bin/debug/netcoreapp3.1/Plugins");
+      CopyDirectory(netcoreapp30, $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.1/Plugins");
+    }
+    foreach(var netcoreapp31 in GetPublishedPlugins("netcoreapp3.1")){
+      CopyDirectory(netcoreapp31, $"Prise.IntegrationTests/bin/debug/netcoreapp3.1/Plugins");
+      CopyDirectory(netcoreapp31, $"Prise.IntegrationTestsHost/bin/debug/netcoreapp3.1/Plugins");
     }
   });
 
 Task("default")
-  .IsDependentOn("copy-to-testhost");
+  .IsDependentOn("copy-to-testhosts");
 
 RunTarget(target);

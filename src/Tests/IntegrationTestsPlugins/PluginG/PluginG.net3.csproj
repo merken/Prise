@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <DefineConstants>NETCORE3_0</DefineConstants>
     <AssemblyName>PluginG</AssemblyName>
   </PropertyGroup>
   
@@ -11,7 +10,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Prise.PluginBridge\Prise.PluginBridge.net3.csproj" />
+    <ProjectReference Include="..\..\..\Prise.PluginBridge\Prise.PluginBridge.csproj" />
     <ProjectReference Include="..\..\..\Prise.Plugin\Prise.Plugin.csproj" />
     <ProjectReference Include="..\..\Prise.IntegrationTestsContract\Prise.IntegrationTestsContract.csproj" />
     <ProjectReference Include="..\Dictionary.Domain\Dictionary.Domain.csproj" />

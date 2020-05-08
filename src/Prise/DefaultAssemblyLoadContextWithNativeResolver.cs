@@ -1,4 +1,5 @@
 ﻿#if NETCORE3_0 || NETCORE3_1
+// TODO, change to netstandard, once the API becomes available
 using Prise.Infrastructure;
 using System;
 using System.IO;

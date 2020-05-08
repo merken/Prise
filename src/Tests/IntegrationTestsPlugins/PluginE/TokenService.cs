@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Prise.IntegrationTestsContract;
 using Prise.Plugin;
 
@@ -39,7 +38,7 @@ namespace PluginE
             using (var stream = new StreamReader(filePath))
             {
                 var json = await stream.ReadToEndAsync();
-                return JsonConvert.DeserializeObject<IEnumerable<string>>(json);
+                return System.Text.Json.JsonSerializer.Deserialize<IEnumerable<string>>(json);
             }
         }
 
