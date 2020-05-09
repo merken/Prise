@@ -46,10 +46,11 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="3.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.0.2"/>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.0.2" />
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\Prise.Plugin\Prise.Plugin.csproj" />
     <ProjectReference Include="..\Prise\Prise.net2.csproj">
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>Prise.net2.dll</IncludeAssets>
@@ -58,11 +59,7 @@
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>Prise.AssemblyScanning.dll</IncludeAssets>
     </ProjectReference>
-    <ProjectReference Include="..\Prise.Plugin\Prise.Plugin.net2.csproj">
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-      <IncludeAssets>Prise.Plugin.net2.dll</IncludeAssets>
-    </ProjectReference>
-    <ProjectReference Include="..\Prise.Proxy\Prise.Proxy.net2.csproj">
+    <ProjectReference Include="..\Prise.Proxy\Prise.Proxy.csproj">
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>Prise.Proxy.net2.dll</IncludeAssets>
     </ProjectReference>

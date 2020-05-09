@@ -17,12 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Prise.AssemblyScanning.Discovery.Nuget\Prise.AssemblyScanning.Discovery.Nuget.net2.csproj" />
-    <ProjectReference Include="..\..\Prise.AssemblyScanning.Discovery\Prise.AssemblyScanning.Discovery.net2.csproj" />
+    <ProjectReference Include="..\..\Prise.AssemblyScanning.Discovery.Nuget\Prise.AssemblyScanning.Discovery.Nuget.csproj" />
+    <ProjectReference Include="..\..\Prise.AssemblyScanning.Discovery\Prise.AssemblyScanning.Discovery.csproj" />
     <ProjectReference Include="..\..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj" />
     <ProjectReference Include="..\..\Prise.Mvc\Prise.Mvc.net2.csproj" />
-    <ProjectReference Include="..\..\Prise.Plugin\Prise.Plugin.net2.csproj" />
-    <ProjectReference Include="..\..\Prise.Proxy\Prise.Proxy.net2.csproj" />
+    <ProjectReference Include="..\..\Prise.Proxy\Prise.Proxy.csproj" />
     <ProjectReference Include="..\..\Prise\Prise.net2.csproj" />
     <ProjectReference Include="..\IntegrationTestsPlugins\ExternalServiceForPluginD\ExternalServiceForPluginD.csproj" />
     <ProjectReference Include="..\IntegrationTestsPlugins\Legacy.Contract\Legacy.Contract.csproj" />
