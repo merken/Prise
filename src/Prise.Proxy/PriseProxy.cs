@@ -6,6 +6,9 @@ using Prise.Proxy.Exceptions;
 
 namespace Prise.Proxy
 {
+    //TODO
+    //- Generic methods (string DoStuff<T>(T stuff))
+    //- Events
     public static class PriseProxy
     {
         public static object Invoke(object remoteObject, MethodInfo targetMethod, object[] args)
@@ -20,7 +23,14 @@ namespace Prise.Proxy
                 if (remoteMethod == null)
                     throw new PriseProxyException($"Target method {targetMethod.Name} is not found on Proxy Type {remoteObject.GetType().Name}.");
 
-                var result = remoteMethod.Invoke(remoteObject, SerializeParameters(parameterConverter, remoteMethod, args));
+                object result = null;
+                if (remoteMethod.IsGenericMethod)
+                {
+                    var generic = remoteMethod.MakeGenericMethod(targetMethod.GetGenericArguments());
+                    result = generic.Invoke(remoteObject, SerializeParameters(parameterConverter, remoteMethod, args));
+                }
+                else
+                    result = remoteMethod.Invoke(remoteObject, SerializeParameters(parameterConverter, remoteMethod, args));
 
                 var remoteType = remoteMethod.ReturnType;
                 if (remoteType.BaseType == typeof(System.Threading.Tasks.Task))
@@ -84,12 +94,32 @@ namespace Prise.Proxy
             {
                 var parameter = parameters[index];
                 var parameterValue = args[index];
-                results.Add(parameterConverter.ConvertToRemoteType(parameter.ParameterType, parameterValue));
+
+                if (parameter.ParameterType.BaseType == typeof(System.MulticastDelegate))
+                {
+                    if (parameter.ParameterType.GenericTypeArguments.Any(g => g != typeof(EventArgs)))
+                        throw new PriseProxyException($"Custom EventArgs are not supported in Prise");
+
+                    results.Add(parameterValue);
+                    continue;
+                }
+
+                object result = null;
+                if (parameter.ParameterType.IsGenericParameter)
+                {
+                    var runtimeType = parameterValue.GetType();
+                    result = parameterConverter.ConvertToRemoteType(runtimeType, parameterValue);
+                }
+                else
+                    result = parameterConverter.ConvertToRemoteType(parameter.ParameterType, parameterValue);
+
+                results.Add(result);
             }
 
             return results.ToArray();
         }
     }
+
     public class PriseProxy<T> : DispatchProxy, IDisposable
     {
         private IParameterConverter parameterConverter;
@@ -127,8 +157,6 @@ namespace Prise.Proxy
             this.resultConverter = resultConverter;
             return this;
         }
-
-
 
         protected virtual void Dispose(bool disposing)
         {
