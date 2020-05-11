@@ -22,6 +22,10 @@ namespace Prise.AssemblyScanning.Discovery.Nuget
             var startingPath = this.options.PathToScan;
             var searchPattern = $"*.{NugetExtension}";
             var packageFiles = Directory.GetFiles(startingPath, searchPattern, SearchOption.AllDirectories);
+
+            if (!packageFiles.Any())
+                throw new AssemblyScanningException($"Scanning for NuGet packages had no results for Plugin Type {typeof(T).Name}");
+
             var packages = new List<PluginNugetPackage>();
 
             foreach (var packageFile in packageFiles)

@@ -12,13 +12,13 @@ using Prise.Plugin;
 namespace LanguageBased.Plugin
 {
     [Plugin(PluginType = typeof(ITranslationPlugin))]
-    public class TranslationPlugin : ITranslationPlugin
+    public class TranslationPluginWithFactory : ITranslationPlugin
     {
         private readonly IConfiguration configuration;
         private readonly ICurrentLanguageProvider languageProvider;
         private readonly IDictionaryService dictionaryService;
 
-        internal TranslationPlugin(IConfiguration configuration, ICurrentLanguageProvider languageProvider, IDictionaryService dictionaryService)
+        internal TranslationPluginWithFactory(IConfiguration configuration, ICurrentLanguageProvider languageProvider, IDictionaryService dictionaryService)
         {
             // This will guard us from possible nullpointers
             if (configuration == null)
@@ -34,16 +34,16 @@ namespace LanguageBased.Plugin
         }
 
         [PluginFactory]
-        public static TranslationPlugin ThisIsTheFactoryMethod(IServiceProvider pluginServices, IServiceProvider hostServices)
+        public static TranslationPluginWithFactory ThisIsTheFactoryMethod(IServiceProvider serviceProvider)
         {
-            var configFromHost = hostServices.GetService<IConfiguration>();
+            var configFromHost = serviceProvider.GetService<IConfiguration>();
 
-            var hostService = hostServices.GetService(typeof(ICurrentLanguageProvider));
+            var hostService = serviceProvider.GetService(typeof(ICurrentLanguageProvider)); // This does not work anymore, use the Field Injected method
             var hostServiceBridge = new CurrentLanguageProviderBridge(hostService);
 
-            var dictionaryService = pluginServices.GetService<IDictionaryService>();
+            var dictionaryService = serviceProvider.GetService<IDictionaryService>();
 
-            return new TranslationPlugin(
+            return new TranslationPluginWithFactory(
                 configFromHost, // This service is provided by the Prise.IntegrationTestsHost application and is registered as a Host Type
                 hostServiceBridge, // This service is provided by the Prise.IntegrationTestsHost application and is registered as a Remote Type
                 dictionaryService // This service is provided by the plugin using the PluginBootstrapper

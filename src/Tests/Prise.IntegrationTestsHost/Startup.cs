@@ -101,6 +101,7 @@ namespace Prise.IntegrationTestsHost
                         .ScanForAssemblies(composer =>
                             composer.UseDiscovery())
                         .WithHostFrameworkProvider<AppHostFrameworkProvider>()
+                        .IgnorePlatformInconsistencies()
                         .ConfigureHostServices(hostServices =>
                         {
                             // These services are registered as host types
@@ -130,6 +131,7 @@ namespace Prise.IntegrationTestsHost
                         .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"))
                         .ScanForAssemblies(composer =>
                             composer.UseNugetPackageDiscovery())
+                        .IgnorePlatformInconsistencies()
                         .WithHostFrameworkProvider<AppHostFrameworkProvider>()
                         .UseHostServices(services, new[] { typeof(IContextLanguageProvider) }) // this includes IContextLanguageProvider, IHttpContextAccessor and IConfiguration
                         .ConfigureSharedServices(sharedServices =>
@@ -147,6 +149,7 @@ namespace Prise.IntegrationTestsHost
                 .AddPrise<IAuthenticatedDataService>(options =>
                      options
                         .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins", "PluginE"))
+                        .IgnorePlatformInconsistencies()
                         .WithPluginAssemblyName("PluginE.dll")
                         .WithHostFrameworkProvider<AppHostFrameworkProvider>()
                  )
@@ -154,6 +157,7 @@ namespace Prise.IntegrationTestsHost
                 .AddPrise<ITokenService>(options =>
                      options
                         .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins", "PluginE"))
+                        .IgnorePlatformInconsistencies()
                         .WithPluginAssemblyName("PluginE.dll")
                         .WithHostFrameworkProvider<AppHostFrameworkProvider>()
                  );
@@ -165,6 +169,7 @@ namespace Prise.IntegrationTestsHost
                 .AddPrise<IPluginWithSerializer>(options =>
                          options
                             .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins", "PluginF"))
+                            .IgnorePlatformInconsistencies()
                             .WithPluginAssemblyName("PluginF.dll")
                             .WithSelector<SerializationPluginSelector>()
                             .UseCollectibleAssemblies(isCollectable)

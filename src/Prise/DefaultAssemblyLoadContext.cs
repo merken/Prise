@@ -190,7 +190,7 @@ namespace Prise
                     var resourcePath = Path.Combine(resourceDependency.Path, assemblyName.CultureName, assemblyName.Name + ".dll");
                     if (File.Exists(resourcePath))
                     {
-                        return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(LoadIntoMemory(resourcePath)), false);
+                        return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(LoadFromAssemblyPath(resourcePath)), false);
                     }
                 }
 
@@ -213,7 +213,7 @@ namespace Prise
             var localFile = Path.Combine(this.dependencyPathProvider.GetDependencyPath(), assemblyName.Name + ".dll");
             if (File.Exists(localFile))
             {
-                return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(LoadIntoMemory(localFile)), false);
+                return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(LoadFromAssemblyPath(localFile)), false);
             }
 
             return ValueOrProceed<AssemblyFromStrategy>.Proceed();

@@ -69,7 +69,7 @@ namespace Prise
             var assemblyPath = resolver.ResolveAssemblyToPath(assemblyName);
             if (!String.IsNullOrEmpty(assemblyPath) && File.Exists(assemblyPath))
             {
-                return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(LoadIntoMemory(assemblyPath)), false);
+                return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(LoadFromAssemblyPath(assemblyPath)), false);
             }
 
             return base.LoadFromDependencyContext(pluginLoadContext, assemblyName);
@@ -131,7 +131,7 @@ namespace Prise
                         if (unloadStrategy == UnloadStrategy.Normal)
                             for (int i = 0; reference.IsAlive && (i < 10); i++)
                             {
-                                GC.Collect();
+                                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
                                 GC.WaitForPendingFinalizers();
                             }
 

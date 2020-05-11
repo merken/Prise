@@ -470,6 +470,32 @@ namespace Prise
             return this;
         }
 
+        public PluginLoadOptionsBuilder<T> WithAgressiveUnloading()
+        {
+            if (this.assemblyLoadOptionsType != null || this.networkAssemblyLoaderOptionsType != null || this.assemblyLoader != null)
+                throw new PrisePluginException("Custom loaders and custom load options are not supported with IgnorePlatformInconsistencies(), please provide your own value for IgnorePlatformInconsistencies.");
+
+            if (this.assemblyLoadOptions != null)
+                this.assemblyLoadOptions = new DefaultAssemblyLoadOptions<T>(
+                    this.assemblyLoadOptions.PluginPlatformVersion,
+                    this.assemblyLoadOptions.IgnorePlatformInconsistencies,
+                    this.useCollectibleAssemblies,
+                    this.assemblyLoadOptions.NativeDependencyLoadPreference,
+                    UnloadStrategy.Agressive
+                );
+
+            if (this.networkAssemblyLoaderOptions != null)
+                this.networkAssemblyLoaderOptions = new DefaultNetworkAssemblyLoaderOptions<T>(
+                   this.networkAssemblyLoaderOptions.BaseUrl,
+                   this.networkAssemblyLoaderOptions.PluginPlatformVersion,
+                   this.networkAssemblyLoaderOptions.IgnorePlatformInconsistencies,
+                   this.networkAssemblyLoaderOptions.NativeDependencyLoadPreference,
+                    UnloadStrategy.Agressive
+                );
+
+            return this;
+        }
+
         public PluginLoadOptionsBuilder<T> WithHostType<THostType>() => WithHostType(typeof(THostType));
 
         public PluginLoadOptionsBuilder<T> WithRemoteType<TRemoteType>() => WithRemoteType(typeof(TRemoteType));

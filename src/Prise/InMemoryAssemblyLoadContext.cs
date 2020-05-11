@@ -2,6 +2,8 @@
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
+using Prise.Proxy;
+using Prise.Proxy.Exceptions;
 
 namespace Prise
 {
@@ -21,10 +23,17 @@ namespace Prise
         }
 #endif
 
-        public new Assembly LoadIntoMemory(string path)
+        public new Assembly LoadFromAssemblyPath(string path)
         {
-            using (var stream = File.OpenRead(path))
-                return LoadFromStream(stream);
+            try
+            {
+                using (var stream = File.OpenRead(path))
+                    return LoadFromStream(stream);
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw new PriseProxyException($"Assembly at {path} could not be loaded (locked dll file)", ex);
+            }
         }
     }
 }
