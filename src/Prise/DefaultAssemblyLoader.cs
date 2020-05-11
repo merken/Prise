@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Prise.Infrastructure;
 
@@ -50,6 +51,7 @@ namespace Prise
             this.assemblyLoadStrategyProvider = assemblyLoadStrategyProvider;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public virtual Assembly Load(IPluginLoadContext pluginLoadContext)
         {
             var pluginAssemblyName = Path.GetFileNameWithoutExtension(pluginLoadContext.PluginAssemblyName);
@@ -75,6 +77,7 @@ namespace Prise
             return loadContext.LoadPluginAssembly(pluginLoadContext);
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public virtual Task<Assembly> LoadAsync(IPluginLoadContext pluginLoadContext)
         {
             var pluginAssemblyName = Path.GetFileNameWithoutExtension(pluginLoadContext.PluginAssemblyName);

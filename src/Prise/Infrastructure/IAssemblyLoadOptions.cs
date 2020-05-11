@@ -6,5 +6,6 @@ namespace Prise.Infrastructure
         bool IgnorePlatformInconsistencies { get; }
         bool UseCollectibleAssemblies { get; }
         NativeDependencyLoadPreference NativeDependencyLoadPreference { get; }
+        UnloadStrategy UnloadStrategy { get; }
     }
 }

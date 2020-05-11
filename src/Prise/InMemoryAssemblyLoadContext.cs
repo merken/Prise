@@ -21,7 +21,7 @@ namespace Prise
         }
 #endif
 
-        public new Assembly LoadFromAssemblyPath(string path)
+        public new Assembly LoadIntoMemory(string path)
         {
             using (var stream = File.OpenRead(path))
                 return LoadFromStream(stream);

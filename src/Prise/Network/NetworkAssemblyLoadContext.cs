@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Prise
@@ -48,6 +49,7 @@ namespace Prise
             this.tempPathProvider = tempPathProvider;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public override Assembly LoadPluginAssembly(IPluginLoadContext pluginLoadContext)
         {
             this.pluginDependencyContext = PluginDependencyContext.FromPluginAssembly(
@@ -68,6 +70,7 @@ namespace Prise
             }
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public override async Task<Assembly> LoadPluginAssemblyAsync(IPluginLoadContext pluginLoadContext)
         {
             if (this.pluginDependencyContext != null)
@@ -115,16 +118,16 @@ namespace Prise
             return await response.Content.ReadAsStreamAsync();
         }
 
-        protected override ValueOrProceed<Assembly> LoadFromRemote(IPluginLoadContext pluginLoadContext, AssemblyName assemblyName)
+        protected override ValueOrProceed<AssemblyFromStrategy> LoadFromRemote(IPluginLoadContext pluginLoadContext, AssemblyName assemblyName)
         {
             var networkAssembly = LoadDependencyFromNetwork(assemblyName);
             if (networkAssembly != null)
-                return ValueOrProceed<Assembly>.FromValue(networkAssembly, false);
+                return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(networkAssembly), false);
 
-            return ValueOrProceed<Assembly>.Proceed();
+            return ValueOrProceed<AssemblyFromStrategy>.Proceed();
         }
 
-        protected override ValueOrProceed<Assembly> LoadFromDependencyContext(IPluginLoadContext pluginLoadContext, AssemblyName assemblyName)
+        protected override ValueOrProceed<AssemblyFromStrategy> LoadFromDependencyContext(IPluginLoadContext pluginLoadContext, AssemblyName assemblyName)
         {
             if (IsResourceAssembly(assemblyName))
             {
@@ -133,11 +136,11 @@ namespace Prise
                     var resourceNetworkPathToAssembly = Path.Combine(this.baseUrl, Path.Combine(resourceDependency.Path, assemblyName.CultureName, $"{assemblyName.Name}.dll"));
                     var resourceNetworkAssembly = LoadDependencyFromNetwork(resourceNetworkPathToAssembly);
                     if (resourceNetworkAssembly != null)
-                        return ValueOrProceed<Assembly>.FromValue(resourceNetworkAssembly, false);
+                        return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(resourceNetworkAssembly), false);
                 }
 
                 // Do not proceed probing
-                return ValueOrProceed<Assembly>.FromValue(null, false);
+                return ValueOrProceed<AssemblyFromStrategy>.FromValue(null, false);
             }
 
             var pluginDependency = this.pluginDependencyContext.PluginDependencies.FirstOrDefault(d => d.DependencyNameWithoutExtension == assemblyName.Name);
@@ -147,15 +150,15 @@ namespace Prise
                 var probingPaths = this.probingPathsProvider.GetProbingPaths();
                 var resolvedNetworkAssembly = this.pluginDependencyResolver.ResolvePluginDependencyToPath(dependencyPath, probingPaths, pluginDependency);
                 if (resolvedNetworkAssembly != null)
-                    return ValueOrProceed<Assembly>.FromValue(LoadFromStream(resolvedNetworkAssembly), false);
+                    return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(LoadFromStream(resolvedNetworkAssembly)), false);
             }
 
             var networkPathToAssembly = $"{baseUrl}/{Path.Combine(this.dependencyPathProvider.GetDependencyPath(), assemblyName.Name)}.dll";
             var networkAssembly = LoadDependencyFromNetwork(networkPathToAssembly);
             if (networkAssembly != null)
-                return ValueOrProceed<Assembly>.FromValue(networkAssembly, false);
+                return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(networkAssembly), false);
 
-            return ValueOrProceed<Assembly>.Proceed();
+            return ValueOrProceed<AssemblyFromStrategy>.Proceed();
         }
 
         protected override ValueOrProceed<string> LoadUnmanagedFromDependencyContext(IPluginLoadContext pluginLoadContext, string unmanagedDllName)

@@ -48,13 +48,13 @@ namespace Prise
             Log($"Plugin<{this.pluginType}> assembly {assemblyName.Name} was loaded from the ApplicationLoadContext.Default");
         }
 
-        public void LoadedFromDependencyContext(AssemblyName assemblyName, ValueOrProceed<Assembly> valueOrProceed)
+        public void LoadedFromDependencyContext(AssemblyName assemblyName, ValueOrProceed<AssemblyFromStrategy> valueOrProceed)
         {
             if (valueOrProceed.Value != null)
                 Log($"Plugin<{this.pluginType}> assembly {assemblyName.Name} was loaded from the Dependency Context");
         }
 
-        public void LoadedFromRemote(AssemblyName assemblyName, ValueOrProceed<Assembly> valueOrProceed)
+        public void LoadedFromRemote(AssemblyName assemblyName, ValueOrProceed<AssemblyFromStrategy> valueOrProceed)
         {
             if (valueOrProceed.Value != null)
                 Log($"Plugin<{this.pluginType}> assembly {assemblyName.Name} was loaded from the Remote Location");

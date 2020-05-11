@@ -2,6 +2,7 @@
 // TODO, change to netstandard, once the API becomes available
 using Prise.Infrastructure;
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -63,12 +64,12 @@ namespace Prise
         /// </summary>
         /// <param name="assemblyName"></param>
         /// <returns></returns>
-        protected override ValueOrProceed<Assembly> LoadFromDependencyContext(IPluginLoadContext pluginLoadContext, AssemblyName assemblyName)
+        protected override ValueOrProceed<AssemblyFromStrategy> LoadFromDependencyContext(IPluginLoadContext pluginLoadContext, AssemblyName assemblyName)
         {
             var assemblyPath = resolver.ResolveAssemblyToPath(assemblyName);
             if (!String.IsNullOrEmpty(assemblyPath) && File.Exists(assemblyPath))
             {
-                return ValueOrProceed<Assembly>.FromValue(LoadFromAssemblyPath(assemblyPath), false);
+                return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(LoadIntoMemory(assemblyPath)), false);
             }
 
             return base.LoadFromDependencyContext(pluginLoadContext, assemblyName);
@@ -106,6 +107,7 @@ namespace Prise
         {
             if (!this.disposed && disposing)
             {
+                var unloadStrategy = this.options.UnloadStrategy;
                 this.disposing = true;
 
                 GC.Collect();
@@ -121,6 +123,25 @@ namespace Prise
                 this.pluginDependencyContext = null;
                 this.assemblyLoadStrategy = null;
                 this.resolver = null;
+
+                if (this.assemblyReferences != null)
+                    foreach (var reference in this.assemblyReferences)
+                    {
+                        // https://docs.microsoft.com/en-us/dotnet/standard/assembly/unloadability#use-collectible-assemblyloadcontext
+                        if (unloadStrategy == UnloadStrategy.Normal)
+                            for (int i = 0; reference.IsAlive && (i < 10); i++)
+                            {
+                                GC.Collect();
+                                GC.WaitForPendingFinalizers();
+                            }
+
+                        if (unloadStrategy == UnloadStrategy.Agressive)
+                            while (reference.IsAlive)
+                            {
+                                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+                                GC.WaitForPendingFinalizers();
+                            }
+                    }
 
                 foreach (var nativeAssembly in this.loadedNativeLibraries)
                     this.nativeAssemblyUnloader.UnloadNativeAssembly(nativeAssembly.Key, nativeAssembly.Value);

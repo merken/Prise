@@ -80,13 +80,13 @@ namespace Prise
             this.loadContexts.Clear();
             this.loadContexts = null;
 
-            if (loadContextReferences != null)
-                foreach (var refrence in loadContextReferences.Values)
+            if (this.loadContextReferences != null)
+                foreach (var reference in this.loadContextReferences.Values)
                 {
                     // https://docs.microsoft.com/en-us/dotnet/standard/assembly/unloadability#use-collectible-assemblyloadcontext
-                    for (int i = 0; refrence.IsAlive && (i < 10); i++)
+                    for (int i = 0; reference.IsAlive && (i < 10); i++)
                     {
-                        GC.Collect();
+                        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
                         GC.WaitForPendingFinalizers();
                     }
                 }

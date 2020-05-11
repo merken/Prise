@@ -13,12 +13,14 @@ namespace Prise
         private readonly bool ignorePlatformInconsistencies;
         private readonly bool useCollectibleAssemblies;
         private readonly NativeDependencyLoadPreference nativeDependencyLoadPreference;
+        private readonly UnloadStrategy unloadStrategy;
 
         public DefaultAssemblyLoadOptions(
             PluginPlatformVersion pluginPlatformVersion = null,
             bool ignorePlatformInconsistencies = false,
             bool useCollectibleAssemblies = true,
-            NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime)
+            NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime,
+            UnloadStrategy unloadStrategy = UnloadStrategy.Normal)
         {
             if (pluginPlatformVersion == null)
                 this.pluginPlatformVersion = PluginPlatformVersion.Empty();
@@ -28,11 +30,13 @@ namespace Prise
             this.ignorePlatformInconsistencies = ignorePlatformInconsistencies;
             this.useCollectibleAssemblies = useCollectibleAssemblies;
             this.nativeDependencyLoadPreference = nativeDependencyLoadPreference;
+            this.unloadStrategy = unloadStrategy;
         }
 
         public PluginPlatformVersion PluginPlatformVersion => this.pluginPlatformVersion;
         public bool IgnorePlatformInconsistencies => this.ignorePlatformInconsistencies;
         public bool UseCollectibleAssemblies => this.useCollectibleAssemblies;
         public NativeDependencyLoadPreference NativeDependencyLoadPreference => this.nativeDependencyLoadPreference;
+        public UnloadStrategy UnloadStrategy => this.unloadStrategy;
     }
 }

@@ -31,8 +31,8 @@ namespace Prise.Infrastructure
         void IsRemoteAssembly(AssemblyName assemblyName);
         void LoadedFromAppDomain(AssemblyName assemblyName);
         void VersionMismatch(AssemblyName requested, AssemblyName hostAssembly);
-        void LoadedFromDependencyContext(AssemblyName assemblyName, ValueOrProceed<Assembly> valueOrProceed);
-        void LoadedFromRemote(AssemblyName assemblyName, ValueOrProceed<Assembly> valueOrProceed);
+        void LoadedFromDependencyContext(AssemblyName assemblyName, ValueOrProceed<AssemblyFromStrategy> valueOrProceed);
+        void LoadedFromRemote(AssemblyName assemblyName, ValueOrProceed<AssemblyFromStrategy> valueOrProceed);
         void LoadedUnmanagedFromDependencyContext(string unmanagedDllName, ValueOrProceed<string> valueOrProceed);
         void LoadedUnmanagedFromAppDomain(string unmanagedDllName, ValueOrProceed<IntPtr> valueOrProceed);
         void LoadedUnmanagedFromRemote(string unmanagedDllName, ValueOrProceed<string> valueOrProceed);

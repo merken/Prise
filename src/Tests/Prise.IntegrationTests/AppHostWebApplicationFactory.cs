@@ -13,7 +13,8 @@ namespace Prise.IntegrationTests
     public partial class AppHostWebApplicationFactory
        : WebApplicationFactory<Prise.IntegrationTestsHost.Startup>
     {
-        internal static AppHostWebApplicationFactory Default() => new AppHostWebApplicationFactory(new CommandLineArgumentsLazy(), null);
+        internal static AppHostWebApplicationFactory _instance = new AppHostWebApplicationFactory(new CommandLineArgumentsLazy(), null);
+        internal static AppHostWebApplicationFactory Default() => _instance;
 
         private readonly Dictionary<string, string> settings;
         private readonly ICommandLineArguments commandLineArguments;
