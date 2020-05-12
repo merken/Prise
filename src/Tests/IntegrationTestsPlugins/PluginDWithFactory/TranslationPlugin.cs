@@ -43,7 +43,7 @@ namespace LanguageBased.Plugin
 
         public async Task<IEnumerable<TranslationOutput>> Translate(TranslationInput input)
         {
-            var languageCultureCode = "en-DE";
+            var languageCultureCode = "de-DE";
 
             // Reaches out into the host to check the config for override
             var languageFromConfig = this.configuration["LanguageOverride"];
