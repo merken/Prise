@@ -8,10 +8,9 @@ namespace Prise
         public DefaultNetworkAssemblyLoaderOptions(string baseUrl,
             PluginPlatformVersion pluginPlatformVersion = null,
             bool ignorePlatformInconsistencies = false,
-            NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime,
-            UnloadStrategy unloadStrategy = UnloadStrategy.Normal
+            NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime
         )
-         : base(pluginPlatformVersion, ignorePlatformInconsistencies, ignorePlatformInconsistencies, nativeDependencyLoadPreference, unloadStrategy)
+         : base(pluginPlatformVersion, ignorePlatformInconsistencies, ignorePlatformInconsistencies, nativeDependencyLoadPreference)
         {
             this.baseUrl = baseUrl;
         }

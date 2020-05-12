@@ -32,7 +32,7 @@ namespace Prise
             IDepsFileProvider<T> depsFileProvider,
             IPluginDependencyResolver<T> pluginDependencyResolver,
             INativeAssemblyUnloader nativeAssemblyUnloader,
-            IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider) : base(options.UnloadStrategy)
+            IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider) : base()
         {
             this.logger = logger;
             this.options = options;

@@ -123,14 +123,12 @@ namespace Prise
 
                 if (this.assemblyReferences != null)
                     foreach (var reference in this.assemblyReferences)
-                    {
                         // https://docs.microsoft.com/en-us/dotnet/standard/assembly/unloadability#use-collectible-assemblyloadcontext
                         for (int i = 0; reference.IsAlive && (i < 10); i++)
                         {
                             GC.Collect();
                             GC.WaitForPendingFinalizers();
                         }
-                    }
 
                 this.loadedPlugins.Clear();
                 this.loadedPlugins = null;

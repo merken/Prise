@@ -227,8 +227,7 @@ namespace Prise
         public PluginLoadOptionsBuilder<T> WithLocalDiskAssemblyLoader(
             PluginPlatformVersion pluginPlatformVersion = null,
             bool useCollectibleAssemblies = true,
-            NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime,
-            UnloadStrategy unloadStrategy = UnloadStrategy.Normal
+            NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime
             )
         {
             if (pluginPlatformVersion == null)
@@ -238,8 +237,8 @@ namespace Prise
                 pluginPlatformVersion,
                 false,
                 useCollectibleAssemblies,
-                nativeDependencyLoadPreference,
-                unloadStrategy);
+                nativeDependencyLoadPreference
+            );
 
 #if NETCORE3_0 || NETCORE3_1
             return this.WithAssemblyLoader<DefaultAssemblyLoaderWithNativeResolver<T>>();
@@ -265,9 +264,8 @@ namespace Prise
         public PluginLoadOptionsBuilder<T> WithNetworkAssemblyLoader(
             string baseUrl,
             PluginPlatformVersion pluginPlatformVersion = null,
-            NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime,
-            UnloadStrategy unloadStrategy = UnloadStrategy.Normal
-            )
+            NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime
+        )
         {
             if (pluginPlatformVersion == null)
                 pluginPlatformVersion = PluginPlatformVersion.Empty();
@@ -276,8 +274,8 @@ namespace Prise
                 baseUrl,
                 pluginPlatformVersion,
                 false,
-                nativeDependencyLoadPreference,
-                unloadStrategy);
+                nativeDependencyLoadPreference
+            );
 
             this.depsFileProviderType = typeof(NetworkDepsFileProvider<T>);
             this.pluginDependencyResolverType = typeof(NetworkPluginDependencyResolver<T>);
@@ -456,8 +454,7 @@ namespace Prise
                     this.assemblyLoadOptions.PluginPlatformVersion,
                     ignore,
                     this.useCollectibleAssemblies,
-                    this.assemblyLoadOptions.NativeDependencyLoadPreference,
-                    this.assemblyLoadOptions.UnloadStrategy
+                    this.assemblyLoadOptions.NativeDependencyLoadPreference
                 );
 
             if (this.networkAssemblyLoaderOptions != null)
@@ -465,8 +462,7 @@ namespace Prise
                    this.networkAssemblyLoaderOptions.BaseUrl,
                    this.networkAssemblyLoaderOptions.PluginPlatformVersion,
                    ignore,
-                   this.networkAssemblyLoaderOptions.NativeDependencyLoadPreference,
-                   this.networkAssemblyLoaderOptions.UnloadStrategy
+                   this.networkAssemblyLoaderOptions.NativeDependencyLoadPreference
                 );
 
             return this;
@@ -482,8 +478,7 @@ namespace Prise
                     this.assemblyLoadOptions.PluginPlatformVersion,
                     this.assemblyLoadOptions.IgnorePlatformInconsistencies,
                     this.useCollectibleAssemblies,
-                    this.assemblyLoadOptions.NativeDependencyLoadPreference,
-                    UnloadStrategy.Agressive
+                    this.assemblyLoadOptions.NativeDependencyLoadPreference
                 );
 
             if (this.networkAssemblyLoaderOptions != null)
@@ -491,8 +486,7 @@ namespace Prise
                    this.networkAssemblyLoaderOptions.BaseUrl,
                    this.networkAssemblyLoaderOptions.PluginPlatformVersion,
                    this.networkAssemblyLoaderOptions.IgnorePlatformInconsistencies,
-                   this.networkAssemblyLoaderOptions.NativeDependencyLoadPreference,
-                    UnloadStrategy.Agressive
+                   this.networkAssemblyLoaderOptions.NativeDependencyLoadPreference
                 );
 
             return this;
@@ -649,8 +643,8 @@ namespace Prise
                 PluginPlatformVersion.Empty(),
                 false,
                 this.useCollectibleAssemblies,
-                NativeDependencyLoadPreference.PreferInstalledRuntime,
-                UnloadStrategy.Normal);
+                NativeDependencyLoadPreference.PreferInstalledRuntime
+            );
 
             this.probingPathsProviderType = typeof(ProbingPathsProvider<T>);
 

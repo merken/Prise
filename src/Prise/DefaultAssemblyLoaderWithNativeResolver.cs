@@ -1,5 +1,4 @@
 ﻿#if NETCORE3_0 || NETCORE3_1
-using Prise.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,11 +6,10 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Prise.Infrastructure;
 
 namespace Prise
 {
-
-
     public class DefaultAssemblyLoaderWithNativeResolver<T> : DisposableAssemblyUnLoader, IPluginAssemblyLoader<T>
     {
         private readonly IPluginLogger<T> logger;
@@ -40,7 +38,7 @@ namespace Prise
             IDepsFileProvider<T> depsFileProvider,
             IPluginDependencyResolver<T> pluginDependencyResolver,
             INativeAssemblyUnloader nativeAssemblyUnloader,
-            IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider) : base(options.UnloadStrategy)
+            IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider) : base()
         {
             this.logger = logger;
             this.options = options;

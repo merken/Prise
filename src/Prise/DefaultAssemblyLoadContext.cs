@@ -31,7 +31,6 @@ namespace Prise
         protected bool disposing = false;
         protected ConcurrentBag<string> loadedPlugins;
         protected ConcurrentBag<WeakReference> assemblyReferences;
-        protected UnloadStrategy unloadStrategy;
 
         public DefaultAssemblyLoadContext(
             IPluginLogger<T> logger,
@@ -65,7 +64,6 @@ namespace Prise
             this.loadedNativeLibraries = new ConcurrentDictionary<string, IntPtr>();
             this.loadedPlugins = new ConcurrentBag<string>();
             this.assemblyReferences = new ConcurrentBag<WeakReference>();
-            this.unloadStrategy = options.UnloadStrategy;
         }
 
         private void GuardIfAlreadyLoaded(string pluginAssemblyName)
@@ -126,7 +124,7 @@ namespace Prise
 
         protected Assembly LoadAndAddToWeakReferences(AssemblyFromStrategy assemblyFromStrategy)
         {
-            if ( assemblyFromStrategy != null && assemblyFromStrategy.CanBeReleased)
+            if (assemblyFromStrategy != null && assemblyFromStrategy.CanBeReleased)
                 this.assemblyReferences.Add(new System.WeakReference(assemblyFromStrategy.Assembly));
 
             return assemblyFromStrategy?.Assembly;
@@ -393,22 +391,12 @@ namespace Prise
 
                 if (this.assemblyReferences != null)
                     foreach (var reference in this.assemblyReferences)
-                    {
                         // https://docs.microsoft.com/en-us/dotnet/standard/assembly/unloadability#use-collectible-assemblyloadcontext
-                        if (this.unloadStrategy == UnloadStrategy.Normal)
-                            for (int i = 0; reference.IsAlive && (i < 10); i++)
-                            {
-                                GC.Collect();
-                                GC.WaitForPendingFinalizers();
-                            }
-
-                        if (this.unloadStrategy == UnloadStrategy.Agressive)
-                            while (reference.IsAlive)
-                            {
-                                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-                                GC.WaitForPendingFinalizers();
-                            }
-                    }
+                        for (int i = 0; reference.IsAlive && (i < 10); i++)
+                        {
+                            GC.Collect();
+                            GC.WaitForPendingFinalizers();
+                        }
 
                 this.loadedPlugins.Clear();
                 this.loadedPlugins = null;

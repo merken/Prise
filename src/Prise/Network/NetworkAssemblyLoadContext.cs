@@ -232,22 +232,12 @@ namespace Prise
 
                 if (this.assemblyReferences != null)
                     foreach (var reference in this.assemblyReferences)
-                    {
                         // https://docs.microsoft.com/en-us/dotnet/standard/assembly/unloadability#use-collectible-assemblyloadcontext
-                        if (this.unloadStrategy == UnloadStrategy.Normal)
-                            for (int i = 0; reference.IsAlive && (i < 10); i++)
-                            {
-                                GC.Collect();
-                                GC.WaitForPendingFinalizers();
-                            }
-
-                        if (this.unloadStrategy == UnloadStrategy.Agressive)
-                            while (reference.IsAlive)
-                            {
-                                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-                                GC.WaitForPendingFinalizers();
-                            }
-                    }
+                        for (int i = 0; reference.IsAlive && (i < 10); i++)
+                        {
+                            GC.Collect();
+                            GC.WaitForPendingFinalizers();
+                        }
 
                 this.loadedPlugins.Clear();
                 this.loadedPlugins = null;

@@ -24,13 +24,11 @@ namespace Prise
         protected ConcurrentDictionary<LoadedPluginKey, IAssemblyLoadContext> loadContexts;
         protected ConcurrentDictionary<LoadedPluginKey, WeakReference> loadContextReferences;
         protected bool disposed = false;
-        protected UnloadStrategy unloadStrategy;
 
-        protected DisposableAssemblyUnLoader(UnloadStrategy unloadStrategy)
+        protected DisposableAssemblyUnLoader()
         {
             this.loadContexts = new ConcurrentDictionary<LoadedPluginKey, IAssemblyLoadContext>();
             this.loadContextReferences = new ConcurrentDictionary<LoadedPluginKey, WeakReference>();
-            this.unloadStrategy = unloadStrategy;
         }
 
         public virtual void UnloadAll()
