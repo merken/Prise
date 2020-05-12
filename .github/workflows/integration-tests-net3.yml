@@ -20,6 +20,7 @@ jobs:
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginB/PluginB.csproj -o ~/publish/PluginB
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginC/PluginC.csproj -o ~/publish/PluginC
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginD/PluginD.net3.csproj -o ~/publish/PluginD
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginDWithFactory/PluginDWithFactory.net3.csproj -o ~/publish/PluginDWithFactory
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginE/PluginE.net3.csproj -o ~/publish/PluginE
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginF/PluginF.net3.csproj -o ~/publish/PluginF
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/LegacyPlugin1.4/LegacyPlugin1.4.csproj -o ~/publish/LegacyPlugin1.4
@@ -34,6 +35,7 @@ jobs:
       - run: cp -r ~/publish/PluginB src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
       - run: cp -r ~/publish/PluginC src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
       - run: cp -r ~/publish/PluginD src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
+      - run: cp -r ~/publish/PluginDWithFactory src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
       - run: cp -r ~/publish/PluginE src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
       - run: cp -r ~/publish/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
       - run: cp -r ~/publish/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins

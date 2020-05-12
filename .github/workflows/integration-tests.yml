@@ -1,4 +1,4 @@
-name: Prise integration tests .net core 3.1
+name: Prise integration tests
 
 on: [push]
 
@@ -13,13 +13,14 @@ jobs:
       - name: Setup .NET Core 3.1
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.101
+          dotnet-version: 3.1.201
 
         # Publishes all plugins to publish directory
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginA/PluginA.csproj -o ~/publish/PluginA
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginB/PluginB.csproj -o ~/publish/PluginB
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginC/PluginC.csproj -o ~/publish/PluginC
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginD/PluginD.csproj -o ~/publish/PluginD
+      - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginDWithFactory/PluginDWithFactory.csproj -o ~/publish/PluginDWithFactory
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginE/PluginE.csproj -o ~/publish/PluginE
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginF/PluginF.csproj -o ~/publish/PluginF
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/LegacyPlugin1.4/LegacyPlugin1.4.csproj -o ~/publish/LegacyPlugin1.4
@@ -34,6 +35,7 @@ jobs:
       - run: cp -r ~/publish/PluginB src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
       - run: cp -r ~/publish/PluginC src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
       - run: cp -r ~/publish/PluginD src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: cp -r ~/publish/PluginDWithFactory src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
       - run: cp -r ~/publish/PluginE src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
       - run: cp -r ~/publish/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
       - run: cp -r ~/publish/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
