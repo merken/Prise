@@ -39,6 +39,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\Prise.Proxy\Prise.Proxy.csproj" />
     <ProjectReference Include="..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj">
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>Prise.AssemblyScanning.dll</IncludeAssets>

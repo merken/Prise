@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Prise.Plugin\Prise.Plugin.csproj" />
     <ProjectReference Include="..\Prise.AssemblyScanning.Discovery\Prise.AssemblyScanning.Discovery.csproj" />
     <ProjectReference Include="..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj" />
   </ItemGroup>
