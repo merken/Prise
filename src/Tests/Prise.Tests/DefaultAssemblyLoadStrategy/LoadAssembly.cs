@@ -42,7 +42,7 @@ namespace Prise.Tests.DefaultAssemblyLoadStrategy
                .Setup(p => p.RemoteDependencies).Returns(Enumerable.Empty<RemoteDependency>());
 
             // Act, Assert
-            Assert.Null(sut.LoadAssembly(assemblyname, loadFromDependencyContext, loadFromRemote, loadFromAppDomain).Assembly);
+            Assert.Null(sut.LoadAssembly(assemblyname, loadFromDependencyContext, loadFromRemote, loadFromAppDomain)?.Assembly);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Prise.Tests.DefaultAssemblyLoadStrategy
                 .Setup(p => p.RemoteDependencies).Returns(Enumerable.Empty<RemoteDependency>());
 
             // Act, Assert
-            Assert.Null(sut.LoadAssembly(someAssemblyName, loadFromDependencyContext, loadFromRemote, loadFromAppDomain).Assembly);
+            Assert.Null(sut.LoadAssembly(someAssemblyName, loadFromDependencyContext, loadFromRemote, loadFromAppDomain)?.Assembly);
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace Prise.Tests.DefaultAssemblyLoadStrategy
                 .Setup(p => p.RemoteDependencies).Returns(new List<RemoteDependency> { new RemoteDependency { DependencyName = someAssemblyName } });
 
             // Act, Assert
-            Assert.Null(sut.LoadAssembly(someAssemblyName, loadFromDependencyContext, loadFromRemote, loadFromAppDomain).Assembly);
+            Assert.Null(sut.LoadAssembly(someAssemblyName, loadFromDependencyContext, loadFromRemote, loadFromAppDomain)?.Assembly);
         }
 
         [Fact]
