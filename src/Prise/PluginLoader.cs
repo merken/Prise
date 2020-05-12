@@ -52,7 +52,7 @@ namespace Prise
             if (!instances.Any())
                 throw new PrisePluginException($"No plugins of type {typeof(T).Name} found from assemblies {String.Join(',', assemblies.Select(a => a.AssemblyPath))}");
 
-            return instances.ToArray();
+            return instances.OrderBy(t => t.GetType().Name).ToArray();
         }
 
         protected async Task<T[]> LoadPluginsOfTypeAsync<T>(IPluginLoadOptions<T> pluginLoadOptions)
@@ -78,7 +78,7 @@ namespace Prise
             if (!instances.Any())
                 throw new PrisePluginException($"No plugins of type {typeof(T).Name} found from assemblies {String.Join(',', assemblies.Select(a => a.AssemblyPath))}");
 
-            return instances.ToArray();
+            return instances.OrderBy(t => t.GetType().Name).ToArray();
         }
 
         protected void Unload<T>(IPluginLoadOptions<T> pluginLoadOptions)
