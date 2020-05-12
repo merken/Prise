@@ -38,7 +38,7 @@ namespace Prise
             IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider,
             ITempPathProvider<T> tempPathProvider,
             IHttpClientFactory httpClientFactory
-            ) : base(options.UnloadStrategy)
+            ) : base()
         {
             this.logger = logger;
             this.options = options;
