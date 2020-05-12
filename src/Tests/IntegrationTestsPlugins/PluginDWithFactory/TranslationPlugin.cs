@@ -15,21 +15,17 @@ namespace LanguageBased.Plugin
     public class TranslationPluginWithFactory : ITranslationPlugin
     {
         private readonly IConfiguration configuration;
-        private readonly ICurrentLanguageProvider languageProvider;
         private readonly IDictionaryService dictionaryService;
 
-        internal TranslationPluginWithFactory(IConfiguration configuration, ICurrentLanguageProvider languageProvider, IDictionaryService dictionaryService)
+        internal TranslationPluginWithFactory(IConfiguration configuration, IDictionaryService dictionaryService)
         {
             // This will guard us from possible nullpointers
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
-            if (languageProvider == null)
-                throw new ArgumentNullException(nameof(languageProvider));
             if (dictionaryService == null)
                 throw new ArgumentNullException(nameof(dictionaryService));
 
             this.configuration = configuration;
-            this.languageProvider = languageProvider;
             this.dictionaryService = dictionaryService;
         }
 
@@ -37,24 +33,17 @@ namespace LanguageBased.Plugin
         public static TranslationPluginWithFactory ThisIsTheFactoryMethod(IServiceProvider serviceProvider)
         {
             var configFromHost = serviceProvider.GetService<IConfiguration>();
-
-            var hostService = serviceProvider.GetService(typeof(ICurrentLanguageProvider)); // This does not work anymore, use the Field Injected method
-            var hostServiceBridge = new CurrentLanguageProviderBridge(hostService);
-
             var dictionaryService = serviceProvider.GetService<IDictionaryService>();
 
             return new TranslationPluginWithFactory(
                 configFromHost, // This service is provided by the Prise.IntegrationTestsHost application and is registered as a Host Type
-                hostServiceBridge, // This service is provided by the Prise.IntegrationTestsHost application and is registered as a Remote Type
                 dictionaryService // This service is provided by the plugin using the PluginBootstrapper
             );
         }
 
         public async Task<IEnumerable<TranslationOutput>> Translate(TranslationInput input)
         {
-            // Reaches out into the host to get the current language
-            var currentLanguage = await this.languageProvider.GetCurrentLanguage();
-            var languageCultureCode = currentLanguage.LanguageCultureCode;
+            var languageCultureCode = "en-DE";
 
             // Reaches out into the host to check the config for override
             var languageFromConfig = this.configuration["LanguageOverride"];
