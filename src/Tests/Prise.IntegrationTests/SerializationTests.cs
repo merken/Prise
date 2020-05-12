@@ -31,12 +31,9 @@ namespace Prise.IntegrationTests
         [Fact]
         public async Task PluginF_Works_WithJson()
         {
-#if NETCORE2_1
             // Arrange
-            var expectedJson = "\"{\u005C\"StringProperty\u005C\":\u005C\"Some string\u005C\",\u005C\"IntProperty\u005C\":999,\u005C\"DoubleProperty\u005C\":4336.9899999999998}\"";
-#else
             var expectedJson = "\"{\u005C\"StringProperty\u005C\":\u005C\"Some string\u005C\",\u005C\"IntProperty\u005C\":999,\u005C\"DoubleProperty\u005C\":4336.99}\"";
-#endif
+
             //Act
             var result = await GetRaw(_client, "application/json", "/serialization");
 
@@ -85,12 +82,9 @@ namespace Prise.IntegrationTests
         [Fact]
         public async Task PluginF_Works_WithJson()
         {
-#if NETCORE2_1
             // Arrange
-            var expectedJson = "\"{\u005C\"StringProperty\u005C\":\u005C\"Some string\u005C\",\u005C\"IntProperty\u005C\":999,\u005C\"DoubleProperty\u005C\":4336.9899999999998}\"";
-#else
             var expectedJson = "\"{\u005C\"StringProperty\u005C\":\u005C\"Some string\u005C\",\u005C\"IntProperty\u005C\":999,\u005C\"DoubleProperty\u005C\":4336.99}\"";
-#endif
+
             //Act
             var result = await GetRaw(_client, "application/json", "/serialization");
 
