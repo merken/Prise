@@ -102,6 +102,7 @@ namespace Prise.IntegrationTestsHost
                             composer.UseDiscovery())
                         .WithHostFrameworkProvider<AppHostFrameworkProvider>()
                         .IgnorePlatformInconsistencies()
+                        .WithAgressiveUnloading()
                         .ConfigureHostServices(hostServices =>
                         {
                             // These services are registered as host types

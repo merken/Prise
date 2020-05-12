@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -12,11 +13,21 @@ namespace Prise
     public class DefaultRemotePluginActivator<T> : IRemotePluginActivator<T>
     {
         private readonly ISharedServicesProvider<T> sharedServicesProvider;
+        private ConcurrentBag<object> instances;
+        private IServiceCollection services;
         private bool disposed = false;
 
         public DefaultRemotePluginActivator(ISharedServicesProvider<T> sharedServicesProvider)
         {
             this.sharedServicesProvider = sharedServicesProvider;
+            this.instances = new ConcurrentBag<object>();
+            this.services = new ServiceCollection();
+        }
+
+        private object AddToDisposables(object obj)
+        {
+            this.instances.Add(obj);
+            return obj;
         }
 
         public virtual object CreateRemoteBootstrapper(Type bootstrapperType, Assembly assembly)
@@ -29,7 +40,7 @@ namespace Prise
             if (firstCtor.GetParameters().Any())
                 throw new PrisePluginException($"Bootstrapper {bootstrapperType.Name} must contain a public parameterless constructor");
 
-            return assembly.CreateInstance(bootstrapperType.FullName);
+            return AddToDisposables(assembly.CreateInstance(bootstrapperType.FullName));
         }
 
         public virtual object CreateRemoteInstance(PluginActivationContext pluginActivationContext, IPluginBootstrapper bootstrapper = null)
@@ -43,21 +54,21 @@ namespace Prise
             if (contructors.Count() > 1)
                 throw new PrisePluginException($"Multiple public constructors found for remote plugin {pluginType.Name}");
 
-            var serviceProvider = GetServiceProvider(bootstrapper);
+            var serviceProvider = AddToDisposables(GetServiceProvider(bootstrapper)) as IServiceProvider;
 
             if (factoryMethod != null)
-                return factoryMethod.Invoke(null, new[] { serviceProvider });
+                return AddToDisposables(factoryMethod.Invoke(null, new[] { serviceProvider }));
 
             var firstCtor = contructors.FirstOrDefault();
             if (firstCtor != null && !firstCtor.GetParameters().Any()) // Empty default CTOR
             {
-                var pluginServiceProvider = serviceProvider.GetService<IPluginServiceProvider>();
+                var pluginServiceProvider = AddToDisposables(serviceProvider.GetService<IPluginServiceProvider>()) as IPluginServiceProvider;
                 var remoteInstance = pluginAssembly.CreateInstance(pluginType.FullName);
                 remoteInstance = InjectFieldsWithServices(remoteInstance, pluginServiceProvider, pluginActivationContext.PluginServices);
 
                 ActivateIfNecessary(remoteInstance, pluginActivationContext);
 
-                return remoteInstance;
+                return AddToDisposables(remoteInstance);
             }
 
             throw new PrisePluginException($"Plugin of type {typeof(T).Name} could not be activated.");
@@ -108,7 +119,7 @@ namespace Prise
                 if (bridgeConstructor == null)
                     throw new PrisePluginException($"PluginBridge {pluginService.BridgeType.Name} must have a single public constructor with one parameter of type object.");
 
-                var bridgeInstance = bridgeConstructor.Invoke(new[] { serviceInstance });
+                var bridgeInstance = AddToDisposables(bridgeConstructor.Invoke(new[] { serviceInstance }));
                 remoteInstance.GetType().GetTypeInfo().DeclaredFields.First(f => f.Name == pluginService.FieldName).SetValue(remoteInstance, bridgeInstance);
             }
 
@@ -119,31 +130,38 @@ namespace Prise
         {
             var hostServices = this.sharedServicesProvider.ProvideHostServices();
             var sharedServices = this.sharedServicesProvider.ProvideSharedServices();
-            var allServices = new ServiceCollection();
 
             foreach (var service in hostServices)
-                allServices.Add(service);
+                this.services.Add(service);
 
             foreach (var service in sharedServices)
-                allServices.Add(service);
+                this.services.Add(service);
 
             if (bootstrapper != null)
-                sharedServices = bootstrapper.Bootstrap(allServices);
+                sharedServices = bootstrapper.Bootstrap(this.services);
 
-            allServices.AddScoped<IPluginServiceProvider>(sp => new DefaultPluginServiceProvider(
+            this.services.AddScoped<IPluginServiceProvider>(sp => new DefaultPluginServiceProvider(
                 sp,
                 hostServices.Select(d => d.ServiceType),
                 sharedServices.Select(d => d.ServiceType)
             ));
 
-            return allServices.BuildServiceProvider();
+            return this.services.BuildServiceProvider();
         }
 
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed && disposing)
             {
-                // Nothing to do here
+                foreach (var disposable in this.instances)
+                {
+                    if (disposable as IDisposable != null)
+                        (disposable as IDisposable)?.Dispose();
+                }
+                instances.Clear();
+
+                this.instances = null;
+                this.services = null;
             }
             this.disposed = true;
         }

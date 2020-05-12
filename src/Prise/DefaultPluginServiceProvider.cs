@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Prise.Infrastructure;
@@ -7,15 +8,18 @@ namespace Prise
 {
     public class DefaultPluginServiceProvider : IPluginServiceProvider
     {
+        protected bool disposed = false;
         private readonly IServiceProvider localProvider;
         private readonly IEnumerable<Type> hostTypes;
         private readonly IEnumerable<Type> sharedTypes;
+        private readonly ConcurrentBag<object> instances;
 
         public DefaultPluginServiceProvider(IServiceProvider localProvider, IEnumerable<Type> hostTypes, IEnumerable<Type> sharedTypes)
         {
             this.localProvider = localProvider;
             this.hostTypes = hostTypes;
             this.sharedTypes = sharedTypes;
+            this.instances = new ConcurrentBag<object>();
         }
 
         public object GetPluginService(Type type)
@@ -28,7 +32,8 @@ namespace Prise
             var instance = this.localProvider.GetService(type);
             if (instance == null)
                 throw new PrisePluginException($"An instance of Plugin Service type {type.Name} could not be properly constructed (null).");
-
+            
+            this.instances.Add(instance);
             return instance;
         }
 
@@ -44,7 +49,26 @@ namespace Prise
             if (instance == null)
                 throw new PrisePluginException($"An instance of Host Service type {type.Name} could not be properly constructed (null).");
 
+            this.instances.Add(instance);
             return instance;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed && disposing)
+            {
+                foreach (var instance in this.instances)
+                    (instance as IDisposable)?.Dispose();
+
+                this.instances.Clear();
+            }
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

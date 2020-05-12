@@ -1,11 +1,10 @@
-using Prise.Infrastructure;
 using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Prise.Infrastructure;
 
 namespace Prise
 {
@@ -49,7 +48,6 @@ namespace Prise
             this.tempPathProvider = tempPathProvider;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         public override Assembly LoadPluginAssembly(IPluginLoadContext pluginLoadContext)
         {
             this.pluginDependencyContext = PluginDependencyContext.FromPluginAssembly(
@@ -70,7 +68,6 @@ namespace Prise
             }
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         public override async Task<Assembly> LoadPluginAssemblyAsync(IPluginLoadContext pluginLoadContext)
         {
             if (this.pluginDependencyContext != null)
@@ -233,11 +230,37 @@ namespace Prise
                 this.pluginDependencyContext = null;
                 this.assemblyLoadStrategy = null;
 
+                if (this.assemblyReferences != null)
+                    foreach (var reference in this.assemblyReferences)
+                    {
+                        // https://docs.microsoft.com/en-us/dotnet/standard/assembly/unloadability#use-collectible-assemblyloadcontext
+                        if (this.unloadStrategy == UnloadStrategy.Normal)
+                            for (int i = 0; reference.IsAlive && (i < 10); i++)
+                            {
+                                GC.Collect();
+                                GC.WaitForPendingFinalizers();
+                            }
+
+                        if (this.unloadStrategy == UnloadStrategy.Agressive)
+                            while (reference.IsAlive)
+                            {
+                                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+                                GC.WaitForPendingFinalizers();
+                            }
+                    }
+
+                this.loadedPlugins.Clear();
+                this.loadedPlugins = null;
+
+                this.assemblyReferences.Clear();
+                this.assemblyReferences = null;
+
                 foreach (var nativeAssembly in this.loadedNativeLibraries)
                     this.nativeAssemblyUnloader.UnloadNativeAssembly(nativeAssembly.Key, nativeAssembly.Value);
 
                 this.loadedNativeLibraries = null;
                 this.nativeAssemblyUnloader = null;
+                this.options = null;
 
                 if (this.tempPathProvider != null)
                     this.tempPathProvider.Dispose();

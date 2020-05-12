@@ -22,25 +22,27 @@ namespace Prise
             where T : class
             where TPluginLoader : class, IPluginLoader<T>, IPluginResolver<T>
         {
-            var optionsBuilder = new PluginLoadOptionsBuilder<T>()
-                .WithDefaultOptions(serviceLifetime: serviceLifetime);
-            config?.Invoke(optionsBuilder);
+            using (var optionsBuilder = new PluginLoadOptionsBuilder<T>()
+                .WithDefaultOptions(serviceLifetime: serviceLifetime))
+            {
+                config?.Invoke(optionsBuilder);
 
-            services = optionsBuilder.RegisterOptions(services);
+                services = optionsBuilder.RegisterOptions(services);
 
-            return services
-                .AddService(new ServiceDescriptor(typeof(IPluginLoader<T>), typeof(TPluginLoader), serviceLifetime))
-                .AddService(new ServiceDescriptor(typeof(IPluginResolver<T>), typeof(TPluginLoader), serviceLifetime))
-                .AddService(new ServiceDescriptor(typeof(T), (s) =>
-                {
-                    // Synchronous plugin loading
-                    return s.GetRequiredService<IPluginResolver<T>>().Load();
-                }, serviceLifetime))
-                .AddService(new ServiceDescriptor(typeof(IEnumerable<T>), (s) =>
-                {
-                    // Synchronous plugin loading
-                    return s.GetRequiredService<IPluginResolver<T>>().LoadAll();
-                }, serviceLifetime));
+                return services
+                    .AddService(new ServiceDescriptor(typeof(IPluginLoader<T>), typeof(TPluginLoader), serviceLifetime))
+                    .AddService(new ServiceDescriptor(typeof(IPluginResolver<T>), typeof(TPluginLoader), serviceLifetime))
+                    .AddService(new ServiceDescriptor(typeof(T), (s) =>
+                    {
+                        // Synchronous plugin loading
+                        return s.GetRequiredService<IPluginResolver<T>>().Load();
+                    }, serviceLifetime))
+                    .AddService(new ServiceDescriptor(typeof(IEnumerable<T>), (s) =>
+                    {
+                        // Synchronous plugin loading
+                        return s.GetRequiredService<IPluginResolver<T>>().LoadAll();
+                    }, serviceLifetime));
+            }
         }
 
         private static IServiceCollection AddService(this IServiceCollection services, ServiceDescriptor serviceDescriptor)

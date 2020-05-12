@@ -1,12 +1,11 @@
 ﻿#if NETCORE3_0 || NETCORE3_1
 // TODO, change to netstandard, once the API becomes available
-using Prise.Infrastructure;
 using System;
-using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
+using Prise.Infrastructure;
 
 namespace Prise
 {
@@ -107,7 +106,6 @@ namespace Prise
         {
             if (!this.disposed && disposing)
             {
-                var unloadStrategy = this.options.UnloadStrategy;
                 this.disposing = true;
 
                 GC.Collect();
@@ -122,32 +120,31 @@ namespace Prise
                 this.pluginDependencyResolver = null;
                 this.pluginDependencyContext = null;
                 this.assemblyLoadStrategy = null;
-                this.resolver = null;
 
                 if (this.assemblyReferences != null)
                     foreach (var reference in this.assemblyReferences)
                     {
                         // https://docs.microsoft.com/en-us/dotnet/standard/assembly/unloadability#use-collectible-assemblyloadcontext
-                        if (unloadStrategy == UnloadStrategy.Normal)
-                            for (int i = 0; reference.IsAlive && (i < 10); i++)
-                            {
-                                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-                                GC.WaitForPendingFinalizers();
-                            }
-
-                        if (unloadStrategy == UnloadStrategy.Agressive)
-                            while (reference.IsAlive)
-                            {
-                                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-                                GC.WaitForPendingFinalizers();
-                            }
+                        for (int i = 0; reference.IsAlive && (i < 10); i++)
+                        {
+                            GC.Collect();
+                            GC.WaitForPendingFinalizers();
+                        }
                     }
 
+                this.loadedPlugins.Clear();
+                this.loadedPlugins = null;
+
+                this.assemblyReferences.Clear();
+                this.assemblyReferences = null;
+
+                // Unload any loaded native assemblies
                 foreach (var nativeAssembly in this.loadedNativeLibraries)
                     this.nativeAssemblyUnloader.UnloadNativeAssembly(nativeAssembly.Key, nativeAssembly.Value);
 
-                this.nativeAssemblyUnloader = null;
                 this.loadedNativeLibraries = null;
+                this.nativeAssemblyUnloader = null;
+                this.options = null;
             }
             this.disposed = true;
         }

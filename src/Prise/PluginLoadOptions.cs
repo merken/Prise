@@ -80,6 +80,7 @@ namespace Prise
         {
             if (!this.disposed && disposing)
             {
+                this.assemblyLoader.Dispose();
                 // Dispose all properties
                 this.sharedServicesProvider.Dispose();
                 this.activator.Dispose();
@@ -89,7 +90,6 @@ namespace Prise
                 this.proxyCreator.Dispose();
                 this.hostTypesProvider.Dispose();
                 this.remoteTypesProvider.Dispose();
-                this.assemblyLoader.Dispose();
                 this.assemblyScanner.Dispose();
             }
             this.disposed = true;
