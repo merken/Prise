@@ -14,21 +14,21 @@ jobs:
     steps:
       - uses: actions/checkout@v1
         
-      - name: Setup .NET Core ${{dotnetVersion}}
+      - name: Setup .NET Core ${{ dotnetVersion }}
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: ${{dotnetVersion}}
+          dotnet-version: ${{ dotnetVersion }}
 
       # Copies all published plugins to integration test directory
-      - run: mkdir -p src/Tests/Prise.IntegrationTests/bin/Debug/${{fwkVersion}}/Plugins
-      - run: cp -r src/Tests/compatibility/PluginA src/Tests/Prise.IntegrationTests/bin/Debug/${{fwkVersion}}/Plugins
-      - run: cp -r src/Tests/compatibility/PluginB src/Tests/Prise.IntegrationTests/bin/Debug/${{fwkVersion}}/Plugins
-      - run: cp -r src/Tests/compatibility/PluginC src/Tests/Prise.IntegrationTests/bin/Debug/${{fwkVersion}}/Plugins
-      - run: cp -r src/Tests/compatibility/${{fwkVersion}}/PluginD src/Tests/Prise.IntegrationTests/bin/Debug/${{fwkVersion}}/Plugins
-      - run: cp -r src/Tests/compatibility/${{fwkVersion}}/PluginE src/Tests/Prise.IntegrationTests/bin/Debug/${{fwkVersion}}/Plugins
-      - run: cp -r src/Tests/compatibility/${{fwkVersion}}/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/${{fwkVersion}}/Plugins
-      - run: cp -r src/Tests/compatibility/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/${{fwkVersion}}/Plugins
-      - run: cp -r src/Tests/compatibility/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/${{fwkVersion}}/Plugins
+      - run: mkdir -p src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
+      - run: cp -r src/Tests/compatibility/PluginA src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
+      - run: cp -r src/Tests/compatibility/PluginB src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
+      - run: cp -r src/Tests/compatibility/PluginC src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
+      - run: cp -r src/Tests/compatibility/${{ fwkVersion}}/PluginD src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
+      - run: cp -r src/Tests/compatibility/${{ fwkVersion}}/PluginE src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
+      - run: cp -r src/Tests/compatibility/${{ fwkVersion}}/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
+      - run: cp -r src/Tests/compatibility/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
+      - run: cp -r src/Tests/compatibility/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
 
-      - name: Test Prise.IntegrationTests with ${{dotnetVersion}}
-        run: dotnet test src/Tests/Prise.IntegrationTests/Prise.IntegrationTests.net2.csproj -f ${{fwkVersion}}
+      - name: Test Prise.IntegrationTests with ${{ dotnetVersion }}
+        run: dotnet test src/Tests/Prise.IntegrationTests/Prise.IntegrationTests.net2.csproj -f ${{ fwkVersion}}
