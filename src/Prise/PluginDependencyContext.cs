@@ -133,7 +133,7 @@ namespace Prise
                 var pluginFrameworkType = pluginFramework.Split(new String[] { ",Version=v" }, StringSplitOptions.RemoveEmptyEntries)[0];
                 var hostFrameworkType = hostFramework.Split(new String[] { ",Version=v" }, StringSplitOptions.RemoveEmptyEntries)[0];
                 if (pluginFrameworkType.ToLower() == ".netstandard")
-                    throw new PrisePluginException($"Plugin framework {pluginFramework} might have compatibility issues, use the IgnorePlatformInconsistencies flag to skip this check.");
+                    throw new PrisePluginException($"Plugin framework {pluginFramework} might have compatibility issues with the host {hostFramework}, use the IgnorePlatformInconsistencies flag to skip this check.");
 
                 if (pluginFrameworkType != hostFrameworkType)
                     throw new PrisePluginException($"Plugin framework {pluginFramework} does not match the host {hostFramework}. Please target {hostFramework} in order to load the plugin.");
