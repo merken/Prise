@@ -7,16 +7,28 @@ using Prise.Infrastructure;
 
 namespace Prise
 {
+    public struct LoadedPluginKey
+    {
+        public string Path { get; set; }
+        public string PluginAssemblyName { get; set; }
+
+        public LoadedPluginKey(IPluginLoadContext context)
+        {
+            this.Path = context.PluginAssemblyPath;
+            this.PluginAssemblyName = System.IO.Path.GetFileNameWithoutExtension(context.PluginAssemblyName);
+        }
+    }
+
     public abstract class DisposableAssemblyUnLoader : IDisposable
     {
-        protected ConcurrentDictionary<string, IAssemblyLoadContext> loadContexts;
-        protected ConcurrentDictionary<string, WeakReference> loadContextReferences;
+        protected ConcurrentDictionary<LoadedPluginKey, IAssemblyLoadContext> loadContexts;
+        protected ConcurrentDictionary<LoadedPluginKey, WeakReference> loadContextReferences;
         protected bool disposed = false;
 
         protected DisposableAssemblyUnLoader()
         {
-            this.loadContexts = new ConcurrentDictionary<string, IAssemblyLoadContext>();
-            this.loadContextReferences = new ConcurrentDictionary<string, WeakReference>();
+            this.loadContexts = new ConcurrentDictionary<LoadedPluginKey, IAssemblyLoadContext>();
+            this.loadContextReferences = new ConcurrentDictionary<LoadedPluginKey, WeakReference>();
         }
 
         public virtual void UnloadAll()
@@ -57,11 +69,16 @@ namespace Prise
         protected virtual void UnloadContext(string pluginAssemblyName)
         {
             var pluginName = Path.GetFileNameWithoutExtension(pluginAssemblyName);
-            var loadContext = this.loadContexts[pluginName];
+            var loadContextKeys = this.loadContexts.Keys.Where(k => k.PluginAssemblyName == pluginAssemblyName);
+
+            foreach (var key in loadContextKeys)
+            {
+                var loadContext = this.loadContexts[key];
 #if NETCORE3_0 || NETCORE3_1
-            loadContext.Unload();
+                loadContext.Unload();
 #endif
-            loadContext.Dispose();
+                loadContext.Dispose();
+            }
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -81,19 +98,19 @@ namespace Prise
             this.loadContexts.Clear();
             this.loadContexts = null;
 
-            if (loadContextReferences != null)
-                foreach (var refrence in loadContextReferences.Values)
+            if (this.loadContextReferences != null)
+                foreach (var reference in this.loadContextReferences.Values)
                 {
                     // https://docs.microsoft.com/en-us/dotnet/standard/assembly/unloadability#use-collectible-assemblyloadcontext
-                    for (int i = 0; refrence.IsAlive && (i < 10); i++)
+                    for (int i = 0; reference.IsAlive && (i < 10); i++)
                     {
-                        GC.Collect();
+                        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
                         GC.WaitForPendingFinalizers();
                     }
                 }
 
             this.loadContextReferences.Clear();
-            this.loadContextReferences= null;
+            this.loadContextReferences = null;
 
             GC.Collect(); // collects all unused memory
             GC.WaitForPendingFinalizers(); // wait until GC has finished its work

@@ -2,10 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <DefineConstants>NETCORE3_1</DefineConstants>
     <OutputType>Library</OutputType>
   </PropertyGroup>
-  
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="4.6.1" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\..\Prise.Plugin\Prise.Plugin.csproj" />
     <ProjectReference Include="..\..\Prise.IntegrationTestsContract\Prise.IntegrationTestsContract.csproj" />

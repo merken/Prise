@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Prise.Proxy\Prise.Proxy.net3.csproj" />
+    <ProjectReference Include="..\..\Prise.Proxy\Prise.Proxy.csproj" />
     <ProjectReference Include="..\Prise.IntegrationTestsHost\Prise.IntegrationTestsHost.net3.csproj" />
   </ItemGroup>
 

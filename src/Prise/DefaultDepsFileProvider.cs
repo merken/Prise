@@ -13,7 +13,7 @@ namespace Prise
         public async Task<Stream> ProvideDepsFile(IPluginLoadContext pluginLoadContext)
         {
             var pluginPath = pluginLoadContext.PluginAssemblyPath;
-            var depsFileLocation = Path.GetFullPath(Path.Join(pluginPath, $"{Path.GetFileNameWithoutExtension(pluginLoadContext.PluginAssemblyName)}.deps.json"));
+            var depsFileLocation = Path.GetFullPath(Path.Combine(pluginPath, $"{Path.GetFileNameWithoutExtension(pluginLoadContext.PluginAssemblyName)}.deps.json"));
             this.stream = new MemoryStream();
 
             using (var fileStream = File.OpenRead(depsFileLocation))

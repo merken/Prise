@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Prise.IntegrationTestsContract;
 using Prise.Plugin;
 
@@ -11,7 +11,7 @@ namespace PluginE
     [Plugin(PluginType = typeof(IAuthenticatedDataService))]
     public class AuthenticatedDataService : IAuthenticatedDataService
     {
-        [PluginService(ServiceType =typeof(ITokenService))]
+        [PluginService(ServiceType = typeof(ITokenService))]
         private readonly ITokenService tokenService;
 
         private string wasPluginActivated = String.Empty;
@@ -40,7 +40,7 @@ namespace PluginE
             using (var stream = new StreamReader(filePath))
             {
                 var json = await stream.ReadToEndAsync();
-                return JsonConvert.DeserializeObject<IEnumerable<Data>>(json);
+                return System.Text.Json.JsonSerializer.Deserialize<IEnumerable<Data>>(json, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             }
         }
 

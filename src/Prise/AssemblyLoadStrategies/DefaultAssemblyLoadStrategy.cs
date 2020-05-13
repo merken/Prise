@@ -34,15 +34,15 @@ namespace Prise
             this.pluginDependencyContext = pluginDependencyContext.ThrowIfNull(nameof(pluginDependencyContext));
         }
 
-        public virtual Assembly LoadAssembly(AssemblyName assemblyName,
-            Func<IPluginLoadContext, AssemblyName, ValueOrProceed<Assembly>> loadFromDependencyContext,
-            Func<IPluginLoadContext, AssemblyName, ValueOrProceed<Assembly>> loadFromRemote,
-            Func<IPluginLoadContext, AssemblyName, ValueOrProceed<Assembly>> loadFromAppDomain)
+        public virtual AssemblyFromStrategy LoadAssembly(AssemblyName assemblyName,
+            Func<IPluginLoadContext, AssemblyName, ValueOrProceed<AssemblyFromStrategy>> loadFromDependencyContext,
+            Func<IPluginLoadContext, AssemblyName, ValueOrProceed<AssemblyFromStrategy>> loadFromRemote,
+            Func<IPluginLoadContext, AssemblyName, ValueOrProceed<AssemblyFromStrategy>> loadFromAppDomain)
         {
             if (assemblyName.Name == null)
                 return null;
 
-            ValueOrProceed<Assembly> valueOrProceed = ValueOrProceed<Assembly>.FromValue(null, true);
+            ValueOrProceed<AssemblyFromStrategy> valueOrProceed = ValueOrProceed<AssemblyFromStrategy>.FromValue(null, true);
 
             var isHostAssembly = IsHostAssembly(assemblyName);
             var isRemoteAssembly = IsRemoteAssembly(assemblyName);

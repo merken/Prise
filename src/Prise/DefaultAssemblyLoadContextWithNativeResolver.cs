@@ -1,10 +1,11 @@
 ﻿#if NETCORE3_0 || NETCORE3_1
-using Prise.Infrastructure;
+// TODO, change to netstandard, once the API becomes available
 using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
+using Prise.Infrastructure;
 
 namespace Prise
 {
@@ -45,7 +46,14 @@ namespace Prise
         {
             // contains rootpath + plugin folder + plugin assembly name
             // HostApplication/bin/Debug/netcoreapp3.0 + Plugins + Plugin.dll
-            this.resolver = new AssemblyDependencyResolver(Path.Join(pluginLoadContext.PluginAssemblyPath, pluginLoadContext.PluginAssemblyName));
+            try
+            {
+                this.resolver = new AssemblyDependencyResolver(Path.Join(pluginLoadContext.PluginAssemblyPath, pluginLoadContext.PluginAssemblyName));
+            }
+            catch (System.ArgumentException ex)
+            {
+                throw new PrisePluginException($"{nameof(AssemblyDependencyResolver)} could not be instantiated, possible issue with {pluginLoadContext.PluginAssemblyName}.deps.json file?", ex);
+            }
             return base.LoadPluginAssembly(pluginLoadContext);
         }
 
@@ -53,7 +61,14 @@ namespace Prise
         {
             // contains rootpath + plugin folder + plugin assembly name
             // HostApplication/bin/Debug/netcoreapp3.0 + Plugins + Plugin.dll
-            this.resolver = new AssemblyDependencyResolver(Path.Join(pluginLoadContext.PluginAssemblyPath, pluginLoadContext.PluginAssemblyName));
+            try
+            {
+                this.resolver = new AssemblyDependencyResolver(Path.Join(pluginLoadContext.PluginAssemblyPath, pluginLoadContext.PluginAssemblyName));
+            }
+            catch (System.ArgumentException ex)
+            {
+                throw new PrisePluginException($"{nameof(AssemblyDependencyResolver)} could not be instantiated, possible issue with {pluginLoadContext.PluginAssemblyName}.deps.json file?", ex);
+            }
             return base.LoadPluginAssemblyAsync(pluginLoadContext);
         }
 
@@ -62,12 +77,12 @@ namespace Prise
         /// </summary>
         /// <param name="assemblyName"></param>
         /// <returns></returns>
-        protected override ValueOrProceed<Assembly> LoadFromDependencyContext(IPluginLoadContext pluginLoadContext, AssemblyName assemblyName)
+        protected override ValueOrProceed<AssemblyFromStrategy> LoadFromDependencyContext(IPluginLoadContext pluginLoadContext, AssemblyName assemblyName)
         {
             var assemblyPath = resolver.ResolveAssemblyToPath(assemblyName);
             if (!String.IsNullOrEmpty(assemblyPath) && File.Exists(assemblyPath))
             {
-                return ValueOrProceed<Assembly>.FromValue(LoadFromAssemblyPath(assemblyPath), false);
+                return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(LoadFromAssemblyPath(assemblyPath)), false);
             }
 
             return base.LoadFromDependencyContext(pluginLoadContext, assemblyName);
@@ -119,13 +134,29 @@ namespace Prise
                 this.pluginDependencyResolver = null;
                 this.pluginDependencyContext = null;
                 this.assemblyLoadStrategy = null;
-                this.resolver = null;
 
+                if (this.assemblyReferences != null)
+                    foreach (var reference in this.assemblyReferences)
+                        // https://docs.microsoft.com/en-us/dotnet/standard/assembly/unloadability#use-collectible-assemblyloadcontext
+                        for (int i = 0; reference.IsAlive && (i < 10); i++)
+                        {
+                            GC.Collect();
+                            GC.WaitForPendingFinalizers();
+                        }
+
+                this.loadedPlugins.Clear();
+                this.loadedPlugins = null;
+
+                this.assemblyReferences.Clear();
+                this.assemblyReferences = null;
+
+                // Unload any loaded native assemblies
                 foreach (var nativeAssembly in this.loadedNativeLibraries)
                     this.nativeAssemblyUnloader.UnloadNativeAssembly(nativeAssembly.Key, nativeAssembly.Value);
 
-                this.nativeAssemblyUnloader = null;
                 this.loadedNativeLibraries = null;
+                this.nativeAssemblyUnloader = null;
+                this.options = null;
             }
             this.disposed = true;
         }

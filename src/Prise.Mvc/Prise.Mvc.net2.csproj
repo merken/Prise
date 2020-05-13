@@ -20,10 +20,6 @@
     <DefineConstants>NETCORE2_1</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
-    <DefineConstants>NETCORE3_0</DefineConstants>
-  </PropertyGroup>
-
   <PropertyGroup>
     <PackageIcon>icon.png</PackageIcon>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -41,30 +37,20 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor" Version="2.1.3" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="2.1.1" />
   </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="3.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.0.2"/>
-  </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Prise\Prise.net2.csproj">
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-      <IncludeAssets>Prise.net2.dll</IncludeAssets>
-    </ProjectReference>
+    <ProjectReference Include="..\Prise.Proxy\Prise.Proxy.csproj" />
     <ProjectReference Include="..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj">
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>Prise.AssemblyScanning.dll</IncludeAssets>
     </ProjectReference>
-    <ProjectReference Include="..\Prise.Plugin\Prise.Plugin.net2.csproj">
+    <ProjectReference Include="..\Prise.Plugin\Prise.Plugin.csproj">
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-      <IncludeAssets>Prise.Plugin.net2.dll</IncludeAssets>
+      <IncludeAssets>Prise.Plugin.dll</IncludeAssets>
     </ProjectReference>
-    <ProjectReference Include="..\Prise.Proxy\Prise.Proxy.net2.csproj">
+    <ProjectReference Include="..\Prise\Prise.net2.csproj">
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-      <IncludeAssets>Prise.Proxy.net2.dll</IncludeAssets>
+      <IncludeAssets>Prise.dll</IncludeAssets>
     </ProjectReference>
   </ItemGroup>
 

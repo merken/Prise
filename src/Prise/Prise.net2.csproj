@@ -17,22 +17,14 @@
     </ItemGroup>
   </Target>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+  <PropertyGroup>
     <DefineConstants>NETCORE2_1</DefineConstants>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="4.6.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.1.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-  </ItemGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
-    <DefineConstants>NETCORE3_0</DefineConstants>
-  </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
-    <PackageReference Include="Microsoft.Extensions.Http" Version="3.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="3.0.0" />
-    <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" Version="3.0.0" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -48,17 +40,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Prise.Proxy\Prise.Proxy.net2.csproj">
+    <ProjectReference Include="..\Prise.Plugin\Prise.Plugin.csproj" />
+    <ProjectReference Include="..\Prise.Proxy\Prise.Proxy.csproj">
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>Prise.Proxy.net2.dll</IncludeAssets>
     </ProjectReference>
     <ProjectReference Include="..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj">
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>Prise.AssemblyScanning.dll</IncludeAssets>
-    </ProjectReference>
-    <ProjectReference Include="..\Prise.Plugin\Prise.Plugin.net2.csproj">
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-      <IncludeAssets>Prise.Plugin.net2.dll</IncludeAssets>
     </ProjectReference>
   </ItemGroup>
 </Project>

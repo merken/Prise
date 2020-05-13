@@ -6,10 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\..\Prise.Plugin\Prise.Plugin.csproj" />
     <ProjectReference Include="..\..\Prise.IntegrationTestsContract\Prise.IntegrationTestsContract.csproj" />
   </ItemGroup>

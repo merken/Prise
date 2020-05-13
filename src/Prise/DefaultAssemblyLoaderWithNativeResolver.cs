@@ -1,11 +1,12 @@
 ﻿#if NETCORE3_0 || NETCORE3_1
-using Prise.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Prise.Infrastructure;
 
 namespace Prise
 {
@@ -24,6 +25,7 @@ namespace Prise
         private readonly INativeAssemblyUnloader nativeAssemblyUnloader;
         private readonly IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider;
 
+
         public DefaultAssemblyLoaderWithNativeResolver(
             IPluginLogger<T> logger,
             IAssemblyLoadOptions<T> options,
@@ -36,7 +38,7 @@ namespace Prise
             IDepsFileProvider<T> depsFileProvider,
             IPluginDependencyResolver<T> pluginDependencyResolver,
             INativeAssemblyUnloader nativeAssemblyUnloader,
-            IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider)
+            IAssemblyLoadStrategyProvider assemblyLoadStrategyProvider) : base()
         {
             this.logger = logger;
             this.options = options;
@@ -54,7 +56,6 @@ namespace Prise
 
         public virtual Assembly Load(IPluginLoadContext pluginLoadContext)
         {
-            var pluginAssemblyName = Path.GetFileNameWithoutExtension(pluginLoadContext.PluginAssemblyName);
             var loadContext = new DefaultAssemblyLoadContextWithNativeResolver<T>(
                 this.logger,
                 this.options,
@@ -70,15 +71,15 @@ namespace Prise
                 this.assemblyLoadStrategyProvider
             );
 
-            this.loadContexts[pluginAssemblyName] = loadContext;
-            this.loadContextReferences[pluginAssemblyName] = new System.WeakReference(loadContext);
+            var loadedPluginKey = new LoadedPluginKey(pluginLoadContext);
+            this.loadContexts[loadedPluginKey] = loadContext;
+            this.loadContextReferences[loadedPluginKey] = new System.WeakReference(loadContext);
 
             return loadContext.LoadPluginAssembly(pluginLoadContext);
         }
 
         public virtual Task<Assembly> LoadAsync(IPluginLoadContext pluginLoadContext)
         {
-            var pluginAssemblyName = Path.GetFileNameWithoutExtension(pluginLoadContext.PluginAssemblyName);
             var loadContext = new DefaultAssemblyLoadContextWithNativeResolver<T>(
                 this.logger,
                 this.options,
@@ -94,8 +95,9 @@ namespace Prise
                 this.assemblyLoadStrategyProvider
             );
 
-            this.loadContexts[pluginAssemblyName] = loadContext;
-            this.loadContextReferences[pluginAssemblyName] = new System.WeakReference(loadContext);
+            var loadedPluginKey = new LoadedPluginKey(pluginLoadContext);
+            this.loadContexts[loadedPluginKey] = loadContext;
+            this.loadContextReferences[loadedPluginKey] = new System.WeakReference(loadContext);
 
             return loadContext.LoadPluginAssemblyAsync(pluginLoadContext);
         }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <Title>Prise.Proxy</Title>
     <PackageId>Prise.Proxy</PackageId>
     <PackageDescription>Prise, A .NET Core plugin framework!</PackageDescription>
@@ -17,15 +17,9 @@
     </ItemGroup>
   </Target>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
-    <DefineConstants>NETCORE2_1</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
-    <DefineConstants>NETCORE3_0</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <DefineConstants>NETCORE3_1</DefineConstants>
-  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Reflection.DispatchProxy" Version="4.7.0" />
+  </ItemGroup>
 
   <PropertyGroup>
     <PackageIcon>icon.png</PackageIcon>

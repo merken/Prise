@@ -18,7 +18,8 @@ namespace Prise
             PluginPlatformVersion pluginPlatformVersion = null,
             bool ignorePlatformInconsistencies = false,
             bool useCollectibleAssemblies = true,
-            NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime)
+            NativeDependencyLoadPreference nativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime
+        )
         {
             if (pluginPlatformVersion == null)
                 this.pluginPlatformVersion = PluginPlatformVersion.Empty();

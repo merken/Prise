@@ -56,7 +56,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Prise.Proxy\Prise.Proxy.net3.csproj">
+    <ProjectReference Include="..\Prise.Proxy\Prise.Proxy.csproj">
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>Prise.Proxy.dll</IncludeAssets>
     </ProjectReference>

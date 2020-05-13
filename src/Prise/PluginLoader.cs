@@ -37,7 +37,10 @@ namespace Prise
             foreach (var result in assemblies)
                 pluginLoadOptions.Logger.PluginAssemblySelected(result);
 
-            foreach (var loadContext in assemblies.Select(a => DefaultPluginLoadContext<T>.FromAssemblyScanResult(a)))
+            foreach (var loadContext in assemblies
+                .Select(a => DefaultPluginLoadContext<T>.FromAssemblyScanResult(a))
+                .OrderBy(a => a.PluginAssemblyPath)
+                .ThenBy(a => a.PluginAssemblyName))
             {
                 pluginLoadOptions.Logger.PluginContextCreated(loadContext);
 
@@ -67,7 +70,10 @@ namespace Prise
             if (!assemblies.Any())
                 throw new PrisePluginException($@"AssemblySelector returned no assemblies. Requested plugin type: {typeof(T).Name}. Please add the {nameof(PluginAttribute)} to your plugin class and specify the PluginType: [Plugin(PluginType = typeof({typeof(T).Name}))]");
 
-            foreach (var loadContext in assemblies.Select(a => DefaultPluginLoadContext<T>.FromAssemblyScanResult(a)))
+            foreach (var loadContext in assemblies
+                .Select(a => DefaultPluginLoadContext<T>.FromAssemblyScanResult(a))
+                .OrderBy(a => a.PluginAssemblyPath)
+                .ThenBy(a => a.PluginAssemblyName))
             {
                 var pluginAssembly = await pluginLoadOptions.AssemblyLoader.LoadAsync(loadContext);
                 this.pluginAssemblies.Add(pluginAssembly);
@@ -78,7 +84,7 @@ namespace Prise
             if (!instances.Any())
                 throw new PrisePluginException($"No plugins of type {typeof(T).Name} found from assemblies {String.Join(',', assemblies.Select(a => a.AssemblyPath))}");
 
-            return instances.ToArray();
+            return instances.OrderBy(t => t.GetType().Name).ToArray();
         }
 
         protected void Unload<T>(IPluginLoadOptions<T> pluginLoadOptions)

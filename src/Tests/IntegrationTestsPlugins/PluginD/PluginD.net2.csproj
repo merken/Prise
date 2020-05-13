@@ -10,10 +10,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Prise.PluginBridge\Prise.PluginBridge.net2.csproj" />
+    <ProjectReference Include="..\..\..\Prise.PluginBridge\Prise.PluginBridge.csproj" />
     <ProjectReference Include="..\..\Prise.IntegrationTestsContract\Prise.IntegrationTestsContract.csproj" />
     <ProjectReference Include="..\Dictionary.Domain\Dictionary.Domain.csproj" />
     <ProjectReference Include="..\ExternalServiceForPluginD\ExternalServiceForPluginD.csproj" />
-    <ProjectReference Include="..\..\..\Prise.Plugin\Prise.Plugin.net2.csproj" />
+    <ProjectReference Include="..\..\..\Prise.Plugin\Prise.Plugin.csproj" />
   </ItemGroup>
 </Project>

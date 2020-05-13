@@ -4,7 +4,7 @@ using Prise.Plugin;
 
 namespace LanguageBased.Plugin
 {
-    [PluginBootstrapper(PluginType = typeof(TranslationPlugin))]
+    [PluginBootstrapper(PluginType = typeof(TranslationPluginWithFactory))]
     public class TranslationPluginBootstrapper : IPluginBootstrapper
     {
         public IServiceCollection Bootstrap(IServiceCollection services)

@@ -11,3 +11,5 @@ publish
 appsettings.Development.json
 !Monorepo.sln
 Plugins
+global.json
+*.user

@@ -11,7 +11,7 @@ namespace Prise.IntegrationTests
         public Translation2Tests() : base(AppHostWebApplicationFactory.Default()) { }
 
         [Fact]
-        public async Task PluginD_DE_Works()
+        public async Task PluginG_DE_Works()
         {
             // Arrange, Act
             var results = await GetTranslations(_client, "de-DE", "/translation2?&input=dog");
@@ -21,7 +21,7 @@ namespace Prise.IntegrationTests
         }
 
         [Fact]
-        public async Task PluginD_FR_Works()
+        public async Task PluginG_FR_Works()
         {
             // Arrange, Act
             var results = await GetTranslations(_client, "fr-FR", "/translation2?&input=dog");
@@ -31,7 +31,7 @@ namespace Prise.IntegrationTests
         }
 
         [Fact]
-        public async Task PluginD_NL_Works()
+        public async Task PluginG_NL_Works()
         {
             // Arrange, Act
             var results = await GetTranslations(_client, "nl-BE", "/translation2?&input=dog");
@@ -41,7 +41,7 @@ namespace Prise.IntegrationTests
         }
 
         [Fact]
-        public async Task PluginD_EN_Returns_Empty_List()
+        public async Task PluginG_EN_Returns_Empty_List()
         {
             // Arrange, Act
             var results = await GetTranslations(_client, "en-GB", "/translation2?&input=dog");
@@ -60,7 +60,7 @@ namespace Prise.IntegrationTests
         [InlineData("nl-BE", "cat", "Kat")]
         [InlineData("nl-BE", "hello", "Hallo")]
         [InlineData("nl-BE", "goodbye", "Tot ziens")]
-        public async Task PluginD_Works(string culture, string input, string result)
+        public async Task PluginG_Works(string culture, string input, string result)
         {
             // Arrange, Act
             var results = await GetTranslations(_client, culture, $"/translation2?&input={input}");
