@@ -32,7 +32,7 @@ namespace Prise.IntegrationTests
         public async Task PluginF_Works_WithJson()
         {
             // Arrange
-            var expectedJson = "\"{\u005C\"StringProperty\u005C\":\u005C\"Some string\u005C\",\u005C\"IntProperty\u005C\":999,\u005C\"DoubleProperty\u005C\":\"4336.99\"}\"";
+            var expectedJson = "\"{\u005C\"StringProperty\u005C\":\u005C\"Some string\u005C\",\u005C\"IntProperty\u005C\":999,\u005C\"DoubleProperty\u005C\":4336.99}\"";
 
             //Act
             var result = await GetRaw(_client, "application/json", "/serialization");
@@ -83,7 +83,7 @@ namespace Prise.IntegrationTests
         public async Task PluginF_Works_WithJson()
         {
             // Arrange
-            var expectedJson = "\"{\u005C\"StringProperty\u005C\":\u005C\"Some string\u005C\",\u005C\"IntProperty\u005C\":999,\u005C\"DoubleProperty\u005C\":\"4336.99\"}\"";
+            var expectedJson = "\"{\u005C\"StringProperty\u005C\":\u005C\"Some string\u005C\",\u005C\"IntProperty\u005C\":999,\u005C\"DoubleProperty\u005C\":4336.99}\"";
 
             //Act
             var result = await GetRaw(_client, "application/json", "/serialization");
