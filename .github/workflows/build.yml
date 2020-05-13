@@ -6,8 +6,6 @@ env:
   dotnetVersion: 3.1.201
   fwkVersion: 'netcoreapp3.1'
 
-on: [push]
-
 jobs:
   run-integration-tests:
 
