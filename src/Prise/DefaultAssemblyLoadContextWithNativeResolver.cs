@@ -46,7 +46,14 @@ namespace Prise
         {
             // contains rootpath + plugin folder + plugin assembly name
             // HostApplication/bin/Debug/netcoreapp3.0 + Plugins + Plugin.dll
-            this.resolver = new AssemblyDependencyResolver(Path.Join(pluginLoadContext.PluginAssemblyPath, pluginLoadContext.PluginAssemblyName));
+            try
+            {
+                this.resolver = new AssemblyDependencyResolver(Path.Join(pluginLoadContext.PluginAssemblyPath, pluginLoadContext.PluginAssemblyName));
+            }
+            catch (System.ArgumentException ex)
+            {
+                throw new PrisePluginException($"{nameof(AssemblyDependencyResolver)} could not be instantiated, possible issue with {pluginLoadContext.PluginAssemblyName}.deps.json file?", ex);
+            }
             return base.LoadPluginAssembly(pluginLoadContext);
         }
 
@@ -54,7 +61,14 @@ namespace Prise
         {
             // contains rootpath + plugin folder + plugin assembly name
             // HostApplication/bin/Debug/netcoreapp3.0 + Plugins + Plugin.dll
-            this.resolver = new AssemblyDependencyResolver(Path.Join(pluginLoadContext.PluginAssemblyPath, pluginLoadContext.PluginAssemblyName));
+            try
+            {
+                this.resolver = new AssemblyDependencyResolver(Path.Join(pluginLoadContext.PluginAssemblyPath, pluginLoadContext.PluginAssemblyName));
+            }
+            catch (System.ArgumentException ex)
+            {
+                throw new PrisePluginException($"{nameof(AssemblyDependencyResolver)} could not be instantiated, possible issue with {pluginLoadContext.PluginAssemblyName}.deps.json file?", ex);
+            }
             return base.LoadPluginAssemblyAsync(pluginLoadContext);
         }
 
