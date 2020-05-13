@@ -1,8 +1,4 @@
-name: Prise integration tests netcoreapp2.1
-
-env:
-  dotnetVersion: 2.1.802
-  fwkVersion: 'netcoreapp2.1'
+name: Prise integration tests .net core 2
 
 on: [push]
 
@@ -14,10 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
         
-      - name: Setup .NET Core ${{ dotnetVersion }}
+      - name: Setup .NET Core 2.1
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: ${{ dotnetVersion }}
+          dotnet-version: 2.1.802
 
         # Publishes all plugins to publish directory
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginA/PluginA.net2.csproj -o ~/publish/PluginA
@@ -34,18 +30,18 @@ jobs:
       - run: dotnet pack src/Tests/IntegrationTestsPlugins/PluginG/PluginG.net2.csproj /p:nuspecfile=PluginG.net2.nuspec -o ~/publish
 
       # Copies all published plugins to integration test directory
-      - run: mkdir -p src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
-      - run: cp -r ~/publish/PluginA src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
-      - run: cp -r ~/publish/PluginB src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
-      - run: cp -r ~/publish/PluginC src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
-      - run: cp -r ~/publish/PluginD src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
-      - run: cp -r ~/publish/PluginDWithFactory src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
-      - run: cp -r ~/publish/PluginE src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
-      - run: cp -r ~/publish/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
-      - run: cp -r ~/publish/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
-      - run: cp -r ~/publish/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
+      - run: mkdir -p src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
+      - run: cp -r ~/publish/PluginA src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
+      - run: cp -r ~/publish/PluginB src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
+      - run: cp -r ~/publish/PluginC src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
+      - run: cp -r ~/publish/PluginD src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
+      - run: cp -r ~/publish/PluginDWithFactory src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
+      - run: cp -r ~/publish/PluginE src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
+      - run: cp -r ~/publish/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
+      - run: cp -r ~/publish/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
+      - run: cp -r ~/publish/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
 
-      - run: cp ~/publish/*.nupkg src/Tests/Prise.IntegrationTests/bin/Debug/${{ fwkVersion}}/Plugins
+      - run: cp ~/publish/*.nupkg src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
 
-      - name: Test Prise.IntegrationTests with ${{ dotnetVersion }}
-        run: dotnet test src/Tests/Prise.IntegrationTests/Prise.IntegrationTests.net2.csproj -f ${{ fwkVersion}}
+      - name: Test Prise.IntegrationTests with netcoreapp2.1
+        run: dotnet test src/Tests/Prise.IntegrationTests/Prise.IntegrationTests.net2.csproj

@@ -1,26 +1,21 @@
 name: Prise Build .net core 2
 
-env:
-  dotnetVersion: 2.1.802
-  fwkVersion: 'netcoreapp2.1'
-
 on: [push]
 
 jobs:
-  run-integration-tests:
-
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
+    - uses: actions/checkout@v1
+      
+    - name: Setup .NET Core 2.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.1.802
         
-      - name: Setup .NET Core ${{ dotnetVersion }}
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: ${{ dotnetVersion }}
-        
-    - name: Build Prise with ${{ fwkVersion}}
-      run: dotnet build src/Prise/Prise.net2.csproj --configuration Release -f ${{ fwkVersion}}
+    - name: Build Prise with netcoreapp2.1
+      run: dotnet build src/Prise/Prise.net2.csproj --configuration Release -f netcoreapp2.1
 
-    - name: Build Prise.Mvc with ${{ fwkVersion}}
-      run: dotnet build src/Prise.Mvc/Prise.Mvc.net2.csproj --configuration Release -f ${{ fwkVersion}}
+    - name: Build Prise.Mvc with netcoreapp2.1
+      run: dotnet build src/Prise.Mvc/Prise.Mvc.net2.csproj --configuration Release -f netcoreapp2.1
