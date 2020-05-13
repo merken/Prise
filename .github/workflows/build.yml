@@ -1,19 +1,25 @@
-name: Prise Build .net core 3
+name: Prise Build
+
+on: [push]
+
+env:
+  dotnetVersion: 3.1.201
+  fwkVersion: 'netcoreapp3.1'
 
 on: [push]
 
 jobs:
-  build:
+  run-integration-tests:
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-      
-    - name: Setup .NET Core 3.1
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.101
+      - uses: actions/checkout@v1
+        
+      - name: Setup .NET Core ${{dotnetVersion}}
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{dotnetVersion}}
         
     - name: Build Prise with netcoreapp2.1
       run: dotnet build src/Prise/Prise.csproj --configuration Release -f netcoreapp2.1
