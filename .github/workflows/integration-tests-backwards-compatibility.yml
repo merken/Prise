@@ -1,4 +1,4 @@
-name: Prise backwards compatibility tests netcoreapp3.1
+name: Prise backwards compatibility
 
 on: [push]
 
