@@ -166,7 +166,7 @@ namespace Prise
             this.useCollectibleAssemblies = useCollectibleAssemblies;
             this.assemblyLoadOptions = new DefaultAssemblyLoadOptions<T>(
                 PluginPlatformVersion.Empty(),
-                false,
+                this.ignorePlatformInconsistencies,
                 this.useCollectibleAssemblies,
                 NativeDependencyLoadPreference.PreferInstalledRuntime);
             return this;
@@ -235,7 +235,7 @@ namespace Prise
 
             this.assemblyLoadOptions = new DefaultAssemblyLoadOptions<T>(
                 pluginPlatformVersion,
-                false,
+                this.ignorePlatformInconsistencies,
                 useCollectibleAssemblies,
                 nativeDependencyLoadPreference
             );
@@ -444,15 +444,18 @@ namespace Prise
             return this;
         }
 
+        private bool ignorePlatformInconsistencies = false;
         public PluginLoadOptionsBuilder<T> IgnorePlatformInconsistencies(bool ignore = true)
         {
+            this.ignorePlatformInconsistencies = ignore;
+
             if (this.assemblyLoadOptionsType != null || this.networkAssemblyLoaderOptionsType != null || this.assemblyLoader != null)
                 throw new PrisePluginException("Custom loaders and custom load options are not supported with IgnorePlatformInconsistencies(), please provide your own value for IgnorePlatformInconsistencies.");
 
             if (this.assemblyLoadOptions != null)
                 this.assemblyLoadOptions = new DefaultAssemblyLoadOptions<T>(
                     this.assemblyLoadOptions.PluginPlatformVersion,
-                    ignore,
+                    this.ignorePlatformInconsistencies,
                     this.useCollectibleAssemblies,
                     this.assemblyLoadOptions.NativeDependencyLoadPreference
                 );
@@ -461,7 +464,7 @@ namespace Prise
                 this.networkAssemblyLoaderOptions = new DefaultNetworkAssemblyLoaderOptions<T>(
                    this.networkAssemblyLoaderOptions.BaseUrl,
                    this.networkAssemblyLoaderOptions.PluginPlatformVersion,
-                   ignore,
+                   this.ignorePlatformInconsistencies,
                    this.networkAssemblyLoaderOptions.NativeDependencyLoadPreference
                 );
 
@@ -641,7 +644,7 @@ namespace Prise
             this.assemblySelectorType = typeof(DefaultAssemblySelector<T>);
             this.assemblyLoadOptions = new DefaultAssemblyLoadOptions<T>(
                 PluginPlatformVersion.Empty(),
-                false,
+                this.ignorePlatformInconsistencies,
                 this.useCollectibleAssemblies,
                 NativeDependencyLoadPreference.PreferInstalledRuntime
             );
