@@ -16,10 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
         
-      - name: Setup .NET Core ${{ dotnetVersion }}
+      - name: Setup .NET Core $dotnetVersion
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: ${{ dotnetVersion }}
+          dotnet-version: $dotnetVersion
         
     - name: Build Prise with netcoreapp2.1
       run: dotnet build src/Prise/Prise.csproj --configuration Release -f netcoreapp2.1
