@@ -1,4 +1,4 @@
-name: Prise integration tests .net core 2
+name: Prise integration tests netcoreapp2.1
 
 on: [push]
 

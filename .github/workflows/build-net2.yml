@@ -1,4 +1,4 @@
-name: Prise Build .net core 2
+name: Prise Build netcoreapp2.1
 
 on: [push]
 

@@ -1,4 +1,4 @@
-name: Prise backwards compatibility .net core 2
+name: Prise backwards compatibility .netcoreapp2.1
 
 on: [push]
 
