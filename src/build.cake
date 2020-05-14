@@ -2,13 +2,13 @@ var target = Argument("target", "default");
 var configuration = Argument("configuration", "Release");
 var apikey = Argument("apikey", "");
 var outputDir = "../dist";
-var priseVersion = "1.6.1";
-var proxyVersion = "1.6.0";
-var pluginVersion = "1.6.0";
-var pluginBridgeVersion = "1.6.0";
-var mvcVersion = "1.6.0";
-var assemblyDiscoveryVersion = "1.6.0";
-var nugetDiscoveryVersion = "1.6.0";
+var priseVersion = "1.7.0";
+var proxyVersion = "1.7.0";
+var pluginVersion = "1.7.0";
+var pluginBridgeVersion = "1.7.0";
+var mvcVersion = "1.7.0";
+var assemblyDiscoveryVersion = "1.7.0";
+var nugetDiscoveryVersion = "1.7.0";
 var nugetSource = "https://api.nuget.org/v3/index.json";
 var betaVersion = "1";
 
@@ -37,29 +37,17 @@ Task("build").Does( () =>
         Configuration = "Release",
         Framework = "netstandard2.0"
     };
-    var netstandard2_1 = new DotNetCoreBuildSettings
-    {
-        Configuration = "Release",
-        Framework = "netstandard2.1"
-    };
 
-    DotNetCoreBuild("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.Nuget.csproj", netcoreapp2);
-    DotNetCoreBuild("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.Nuget.csproj", netcoreapp3);
-    DotNetCoreBuild("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.Nuget.csproj", netcoreapp3_1);
-    DotNetCoreBuild("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", netcoreapp2);
-    DotNetCoreBuild("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", netcoreapp3);
-    DotNetCoreBuild("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", netcoreapp3_1);
+    DotNetCoreBuild("Prise.AssemblyScanning.Discovery.Nuget/Prise.AssemblyScanning.Discovery.Nuget.csproj", netstandard2);
+    DotNetCoreBuild("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", netstandard2);
+   
+    DotNetCoreBuild("Prise.Plugin/Prise.Plugin.csproj", netstandard2);
+    DotNetCoreBuild("Prise.Proxy/Prise.Proxy.csproj", netstandard2);
+    DotNetCoreBuild("Prise.PluginBridge/Prise.PluginBridge.csproj", netstandard2);
+
     DotNetCoreBuild("Prise.MVC/Prise.MVC.csproj", netcoreapp2);
     DotNetCoreBuild("Prise.MVC/Prise.MVC.csproj", netcoreapp3);
     DotNetCoreBuild("Prise.MVC/Prise.MVC.csproj", netcoreapp3_1);
-    DotNetCoreBuild("Prise.Plugin/Prise.Plugin.csproj", netstandard2);
-    DotNetCoreBuild("Prise.Plugin/Prise.Plugin.csproj", netstandard2_1);
-    DotNetCoreBuild("Prise.Proxy/Prise.Proxy.csproj", netcoreapp2);
-    DotNetCoreBuild("Prise.Proxy/Prise.Proxy.csproj", netcoreapp3);
-    DotNetCoreBuild("Prise.Proxy/Prise.Proxy.csproj", netcoreapp3_1);
-    DotNetCoreBuild("Prise.PluginBridge/Prise.PluginBridge.csproj", netcoreapp2);
-    DotNetCoreBuild("Prise.PluginBridge/Prise.PluginBridge.csproj", netcoreapp3);
-    DotNetCoreBuild("Prise.PluginBridge/Prise.PluginBridge.csproj", netcoreapp3_1);
     DotNetCoreBuild("Prise/Prise.csproj", netcoreapp2);
     DotNetCoreBuild("Prise/Prise.csproj", netcoreapp3);
     DotNetCoreBuild("Prise/Prise.csproj", netcoreapp3_1);
