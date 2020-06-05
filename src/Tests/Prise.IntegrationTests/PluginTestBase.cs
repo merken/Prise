@@ -31,6 +31,7 @@ namespace Prise.IntegrationTests
                     AllowAutoRedirect = false,
                     BaseAddress = new Uri("https://localhost:5001")
                 });
+            _client.Timeout = new TimeSpan(0, 5, 0);
         }
     }
 }
