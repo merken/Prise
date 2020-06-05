@@ -188,7 +188,7 @@ namespace Prise.IntegrationTestsHost
                         .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"))
                         .ScanForAssemblies(composer =>
                             composer.UseDiscovery())
-                        //.WithPluginPathProvider<LegacyPluginPathProvider>()
+                        .WithAssemblySelector<LegacyVersionBasedPluginSelector>()
                         .WithSelector<LegacyLanguageBasedPluginSelector>()
                         .WithPluginAssemblyName("LegacyPlugin.dll")
                         .WithHostFrameworkProvider<AppHostFrameworkProvider>()

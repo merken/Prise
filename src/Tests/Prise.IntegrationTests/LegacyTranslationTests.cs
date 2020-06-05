@@ -33,5 +33,18 @@ namespace Prise.IntegrationTests
             // Assert
             Assert.Equal(resultCount, results.Count());
         }
+
+        [Theory]
+        [InlineData("nl-BE", 4)]
+        [InlineData("fr-FR", 4)]
+        [InlineData("en-GB", 0)]
+        public async Task Plugin_Multiple_Works(string language, int resultCount)
+        {
+            // Arrange, Act
+            var results = await GetTranslations(_client, language, "/translation/legacy?input=dog");
+
+            // Assert
+            Assert.Equal(resultCount, results.Count());
+        }
     }
 }
