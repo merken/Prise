@@ -21,7 +21,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Prise.AssemblyScanning.Discovery.Nuget\Prise.AssemblyScanning.Discovery.Nuget.csproj" />
     <ProjectReference Include="..\..\Prise.AssemblyScanning.Discovery\Prise.AssemblyScanning.Discovery.csproj" />
-    <ProjectReference Include="..\..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj" />
     <ProjectReference Include="..\..\Prise.Mvc\Prise.Mvc.csproj" />
     <ProjectReference Include="..\..\Prise.Proxy\Prise.Proxy.csproj" />
     <ProjectReference Include="..\..\Prise\Prise.csproj" />

@@ -59,7 +59,8 @@ namespace Prise.AssemblyScanning.Discovery
                 var files = searchPatterns.SelectMany(p => Directory.GetFiles(directoryPath, p, SearchOption.AllDirectories));
                 foreach (var assemblyFilePath in ExcludeRuntimesFolder(files))
                 {
-                    foreach (var implementation in GetImplementationsOfTypeFromAssembly(assemblyFilePath))
+                    var implementation = GetImplementationsOfTypeFromAssembly(assemblyFilePath).FirstOrDefault();
+                    if (implementation != null)
                         results.Add(new AssemblyScanResult<T>
                         {
                             AssemblyName = Path.GetFileName(assemblyFilePath),

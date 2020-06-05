@@ -185,9 +185,12 @@ namespace Prise.IntegrationTestsHost
                      options
                         .WithDefaultOptions()
                         .IgnorePlatformInconsistencies()
-                        .WithPluginPathProvider<LegacyPluginPathProvider>()
+                        .WithDefaultOptions(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins"))
+                        .ScanForAssemblies(composer =>
+                            composer.UseDiscovery())
+                        //.WithPluginPathProvider<LegacyPluginPathProvider>()
                         .WithSelector<LegacyLanguageBasedPluginSelector>()
-                        .WithPluginAssemblyName("LegacyPlugin.dll") // Depending on what is copied over, the 1.4 or 1.5 plugin will be loaded
+                        .WithPluginAssemblyName("LegacyPlugin.dll")
                         .WithHostFrameworkProvider<AppHostFrameworkProvider>()
                         .ConfigureHostServices(hostService =>
                         {
