@@ -46,6 +46,8 @@ Prise features:
 
 [![NuGet Badge](https://buildstats.info/nuget/Prise.AssemblyScanning.Discovery)](https://www.nuget.org/packages/Prise.AssemblyScanning.Discovery/) Prise.AssemblyScanning.Discovery
 
+[![NuGet Badge](https://buildstats.info/nuget/Prise.AssemblyScanning.Discovery.Nuget)](https://www.nuget.org/packages/Prise.AssemblyScanning.Discovery.Nuget/) Prise.AssemblyScanning.Discovery.Nuget
+
 # How does Prise work ?
 At the heart, Prise uses a **DispatchProxy** of your contract. Every call to a method channels through this proxy and is delegated to the loaded plugin.
 
