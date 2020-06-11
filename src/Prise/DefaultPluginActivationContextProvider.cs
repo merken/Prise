@@ -45,11 +45,11 @@ namespace Prise
 
         private static MethodInfo GetPluginActivatedMethod(Type type)
         {
-            var pluginActivatedMethods = type.GetMethods()
+            var pluginActivatedMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
                 .Where(m => m.CustomAttributes.Any(c => c.AttributeType.Name == typeof(Prise.Plugin.PluginActivatedAttribute).Name));
 
             if (pluginActivatedMethods.Count() > 1)
-                throw new PrisePluginException($"Type {type.Name} contains multiple PluginActivated methods, please provide only one public void OnActivated(){{}} method and annotate it with the PluginActivated Attribute.");
+                throw new PrisePluginException($"Type {type.Name} contains multiple PluginActivated methods, please provide only one private void OnActivated(){{}} method and annotate it with the PluginActivated Attribute.");
 
             return pluginActivatedMethods.FirstOrDefault();
         }

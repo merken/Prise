@@ -79,7 +79,11 @@ namespace Prise
             if (pluginActivationContext.PluginActivatedMethod == null)
                 return;
 
-            remoteInstance.GetType().GetMethod(pluginActivationContext.PluginActivatedMethod.Name).Invoke(remoteInstance, null);
+            var remoteActivationMethod = remoteInstance.GetType().GetRuntimeMethods().FirstOrDefault(m => m.Name == pluginActivationContext.PluginActivatedMethod.Name);
+            if (remoteActivationMethod == null)
+                throw new PrisePluginException($"Remote activation method {pluginActivationContext.PluginActivatedMethod.Name} not found for plugin {typeof(T).Name} on remote object {remoteInstance.GetType().Name}");
+
+            remoteActivationMethod.Invoke(remoteInstance, null);
         }
 
         protected virtual object InjectFieldsWithServices(object remoteInstance, IPluginServiceProvider pluginServiceProvider, IEnumerable<PluginService> pluginServices)
