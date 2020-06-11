@@ -21,7 +21,12 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <ProjectReference Include="..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj"/>
+    <ProjectReference Include="..\Prise.AssemblyScanning.Discovery\Prise.AssemblyScanning.Discovery.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
     <PackageReference Include="Prise.AssemblyScanning.Discovery" Version="1.7.1" />
   </ItemGroup>
 
