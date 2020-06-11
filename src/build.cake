@@ -8,7 +8,7 @@ var pluginVersion = "1.7.0";
 var pluginBridgeVersion = "1.7.0";
 var mvcVersion = "1.7.0";
 var assemblyDiscoveryVersion = "1.7.0";
-var nugetDiscoveryVersion = "1.7.0";
+var nugetDiscoveryVersion = "1.7.3";
 var nugetSource = "https://api.nuget.org/v3/index.json";
 var betaVersion = "1";
 

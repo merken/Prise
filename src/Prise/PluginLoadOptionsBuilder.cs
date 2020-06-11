@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Prise.AssemblyScanning;
 using Prise.Infrastructure;
+using Prise.Providers;
 using Prise.Proxy;
 
 namespace Prise
@@ -50,6 +51,8 @@ namespace Prise
         internal Action<IServiceCollection> configureServices;
         internal IHostTypesProvider<T> hostTypesProvider;
         internal Type hostTypesProviderType;
+        internal IDowngradableDependenciesProvider<T> downgradableDependenciesProvider;
+        internal Type downgradableDependenciesProviderType;
         internal IRemoteTypesProvider<T> remoteTypesProvider;
         internal Type remoteTypesProviderType;
         internal IDependencyPathProvider<T> dependencyPathProvider;
@@ -371,12 +374,48 @@ namespace Prise
             return this;
         }
 
+        public PluginLoadOptionsBuilder<T> AllowDowngradeForType<TType>()
+        {
+            var downgradableDependenciesProvider = this.downgradableDependenciesProvider as DowngradableDependenciesProvider<T>;
+            if (downgradableDependenciesProvider == null)
+                throw new PrisePluginException($"You're not using the default IDowngradableDependenciesProvider {nameof(DowngradableDependenciesProvider<T>)}. Please add downgradable types using your own provider.");
+            downgradableDependenciesProvider.AddDowngradableType<TType>();
+            return this;
+        }
+
+        public PluginLoadOptionsBuilder<T> AllowDowngradeForType(Type type)
+        {
+            var downgradableDependenciesProvider = this.downgradableDependenciesProvider as DowngradableDependenciesProvider<T>;
+            if (downgradableDependenciesProvider == null)
+                throw new PrisePluginException($"You're not using the default IDowngradableDependenciesProvider {nameof(DowngradableDependenciesProvider<T>)}. Please add downgradable types using your own provider.");
+            downgradableDependenciesProvider.AddDowngradableType(type);
+            return this;
+        }
+
+        public PluginLoadOptionsBuilder<T> AllowDowngradeForAssembly(string assemblyFileName)
+        {
+            var downgradableDependenciesProvider = this.downgradableDependenciesProvider as DowngradableDependenciesProvider<T>;
+            if (downgradableDependenciesProvider == null)
+                throw new PrisePluginException($"You're not using the default IDowngradableDependenciesProvider {nameof(DowngradableDependenciesProvider<T>)}. Please add downgradable types using your own provider.");
+            downgradableDependenciesProvider.AddDowngradableAssembly(assemblyFileName);
+            return this;
+        }
+
         public PluginLoadOptionsBuilder<T> WithHostType(Type type)
         {
             var hostTypesProvider = this.hostTypesProvider as HostTypesProvider<T>;
             if (hostTypesProvider == null)
                 throw new PrisePluginException($"You're not using the default IHostTypesProvider {nameof(HostTypesProvider<T>)}. Please add host types using your own provider.");
             hostTypesProvider.AddHostType(type);
+            return this;
+        }
+
+        public PluginLoadOptionsBuilder<T> WithHostAssembly(string assemblyFileName)
+        {
+            var hostTypesProvider = this.hostTypesProvider as HostTypesProvider<T>;
+            if (hostTypesProvider == null)
+                throw new PrisePluginException($"You're not using the default IHostTypesProvider {nameof(HostTypesProvider<T>)}. Please add host types using your own provider.");
+            hostTypesProvider.AddHostAssembly(assemblyFileName);
             return this;
         }
 
@@ -656,6 +695,10 @@ namespace Prise
             hostTypesProvider.AddHostType(typeof(ServiceCollection));  // Adds the BuildServiceProvider assembly to the host types
             this.hostTypesProvider = hostTypesProvider;
 
+            var downgradableDependenciesProvider = new DowngradableDependenciesProvider<T>();
+            downgradableDependenciesProvider.AddDowngradableType(typeof(Prise.Plugin.PluginAttribute)); // Add the Prise.Infrastructure assembly to the host types
+            this.downgradableDependenciesProvider = downgradableDependenciesProvider;
+
             var remoteTypesProvider = new RemoteTypesProvider<T>();
             remoteTypesProvider.AddRemoteType(typeof(T)); // Add the contract to the remote types, so that we can have backwards compatibility
             this.remoteTypesProvider = remoteTypesProvider;
@@ -697,13 +740,14 @@ namespace Prise
                 .RegisterTypeOrInstance<IDepsFileProvider<T>>(depsFileProviderType, this.depsFileProvider, this.priseServiceLifetime)
                 .RegisterTypeOrInstance<IPluginDependencyResolver<T>>(pluginDependencyResolverType, this.pluginDependencyResolver, this.priseServiceLifetime)
                 .RegisterTypeOrInstance<ITempPathProvider<T>>(tempPathProviderType, this.tempPathProvider, this.priseServiceLifetime)
+                .RegisterTypeOrInstance<IHostTypesProvider<T>>(hostTypesProviderType, this.hostTypesProvider, this.priseServiceLifetime)
+                .RegisterTypeOrInstance<IDowngradableDependenciesProvider<T>>(downgradableDependenciesProviderType, this.downgradableDependenciesProvider, this.priseServiceLifetime)
+                .RegisterTypeOrInstance<IRemotePluginActivator<T>>(activatorType, this.activator, this.priseServiceLifetime)
 
                 // Global services
                 .RegisterTypeOrInstance<IAssemblyLoadStrategyProvider>(assemblyLoadStrategyProviderType, this.assemblyLoadStrategyProvider, this.priseServiceLifetime)
-                .RegisterTypeOrInstance<IRemotePluginActivator<T>>(activatorType, this.activator, this.priseServiceLifetime)
                 .RegisterTypeOrInstance<IResultConverter>(resultConverterType, this.resultConverter, this.priseServiceLifetime)
                 .RegisterTypeOrInstance<IParameterConverter>(parameterConverterType, this.parameterConverter, this.priseServiceLifetime)
-                .RegisterTypeOrInstance<IHostTypesProvider<T>>(hostTypesProviderType, this.hostTypesProvider, this.priseServiceLifetime)
                 .RegisterTypeOrInstance<IRuntimePlatformContext>(runtimePlatformContextType, this.runtimePlatformContext, this.priseServiceLifetime)
                 .RegisterTypeOrInstance<INativeAssemblyUnloader>(nativeAssemblyUnloaderType, this.nativeAssemblyUnloader, this.priseServiceLifetime)
                 .RegisterTypeOrInstance<IHostFrameworkProvider>(hostFrameworkProviderType, this.hostFrameworkProvider, this.priseServiceLifetime)

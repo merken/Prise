@@ -10,18 +10,23 @@ namespace Prise.IntegrationTestsHost.Controllers
     public class LegacyTranslationController : ControllerBase
     {
         private readonly ILogger<LegacyTranslationController> logger;
-        private readonly Legacy.Domain.ITranslationPlugin translationPlugin;
+        private readonly IEnumerable<Legacy.Domain.ITranslationPlugin> translationPlugins;
 
-        public LegacyTranslationController(ILogger<LegacyTranslationController> logger, Legacy.Domain.ITranslationPlugin translationPlugin)
+        public LegacyTranslationController(ILogger<LegacyTranslationController> logger, IEnumerable<Legacy.Domain.ITranslationPlugin> translationPlugins)
         {
             this.logger = logger;
-            this.translationPlugin = translationPlugin;
+            this.translationPlugins = translationPlugins;
         }
 
         [HttpGet]
         public async Task<IEnumerable<Legacy.Domain.TranslationOutput>> Translate([FromQuery] string input)
         {
-            return await this.translationPlugin.Translate(new Legacy.Domain.TranslationInput { ContentToTranslate = input });
+            var results = new List<Legacy.Domain.TranslationOutput>();
+
+            foreach (var plugin in translationPlugins)
+                results.AddRange(await plugin.Translate(new Legacy.Domain.TranslationInput { ContentToTranslate = input }));
+
+            return results;
         }
     }
 }

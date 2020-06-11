@@ -12,6 +12,7 @@ namespace Prise
         private readonly INetworkAssemblyLoaderOptions<T> options;
         private readonly IHostFrameworkProvider hostFrameworkProvider;
         private readonly IHostTypesProvider<T> hostTypesProvider;
+        private readonly IDowngradableDependenciesProvider<T> downgradableDependenciesProvider;
         private readonly IRemoteTypesProvider<T> remoteTypesProvider;
         private readonly IDependencyPathProvider<T> dependencyPathProvider;
         private readonly IProbingPathsProvider<T> probingPathsProvider;
@@ -28,6 +29,7 @@ namespace Prise
             INetworkAssemblyLoaderOptions<T> options,
             IHostFrameworkProvider hostFrameworkProvider,
             IHostTypesProvider<T> hostTypesProvider,
+            IDowngradableDependenciesProvider<T> downgradableDependenciesProvider,
             IRemoteTypesProvider<T> remoteTypesProvider,
             IDependencyPathProvider<T> dependencyPathProvider,
             IProbingPathsProvider<T> probingPathsProvider,
@@ -44,6 +46,7 @@ namespace Prise
             this.options = options;
             this.hostFrameworkProvider = hostFrameworkProvider;
             this.hostTypesProvider = hostTypesProvider;
+            this.downgradableDependenciesProvider = downgradableDependenciesProvider;
             this.remoteTypesProvider = remoteTypesProvider;
             this.dependencyPathProvider = dependencyPathProvider;
             this.probingPathsProvider = probingPathsProvider;
@@ -59,20 +62,21 @@ namespace Prise
         public virtual Assembly Load(IPluginLoadContext pluginLoadContext)
         {
             var loadContext = new NetworkAssemblyLoadContext<T>(
-               logger,
-               options,
-               hostFrameworkProvider,
-               hostTypesProvider,
-               remoteTypesProvider,
-               dependencyPathProvider,
-               probingPathsProvider,
-               runtimePlatformContext,
-               depsFileProvider,
-               pluginDependencyResolver,
-               nativeAssemblyUnloader,
-               assemblyLoadStrategyProvider,
-               httpClientFactory,
-               tempPathProvider
+               this.logger,
+               this.options,
+               this.hostFrameworkProvider,
+               this.hostTypesProvider,
+               this.downgradableDependenciesProvider,
+               this.remoteTypesProvider,
+               this.dependencyPathProvider,
+               this.probingPathsProvider,
+               this.runtimePlatformContext,
+               this.depsFileProvider,
+               this.pluginDependencyResolver,
+               this.nativeAssemblyUnloader,
+               this.assemblyLoadStrategyProvider,
+               this.httpClientFactory,
+               this.tempPathProvider
            );
 
             var loadedPluginKey = new LoadedPluginKey(pluginLoadContext);
@@ -85,20 +89,21 @@ namespace Prise
         public virtual Task<Assembly> LoadAsync(IPluginLoadContext pluginLoadContext)
         {
             var loadContext = new NetworkAssemblyLoadContext<T>(
-               logger,
-               options,
-               hostFrameworkProvider,
-               hostTypesProvider,
-               remoteTypesProvider,
-               dependencyPathProvider,
-               probingPathsProvider,
-               runtimePlatformContext,
-               depsFileProvider,
-               pluginDependencyResolver,
-               nativeAssemblyUnloader,
-               assemblyLoadStrategyProvider,
-               httpClientFactory,
-               tempPathProvider
+               this.logger,
+               this.options,
+               this.hostFrameworkProvider,
+               this.hostTypesProvider,
+               this.downgradableDependenciesProvider,
+               this.remoteTypesProvider,
+               this.dependencyPathProvider,
+               this.probingPathsProvider,
+               this.runtimePlatformContext,
+               this.depsFileProvider,
+               this.pluginDependencyResolver,
+               this.nativeAssemblyUnloader,
+               this.assemblyLoadStrategyProvider,
+               this.httpClientFactory,
+               this.tempPathProvider
            );
 
             var loadedPluginKey = new LoadedPluginKey(pluginLoadContext);

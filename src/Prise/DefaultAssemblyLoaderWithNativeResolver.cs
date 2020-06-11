@@ -16,6 +16,7 @@ namespace Prise
         private readonly IAssemblyLoadOptions<T> options;
         private readonly IHostFrameworkProvider hostFrameworkProvider;
         private readonly IHostTypesProvider<T> hostTypesProvider;
+        private readonly IDowngradableDependenciesProvider<T> downgradableDependenciesProvider;
         private readonly IRemoteTypesProvider<T> remoteTypesProvider;
         private readonly IDependencyPathProvider<T> dependencyPathProvider;
         private readonly IProbingPathsProvider<T> probingPathsProvider;
@@ -31,6 +32,7 @@ namespace Prise
             IAssemblyLoadOptions<T> options,
             IHostFrameworkProvider hostFrameworkProvider,
             IHostTypesProvider<T> hostTypesProvider,
+            IDowngradableDependenciesProvider<T> downgradableDependenciesProvider,
             IRemoteTypesProvider<T> remoteTypesProvider,
             IDependencyPathProvider<T> dependencyPathProvider,
             IProbingPathsProvider<T> probingPathsProvider,
@@ -44,6 +46,7 @@ namespace Prise
             this.options = options;
             this.hostFrameworkProvider = hostFrameworkProvider;
             this.hostTypesProvider = hostTypesProvider;
+            this.downgradableDependenciesProvider = downgradableDependenciesProvider;
             this.remoteTypesProvider = remoteTypesProvider;
             this.dependencyPathProvider = dependencyPathProvider;
             this.probingPathsProvider = probingPathsProvider;
@@ -61,6 +64,7 @@ namespace Prise
                 this.options,
                 this.hostFrameworkProvider,
                 this.hostTypesProvider,
+                this.downgradableDependenciesProvider,
                 this.remoteTypesProvider,
                 this.dependencyPathProvider,
                 this.probingPathsProvider,
@@ -85,6 +89,7 @@ namespace Prise
                 this.options,
                 this.hostFrameworkProvider,
                 this.hostTypesProvider,
+                this.downgradableDependenciesProvider,
                 this.remoteTypesProvider,
                 this.dependencyPathProvider,
                 this.probingPathsProvider,
