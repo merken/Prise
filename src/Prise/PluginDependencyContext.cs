@@ -40,6 +40,9 @@ namespace Prise
             IPluginLogger<T> pluginLogger,
             IHostFrameworkProvider hostFrameworkProvider,
             IEnumerable<Type> hostTypes,
+            IEnumerable<string> hostAssemblies,
+            IEnumerable<Type> downgradableTypes,
+            IEnumerable<string> downgradablehostAssemblies,
             IEnumerable<Type> remoteTypes,
             IRuntimePlatformContext runtimePlatformContext,
             IDepsFileProvider<T> depsFileProvider,
@@ -50,7 +53,11 @@ namespace Prise
 
             foreach (var type in hostTypes)
                 // Load host types from current app domain
-                LoadAssemblyAndReferencesFromCurrentAppDomain(pluginLogger, type.Assembly.GetName(), hostDependencies);
+                LoadAssemblyAndReferencesFromCurrentAppDomain(pluginLogger, type.Assembly.GetName(), hostDependencies, downgradableTypes, downgradablehostAssemblies);
+
+            foreach (var assemblyFileName in hostAssemblies)
+                // Load host types from current app domain
+                LoadAssemblyAndReferencesFromCurrentAppDomain(pluginLogger, assemblyFileName, hostDependencies, downgradableTypes, downgradablehostAssemblies);
 
             foreach (var type in remoteTypes)
                 remoteDependencies.Add(new RemoteDependency
@@ -83,6 +90,9 @@ namespace Prise
             IPluginLogger<T> pluginLogger,
             IHostFrameworkProvider hostFrameworkProvider,
             IEnumerable<Type> hostTypes,
+            IEnumerable<string> hostAssemblies,
+            IEnumerable<Type> downgradableTypes,
+            IEnumerable<string> downgradablehostAssemblies,
             IEnumerable<Type> remoteTypes,
             IRuntimePlatformContext runtimePlatformContext,
             IDepsFileProvider<T> depsFileProvider,
@@ -93,7 +103,11 @@ namespace Prise
 
             foreach (var type in hostTypes)
                 // Load host types from current app domain
-                LoadAssemblyAndReferencesFromCurrentAppDomain(pluginLogger, type.Assembly.GetName(), hostDependencies);
+                LoadAssemblyAndReferencesFromCurrentAppDomain(pluginLogger, type.Assembly.GetName(), hostDependencies, downgradableTypes, downgradablehostAssemblies);
+
+            foreach (var assemblyFileName in hostAssemblies)
+                // Load host types from current app domain
+                LoadAssemblyAndReferencesFromCurrentAppDomain(pluginLogger, assemblyFileName, hostDependencies, downgradableTypes, downgradablehostAssemblies);
 
             foreach (var type in remoteTypes)
                 remoteDependencies.Add(new RemoteDependency
@@ -151,21 +165,51 @@ namespace Prise
             }
         }
 
-        private static void LoadAssemblyAndReferencesFromCurrentAppDomain(IPluginLogger logger, AssemblyName assemblyName, List<HostDependency> hostDependencies)
+        private static void LoadAssemblyAndReferencesFromCurrentAppDomain(IPluginLogger logger, AssemblyName assemblyName, List<HostDependency> hostDependencies, IEnumerable<Type> downgradableTypes, IEnumerable<string> downgradableAssemblies)
         {
             if (assemblyName?.Name == null || hostDependencies.Any(h => h.DependencyName.Name == assemblyName.Name))
                 return; // Break condition
 
             hostDependencies.Add(new HostDependency
             {
-                DependencyName = assemblyName
+                DependencyName = assemblyName,
+                AllowDowngrade =
+                                downgradableTypes.Any(t => t.Assembly.GetName().Name == assemblyName.Name) ||
+                                downgradableAssemblies.Any(a => a == assemblyName.Name)
             });
 
             try
             {
                 var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
                 foreach (var reference in assembly.GetReferencedAssemblies())
-                    LoadAssemblyAndReferencesFromCurrentAppDomain(logger, reference, hostDependencies);
+                    LoadAssemblyAndReferencesFromCurrentAppDomain(logger, reference, hostDependencies, downgradableTypes, downgradableAssemblies);
+            }
+            catch (FileNotFoundException)
+            {
+                // This happens when the assembly is a platform assembly, log it
+                logger.LoadReferenceFromAppDomainFailed(assemblyName);
+            }
+        }
+
+        private static void LoadAssemblyAndReferencesFromCurrentAppDomain(IPluginLogger logger, string assemblyFileName, List<HostDependency> hostDependencies, IEnumerable<Type> downgradableTypes, IEnumerable<string> downgradableAssemblies)
+        {
+            var assemblyName = new AssemblyName(assemblyFileName);
+            if (assemblyFileName == null || hostDependencies.Any(h => h.DependencyName.Name == assemblyName.Name))
+                return; // Break condition
+
+            hostDependencies.Add(new HostDependency
+            {
+                DependencyName = assemblyName,
+                AllowDowngrade =
+                                downgradableTypes.Any(t => t.Assembly.GetName().Name == assemblyName.Name) ||
+                                downgradableAssemblies.Any(a => a == assemblyName.Name)
+            });
+
+            try
+            {
+                var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
+                foreach (var reference in assembly.GetReferencedAssemblies())
+                    LoadAssemblyAndReferencesFromCurrentAppDomain(logger, reference, hostDependencies, downgradableTypes, downgradableAssemblies);
             }
             catch (FileNotFoundException)
             {

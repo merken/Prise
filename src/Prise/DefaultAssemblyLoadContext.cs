@@ -14,6 +14,7 @@ namespace Prise
         protected IPluginLogger<T> logger;
         protected IHostFrameworkProvider hostFrameworkProvider;
         protected IHostTypesProvider<T> hostTypesProvider;
+        protected IDowngradableDependenciesProvider<T> downgradableDependenciesProvider;
         protected IRemoteTypesProvider<T> remoteTypesProvider;
         protected IDependencyPathProvider<T> dependencyPathProvider;
         protected IProbingPathsProvider<T> probingPathsProvider;
@@ -37,6 +38,7 @@ namespace Prise
             IAssemblyLoadOptions<T> options,
             IHostFrameworkProvider hostFrameworkProvider,
             IHostTypesProvider<T> hostTypesProvider,
+            IDowngradableDependenciesProvider<T> downgradableDependenciesProvider,
             IRemoteTypesProvider<T> remoteTypesProvider,
             IDependencyPathProvider<T> dependencyPathProvider,
             IProbingPathsProvider<T> probingPathsProvider,
@@ -53,6 +55,7 @@ namespace Prise
             this.options = options;
             this.hostFrameworkProvider = hostFrameworkProvider;
             this.hostTypesProvider = hostTypesProvider;
+            this.downgradableDependenciesProvider = downgradableDependenciesProvider;
             this.remoteTypesProvider = remoteTypesProvider;
             this.dependencyPathProvider = dependencyPathProvider;
             this.probingPathsProvider = probingPathsProvider;
@@ -89,6 +92,9 @@ namespace Prise
                 this.logger,
                 this.hostFrameworkProvider,
                 this.hostTypesProvider.ProvideHostTypes(),
+                this.hostTypesProvider.ProvideHostAssemblies(),
+                this.downgradableDependenciesProvider.ProvideDowngradableTypes(),
+                this.downgradableDependenciesProvider.ProvideDowngradableAssemblies(),
                 this.remoteTypesProvider.ProvideRemoteTypes(),
                 this.runtimePlatformContext,
                 this.depsFileProvider,
@@ -110,6 +116,9 @@ namespace Prise
                 this.logger,
                 this.hostFrameworkProvider,
                 this.hostTypesProvider.ProvideHostTypes(),
+                this.hostTypesProvider.ProvideHostAssemblies(),
+                this.downgradableDependenciesProvider.ProvideDowngradableTypes(),
+                this.downgradableDependenciesProvider.ProvideDowngradableAssemblies(),
                 this.remoteTypesProvider.ProvideRemoteTypes(),
                 this.runtimePlatformContext,
                 this.depsFileProvider,
@@ -158,8 +167,12 @@ namespace Prise
             catch (FileNotFoundException) { } // This can happen if the plugin uses a newer version of a package referenced in the host
 
             var hostAssembly = this.pluginDependencyContext.HostDependencies.FirstOrDefault(h => h.DependencyName.Name == assemblyName.Name);
-            if (hostAssembly != null)
+            if (hostAssembly != null && !hostAssembly.AllowDowngrade)
+            {
+                if(!!hostAssembly.AllowDowngrade)
+                    throw new PrisePluginException($"Plugin<{typeof(T)}> Assembly reference {assemblyName.Name} with version {assemblyName.Version} was requested but not found in the host. The version from the host is {hostAssembly.DependencyName.Version}. Possible version mismatch. Please downgrade your plugin.");
                 this.logger.VersionMismatch(assemblyName, hostAssembly.DependencyName);
+            }
 
             return ValueOrProceed<AssemblyFromStrategy>.Proceed();
         }

@@ -145,7 +145,7 @@ namespace Prise
 
         public void VersionMismatch(AssemblyName requested, AssemblyName hostAssembly)
         {
-            Log($"Plugin<{this.pluginType}> Assembly reference {requested.Name} with version {requested.Version} was requested but not found in the host. The version from the host is {hostAssembly.Version}. Possible version mismatch. Please downgrade your plugin.");
+            Log($"Plugin<{this.pluginType}> Assembly reference {requested.Name} with version {requested.Version} was requested but not found in the host. The version from the host is {hostAssembly.Version}. Possible version mismatch. This was explicitly allowed, proceeding...");
         }
     }
 }
