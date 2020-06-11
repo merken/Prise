@@ -45,7 +45,7 @@ namespace Prise
 
         private static MethodInfo GetPluginActivatedMethod(Type type)
         {
-            var pluginActivatedMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
+            var pluginActivatedMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
                 .Where(m => m.CustomAttributes.Any(c => c.AttributeType.Name == typeof(Prise.Plugin.PluginActivatedAttribute).Name));
 
             if (pluginActivatedMethods.Count() > 1)
