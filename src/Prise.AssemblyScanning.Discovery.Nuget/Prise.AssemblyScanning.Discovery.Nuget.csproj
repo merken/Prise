@@ -22,11 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Prise.Plugin\Prise.Plugin.csproj" />
-    <ProjectReference Include="..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj" />
-    <ProjectReference Include="..\Prise.AssemblyScanning.Discovery\Prise.AssemblyScanning.Discovery.csproj" />
-    <!--TODO UNDO THIS BEFORE PUSH-->
-    <!--<PackageReference Include="Prise.AssemblyScanning.Discovery" Version="1.7.0" />-->
+    <PackageReference Include="Prise.AssemblyScanning.Discovery" Version="1.7.1" />
   </ItemGroup>
 
 </Project>
