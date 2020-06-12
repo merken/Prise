@@ -51,7 +51,7 @@ jobs:
       - run: cp -r ~/publish/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins       
       - run: cp ~/publish/*.nupkg src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
 
-      - name: Test Prise.IntegrationTests with netcoreapp3.1
+      - name: Restore IntegrationTestsHost
         run: dotnet restore src/Tests/Prise.IntegrationTestsHost/Prise.IntegrationTestsHost.csproj --configfile src/Tests/Prise.IntegrationTestsHost/NuGet.config
 
       - name: Test Prise.IntegrationTests with netcoreapp3.1
