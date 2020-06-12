@@ -17,13 +17,13 @@ jobs:
 
       # Creates Prise beta versions
       - name: pack Prise
-        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise/Prise.net2.csproj
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ./dist src/Prise/Prise.net2.csproj
       - name: pack Prise.Mvc
-        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.Mvc/Prise.Mvc.net2.csproj
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ./dist src/Prise.Mvc/Prise.Mvc.net2.csproj
       - name: pack Prise.AssemblyScanning.Discovery
-        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ./dist src/Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj
       - name: pack Prise.AssemblyScanning.Discovery.Nuget
-        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.AssemblyScanning.Discovery.Nuget/Prise.AssemblyScanning.Discovery.Nuget.csproj
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ./dist src/Prise.AssemblyScanning.Discovery.Nuget/Prise.AssemblyScanning.Discovery.Nuget.csproj
 
       # Copies all published plugins to integration test directory
       - run: mkdir -p src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
