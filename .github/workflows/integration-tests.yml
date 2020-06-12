@@ -52,4 +52,7 @@ jobs:
       - run: cp ~/publish/*.nupkg src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
 
       - name: Test Prise.IntegrationTests with netcoreapp3.1
+        run: dotnet restore src/Tests/Prise.IntegrationTestsHost/Prise.IntegrationTestsHost.csproj --configfile src/Tests/Prise.IntegrationTestsHost/NuGet.config
+
+      - name: Test Prise.IntegrationTests with netcoreapp3.1
         run: dotnet test src/Tests/Prise.IntegrationTests/Prise.IntegrationTests.csproj
