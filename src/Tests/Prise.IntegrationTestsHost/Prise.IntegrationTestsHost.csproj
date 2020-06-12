@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RestoreSources>$(RestoreSources);../../../dist;https://api.nuget.org/v3/index.json</RestoreSources>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
@@ -19,12 +20,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Prise.AssemblyScanning.Discovery.Nuget\Prise.AssemblyScanning.Discovery.Nuget.csproj" />
-    <ProjectReference Include="..\..\Prise.AssemblyScanning.Discovery\Prise.AssemblyScanning.Discovery.csproj" />
-    <ProjectReference Include="..\..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj" />
-    <ProjectReference Include="..\..\Prise.Mvc\Prise.Mvc.csproj" />
-    <ProjectReference Include="..\..\Prise.Proxy\Prise.Proxy.csproj" />
-    <ProjectReference Include="..\..\Prise\Prise.csproj" />
+    <PackageReference Include="Prise" Version="1.9.0-beta1" />
+    <PackageReference Include="Prise.Mvc" Version="1.9.0-beta1" />
+    <PackageReference Include="Prise.AssemblyScanning.Discovery" Version="1.9.0-beta1" />
+    <PackageReference Include="Prise.AssemblyScanning.Discovery.Nuget" Version="1.9.0-beta1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\IntegrationTestsPlugins\ExternalServiceForPluginD\ExternalServiceForPluginD.csproj" />
     <ProjectReference Include="..\IntegrationTestsPlugins\Legacy.Contract\Legacy.Contract.csproj" />
     <ProjectReference Include="..\Prise.IntegrationTestsContract\Prise.IntegrationTestsContract.csproj" />

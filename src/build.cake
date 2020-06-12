@@ -2,6 +2,7 @@ var target = Argument("target", "default");
 var configuration = Argument("configuration", "Release");
 var apikey = Argument("apikey", "");
 var outputDir = "../dist";
+var betaVersion = "1.9.0-beta1";
 var priseVersion = "1.7.5";
 var proxyVersion = "1.7.5";
 var pluginVersion = "1.7.0";
@@ -10,7 +11,6 @@ var mvcVersion = "1.7.5";
 var assemblyDiscoveryVersion = "1.7.1";
 var nugetDiscoveryVersion = "1.7.4";
 var nugetSource = "https://api.nuget.org/v3/index.json";
-var betaVersion = "1";
 
 Task("build").Does( () =>
 { 
@@ -94,15 +94,14 @@ Task("beta")
   {
     // delete the dist folder
     CleanDirectories(outputDir);
-    var betaSuffix = "-beta" + betaVersion;
-    Console.WriteLine("Creating beta versions " + betaSuffix);
-    DotNetCorePack("Prise.AssemblyScanning.Discovery.Nuget/Prise.AssemblyScanning.Discovery.Nuget.csproj", GetPackSettings(nugetDiscoveryVersion, nugetDiscoveryVersion + betaSuffix));
-    DotNetCorePack("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", GetPackSettings(assemblyDiscoveryVersion, assemblyDiscoveryVersion + betaSuffix));
-    DotNetCorePack("Prise.MVC/Prise.MVC.csproj", GetPackSettings(mvcVersion,  mvcVersion + betaSuffix));
-    DotNetCorePack("Prise.Plugin/Prise.Plugin.csproj", GetPackSettings(pluginVersion, pluginVersion + betaSuffix));
-    DotNetCorePack("Prise.PluginBridge/Prise.PluginBridge.csproj", GetPackSettings(pluginBridgeVersion, pluginBridgeVersion + betaSuffix));
-    DotNetCorePack("Prise.Proxy/Prise.Proxy.csproj", GetPackSettings(proxyVersion, proxyVersion + betaSuffix));
-    DotNetCorePack("Prise/Prise.csproj", GetPackSettings(priseVersion, priseVersion + betaSuffix));
+    Console.WriteLine("Creating beta versions " + betaVersion);
+    DotNetCorePack("Prise.AssemblyScanning.Discovery.Nuget/Prise.AssemblyScanning.Discovery.Nuget.csproj", GetPackSettings(nugetDiscoveryVersion, betaVersion));
+    DotNetCorePack("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", GetPackSettings(assemblyDiscoveryVersion, betaVersion));
+    DotNetCorePack("Prise.MVC/Prise.MVC.csproj", GetPackSettings(mvcVersion,  betaVersion));
+    DotNetCorePack("Prise.Plugin/Prise.Plugin.csproj", GetPackSettings(pluginVersion, betaVersion));
+    DotNetCorePack("Prise.PluginBridge/Prise.PluginBridge.csproj", GetPackSettings(pluginBridgeVersion, betaVersion));
+    DotNetCorePack("Prise.Proxy/Prise.Proxy.csproj", GetPackSettings(proxyVersion, betaVersion));
+    DotNetCorePack("Prise/Prise.csproj", GetPackSettings(priseVersion, betaVersion));
   });
 
 Task("push")
