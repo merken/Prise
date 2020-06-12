@@ -14,8 +14,18 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 2.1.802
+          
+      # Creates Prise beta versions
+      - name: pack Prise
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise/Prise.net2.csproj
+      - name: pack Prise.Mvc
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.Mvc/Prise.Mvc.net2.csproj
+      - name: pack Prise.AssemblyScanning.Discovery
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj
+      - name: pack Prise.AssemblyScanning.Discovery.Nuget
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.AssemblyScanning.Discovery.Nuget/Prise.AssemblyScanning.Discovery.Nuget.csproj
 
-        # Publishes all plugins to publish directory
+      # Publishes all plugins to publish directory
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginA/PluginA.net2.csproj -o ~/publish/PluginA
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginB/PluginB.net2.csproj -o ~/publish/PluginB
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginC/PluginC.net2.csproj -o ~/publish/PluginC
@@ -25,7 +35,6 @@ jobs:
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginF/PluginF.net2.csproj -o ~/publish/PluginF
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/LegacyPlugin1.4/LegacyPlugin1.4.csproj -o ~/publish/LegacyPlugin1.4
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/LegacyPlugin1.5/LegacyPlugin1.5.csproj -o ~/publish/LegacyPlugin1.5
-
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginG/PluginG.net2.csproj
       - run: dotnet pack src/Tests/IntegrationTestsPlugins/PluginG/PluginG.net2.csproj /p:nuspecfile=PluginG.net2.nuspec -o ~/publish
 
@@ -40,7 +49,6 @@ jobs:
       - run: cp -r ~/publish/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
       - run: cp -r ~/publish/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
       - run: cp -r ~/publish/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
-
       - run: cp ~/publish/*.nupkg src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp2.1/Plugins
 
       - name: Test Prise.IntegrationTests with netcoreapp2.1

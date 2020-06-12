@@ -15,7 +15,17 @@ jobs:
         with:
           dotnet-version: 3.1.201
 
-      # Copies all plugins to integration test directory
+      # Creates Prise beta versions
+      - name: pack Prise
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise/Prise.csproj
+      - name: pack Prise.Mvc
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.Mvc/Prise.Mvc.csproj
+      - name: pack Prise.AssemblyScanning.Discovery
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj
+      - name: pack Prise.AssemblyScanning.Discovery.Nuget
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.AssemblyScanning.Discovery.Nuget/Prise.AssemblyScanning.Discovery.Nuget.csproj
+
+      # Copies all compatability plugins to integration test directory
       - run: mkdir -p src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
       - run: cp -r src/Tests/compatibility/netstandard2.1/PluginA src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
       - run: cp -r src/Tests/compatibility/netstandard2.0/PluginB src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
@@ -25,7 +35,6 @@ jobs:
       - run: cp -r src/Tests/compatibility/netcoreapp2.1/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
       - run: cp -r src/Tests/compatibility/netstandard2.0/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
       - run: cp -r src/Tests/compatibility/netstandard2.0/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      
       - run: cp src/Tests/compatibility/netcoreapp2.1/*.nupkg src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
 
       - name: Test Prise.IntegrationTests with netcoreapp3.1

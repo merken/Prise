@@ -15,7 +15,17 @@ jobs:
         with:
           dotnet-version: 3.0.100
 
-        # Publishes all plugins to publish directory
+      # Creates Prise beta versions
+      - name: pack Prise
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise/Prise.net3.csproj
+      - name: pack Prise.Mvc
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.Mvc/Prise.Mvc.net3.csproj
+      - name: pack Prise.AssemblyScanning.Discovery
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj
+      - name: pack Prise.AssemblyScanning.Discovery.Nuget
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.AssemblyScanning.Discovery.Nuget/Prise.AssemblyScanning.Discovery.Nuget.csproj
+
+      # Publishes all plugins to publish directory
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginA/PluginA.csproj -o ~/publish/PluginA
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginB/PluginB.csproj -o ~/publish/PluginB
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginC/PluginC.csproj -o ~/publish/PluginC
@@ -40,7 +50,6 @@ jobs:
       - run: cp -r ~/publish/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
       - run: cp -r ~/publish/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
       - run: cp -r ~/publish/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
-
       - run: cp ~/publish/*.nupkg src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.0/Plugins
       
       - name: Test Prise.IntegrationTests with netcoreapp3.1

@@ -25,7 +25,7 @@ jobs:
       - name: pack Prise.AssemblyScanning.Discovery.Nuget
         run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.AssemblyScanning.Discovery.Nuget/Prise.AssemblyScanning.Discovery.Nuget.csproj
 
-      - name: Publishes all plugins to publish directory
+      # Publishes all plugins to publish directory
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginA/PluginA.csproj -o ~/publish/PluginA
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginB/PluginB.csproj -o ~/publish/PluginB
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginC/PluginC.csproj -o ~/publish/PluginC
@@ -38,7 +38,7 @@ jobs:
       - run: dotnet publish src/Tests/IntegrationTestsPlugins/PluginG/PluginG.csproj
       - run: dotnet pack src/Tests/IntegrationTestsPlugins/PluginG/PluginG.csproj /p:nuspecfile=PluginG.nuspec -o ~/publish
 
-      - name: Copies all published plugins to integration test directory
+      # Copies all published plugins to integration test directory
       - run: mkdir -p src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
       - run: cp -r ~/publish/PluginA src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
       - run: cp -r ~/publish/PluginB src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
