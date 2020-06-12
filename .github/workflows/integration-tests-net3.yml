@@ -18,6 +18,12 @@ jobs:
       # Creates Prise beta versions
       - name: pack Prise
         run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ./dist src/Prise/Prise.net3.csproj
+      - name: pack Prise.Plugin
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.Plugin/Prise.Plugin.csproj
+      - name: pack Prise.Proxy
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.Proxy/Prise.Proxy.csproj
+      - name: pack Prise.PluginBridge
+        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.PluginBridge/Prise.PluginBridge.csproj
       - name: pack Prise.Mvc
         run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ./dist src/Prise.Mvc/Prise.Mvc.net3.csproj
       - name: pack Prise.AssemblyScanning.Discovery
