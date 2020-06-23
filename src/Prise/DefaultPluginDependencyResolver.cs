@@ -104,7 +104,7 @@ namespace Prise
                 }
             }
 
-            return String.Empty;
+            return null;
         }
 
         protected virtual void Dispose(bool disposing)
