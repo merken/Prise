@@ -1,0 +1,6 @@
+{
+  "publishDir": "../dist",
+  "configuration": "Debug",
+  "nuspecFile": "Prise.Plugin.SayB.nuspec",
+  "includeProjectNameInPublishDir": true
+}

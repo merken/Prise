@@ -3,16 +3,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using System.Runtime.Serialization;
 using System.Runtime.Versioning;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Microsoft.Extensions.DependencyModel;
 
 namespace Prise
@@ -482,7 +479,7 @@ namespace Prise
         private static IEnumerable<PluginDependency> GetPluginDependencies(DependencyContext pluginDependencyContext)
         {
             var dependencies = new List<PluginDependency>();
-            var runtimeId = RuntimeEnvironment.GetRuntimeIdentifier();
+            var runtimeId = Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment.GetRuntimeIdentifier();
             var dependencyGraph = DependencyContext.Default.RuntimeGraph.FirstOrDefault(g => g.Runtime == runtimeId);
             // List of supported runtimes, includes the default runtime and the fallbacks for this dependency context
             var runtimes = new List<string> { dependencyGraph?.Runtime }.AddRangeToList<string>(dependencyGraph?.Fallbacks);
@@ -539,7 +536,7 @@ namespace Prise
         private static IEnumerable<PlatformDependency> GetPlatformDependencies(DependencyContext pluginDependencyContext, IEnumerable<string> platformExtensions)
         {
             var dependencies = new List<PlatformDependency>();
-            var runtimeId = RuntimeEnvironment.GetRuntimeIdentifier();
+            var runtimeId = Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment.GetRuntimeIdentifier();
             var dependencyGraph = DependencyContext.Default.RuntimeGraph.FirstOrDefault(g => g.Runtime == runtimeId);
             // List of supported runtimes, includes the default runtime and the fallbacks for this dependency context
             var runtimes = new List<string> { dependencyGraph?.Runtime }.AddRangeToList<string>(dependencyGraph?.Fallbacks);
@@ -861,10 +858,14 @@ namespace Prise
         protected string fullPathToPluginAssembly;
         protected string initialPluginLoadDirectory;
         protected PluginPlatformVersion pluginPlatformVersion;
+
         public DefaultAssemblyLoadContext()
         {
             this.nativeAssemblyUnloader = new DefaultNativeAssemblyUnloader();
             this.assemblyLoadStrategy = new DefaultAssemblyLoadStrategy();
+            this.loadedNativeLibraries = new ConcurrentDictionary<string, IntPtr>();
+            this.loadedPlugins = new ConcurrentBag<string>();
+            this.assemblyReferences = new ConcurrentBag<WeakReference>();
         }
 
         private void GuardIfAlreadyLoaded(string pluginAssemblyName)
@@ -1265,8 +1266,17 @@ namespace Prise
         protected ConcurrentDictionary<string, WeakReference> loadContextReferences;
         protected bool disposed = false;
 
+        public DefaultAssemblyLoader()
+        {
+            this.loadContexts = new ConcurrentDictionary<string, IAssemblyLoadContext>();
+            this.loadContextReferences = new ConcurrentDictionary<string, WeakReference>();
+        }
+
         public virtual Task<Assembly> Load(string fullPathToAssembly)
         {
+            if (!Path.IsPathRooted(fullPathToAssembly))
+                throw new AssemblyLoadException($"fullPathToAssembly {fullPathToAssembly} is not rooted, this must be a absolute path!");
+
             var loadContext = new DefaultAssemblyLoadContext();
             this.loadContexts[fullPathToAssembly] = loadContext;
             this.loadContextReferences[fullPathToAssembly] = new System.WeakReference(loadContext);

@@ -1,44 +1,103 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
+using Prise.Console.Contract;
 
 namespace Prise.Console
 {
-    public class PluginObject
-    {
-        public int Number { get; set; }
-        public string Text { get; set; }
-    }
-
-    public interface IPlugin
-    {
-        Task<PluginObject> GetData(PluginObject input);
-    }
 
     class Program
     {
         static async Task Main(string[] args)
         {
-
             var type = typeof(IPlugin);
             var scanner = new DefaultAssemblyScanner();
             var nugetScanner = new NugetPackageAssemblyScanner();
 
-            var results = await scanner.Scan(Path.Combine("packages"), type);
-            var nugetResults = await nugetScanner.Scan(Path.Combine("packages"), type);
+            var pathToThisProgram = Assembly.GetExecutingAssembly() // this assembly location (/bin/Debug/netcoreapp3.1)
+                                        .Location;
+            var pathToExecutingDir = Path.GetDirectoryName(pathToThisProgram);
+            var pathToDist = Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Packages/dist"));
+            // Purge the nuget extraction dir
+            Directory.Delete(Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Packages/dist/_extracted")), true);
 
-            foreach (var result in nugetResults
+            var results = await scanner.Scan(pathToDist, type);
+            var nugetResults = await nugetScanner.Scan(pathToDist, type);
+
+            System.Console.WriteLine($"Scanning results");
+            foreach (var result in results
                            .OrderBy(r => r.AssemblyPath)
                            .ThenBy(a => a.AssemblyName))
-            {
-                var pluginAssembly = await pluginLoadOptions.AssemblyLoader.LoadAsync(loadContext);
-                this.pluginAssemblies.Add(pluginAssembly);
-                var pluginInstances = CreatePluginInstances(pluginLoadOptions, ref pluginAssembly);
-                instances.AddRange(pluginInstances);
-            }
+                System.Console.WriteLine($"{result.AssemblyName} {result.AssemblyPath}");
 
-            System.Console.WriteLine("Hello World!");
+            System.Console.WriteLine($"Nuget Scanning results");
+            foreach (var result in nugetResults
+                       .OrderBy(r => r.AssemblyPath)
+                       .ThenBy(a => a.AssemblyName))
+                System.Console.WriteLine($"{result.AssemblyName} {result.AssemblyPath}");
+
+            var input = 0;
+            var error = String.Empty;
+            var messages = new StringBuilder();
+            do
+            {
+                try
+                {
+                    System.Console.Clear();
+
+                    if (!String.IsNullOrEmpty(error))
+                    {
+                        System.Console.WriteLine($"-----------ERROR------------");
+                        System.Console.WriteLine(error);
+                        System.Console.WriteLine($"---------------------------");
+                    }
+
+                    if (!String.IsNullOrEmpty(messages.ToString()))
+                    {
+                        System.Console.WriteLine($"-----------MESSAGES---------");
+                        System.Console.WriteLine(messages.ToString());
+                        System.Console.WriteLine($"---------------------------");
+                    }
+
+                    var options = results.Union(nugetResults)
+                                        .OrderBy(r => r.AssemblyPath)
+                                        .ThenBy(a => a.AssemblyName).ToList();
+                    System.Console.WriteLine($"");
+                    System.Console.WriteLine($"Load which plugin assembly?");
+                    System.Console.WriteLine($"---------------------------");
+                    foreach (var option in options)
+                        System.Console.WriteLine($"{options.IndexOf(option) + 1}: {option.AssemblyName} {option.AssemblyPath}");
+
+                    var inputString = System.Console.ReadLine();
+                    var parsed = int.TryParse(inputString, out input);
+                    if (!parsed || input < 0 || input > options.Count() + 1)
+                    {
+                        System.Console.WriteLine($"Invalid input {inputString}");
+                        break;
+                    }
+
+                    var optionToLoad = options.ElementAt(input - 1);
+                    using (var loader = new DefaultAssemblyLoader())
+                    {
+                        var pathToAssembly = Path.Combine(optionToLoad.AssemblyPath, optionToLoad.AssemblyName);
+                        var assembly = await loader.Load(pathToAssembly);
+                        
+                        messages.AppendLine($"Assembly {assembly.FullName} {optionToLoad.AssemblyPath} loaded!");
+
+                        
+
+                        await loader.Unload(pathToAssembly);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    error = $"{ex.Message} {ex.StackTrace}";
+                }
+
+            } while (input != 0);
         }
     }
 }

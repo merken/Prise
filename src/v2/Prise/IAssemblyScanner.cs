@@ -115,8 +115,11 @@ namespace Prise
 
         public virtual Task<IEnumerable<AssemblyScanResult>> Scan(string startingPath, Type type, IEnumerable<string> fileTypes = null)
         {
+            if (!Path.IsPathRooted(startingPath))
+                throw new AssemblyScanningException($"startingPath {startingPath} is not rooted, this must be a absolute path!");
+
             if (fileTypes == null)
-                fileTypes = new List<string> { ".dll" };
+                fileTypes = new List<string> { "*.dll" };
 
             var results = new List<AssemblyScanResult>();
             foreach (var directoryPath in Directory.GetDirectories(startingPath))
@@ -220,7 +223,7 @@ namespace Prise
             }
 
             // Continue with assembly scanning
-            return base.Scan(ExtractedDirectoryName, type);
+            return base.Scan(Path.Combine(startingPath, ExtractedDirectoryName), type);
         }
     }
 }

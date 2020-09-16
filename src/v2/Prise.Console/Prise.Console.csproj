@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../Prise/Prise.csproj"/>
+    <ProjectReference Include="../Prise.Console.Contract/Prise.Console.Contract.csproj"/>
   </ItemGroup>
 
 </Project>
