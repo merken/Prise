@@ -8,14 +8,13 @@ using Prise.Console.Contract;
 
 namespace Prise.Console
 {
-
     class Program
     {
         static async Task Main(string[] args)
         {
             var type = typeof(IPlugin);
-            var scanner = new DefaultAssemblyScanner();
-            var nugetScanner = new NugetPackageAssemblyScanner();
+            var scanner = new Prise.V2.DefaultAssemblyScanner();
+            var nugetScanner = new Prise.V2.NugetPackageAssemblyScanner();
 
             var pathToThisProgram = Assembly.GetExecutingAssembly() // this assembly location (/bin/Debug/netcoreapp3.1)
                                         .Location;
@@ -83,11 +82,22 @@ namespace Prise.Console
                     using (var loader = new DefaultAssemblyLoader())
                     {
                         var pathToAssembly = Path.Combine(optionToLoad.AssemblyPath, optionToLoad.AssemblyName);
-                        var assembly = await loader.Load(pathToAssembly);
-                        
-                        messages.AppendLine($"Assembly {assembly.FullName} {optionToLoad.AssemblyPath} loaded!");
+                        var pluginAssembly = await loader.Load(pathToAssembly);
 
-                        
+                        messages.AppendLine($"Assembly {pluginAssembly.FullName} {optionToLoad.AssemblyPath} loaded!");
+
+                        var pluginTypes = pluginAssembly
+                            .GetTypes()
+                            .Where(t => t.CustomAttributes
+                                .Any(c => c.AttributeType.Name == typeof(Prise.Plugin.PluginAttribute).Name
+                                && (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Name == typeof(IPlugin).Name))
+                            .OrderBy(t => t.Name)
+                            .AsEnumerable();
+
+                        var firstPlugin = pluginTypes.FirstOrDefault();
+
+                        var activator = new DefaultPluginActivator();
+                        var pluginInstance = await activator.ActivatePlugin<IPlugin>(ref pluginAssembly, firstPlugin);
 
                         await loader.Unload(pathToAssembly);
                     }

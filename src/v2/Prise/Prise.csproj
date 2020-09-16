@@ -61,14 +61,14 @@
     </ItemGroup>
   
     <ItemGroup>
-      <ProjectReference Include="..\Prise.Proxy\Prise.Proxy.csproj">
+      <ProjectReference Include="../../Prise.Proxy/Prise.Proxy.csproj">
         <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
         <IncludeAssets>Prise.Proxy.dll</IncludeAssets>
       </ProjectReference>
-      <ProjectReference Include="..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj">
+      <!-- <ProjectReference Include="..\Prise.AssemblyScanning\Prise.AssemblyScanning.csproj">
         <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
         <IncludeAssets>Prise.AssemblyScanning.dll</IncludeAssets>
-      </ProjectReference>
+      </ProjectReference> -->
       <ProjectReference Include="../../Prise.Plugin/Prise.Plugin.csproj">
         <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
         <IncludeAssets>Prise.Plugin.dll</IncludeAssets>
