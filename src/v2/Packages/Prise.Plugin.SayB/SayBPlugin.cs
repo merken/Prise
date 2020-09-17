@@ -13,7 +13,7 @@ namespace Prise.Plugin.SayB
             return new PluginObject
             {
                 Number = 4000,
-                Text = input.Text + " BBBBB"
+                Text = input.Text + " TEST"
             };
         }
     }

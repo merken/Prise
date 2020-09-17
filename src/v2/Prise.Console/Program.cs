@@ -26,7 +26,7 @@ namespace Prise.Console
                 Directory.Delete(Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Packages/dist/_extracted")), true);
 
             var results = await scanner.Scan(pathToDist, type);
-            var nugetResults = await nugetScanner.Scan(pathToDist, type);
+            // var nugetResults = await nugetScanner.Scan(pathToDist, type);
 
             System.Console.WriteLine($"Scanning results");
             foreach (var result in results
@@ -34,11 +34,11 @@ namespace Prise.Console
                            .ThenBy(a => a.AssemblyName))
                 System.Console.WriteLine($"{result.AssemblyName} {result.AssemblyPath}");
 
-            System.Console.WriteLine($"Nuget Scanning results");
-            foreach (var result in nugetResults
-                       .OrderBy(r => r.AssemblyPath)
-                       .ThenBy(a => a.AssemblyName))
-                System.Console.WriteLine($"{result.AssemblyName} {result.AssemblyPath}");
+            // System.Console.WriteLine($"Nuget Scanning results");
+            // foreach (var result in nugetResults
+            //            .OrderBy(r => r.AssemblyPath)
+            //            .ThenBy(a => a.AssemblyName))
+            //     System.Console.WriteLine($"{result.AssemblyName} {result.AssemblyPath}");
 
             var input = 0;
             var error = String.Empty;
@@ -63,7 +63,7 @@ namespace Prise.Console
                         System.Console.WriteLine($"---------------------------");
                     }
 
-                    var options = results.Union(nugetResults)
+                    var options = results//.Union(nugetResults)
                                         .OrderBy(r => r.AssemblyPath)
                                         .ThenBy(a => a.AssemblyName).ToList();
                     System.Console.WriteLine($"");

@@ -1,11 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using System.Runtime.Serialization;
 using System.Runtime.Versioning;
@@ -14,20 +13,6 @@ using Microsoft.Extensions.DependencyModel;
 
 namespace Prise.V2
 {
-    public interface IPluginAssemblyLoader : IDisposable
-    {
-        Task<IAssemblyShim> Load(IPluginLoadContext loadContext);
-        Task Unload(IPluginLoadContext loadContext);
-    }
-
-    public class DefaultNativeAssemblyUnloader : INativeAssemblyUnloader
-    {
-        public void UnloadNativeAssembly(string fullPathToLoadedNativeAssembly, IntPtr pointerToAssembly)
-        {
-            NativeLibrary.Free(pointerToAssembly);
-        }
-    }
-
     public class DefaultAssemblyLoader : IPluginAssemblyLoader, IDisposable
     {
         protected ConcurrentDictionary<string, IAssemblyLoadContext> loadContexts;

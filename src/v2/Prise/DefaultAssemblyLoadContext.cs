@@ -1,47 +1,13 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Runtime.Loader;
-using System.Runtime.Serialization;
-using System.Runtime.Versioning;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyModel;
 
 namespace Prise.V2
 {
-
-    /// <summary>
-    /// This base class will load all assemblies in memory by default and is Collectible by default
-    /// </summary>
-    public abstract class InMemoryAssemblyLoadContext : AssemblyLoadContext
-    {
-        protected bool isCollectible = false;
-        protected InMemoryAssemblyLoadContext() { }
-
-        protected InMemoryAssemblyLoadContext(bool isCollectible) : base($"InMemoryAssemblyLoadContext{Guid.NewGuid().ToString("N")}", isCollectible: isCollectible)
-        {
-            this.isCollectible = isCollectible;
-        }
-
-        public new Assembly LoadFromAssemblyPath(string path)
-        {
-            try
-            {
-                using (var stream = File.OpenRead(path))
-                    return LoadFromStream(stream);
-            }
-            catch (InvalidOperationException ex)
-            {
-                throw new AssemblyLoadException($"Assembly at {path} could not be loaded (locked dll file)", ex);
-            }
-        }
-    }
-
     public class DefaultAssemblyLoadContext : InMemoryAssemblyLoadContext, IAssemblyLoadContext
     {
         protected AssemblyDependencyResolver resolver;
