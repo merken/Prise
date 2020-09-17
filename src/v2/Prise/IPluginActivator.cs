@@ -162,7 +162,7 @@ namespace Prise.V2
 
     public interface IRemotePluginActivator : IDisposable
     {
-        object CreateRemoteBootstrapper(Type bootstrapperType, Assembly assembly);
+        object CreateRemoteBootstrapper(Type bootstrapperType, IAssemblyShim assembly);
         object CreateRemoteInstance(PluginActivationContext pluginActivationContext, IPluginBootstrapper bootstrapper = null);
     }
 
@@ -188,7 +188,7 @@ namespace Prise.V2
             return obj;
         }
 
-        public virtual object CreateRemoteBootstrapper(Type bootstrapperType, Assembly assembly)
+        public virtual object CreateRemoteBootstrapper(Type bootstrapperType, IAssemblyShim assembly)
         {
             var contructors = bootstrapperType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
             var firstCtor = contructors.First();
@@ -198,7 +198,7 @@ namespace Prise.V2
             if (firstCtor.GetParameters().Any())
                 throw new PluginActivationException($"Bootstrapper {bootstrapperType.Name} must contain a public parameterless constructor");
 
-            return AddToDisposables(assembly.CreateInstance(bootstrapperType.FullName));
+            return AddToDisposables(assembly.Assembly.CreateInstance(bootstrapperType.FullName));
         }
 
         public virtual object CreateRemoteInstance(PluginActivationContext pluginActivationContext, IPluginBootstrapper bootstrapper = null)
@@ -221,7 +221,7 @@ namespace Prise.V2
             if (firstCtor != null && !firstCtor.GetParameters().Any()) // Empty default CTOR
             {
                 var pluginServiceProvider = AddToDisposables(serviceProvider.GetService<IPluginServiceProvider>()) as IPluginServiceProvider;
-                var remoteInstance = pluginAssembly.CreateInstance(pluginType.FullName);
+                var remoteInstance = pluginAssembly.Assembly.CreateInstance(pluginType.FullName);
                 remoteInstance = InjectFieldsWithServices(remoteInstance, pluginServiceProvider, pluginActivationContext.PluginServices);
 
                 ActivateIfNecessary(remoteInstance, pluginActivationContext);
@@ -372,7 +372,7 @@ namespace Prise.V2
 
     public class PluginActivationContext
     {
-        public Assembly PluginAssembly { get; set; }
+        public IAssemblyShim PluginAssembly { get; set; }
         public Type PluginType { get; set; }
         public Type PluginBootstrapperType { get; set; }
         public MethodInfo PluginFactoryMethod { get; set; }
@@ -382,14 +382,14 @@ namespace Prise.V2
 
     public interface IPluginActivationContextProvider
     {
-        PluginActivationContext ProvideActivationContext(Type remoteType, Assembly pluginAssembly);
+        PluginActivationContext ProvideActivationContext(Type remoteType, IAssemblyShim pluginAssembly);
     }
 
     public class DefaultPluginActivationContextProvider : IPluginActivationContextProvider
     {
-        public PluginActivationContext ProvideActivationContext(Type remoteType, Assembly pluginAssembly)
+        public PluginActivationContext ProvideActivationContext(Type remoteType, IAssemblyShim pluginAssembly)
         {
-            var bootstrapper = pluginAssembly
+            var bootstrapper = pluginAssembly.Assembly
                     .GetTypes()
                     .FirstOrDefault(t => t.CustomAttributes
                         .Any(c => c.AttributeType.Name == typeof(Prise.Plugin.PluginBootstrapperAttribute).Name &&
@@ -477,7 +477,7 @@ namespace Prise.V2
 
     public interface IPluginActivator
     {
-        Task<T> ActivatePlugin<T>(ref Assembly pluginAssembly,
+        Task<T> ActivatePlugin<T>(IAssemblyShim pluginAssembly,
                                   Type pluginType = null,
                                   IServiceCollection sharedServices = null,
                                   IServiceCollection hostServices = null,
@@ -485,8 +485,9 @@ namespace Prise.V2
                                   IResultConverter resultConverter = null);
     }
 
-    public class DefaultPluginActivator : IPluginActivator
+    public class DefaultPluginActivator : IPluginActivator, IDisposable
     {
+        private bool disposed = false;
         protected ConcurrentBag<IDisposable> disposables;
 
         public DefaultPluginActivator()
@@ -494,7 +495,7 @@ namespace Prise.V2
             this.disposables = new ConcurrentBag<IDisposable>();
         }
 
-        public Task<T> ActivatePlugin<T>(ref Assembly pluginAssembly,
+        public Task<T> ActivatePlugin<T>(IAssemblyShim pluginAssembly,
                                          Type pluginType = null,
                                          IServiceCollection sharedServices = null,
                                          IServiceCollection hostServices = null,
@@ -533,6 +534,22 @@ namespace Prise.V2
             this.disposables.Add(pluginProxy as IDisposable);
 
             return Task.FromResult(pluginProxy);
+        }
+
+         protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed && disposing)
+            {
+                foreach (var disposable in this.disposables)
+                    disposable.Dispose();
+            }
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

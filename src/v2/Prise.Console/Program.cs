@@ -21,7 +21,9 @@ namespace Prise.Console
             var pathToExecutingDir = Path.GetDirectoryName(pathToThisProgram);
             var pathToDist = Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Packages/dist"));
             // Purge the nuget extraction dir
-            Directory.Delete(Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Packages/dist/_extracted")), true);
+            var extractedDir = Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Packages/dist/_extracted"));
+            if (Directory.Exists(extractedDir))
+                Directory.Delete(Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Packages/dist/_extracted")), true);
 
             var results = await scanner.Scan(pathToDist, type);
             var nugetResults = await nugetScanner.Scan(pathToDist, type);
@@ -79,34 +81,29 @@ namespace Prise.Console
                     }
 
                     var optionToLoad = options.ElementAt(input - 1);
-                    using (var loader = new DefaultAssemblyLoader())
+                    using (var loader = new Prise.V2.DefaultAssemblyLoader())
+                    using (var activator = new Prise.V2.DefaultPluginActivator())
                     {
                         var pathToAssembly = Path.Combine(optionToLoad.AssemblyPath, optionToLoad.AssemblyName);
-                        var pluginAssembly = await loader.Load(pathToAssembly);
+                        var pluginLoadContext = Prise.V2.PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(IPlugin), ignorePlatformInconsistencies: true);
+                        var pluginAssembly = await loader.Load(pluginLoadContext);
 
-                        messages.AppendLine($"Assembly {pluginAssembly.FullName} {optionToLoad.AssemblyPath} loaded!");
+                        messages.AppendLine($"Assembly {pluginAssembly.Assembly.FullName} {optionToLoad.AssemblyPath} loaded!");
 
-                        var pluginTypes = pluginAssembly
-                            .GetTypes()
-                            .Where(t => t.CustomAttributes
-                                .Any(c => c.AttributeType.Name == typeof(Prise.Plugin.PluginAttribute).Name
-                                && (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Name == typeof(IPlugin).Name))
-                            .OrderBy(t => t.Name)
-                            .AsEnumerable();
+                        var pluginTypeSelector = new Prise.V2.DefaultPluginTypeSelector();
 
+                        var pluginTypes = pluginTypeSelector.SelectPluginTypes<IPlugin>(pluginAssembly);
                         var firstPlugin = pluginTypes.FirstOrDefault();
 
-                        var activator = new DefaultPluginActivator();
-                        var pluginInstance = await activator.ActivatePlugin<IPlugin>(ref pluginAssembly, firstPlugin);
-
-                        await loader.Unload(pathToAssembly);
+                        var pluginInstance = await activator.ActivatePlugin<IPlugin>(pluginAssembly, firstPlugin);
+                        messages.AppendLine((await pluginInstance.GetData(new PluginObject { Text = "Plugin says " })).Text);
+                        await loader.Unload(pluginLoadContext);
                     }
                 }
                 catch (Exception ex)
                 {
                     error = $"{ex.Message} {ex.StackTrace}";
                 }
-
             } while (input != 0);
         }
     }
