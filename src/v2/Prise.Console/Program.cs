@@ -13,8 +13,8 @@ namespace Prise.Console
         static async Task Main(string[] args)
         {
             var type = typeof(IPlugin);
-            var scanner = new Prise.V2.DefaultAssemblyScanner();
-            var nugetScanner = new Prise.V2.NugetPackageAssemblyScanner();
+            var scanner = new Prise.AssemblyScanning.DefaultAssemblyScanner();
+            var nugetScanner = new Prise.AssemblyScanning.NugetPackageAssemblyScanner();
 
             var pathToThisProgram = Assembly.GetExecutingAssembly() // this assembly location (/bin/Debug/netcoreapp3.1)
                                         .Location;
@@ -81,16 +81,16 @@ namespace Prise.Console
                     }
 
                     var optionToLoad = options.ElementAt(input - 1);
-                    using (var loader = new Prise.V2.DefaultAssemblyLoader())
-                    using (var activator = new Prise.V2.DefaultPluginActivator())
+                    using (var loader = new Prise.AssemblyLoading.DefaultAssemblyLoader())
+                    using (var activator = new Prise.Activation.DefaultPluginActivator())
                     {
                         var pathToAssembly = Path.Combine(optionToLoad.AssemblyPath, optionToLoad.AssemblyName);
-                        var pluginLoadContext = Prise.V2.PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(IPlugin), ignorePlatformInconsistencies: true);
+                        var pluginLoadContext = Prise.Core.PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(IPlugin), ignorePlatformInconsistencies: true);
                         var pluginAssembly = await loader.Load(pluginLoadContext);
 
                         messages.AppendLine($"Assembly {pluginAssembly.Assembly.FullName} {optionToLoad.AssemblyPath} loaded!");
 
-                        var pluginTypeSelector = new Prise.V2.DefaultPluginTypeSelector();
+                        var pluginTypeSelector = new Prise.Core.DefaultPluginTypeSelector();
 
                         var pluginTypes = pluginTypeSelector.SelectPluginTypes<IPlugin>(pluginAssembly);
                         var firstPlugin = pluginTypes.FirstOrDefault();

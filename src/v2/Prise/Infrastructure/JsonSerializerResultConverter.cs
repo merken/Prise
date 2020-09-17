@@ -2,7 +2,7 @@ using System;
 using System.Text.Json;
 using Prise.Proxy;
 
-namespace Prise.V2
+namespace Prise.Infrastructure
 {
     public class JsonSerializerResultConverter : ResultConverter
     {
