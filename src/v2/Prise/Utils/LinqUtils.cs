@@ -4,11 +4,13 @@ namespace Prise.Utils
 {
     public static class LinqUtils
     {
-        public static IEnumerable<T> AddRangeToList<T>(this List<T> list, IEnumerable<T> range)
+        public static List<T> AddRangeToList<T>(this List<T> list, IEnumerable<T> range)
         {
             if (range != null)
                 list.AddRange(range);
             return list;
         }
+
+        public static List<T> AddToList<T>(this List<T> list, params T[] itemsToAdd) => list.AddRangeToList(itemsToAdd);
     }
 }

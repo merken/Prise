@@ -164,6 +164,7 @@ namespace Prise
         }
 
         private bool useCollectibleAssemblies = true;
+        // TODO PORT OVER
         public PluginLoadOptionsBuilder<T> UseCollectibleAssemblies(bool useCollectibleAssemblies)
         {
             this.useCollectibleAssemblies = useCollectibleAssemblies;
@@ -374,6 +375,7 @@ namespace Prise
             return this;
         }
 
+        //TODO PORT
         public PluginLoadOptionsBuilder<T> AllowDowngradeForType<TType>()
         {
             var downgradableDependenciesProvider = this.downgradableDependenciesProvider as DowngradableDependenciesProvider<T>;
@@ -383,6 +385,7 @@ namespace Prise
             return this;
         }
 
+        //TODO PORT
         public PluginLoadOptionsBuilder<T> AllowDowngradeForType(Type type)
         {
             var downgradableDependenciesProvider = this.downgradableDependenciesProvider as DowngradableDependenciesProvider<T>;
@@ -392,6 +395,7 @@ namespace Prise
             return this;
         }
 
+        //TODO PORT
         public PluginLoadOptionsBuilder<T> AllowDowngradeForAssembly(string assemblyFileName)
         {
             var downgradableDependenciesProvider = this.downgradableDependenciesProvider as DowngradableDependenciesProvider<T>;
@@ -401,6 +405,7 @@ namespace Prise
             return this;
         }
 
+        //TODO PORT
         public PluginLoadOptionsBuilder<T> WithHostType(Type type)
         {
             var hostTypesProvider = this.hostTypesProvider as HostTypesProvider<T>;
@@ -410,6 +415,7 @@ namespace Prise
             return this;
         }
 
+        //TODO PORT
         public PluginLoadOptionsBuilder<T> WithHostAssembly(string assemblyFileName)
         {
             var hostTypesProvider = this.hostTypesProvider as HostTypesProvider<T>;
@@ -419,6 +425,7 @@ namespace Prise
             return this;
         }
 
+        //TODO PORT
         public PluginLoadOptionsBuilder<T> WithRemoteType(Type type)
         {
             var remoteTypesProvider = this.remoteTypesProvider as RemoteTypesProvider<T>;
@@ -441,6 +448,7 @@ namespace Prise
             return this;
         }
 
+        //TODO PORT
         public PluginLoadOptionsBuilder<T> WithProbingPath(string path)
         {
             var probingPathsProvider = this.probingPathsProvider as ProbingPathsProvider<T>;
@@ -589,6 +597,7 @@ namespace Prise
             return this;
         }
 
+        //TODO PORT ??
         public PluginLoadOptionsBuilder<T> ConfigureHostServices(Action<IServiceCollection> hostServicesConfig)
         {
             if (this.sharedServicesProviderType != null)
@@ -610,6 +619,7 @@ namespace Prise
             return this;
         }
 
+        //TODO PORT
         public PluginLoadOptionsBuilder<T> ConfigureSharedServices(Action<IServiceCollection> sharedServicesConfig)
         {
             if (this.sharedServicesProviderType != null)

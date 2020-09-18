@@ -5,9 +5,9 @@ using Prise.Console.Contract;
 namespace Prise.Plugin.Single
 {
     [Plugin(PluginType = typeof(IPlugin))]
-    public class SayBPlugin : ISinglePlugin
+    public class SayBPlugin : IPlugin
     {
-        public async Task<PluginObject> GetData(IPlugin input)
+        public async Task<PluginObject> GetData(PluginObject input)
         {
             // await Task.Delay(4000);
             return new PluginObject

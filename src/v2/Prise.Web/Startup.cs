@@ -37,10 +37,16 @@ namespace Prise.Web
             var pathToSinglePlugin = Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Packages/dist/Prise.Plugin.Single"));
             var pathToMultiplePlugins = Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Packages/dist"));
             services.AddPrise<IPlugin>(pathToSinglePlugin, true);
-            services.AddPrisePlugins<IMultiplePlugin>(pathToMultiplePlugins, true);
+            services.AddPrisePlugins<IMultiplePlugin>(pathToMultiplePlugins,
+                                                      ignorePlatormInconsistencies: true);
 
-            var storageHostServices = new 
-            services.AddPrisePlugins<IStoragePlugin>(pathToMultiplePlugins, true);
+            services.AddPrisePlugins<IStoragePlugin>(pathToMultiplePlugins,
+                                                     ignorePlatormInconsistencies: true,
+                                                     includeHostServices: new[] { typeof(IConfiguration) },
+                                                     sharedServices: (services) =>
+                                                     {
+                                                         services.AddScoped<IConfigurationService, AppSettingsConfigurationService>();
+                                                     });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

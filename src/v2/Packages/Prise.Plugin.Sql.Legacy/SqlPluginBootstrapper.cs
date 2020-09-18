@@ -8,17 +8,17 @@ using System.Data.SqlClient;
 
 namespace Prise.Plugin.Sql.Legacy
 {
-    [PluginBootstrapper(PluginType = typeof(SqlProductsRepository))]
-    public class SqlPluginBootstrapper : IPluginBootstrapper
+    // [PluginBootstrapper(PluginType = typeof(SqlStoragePlugin))]
+    public class SqlStoragePluginBoostrapper : IPluginBootstrapper
     {
         public IServiceCollection Bootstrap(IServiceCollection services)
         {
-            var config = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
-            var sqlConfig = new SQLPluginConfig();
-            config.Bind("SQLPlugin", sqlConfig);
-
             services.AddScoped<DbConnection>((serviceProvider) =>
             {
+                var config = serviceProvider.GetRequiredService<IConfiguration>();
+                var sqlConfig = new SQLPluginConfig();
+                config.Bind("SQLPlugin", sqlConfig);
+
                 // using System.Data.SqlClient
                 var dbConnection = new SqlConnection(sqlConfig.ConnectionString);
                 dbConnection.Open();

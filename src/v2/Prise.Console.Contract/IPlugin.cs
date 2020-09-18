@@ -9,6 +9,11 @@ namespace Prise.Console.Contract
         public string Text { get; set; }
     }
 
+    public interface IConfigurationService
+    {
+        string GetConfigurationValueForKey(string key);
+    }
+
     public interface IPlugin
     {
         Task<PluginObject> GetData(PluginObject input);
@@ -19,7 +24,7 @@ namespace Prise.Console.Contract
     {
     }
 
-     public interface IStoragePlugin : IPlugin
+    public interface IStoragePlugin : IPlugin
     {
     }
 }

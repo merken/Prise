@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.Versioning;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Prise.Core
 {
@@ -53,6 +53,5 @@ namespace Prise.Core
                                                                   Type pluginType,
                                                                   string hostFramework)
             => new PluginLoadContext(fullPathToPluginAssembly, pluginType, hostFramework);
-
     }
 }

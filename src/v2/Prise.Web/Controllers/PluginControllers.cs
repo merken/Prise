@@ -61,4 +61,29 @@ namespace Prise.Web.Controllers
             return builder.ToString();
         }
     }
+
+    [ApiController]
+    [Route("storage")]
+    /// <summary>
+    /// </summary>
+    public class StorageController : ControllerBase
+    {
+        private readonly IEnumerable<IStoragePlugin> plugins;
+
+        public StorageController(IEnumerable<IStoragePlugin> plugins)
+        {
+            this.plugins = plugins;
+        }
+
+        [HttpGet]
+        public async Task<string> Get([FromQuery] string text)
+        {
+            var builder = new StringBuilder();
+            
+            foreach (var plugin in this.plugins)
+                builder.AppendLine((await plugin.GetData(new PluginObject { Text = text })).Text);
+
+            return builder.ToString();
+        }
+    }
 }

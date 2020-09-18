@@ -6,11 +6,12 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.1" />
-    <PackageReference Include="Prise.Plugin" Version="1.3.0" />
+    <!-- <PackageReference Include="Prise.Plugin" Version="1.3.0" /> -->
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="../../../Prise.Plugin/Prise.Plugin.csproj" />
+    <ProjectReference Include="../../../Prise.PluginBridge/Prise.PluginBridge.csproj" />
     <ProjectReference Include="../../Prise.Console.Contract/Prise.Console.Contract.csproj" />
   </ItemGroup>
 </Project>
