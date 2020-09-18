@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Prise.Core;
 
 namespace Prise.Platform
 {
@@ -60,7 +61,7 @@ namespace Prise.Platform
                 case "MICROSOFT.NETCORE.APP": return RuntimeType.NetCoreApp;
                 case "MICROSOFT.WINDOWSDESKTOP.APP": return RuntimeType.WindowsDesktopApp;
             }
-            throw new AssemblyLoadException($"Runtime {runtimeName} could not be parsed");
+            throw new PlatformException($"Runtime {runtimeName} could not be parsed");
         }
 
         private string[] GetPluginDependencyFileExtensions()
@@ -89,7 +90,7 @@ namespace Prise.Platform
                     $"{fileNameWithoutExtension}.dylib",
                     $"lib{fileNameWithoutExtension}.dylib" };
 
-            throw new AssemblyLoadException($"Platform {System.Runtime.InteropServices.RuntimeInformation.OSDescription} is not supported");
+            throw new PlatformException($"Platform {System.Runtime.InteropServices.RuntimeInformation.OSDescription} is not supported");
         }
 
         private string[] GetPlatformDependencyFileExtensions()
@@ -101,7 +102,7 @@ namespace Prise.Platform
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 return new[] { ".dylib" };
 
-            throw new AssemblyLoadException($"Platform {System.Runtime.InteropServices.RuntimeInformation.OSDescription} is not supported");
+            throw new PlatformException($"Platform {System.Runtime.InteropServices.RuntimeInformation.OSDescription} is not supported");
         }
     }
 }

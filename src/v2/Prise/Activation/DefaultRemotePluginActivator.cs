@@ -11,15 +11,10 @@ namespace Prise.Activation
     public class DefaultRemotePluginActivator : IRemotePluginActivator
     {
         private ConcurrentBag<object> instances;
-        private IServiceCollection sharedServices;
-        private IServiceCollection hostServices;
         private IServiceCollection services;
-        private bool disposed = false;
 
-        public DefaultRemotePluginActivator(IServiceCollection sharedServices, IServiceCollection hostServices)
+        public DefaultRemotePluginActivator()
         {
-            this.sharedServices = sharedServices ?? new ServiceCollection();
-            this.hostServices = hostServices ?? new ServiceCollection();
             this.instances = new ConcurrentBag<object>();
             this.services = new ServiceCollection();
         }
@@ -43,7 +38,7 @@ namespace Prise.Activation
             return AddToDisposables(assembly.Assembly.CreateInstance(bootstrapperType.FullName));
         }
 
-        public virtual object CreateRemoteInstance(PluginActivationDescriptor pluginActivationContext, IPluginBootstrapper bootstrapper = null)
+        public virtual object CreateRemoteInstance(IPluginActivationContext pluginActivationContext, IPluginBootstrapper bootstrapper = null, IServiceCollection sharedServices = null, IServiceCollection hostServices = null)
         {
             var pluginType = pluginActivationContext.PluginType;
             var pluginAssembly = pluginActivationContext.PluginAssembly;
@@ -54,7 +49,7 @@ namespace Prise.Activation
             if (contructors.Count() > 1)
                 throw new PluginActivationException($"Multiple public constructors found for remote plugin {pluginType.Name}");
 
-            var serviceProvider = AddToDisposables(GetServiceProvider(bootstrapper)) as IServiceProvider;
+            var serviceProvider = AddToDisposables(GetServiceProvider(bootstrapper, sharedServices ?? new ServiceCollection(), hostServices ?? new ServiceCollection())) as IServiceProvider;
 
             if (factoryMethod != null)
                 return AddToDisposables(factoryMethod.Invoke(null, new[] { serviceProvider }));
@@ -74,7 +69,7 @@ namespace Prise.Activation
             throw new PluginActivationException($"Plugin of type {pluginType.Name} could not be activated.");
         }
 
-        protected virtual void ActivateIfNecessary(object remoteInstance, PluginActivationDescriptor pluginActivationContext)
+        protected virtual void ActivateIfNecessary(object remoteInstance, IPluginActivationContext pluginActivationContext)
         {
             var pluginType = pluginActivationContext.PluginType;
             if (pluginActivationContext.PluginActivatedMethod == null)
@@ -131,11 +126,8 @@ namespace Prise.Activation
             return remoteInstance;
         }
 
-        protected virtual IServiceProvider GetServiceProvider(IPluginBootstrapper bootstrapper)
+        protected virtual IServiceProvider GetServiceProvider(IPluginBootstrapper bootstrapper, IServiceCollection sharedServices, IServiceCollection hostServices)
         {
-            var hostServices = this.hostServices;
-            var sharedServices = this.sharedServices;
-
             foreach (var service in hostServices)
                 this.services.Add(service);
 
@@ -154,6 +146,7 @@ namespace Prise.Activation
             return this.services.BuildServiceProvider();
         }
 
+        private bool disposed = false;
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed && disposing)

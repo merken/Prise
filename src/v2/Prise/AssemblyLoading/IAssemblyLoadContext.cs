@@ -1,17 +1,12 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Runtime.Versioning;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyModel;
+using Prise.Core;
 
 namespace Prise.AssemblyLoading
 {
     public interface IAssemblyLoadContext : IDisposable
     {
-        Task<IAssemblyShim> LoadPluginAssembly(IPluginLoadContext loadContext);
+        Task<IAssemblyShim> LoadPluginAssembly(IPluginLoadContext loadContext, IAssemblyLoadStrategy pluginLoadStrategy = null);
 
         Task Unload();
     }

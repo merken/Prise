@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
+using Prise.Core;
 
 namespace Prise.AssemblyLoading
 {
@@ -12,8 +13,6 @@ namespace Prise.AssemblyLoading
     {
         protected AssemblyDependencyResolver resolver;
         protected ConcurrentDictionary<string, IntPtr> loadedNativeLibraries;
-        protected bool disposed = false;
-        protected bool disposing = false;
         protected ConcurrentBag<string> loadedPlugins;
         protected ConcurrentBag<WeakReference> assemblyReferences;
         protected INativeAssemblyUnloader nativeAssemblyUnloader;
@@ -25,9 +24,9 @@ namespace Prise.AssemblyLoading
         protected string initialPluginLoadDirectory;
         protected PluginPlatformVersion pluginPlatformVersion;
 
-        public DefaultAssemblyLoadContext()
+        public DefaultAssemblyLoadContext(INativeAssemblyUnloader nativeAssemblyUnloader = null)
         {
-            this.nativeAssemblyUnloader = new DefaultNativeAssemblyUnloader();
+            this.nativeAssemblyUnloader = nativeAssemblyUnloader ?? new DefaultNativeAssemblyUnloader();
             this.loadedNativeLibraries = new ConcurrentDictionary<string, IntPtr>();
             this.loadedPlugins = new ConcurrentBag<string>();
             this.assemblyReferences = new ConcurrentBag<WeakReference>();
@@ -36,18 +35,18 @@ namespace Prise.AssemblyLoading
         private void GuardIfAlreadyLoaded(string pluginAssemblyName)
         {
             if (this.disposed || this.disposing)
-                throw new AssemblyLoadException($"Cannot load Plugin {pluginAssemblyName} when disposed.");
+                throw new AssemblyLoadingException($"Cannot load Plugin {pluginAssemblyName} when disposed.");
 
             if (String.IsNullOrEmpty(pluginAssemblyName))
-                throw new AssemblyLoadException($"Cannot load empty Plugin. {nameof(pluginAssemblyName)} was null or empty.");
+                throw new AssemblyLoadingException($"Cannot load empty Plugin. {nameof(pluginAssemblyName)} was null or empty.");
 
             if (this.loadedPlugins.Contains(pluginAssemblyName))
-                throw new AssemblyLoadException($"Plugin {pluginAssemblyName} was already loaded.");
+                throw new AssemblyLoadingException($"Plugin {pluginAssemblyName} was already loaded.");
 
             this.loadedPlugins.Add(pluginAssemblyName);
         }
 
-        public async Task<IAssemblyShim> LoadPluginAssembly(IPluginLoadContext pluginLoadContext)
+        public async Task<IAssemblyShim> LoadPluginAssembly(IPluginLoadContext pluginLoadContext, IAssemblyLoadStrategy pluginLoadStrategy = null)
         {
             this.fullPathToPluginAssembly = pluginLoadContext.FullPathToPluginAssembly;
             this.initialPluginLoadDirectory = Path.GetDirectoryName(fullPathToPluginAssembly);
@@ -58,13 +57,11 @@ namespace Prise.AssemblyLoading
             {
                 this.resolver = new AssemblyDependencyResolver(fullPathToPluginAssembly);
                 this.pluginDependencyContext = await DefaultPluginDependencyContext.FromPluginLoadContext(pluginLoadContext);
-
-                // TODO
-                this.assemblyLoadStrategy = new DefaultAssemblyLoadStrategy(pluginDependencyContext);
+                this.assemblyLoadStrategy = pluginLoadStrategy ?? new DefaultAssemblyLoadStrategy(pluginDependencyContext);
             }
             catch (System.ArgumentException ex)
             {
-                throw new AssemblyLoadException($"{nameof(AssemblyDependencyResolver)} could not be instantiated, possible issue with {this.initialPluginLoadDirectory}{Path.GetFileNameWithoutExtension(fullPathToPluginAssembly)}.deps.json file?", ex);
+                throw new AssemblyLoadingException($"{nameof(AssemblyDependencyResolver)} could not be instantiated, possible issue with {this.initialPluginLoadDirectory}{Path.GetFileNameWithoutExtension(fullPathToPluginAssembly)}.deps.json file?", ex);
             }
 
 
@@ -127,7 +124,7 @@ namespace Prise.AssemblyLoading
             var pluginDependency = this.pluginDependencyContext.PluginDependencies.FirstOrDefault(d => d.DependencyNameWithoutExtension == assemblyName.Name);
             if (pluginDependency != null)
             {
-                var dependency = this.pluginDependencyResolver.ResolvePluginDependencyToPath(dependencyPath, pluginDependency);
+                var dependency = this.pluginDependencyResolver.ResolvePluginDependencyToPath(dependencyPath, pluginDependency, this.pluginDependencyContext.AdditionalProbingPaths);
                 if (dependency != null)
                     return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(LoadFromStream(dependency)), false);
             }
@@ -165,7 +162,7 @@ namespace Prise.AssemblyLoading
             if (hostAssembly != null && !hostAssembly.AllowDowngrade)
             {
                 if (!!hostAssembly.AllowDowngrade)
-                    throw new AssemblyLoadException($"Plugin Assembly reference {assemblyName.Name} with version {assemblyName.Version} was requested but not found in the host. The version from the host is {hostAssembly.DependencyName.Version}. Possible version mismatch. Please downgrade your plugin.");
+                    throw new AssemblyLoadingException($"Plugin Assembly reference {assemblyName.Name} with version {assemblyName.Version} was requested but not found in the host. The version from the host is {hostAssembly.DependencyName.Version}. Possible version mismatch. Please downgrade your plugin.");
             }
 
             return ValueOrProceed<AssemblyFromStrategy>.Proceed();
@@ -206,7 +203,7 @@ namespace Prise.AssemblyLoading
         {
             var probingPath = Path.GetFullPath(Path.Combine(loadPath, pluginAssemblyName));
             if (!File.Exists(probingPath))
-                throw new AssemblyLoadException($"Plugin assembly does not exist in path : {probingPath}");
+                throw new AssemblyLoadingException($"Plugin assembly does not exist in path : {probingPath}");
             return probingPath;
         }
 
@@ -264,7 +261,7 @@ namespace Prise.AssemblyLoading
             if (platformDependency != null)
             {
                 var dependencyPath = Path.GetDirectoryName(fullPathToPluginAssembly);
-                var pathToDependency = this.pluginDependencyResolver.ResolvePlatformDependencyToPath(dependencyPath, platformDependency);
+                var pathToDependency = this.pluginDependencyResolver.ResolvePlatformDependencyToPath(dependencyPath, platformDependency, this.pluginDependencyContext.AdditionalProbingPaths);
                 if (!String.IsNullOrEmpty(pathToDependency))
                 {
                     string runtimeCandidate = null;
@@ -312,46 +309,6 @@ namespace Prise.AssemblyLoading
                 base.Unload();
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed && disposing)
-            {
-                this.disposing = true;
-
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-
-                if (this.assemblyReferences != null)
-                    foreach (var reference in this.assemblyReferences)
-                        // https://docs.microsoft.com/en-us/dotnet/standard/assembly/unloadability#use-collectible-assemblyloadcontext
-                        for (int i = 0; reference.IsAlive && (i < 10); i++)
-                        {
-                            GC.Collect();
-                            GC.WaitForPendingFinalizers();
-                        }
-
-                this.loadedPlugins.Clear();
-                this.loadedPlugins = null;
-
-                this.assemblyReferences.Clear();
-                this.assemblyReferences = null;
-
-                // Unload any loaded native assemblies
-                foreach (var nativeAssembly in this.loadedNativeLibraries)
-                    this.nativeAssemblyUnloader.UnloadNativeAssembly(nativeAssembly.Key, nativeAssembly.Value);
-
-                this.loadedNativeLibraries = null;
-                this.nativeAssemblyUnloader = null;
-            }
-            this.disposed = true;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
         protected Assembly LoadAndAddToWeakReferences(AssemblyFromStrategy assemblyFromStrategy)
         {
             if (assemblyFromStrategy != null && assemblyFromStrategy.CanBeReleased)
@@ -383,9 +340,60 @@ namespace Prise.AssemblyLoading
         {
             var probingPath = Path.GetFullPath(fullPathToAssembly);
             if (!File.Exists(probingPath))
-                throw new AssemblyLoadException($"Plugin assembly does not exist in path : {probingPath}");
+                throw new AssemblyLoadingException($"Plugin assembly does not exist in path : {probingPath}");
             return probingPath;
         }
-    }
 
+        protected bool disposed = false;
+        protected bool disposing = false;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed && disposing)
+            {
+                this.disposing = true;
+
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
+                if (this.assemblyReferences != null)
+                    foreach (var reference in this.assemblyReferences)
+                        // https://docs.microsoft.com/en-us/dotnet/standard/assembly/unloadability#use-collectible-assemblyloadcontext
+                        for (int i = 0; reference.IsAlive && (i < 10); i++)
+                        {
+                            GC.Collect();
+                            GC.WaitForPendingFinalizers();
+                        }
+
+
+                // Unload any loaded native assemblies
+                foreach (var nativeAssembly in this.loadedNativeLibraries)
+                    this.nativeAssemblyUnloader.UnloadNativeAssembly(nativeAssembly.Key, nativeAssembly.Value);
+
+                this.loadedPlugins.Clear();
+                this.assemblyReferences.Clear();
+                this.loadedNativeLibraries.Clear();
+                this.pluginDependencyContext.Dispose();
+                this.pluginDependencyResolver.Dispose();
+
+                this.resolver = null;
+                this.loadedNativeLibraries = null;
+                this.loadedPlugins = null;
+                this.assemblyReferences = null;
+                this.nativeAssemblyUnloader = null;
+                this.assemblyLoadStrategy = null;
+                this.pluginDependencyContext = null;
+                this.pluginDependencyResolver = null;
+                this.fullPathToPluginAssembly = null;
+                this.initialPluginLoadDirectory = null;
+                this.pluginPlatformVersion = null;
+            }
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+    }
 }

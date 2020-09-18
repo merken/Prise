@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Loader;
-using System.Runtime.Serialization;
-using System.Runtime.Versioning;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyModel;
+using Prise.Core;
 
 namespace Prise.AssemblyLoading
 {
@@ -17,7 +11,6 @@ namespace Prise.AssemblyLoading
     {
         protected ConcurrentDictionary<string, IAssemblyLoadContext> loadContexts;
         protected ConcurrentDictionary<string, WeakReference> loadContextReferences;
-        protected bool disposed = false;
 
         public DefaultAssemblyLoader()
         {
@@ -33,7 +26,7 @@ namespace Prise.AssemblyLoading
             var fullPathToAssembly = pluginLoadContext.FullPathToPluginAssembly;
 
             if (!Path.IsPathRooted(fullPathToAssembly))
-                throw new AssemblyLoadException($"FullPathToPluginAssembly {pluginLoadContext.FullPathToPluginAssembly} is not rooted, this must be a absolute path!");
+                throw new AssemblyLoadingException($"FullPathToPluginAssembly {pluginLoadContext.FullPathToPluginAssembly} is not rooted, this must be a absolute path!");
 
             var loadContext = new DefaultAssemblyLoadContext();
             this.loadContexts[fullPathToAssembly] = loadContext;
@@ -44,21 +37,6 @@ namespace Prise.AssemblyLoading
         public virtual async Task Unload(IPluginLoadContext loadContext)
         {
             UnloadContext(loadContext.FullPathToPluginAssembly);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed && disposing)
-            {
-                DisposeAndUnloadContexts();
-            }
-            this.disposed = true;
         }
 
         protected virtual void UnloadContext(string fullPathToAssembly)
@@ -105,6 +83,22 @@ namespace Prise.AssemblyLoading
             GC.Collect(); // collects all unused memory
             GC.WaitForPendingFinalizers(); // wait until GC has finished its work
             GC.Collect();
+        }
+
+        protected bool disposed = false;
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed && disposing)
+            {
+                DisposeAndUnloadContexts();
+            }
+            this.disposed = true;
         }
     }
 }

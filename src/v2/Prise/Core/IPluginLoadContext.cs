@@ -1,20 +1,12 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Loader;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyModel;
 
 namespace Prise.Core
 {
     public interface IPluginLoadContext
     {
         string FullPathToPluginAssembly { get; }
+        Type PluginType { get; }
         IEnumerable<Type> HostTypes { get; }
         IEnumerable<string> HostAssemblies { get; }
         IEnumerable<Type> DowngradableTypes { get; }
@@ -23,6 +15,7 @@ namespace Prise.Core
         NativeDependencyLoadPreference NativeDependencyLoadPreference { get; }
         PluginPlatformVersion PluginPlatformVersion { get; }
         IRuntimePlatformContext RuntimePlatformContext { get; }
+        IEnumerable<string> AdditionalProbingPaths { get; }
         string HostFramework { get; }
         bool IgnorePlatformInconsistencies { get; }
     }

@@ -1,9 +1,5 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Versioning;
 
 namespace Prise.AssemblyLoading
 {
@@ -16,5 +12,6 @@ namespace Prise.AssemblyLoading
         IEnumerable<PluginDependency> PluginReferenceDependencies { get; }
         IEnumerable<PluginResourceDependency> PluginResourceDependencies { get; }
         IEnumerable<PlatformDependency> PlatformDependencies { get; }
+        IEnumerable<string> AdditionalProbingPaths { get; }
     }
 }

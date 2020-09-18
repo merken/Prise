@@ -1,11 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Prise.Core;
 
 namespace Prise.AssemblyScanning
 {
     public interface IAssemblyScanner
     {
-        Task<IEnumerable<AssemblyScanResult>> Scan(string startingPath, Type type, IEnumerable<string> fileTypes = null);
+        Task<IEnumerable<AssemblyScanResult>> Scan(IAssemblyScannerOptions options);
     }
 }

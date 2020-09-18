@@ -8,8 +8,7 @@ namespace Prise.Core
     {
         public IEnumerable<Type> SelectPluginTypes(Type type, IAssemblyShim assemblyShim)
         {
-            return assemblyShim.Assembly
-                            .GetTypes()
+            return assemblyShim.Types
                             .Where(t => t.CustomAttributes
                                 .Any(c => c.AttributeType.Name == typeof(Prise.Plugin.PluginAttribute).Name
                                 && (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Name == type.Name))

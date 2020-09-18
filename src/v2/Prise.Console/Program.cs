@@ -1,20 +1,43 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Prise.AssemblyScanning;
 using Prise.Console.Contract;
 
 namespace Prise.Console
 {
     class Program
     {
+
+        private static async Task<List<Core.AssemblyScanResult>> ScanAssemblies(string startingPath, Type pluginType, bool scanNugets)
+        {
+            using (var scanner = new Prise.AssemblyScanning.DefaultAssemblyScanner())
+            using (var nugetScanner = new Prise.AssemblyScanning.DefaultNugetPackageAssemblyScanner())
+            {
+                var results = await scanner.Scan(new AssemblyScannerOptions
+                {
+                    StartingPath = startingPath,
+                    PluginType = pluginType
+                });
+
+                var nugetResults = scanNugets ? await nugetScanner.Scan(new AssemblyScannerOptions
+                {
+                    StartingPath = startingPath,
+                    PluginType = pluginType
+                }) : Enumerable.Empty<Core.AssemblyScanResult>();
+
+                return results.Union(nugetResults).ToList();
+            }
+        }
+
         static async Task Main(string[] args)
         {
             var type = typeof(IPlugin);
-            var scanner = new Prise.AssemblyScanning.DefaultAssemblyScanner();
-            var nugetScanner = new Prise.AssemblyScanning.NugetPackageAssemblyScanner();
+
 
             var pathToThisProgram = Assembly.GetExecutingAssembly() // this assembly location (/bin/Debug/netcoreapp3.1)
                                         .Location;
@@ -25,20 +48,13 @@ namespace Prise.Console
             if (Directory.Exists(extractedDir))
                 Directory.Delete(Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Packages/dist/_extracted")), true);
 
-            var results = await scanner.Scan(pathToDist, type);
-            // var nugetResults = await nugetScanner.Scan(pathToDist, type);
+            var allResults = await ScanAssemblies(pathToDist, type, false);
 
             System.Console.WriteLine($"Scanning results");
-            foreach (var result in results
+            foreach (var result in allResults
                            .OrderBy(r => r.AssemblyPath)
                            .ThenBy(a => a.AssemblyName))
                 System.Console.WriteLine($"{result.AssemblyName} {result.AssemblyPath}");
-
-            // System.Console.WriteLine($"Nuget Scanning results");
-            // foreach (var result in nugetResults
-            //            .OrderBy(r => r.AssemblyPath)
-            //            .ThenBy(a => a.AssemblyName))
-            //     System.Console.WriteLine($"{result.AssemblyName} {result.AssemblyPath}");
 
             var input = 0;
             var error = String.Empty;
@@ -63,7 +79,7 @@ namespace Prise.Console
                         System.Console.WriteLine($"---------------------------");
                     }
 
-                    var options = results//.Union(nugetResults)
+                    var options = allResults//.Union(nugetResults)
                                         .OrderBy(r => r.AssemblyPath)
                                         .ThenBy(a => a.AssemblyName).ToList();
                     System.Console.WriteLine($"");
@@ -73,6 +89,14 @@ namespace Prise.Console
                         System.Console.WriteLine($"{options.IndexOf(option) + 1}: {option.AssemblyName} {option.AssemblyPath}");
 
                     var inputString = System.Console.ReadLine();
+                    if (inputString.ToLower() == "r")
+                    {
+                        // rescan
+                        allResults = await ScanAssemblies(pathToDist, type, false);
+                        input = 99;
+                        continue;
+
+                    }
                     var parsed = int.TryParse(inputString, out input);
                     if (!parsed || input < 0 || input > options.Count() + 1)
                     {
@@ -80,12 +104,18 @@ namespace Prise.Console
                         break;
                     }
 
+                    var hostFramework = Utils.HostFrameworkUtils.GetHostframeworkFromType(typeof(Program));
+
                     var optionToLoad = options.ElementAt(input - 1);
                     using (var loader = new Prise.AssemblyLoading.DefaultAssemblyLoader())
                     using (var activator = new Prise.Activation.DefaultPluginActivator())
                     {
                         var pathToAssembly = Path.Combine(optionToLoad.AssemblyPath, optionToLoad.AssemblyName);
-                        var pluginLoadContext = Prise.Core.PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(IPlugin), ignorePlatformInconsistencies: true);
+
+                        var pluginLoadContext = Prise.Core.PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(IPlugin), hostFramework);
+                        // This allows the loading of netstandard plugins
+                        pluginLoadContext.IgnorePlatformInconsistencies = true;
+
                         var pluginAssembly = await loader.Load(pluginLoadContext);
 
                         messages.AppendLine($"Assembly {pluginAssembly.Assembly.FullName} {optionToLoad.AssemblyPath} loaded!");
@@ -95,7 +125,13 @@ namespace Prise.Console
                         var pluginTypes = pluginTypeSelector.SelectPluginTypes<IPlugin>(pluginAssembly);
                         var firstPlugin = pluginTypes.FirstOrDefault();
 
-                        var pluginInstance = await activator.ActivatePlugin<IPlugin>(pluginAssembly, firstPlugin);
+                        var pluginInstance = await activator.ActivatePlugin<IPlugin>(new Activation.DefaultPluginActivationOptions
+                        {
+                            PluginType = firstPlugin,
+                            PluginAssembly = pluginAssembly,
+                            ParameterConverter = new Prise.Infrastructure.JsonSerializerParameterConverter(),
+                            ResultConverter = new Prise.Infrastructure.JsonSerializerResultConverter()
+                        });
                         messages.AppendLine((await pluginInstance.GetData(new PluginObject { Text = "Plugin says " })).Text);
                         await loader.Unload(pluginLoadContext);
                     }

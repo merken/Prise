@@ -1,17 +1,14 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Versioning;
+using Prise.Core;
 
 namespace Prise.AssemblyLoading
 {
-
     public interface IPluginDependencyResolver : IDisposable
     {
-        Stream ResolvePluginDependencyToPath(string fullPathToPluginAssembly, PluginDependency dependency);
-        string ResolvePlatformDependencyToPath(string fullPathToPluginAssembly, PlatformDependency dependency);
+        Stream ResolvePluginDependencyToPath(string fullPathToPluginAssembly, PluginDependency dependency, IEnumerable<string> additionalProbingPaths);
+        string ResolvePlatformDependencyToPath(string fullPathToPluginAssembly, PlatformDependency dependency, IEnumerable<string> additionalProbingPaths);
         string ResolvePlatformDependencyPathToRuntime(PluginPlatformVersion pluginPlatformVersion, string platformDependencyPath);
     }
 }

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Prise.Platform
+namespace Prise.Core
 {
     public interface IRuntimePlatformContext
     {

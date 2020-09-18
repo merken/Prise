@@ -7,22 +7,30 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyModel;
+using Prise.Core;
+using Prise.Platform;
+using Prise.Utils;
 
 namespace Prise.AssemblyLoading
 {
     public class DefaultPluginDependencyContext : IPluginDependencyContext
     {
-        private bool disposed = false;
-
-        private DefaultPluginDependencyContext(
-            string fullPathToPluginAssembly,
-            IEnumerable<HostDependency> hostDependencies,
-            IEnumerable<RemoteDependency> remoteDependencies,
-            IEnumerable<PluginDependency> pluginDependencies,
-            IEnumerable<PluginDependency> pluginReferenceDependencies,
-            IEnumerable<PluginResourceDependency> pluginResourceDependencies,
-            IEnumerable<PlatformDependency> platformDependencies
-            )
+        public string FullPathToPluginAssembly { get; set; }
+        public IEnumerable<HostDependency> HostDependencies { get; set; }
+        public IEnumerable<RemoteDependency> RemoteDependencies { get; set; }
+        public IEnumerable<PluginDependency> PluginDependencies { get; set; }
+        public IEnumerable<PluginDependency> PluginReferenceDependencies { get; set; }
+        public IEnumerable<PluginResourceDependency> PluginResourceDependencies { get; set; }
+        public IEnumerable<PlatformDependency> PlatformDependencies { get; set; }
+        public IEnumerable<string> AdditionalProbingPaths { get; set; }
+        private DefaultPluginDependencyContext(string fullPathToPluginAssembly,
+                                               IEnumerable<HostDependency> hostDependencies,
+                                               IEnumerable<RemoteDependency> remoteDependencies,
+                                               IEnumerable<PluginDependency> pluginDependencies,
+                                               IEnumerable<PluginDependency> pluginReferenceDependencies,
+                                               IEnumerable<PluginResourceDependency> pluginResourceDependencies,
+                                               IEnumerable<PlatformDependency> platformDependencies,
+                                               IEnumerable<string> additionalProbingPaths)
         {
             this.FullPathToPluginAssembly = fullPathToPluginAssembly;
             this.HostDependencies = hostDependencies;
@@ -31,13 +39,14 @@ namespace Prise.AssemblyLoading
             this.PluginReferenceDependencies = pluginReferenceDependencies;
             this.PluginResourceDependencies = pluginResourceDependencies;
             this.PlatformDependencies = platformDependencies;
+            this.AdditionalProbingPaths = additionalProbingPaths ?? Enumerable.Empty<string>();
         }
 
-        public static async Task<DefaultPluginDependencyContext> FromPluginLoadContext(IPluginLoadContext pluginLoadContext)
+        public static Task<DefaultPluginDependencyContext> FromPluginLoadContext(IPluginLoadContext pluginLoadContext)
         {
             var hostDependencies = new List<HostDependency>();
             var remoteDependencies = new List<RemoteDependency>();
-            var runtimePlatformContext = pluginLoadContext.RuntimePlatformContext;
+            var runtimePlatformContext = pluginLoadContext.RuntimePlatformContext ?? new DefaultRuntimePlatformContext();
 
             foreach (var type in pluginLoadContext.HostTypes)
                 // Load host types from current app domain
@@ -62,14 +71,16 @@ namespace Prise.AssemblyLoading
             var platformDependencies = GetPlatformDependencies(dependencyContext, runtimePlatformContext.GetPlatformExtensions());
             var pluginReferenceDependencies = GetPluginReferenceDependencies(dependencyContext);
 
-            return new DefaultPluginDependencyContext(
+            return Task.FromResult(new DefaultPluginDependencyContext(
                 pluginLoadContext.FullPathToPluginAssembly,
                 hostDependencies,
                 remoteDependencies,
                 pluginDependencies,
                 pluginReferenceDependencies,
                 resourceDependencies,
-                platformDependencies);
+                platformDependencies,
+                pluginLoadContext.AdditionalProbingPaths
+                ));
         }
 
         private static void CheckFrameworkCompatibility(string hostFramework, string pluginFramework, bool ignorePlatformInconsistencies)
@@ -84,10 +95,10 @@ namespace Prise.AssemblyLoading
                 var pluginFrameworkType = pluginFramework.Split(new String[] { ",Version=v" }, StringSplitOptions.RemoveEmptyEntries)[0];
                 var hostFrameworkType = hostFramework.Split(new String[] { ",Version=v" }, StringSplitOptions.RemoveEmptyEntries)[0];
                 if (pluginFrameworkType.ToLower() == ".netstandard")
-                    throw new AssemblyLoadException($"Plugin framework {pluginFramework} might have compatibility issues with the host {hostFramework}, use the IgnorePlatformInconsistencies flag to skip this check.");
+                    throw new AssemblyLoadingException($"Plugin framework {pluginFramework} might have compatibility issues with the host {hostFramework}, use the IgnorePlatformInconsistencies flag to skip this check.");
 
                 if (pluginFrameworkType != hostFrameworkType)
-                    throw new AssemblyLoadException($"Plugin framework {pluginFramework} does not match the host {hostFramework}. Please target {hostFramework} in order to load the plugin.");
+                    throw new AssemblyLoadingException($"Plugin framework {pluginFramework} does not match the host {hostFramework}. Please target {hostFramework} in order to load the plugin.");
 
                 var pluginFrameworkVersion = pluginFramework.Split(new String[] { ",Version=v" }, StringSplitOptions.RemoveEmptyEntries)[1];
                 var hostFrameworkVersion = hostFramework.Split(new String[] { ",Version=v" }, StringSplitOptions.RemoveEmptyEntries)[1];
@@ -98,7 +109,7 @@ namespace Prise.AssemblyLoading
 
                 if (pluginFrameworkVersionMajor > hostFrameworkVersionMajor || // If the major version of the plugin is higher
                     (pluginFrameworkVersionMajor == hostFrameworkVersionMajor && pluginFrameworkVersionMinor > hostFrameworkVersionMinor)) // Or the major version is the same but the minor version is higher
-                    throw new AssemblyLoadException($"Plugin framework version {pluginFramework} is newer than the host {hostFramework}. Please upgrade the host to load this plugin.");
+                    throw new AssemblyLoadingException($"Plugin framework version {pluginFramework} is newer than the host {hostFramework}. Please upgrade the host to load this plugin.");
             }
         }
 
@@ -270,14 +281,7 @@ namespace Prise.AssemblyLoading
             return new DependencyContextJsonReader().Read(file);
         }
 
-        public string FullPathToPluginAssembly { get; private set; }
-        public IEnumerable<HostDependency> HostDependencies { get; private set; }
-        public IEnumerable<RemoteDependency> RemoteDependencies { get; private set; }
-        public IEnumerable<PluginDependency> PluginDependencies { get; private set; }
-        public IEnumerable<PluginDependency> PluginReferenceDependencies { get; private set; }
-        public IEnumerable<PluginResourceDependency> PluginResourceDependencies { get; private set; }
-        public IEnumerable<PlatformDependency> PlatformDependencies { get; private set; }
-
+        private bool disposed = false;
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed && disposing)
@@ -288,6 +292,7 @@ namespace Prise.AssemblyLoading
                 this.PluginDependencies = null;
                 this.PluginResourceDependencies = null;
                 this.PlatformDependencies = null;
+                this.AdditionalProbingPaths = null;
             }
             this.disposed = true;
         }

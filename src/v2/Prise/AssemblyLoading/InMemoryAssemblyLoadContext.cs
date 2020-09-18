@@ -27,7 +27,7 @@ namespace Prise.AssemblyLoading
             }
             catch (InvalidOperationException ex)
             {
-                throw new AssemblyLoadException($"Assembly at {path} could not be loaded (locked dll file)", ex);
+                throw new AssemblyLoadingException($"Assembly at {path} could not be loaded (locked dll file)", ex);
             }
         }
     }

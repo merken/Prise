@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Extensions.DependencyInjection;
 using Prise.Plugin;
 
 namespace Prise.Activation
@@ -6,6 +7,6 @@ namespace Prise.Activation
     public interface IRemotePluginActivator : IDisposable
     {
         object CreateRemoteBootstrapper(Type bootstrapperType, IAssemblyShim assembly);
-        object CreateRemoteInstance(PluginActivationDescriptor pluginActivationContext, IPluginBootstrapper bootstrapper = null);
+        object CreateRemoteInstance(IPluginActivationContext pluginActivationContext, IPluginBootstrapper bootstrapper = null, IServiceCollection sharedServices = null, IServiceCollection hostServices = null);
     }
 }

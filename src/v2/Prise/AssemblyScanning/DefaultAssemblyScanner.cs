@@ -4,40 +4,25 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Prise.Core;
 
 namespace Prise.AssemblyScanning
 {
     public class DefaultAssemblyScanner : IAssemblyScanner, IDisposable
     {
-        protected bool disposed = false;
         private IList<MetadataLoadContext> metadataLoadContexts;
 
         public DefaultAssemblyScanner()
         {
             this.metadataLoadContexts = new List<MetadataLoadContext>();
-        }
+        }        
 
-        protected virtual void Dispose(bool disposing)
+        public virtual Task<IEnumerable<AssemblyScanResult>> Scan(IAssemblyScannerOptions options)
         {
-            if (!this.disposed && disposing)
-            {
-                if (this.metadataLoadContexts != null && this.metadataLoadContexts.Any())
-                    foreach (var context in this.metadataLoadContexts)
-                        context.Dispose();
-                GC.Collect(); // collects all unused memory
-                GC.WaitForPendingFinalizers(); // wait until GC has finished its work
-            }
-            this.disposed = true;
-        }
+            var startingPath = options.StartingPath;
+            var typeToScan = options.PluginType;
+            var fileTypes = options.FileTypes;
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        public virtual Task<IEnumerable<AssemblyScanResult>> Scan(string startingPath, Type type, IEnumerable<string> fileTypes = null)
-        {
             if (!Path.IsPathRooted(startingPath))
                 throw new AssemblyScanningException($"startingPath {startingPath} is not rooted, this must be a absolute path!");
 
@@ -50,17 +35,18 @@ namespace Prise.AssemblyScanning
                 var files = fileTypes.SelectMany(p => Directory.GetFiles(directoryPath, p, SearchOption.AllDirectories));
                 foreach (var assemblyFilePath in ExcludeRuntimesFolder(files))
                 {
-                    var implementation = GetImplementationsOfTypeFromAssembly(type, assemblyFilePath).FirstOrDefault();
+                    var implementation = GetImplementationsOfTypeFromAssembly(typeToScan, assemblyFilePath).FirstOrDefault();
                     if (implementation != null)
                         results.Add(new AssemblyScanResult
                         {
-                            ContractType = type,
+                            ContractType = typeToScan,
                             AssemblyName = Path.GetFileName(assemblyFilePath),
                             AssemblyPath = Path.GetDirectoryName(assemblyFilePath),
                             PluginType = implementation
                         });
                 }
             }
+            
             return Task.FromResult(results.AsEnumerable());
         }
 
@@ -79,6 +65,26 @@ namespace Prise.AssemblyScanning
                             && (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Namespace == type.Namespace))
                         .OrderBy(t => t.Name)
                         .ToList();
+        }
+
+        protected bool disposed = false;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed && disposing)
+            {
+                if (this.metadataLoadContexts != null && this.metadataLoadContexts.Any())
+                    foreach (var context in this.metadataLoadContexts)
+                        context.Dispose();
+                GC.Collect(); // collects all unused memory
+                GC.WaitForPendingFinalizers(); // wait until GC has finished its work
+            }
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

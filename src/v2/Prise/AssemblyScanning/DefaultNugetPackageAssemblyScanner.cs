@@ -6,22 +6,27 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Prise.Core;
 
 namespace Prise.AssemblyScanning
 {
-    public class NugetPackageAssemblyScanner : DefaultAssemblyScanner, IAssemblyScanner, IDisposable
+    public class DefaultNugetPackageAssemblyScanner : DefaultAssemblyScanner, IAssemblyScanner, IDisposable
     {
         private const string NugetExtension = "nupkg";
         private const string NuspecExtension = "nuspec";
         private const string ExtractedDirectoryName = "_extracted";
 
-        public override Task<IEnumerable<AssemblyScanResult>> Scan(string startingPath, Type type, IEnumerable<string> fileTypes = null)
+        public override Task<IEnumerable<AssemblyScanResult>> Scan(IAssemblyScannerOptions options)
         {
+            var startingPath = options.StartingPath;
+            var typeToScan = options.PluginType;
+            var fileTypes = options.FileTypes;
+
             var searchPattern = $"*.{NugetExtension}";
             var packageFiles = Directory.GetFiles(startingPath, searchPattern, SearchOption.AllDirectories);
 
             if (!packageFiles.Any())
-                throw new AssemblyScanningException($"Scanning for NuGet packages had no results for Plugin Type {type.Name}");
+                throw new AssemblyScanningException($"Scanning for NuGet packages had no results for Plugin Type {typeToScan.Name}");
 
             var packages = new List<PluginNugetPackage>();
 
@@ -72,8 +77,13 @@ namespace Prise.AssemblyScanning
                 ZipFile.ExtractToDirectory(package.FullPath, extractionDirectory);
             }
 
-            // Continue with assembly scanning
-            return base.Scan(Path.Combine(startingPath, ExtractedDirectoryName), type);
+            // Continue with default assembly scanning
+            return base.Scan(new AssemblyScannerOptions
+            {
+                StartingPath = Path.Combine(startingPath, ExtractedDirectoryName),
+                PluginType = typeToScan,
+                FileTypes = fileTypes
+            });
         }
     }
 }

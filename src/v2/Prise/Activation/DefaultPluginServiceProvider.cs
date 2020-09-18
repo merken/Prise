@@ -7,11 +7,10 @@ namespace Prise.Activation
 {
     public class DefaultPluginServiceProvider : IPluginServiceProvider
     {
-        protected bool disposed = false;
-        private readonly IServiceProvider localProvider;
-        private readonly IEnumerable<Type> hostTypes;
-        private readonly IEnumerable<Type> sharedTypes;
-        private readonly ConcurrentBag<object> instances;
+        private IServiceProvider localProvider;
+        private IEnumerable<Type> hostTypes;
+        private IEnumerable<Type> sharedTypes;
+        private ConcurrentBag<object> instances;
 
         public DefaultPluginServiceProvider(IServiceProvider localProvider, IEnumerable<Type> hostTypes, IEnumerable<Type> sharedTypes)
         {
@@ -52,6 +51,7 @@ namespace Prise.Activation
             return instance;
         }
 
+        protected bool disposed = false;
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed && disposing)
@@ -60,6 +60,11 @@ namespace Prise.Activation
                     (instance as IDisposable)?.Dispose();
 
                 this.instances.Clear();
+
+                this.instances = null;
+                this.localProvider = null;
+                this.hostTypes = null;
+                this.sharedTypes = null;
             }
             this.disposed = true;
         }

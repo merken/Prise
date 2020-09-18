@@ -1,4 +1,4 @@
-namespace Prise.Platform
+namespace Prise.Core
 {
     public class Runtime
     {

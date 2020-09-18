@@ -2,8 +2,8 @@ using System;
 
 namespace Prise.Activation
 {
-    public interface IPluginActivationDescriptorProvider
+    public interface IPluginActivationContextProvider
     {
-        PluginActivationDescriptor ProvideActivationDescriptor(Type remoteType, IAssemblyShim pluginAssembly);
+        IPluginActivationContext ProvideActivationContext(Type remoteType, IAssemblyShim pluginAssembly);
     }
 }

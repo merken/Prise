@@ -1,21 +1,22 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Prise.Core;
 
 namespace Prise.AssemblyLoading
 {
     public class DefaultPluginDependencyResolver : IPluginDependencyResolver
     {
-        protected readonly IRuntimePlatformContext runtimePlatformContext;
-        protected bool disposed = false;
+        protected IRuntimePlatformContext runtimePlatformContext;
 
         public DefaultPluginDependencyResolver(IRuntimePlatformContext runtimePlatformContext)
         {
             this.runtimePlatformContext = runtimePlatformContext;
         }
 
-        public virtual Stream ResolvePluginDependencyToPath(string fullPathToPluginAssembly, PluginDependency dependency)
+        public virtual Stream ResolvePluginDependencyToPath(string fullPathToPluginAssembly, PluginDependency dependency, IEnumerable<string> additionalProbingPaths)
         {
             var localFile = Path.Combine(Path.GetDirectoryName(fullPathToPluginAssembly), dependency.DependencyPath);
             if (File.Exists(localFile))
@@ -23,7 +24,14 @@ namespace Prise.AssemblyLoading
                 return File.OpenRead(localFile);
             }
 
-            // TODO Add support for additional probing paths
+            foreach (var probingPath in additionalProbingPaths)
+            {
+                var candidate = Path.Combine(probingPath, dependency.ProbingPath);
+                if (File.Exists(candidate))
+                {
+                    return File.OpenRead(candidate);
+                }
+            }
 
             foreach (var candidate in runtimePlatformContext.GetPluginDependencyNames(dependency.DependencyNameWithoutExtension))
             {
@@ -36,7 +44,7 @@ namespace Prise.AssemblyLoading
             return null;
         }
 
-        public virtual string ResolvePlatformDependencyToPath(string fullPathToPluginAssembly, PlatformDependency dependency)
+        public virtual string ResolvePlatformDependencyToPath(string fullPathToPluginAssembly, PlatformDependency dependency, IEnumerable<string> additionalProbingPaths)
         {
             foreach (var candidate in runtimePlatformContext.GetPlatformDependencyNames(dependency.DependencyNameWithoutExtension))
             {
@@ -53,7 +61,15 @@ namespace Prise.AssemblyLoading
                 return local;
             }
 
-            // Todo add support for custom probing paths
+            foreach (var searchPath in additionalProbingPaths)
+            {
+                var candidate = Path.Combine(searchPath, dependency.ProbingPath);
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+            }
+
             return null;
         }
 
@@ -73,7 +89,7 @@ namespace Prise.AssemblyLoading
                     runtimes = runtimes.Where(r => r.RuntimeType == pluginPlatformVersion.Runtime);
 
                 if (!runtimes.Any())
-                    throw new AssemblyLoadException($"Requisted platform was not installed {pluginPlatformVersion.Runtime} {pluginPlatformVersion.Version}");
+                    throw new AssemblyLoadingException($"Requisted platform was not installed {pluginPlatformVersion.Runtime} {pluginPlatformVersion.Version}");
             }
 
             foreach (var runtime in runtimes.OrderByDescending(r => r.Version))
@@ -90,11 +106,12 @@ namespace Prise.AssemblyLoading
             return null;
         }
 
+        protected bool disposed = false;
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed && disposing)
             {
-                // Nothing to do here
+                this.runtimePlatformContext = null;
             }
             this.disposed = true;
         }

@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Prise.Activation
 {
-    public class PluginActivationDescriptor
+    public class DefaultPluginActivationContext : IPluginActivationContext
     {
         public IAssemblyShim PluginAssembly { get; set; }
         public Type PluginType { get; set; }

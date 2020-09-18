@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace Prise.AssemblyLoading
+namespace Prise.AssemblyScanning
 {
     public class DefaultAssemblyResolver : MetadataAssemblyResolver
     {

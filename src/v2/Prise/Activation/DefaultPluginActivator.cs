@@ -1,64 +1,79 @@
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Prise.Plugin;
-using Prise.Proxy;
 
 namespace Prise.Activation
 {
     public class DefaultPluginActivator : IPluginActivator, IDisposable
     {
-        private bool disposed = false;
         protected ConcurrentBag<IDisposable> disposables;
+        protected IPluginActivationContextProvider pluginActivationContextProvider;
+        protected IRemotePluginActivator remotePluginActivator;
+        protected IPluginProxyCreator proxyCreator;
 
-        public DefaultPluginActivator()
+        public DefaultPluginActivator(IPluginActivationContextProvider pluginActivationContextProvider = null, IRemotePluginActivator remotePluginActivator = null, IPluginProxyCreator proxyCreator = null)
         {
             this.disposables = new ConcurrentBag<IDisposable>();
+            this.pluginActivationContextProvider = pluginActivationContextProvider ?? new DefaultPluginActivationContextProvider();
+            this.remotePluginActivator = remotePluginActivator ?? new DefaultRemotePluginActivator();
+            this.proxyCreator = proxyCreator ?? new DefaultPluginProxyCreator();
         }
 
-        public Task<T> ActivatePlugin<T>(IPluginActivationContext pluginActivationContext)
+        public Task<T> ActivatePlugin<T>(IPluginActivationOptions pluginActivationOptions)
         {
-            parameterConverter = parameterConverter ?? new JsonSerializerParameterConverter();
-            resultConverter = resultConverter ?? new JsonSerializerResultConverter();
+            if (pluginActivationOptions.PluginAssembly == null)
+                throw new ArgumentNullException($"{nameof(IPluginActivationOptions)}.{nameof(pluginActivationOptions.PluginAssembly)}");
+            if (pluginActivationOptions.PluginType == null)
+                throw new ArgumentNullException($"{nameof(IPluginActivationOptions)}.{nameof(pluginActivationOptions.PluginType)}");
+            if (pluginActivationOptions.ParameterConverter == null)
+                throw new ArgumentNullException($"{nameof(IPluginActivationOptions)}.{nameof(pluginActivationOptions.ParameterConverter)}");
+            if (pluginActivationOptions.ResultConverter == null)
+                throw new ArgumentNullException($"{nameof(IPluginActivationOptions)}.{nameof(pluginActivationOptions.ResultConverter)}");
 
             T pluginProxy = default(T);
             IPluginBootstrapper bootstrapperProxy = null;
 
-            var pluginActivationContextProvider = new DefaultPluginActivationContextProvider();
-            var pluginActivationContext = pluginActivationContextProvider.ProvideActivationContext(pluginType, pluginAssembly);
-
-            var remoteActivator = new DefaultRemotePluginActivator(sharedServices, hostServices); // todo shared services
-            var proxyCreator = new DefaultPluginProxyCreator();
+            var pluginActivationContext = this.pluginActivationContextProvider.ProvideActivationContext(pluginActivationOptions.PluginType, pluginActivationOptions.PluginAssembly);
 
             if (pluginActivationContext.PluginBootstrapperType != null)
             {
-                var remoteBootstrapperInstance = remoteActivator.CreateRemoteBootstrapper(pluginActivationContext.PluginBootstrapperType, pluginAssembly);
+                var remoteBootstrapperInstance = this.remotePluginActivator.CreateRemoteBootstrapper(pluginActivationContext.PluginBootstrapperType, pluginActivationOptions.PluginAssembly);
 
-                var remoteBootstrapperProxy = proxyCreator.CreateBootstrapperProxy(remoteBootstrapperInstance);
+                var remoteBootstrapperProxy = this.proxyCreator.CreateBootstrapperProxy(remoteBootstrapperInstance);
 
                 this.disposables.Add(remoteBootstrapperProxy as IDisposable);
                 bootstrapperProxy = remoteBootstrapperProxy;
             }
 
-            var remoteObject = remoteActivator.CreateRemoteInstance(
+            var remoteObject = this.remotePluginActivator.CreateRemoteInstance(
                 pluginActivationContext,
-                bootstrapperProxy
+                bootstrapperProxy,
+                pluginActivationOptions.SharedServices,
+                pluginActivationOptions.HostServices
             );
 
-            pluginProxy = proxyCreator.CreatePluginProxy<T>(remoteObject, parameterConverter, resultConverter);
+            pluginProxy = this.proxyCreator.CreatePluginProxy<T>(remoteObject, pluginActivationOptions.ParameterConverter, pluginActivationOptions.ResultConverter);
 
             this.disposables.Add(pluginProxy as IDisposable);
 
             return Task.FromResult(pluginProxy);
         }
 
-         protected virtual void Dispose(bool disposing)
+        private bool disposed = false;
+        protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed && disposing)
             {
+                this.remotePluginActivator?.Dispose();
+                this.proxyCreator?.Dispose();
+
                 foreach (var disposable in this.disposables)
                     disposable.Dispose();
+
+                this.remotePluginActivator = null;
+                this.proxyCreator = null;
+                this.disposables = null;
             }
             this.disposed = true;
         }

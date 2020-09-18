@@ -6,9 +6,9 @@ using Prise.Plugin;
 
 namespace Prise.Activation
 {
-    public class DefaultPluginActivationDescriptorProvider : IPluginActivationDescriptorProvider
+    public class DefaultPluginActivationContextProvider : IPluginActivationContextProvider
     {
-        public PluginActivationDescriptor ProvideActivationDescriptor(Type remoteType, IAssemblyShim pluginAssembly)
+        public IPluginActivationContext ProvideActivationContext(Type remoteType, IAssemblyShim pluginAssembly)
         {
             var bootstrapper = pluginAssembly.Assembly
                     .GetTypes()
@@ -31,7 +31,7 @@ namespace Prise.Activation
 
             var pluginActivatedMethod = GetPluginActivatedMethod(remoteType);
 
-            return new PluginActivationDescriptor
+            return new DefaultPluginActivationContext
             {
                 PluginType = remoteType,
                 PluginAssembly = pluginAssembly,
