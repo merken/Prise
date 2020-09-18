@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (console)",
+            "name": "Prise.Console",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
@@ -13,6 +13,17 @@
             "args": [],
             "cwd": "${workspaceFolder}/Prise.Console",
             "console": "externalTerminal",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Prise.Web",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-web",
+            "program": "${workspaceFolder}/Prise.Web/bin/Debug/netcoreapp3.1/Prise.Web.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Prise.Web",
+            "console": "internalConsole",
             "stopAtEntry": false
         },
         {

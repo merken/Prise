@@ -1,0 +1,6 @@
+{
+  "publishDir": "../dist",
+  "configuration": "Debug",
+  "nuspecFile": "Prise.Plugin.Sql.Legacy.nuspec",
+  "includeProjectNameInPublishDir": true
+}

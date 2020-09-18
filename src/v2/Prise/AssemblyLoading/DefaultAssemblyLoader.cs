@@ -7,7 +7,7 @@ using Prise.Core;
 
 namespace Prise.AssemblyLoading
 {
-    public class DefaultAssemblyLoader : IPluginAssemblyLoader, IDisposable
+    public class DefaultAssemblyLoader : IAssemblyLoader, IDisposable
     {
         protected ConcurrentDictionary<string, IAssemblyLoadContext> loadContexts;
         protected ConcurrentDictionary<string, WeakReference> loadContextReferences;

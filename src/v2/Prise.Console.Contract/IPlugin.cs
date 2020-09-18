@@ -12,5 +12,14 @@ namespace Prise.Console.Contract
     public interface IPlugin
     {
         Task<PluginObject> GetData(PluginObject input);
+        // Task<PluginObject> SaveData(PluginObject input);
+    }
+
+    public interface IMultiplePlugin : IPlugin
+    {
+    }
+
+     public interface IStoragePlugin : IPlugin
+    {
     }
 }

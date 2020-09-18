@@ -2,18 +2,18 @@
 using System.Threading.Tasks;
 using Prise.Console.Contract;
 
-namespace Prise.Plugin.SayB
+namespace Prise.Plugin.Multiple
 {
-    [Plugin(PluginType = typeof(IPlugin))]
-    public class SayBPlugin : IPlugin
+    [Plugin(PluginType = typeof(IMultiplePlugin))]
+    public class SayCPlugin : IMultiplePlugin
     {
         public async Task<PluginObject> GetData(PluginObject input)
         {
-            await Task.Delay(4000);
+            await Task.Delay(1000);
             return new PluginObject
             {
-                Number = 4000,
-                Text = input.Text + " TEST"
+                Number = 1000,
+                Text = input.Text + "C"
             };
         }
     }

@@ -37,8 +37,6 @@ namespace Prise.Console
         static async Task Main(string[] args)
         {
             var type = typeof(IPlugin);
-
-
             var pathToThisProgram = Assembly.GetExecutingAssembly() // this assembly location (/bin/Debug/netcoreapp3.1)
                                         .Location;
             var pathToExecutingDir = Path.GetDirectoryName(pathToThisProgram);

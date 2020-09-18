@@ -2,10 +2,10 @@
 using System.Threading.Tasks;
 using Prise.Console.Contract;
 
-namespace Prise.Plugin.SayA
+namespace Prise.Plugin.Multiple
 {
-    [Plugin(PluginType = typeof(IPlugin))]
-    public class SayAPlugin : IPlugin
+    [Plugin(PluginType = typeof(IMultiplePlugin))]
+    public class SayAPlugin : IMultiplePlugin
     {
         public async Task<PluginObject> GetData(PluginObject input)
         {
@@ -13,7 +13,7 @@ namespace Prise.Plugin.SayA
             return new PluginObject
             {
                 Number = 2000,
-                Text = input.Text + " AAAA"
+                Text = input.Text + "A"
             };
         }
     }

@@ -6,14 +6,13 @@ namespace Prise.Infrastructure
 {
     public class JsonSerializerParameterConverter : IParameterConverter
     {
-        protected bool disposed = false;
-
         public object ConvertToRemoteType(Type localType, object value)
         {
             var json = JsonSerializer.Serialize(value);
             return JsonSerializer.Deserialize(json, localType);
         }
 
+        protected bool disposed = false;
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed && disposing)

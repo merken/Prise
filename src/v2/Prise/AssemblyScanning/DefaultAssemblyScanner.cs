@@ -15,7 +15,7 @@ namespace Prise.AssemblyScanning
         public DefaultAssemblyScanner()
         {
             this.metadataLoadContexts = new List<MetadataLoadContext>();
-        }        
+        }
 
         public virtual Task<IEnumerable<AssemblyScanResult>> Scan(IAssemblyScannerOptions options)
         {
@@ -30,7 +30,7 @@ namespace Prise.AssemblyScanning
                 fileTypes = new List<string> { "*.dll" };
 
             var results = new List<AssemblyScanResult>();
-            foreach (var directoryPath in Directory.GetDirectories(startingPath))
+            foreach (var directoryPath in GetDirectoriesIncludingRoot(startingPath))
             {
                 var files = fileTypes.SelectMany(p => Directory.GetFiles(directoryPath, p, SearchOption.AllDirectories));
                 foreach (var assemblyFilePath in ExcludeRuntimesFolder(files))
@@ -46,8 +46,17 @@ namespace Prise.AssemblyScanning
                         });
                 }
             }
-            
+
             return Task.FromResult(results.AsEnumerable());
+        }
+
+        private IEnumerable<string> GetDirectoriesIncludingRoot(string startingPath)
+        {
+            var directories = Directory.GetDirectories(startingPath);
+            if (!directories.Any())
+                directories = directories.Union(new[] { startingPath }).ToArray();
+
+            return directories;
         }
 
         private IEnumerable<string> ExcludeRuntimesFolder(IEnumerable<string> files) => files.Where(f => !f.Contains($"{Path.DirectorySeparatorChar}runtimes{Path.DirectorySeparatorChar}"));
