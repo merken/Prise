@@ -189,6 +189,7 @@ namespace Prise.DependencyInjection
 
                                if (hostServices != null)
                                {
+                                   //TODO Check serviecs???250
                                    hostServices.Invoke(hostServicesCollection);
 
                                    foreach (var hostService in hostServicesCollection)

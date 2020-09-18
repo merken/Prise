@@ -31,6 +31,7 @@ namespace Prise.AssemblyLoading
             var loadContext = new DefaultAssemblyLoadContext();
             this.loadContexts[fullPathToAssembly] = loadContext;
             this.loadContextReferences[fullPathToAssembly] = new System.WeakReference(loadContext);
+            // TODO injection
             return loadContext.LoadPluginAssembly(pluginLoadContext);
         }
 

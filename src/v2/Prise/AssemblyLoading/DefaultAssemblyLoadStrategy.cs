@@ -13,7 +13,7 @@ namespace Prise.AssemblyLoading
             this.pluginDependencyContext = pluginDependencyContext;
         }
 
-        public virtual AssemblyFromStrategy LoadAssembly(string fullPathToPluginAssembly, AssemblyName assemblyName,
+        public virtual AssemblyFromStrategy LoadAssembly(string initialPluginLoadDirectory, AssemblyName assemblyName,
             Func<string, AssemblyName, ValueOrProceed<AssemblyFromStrategy>> loadFromDependencyContext,
             Func<string, AssemblyName, ValueOrProceed<AssemblyFromStrategy>> loadFromRemote,
             Func<string, AssemblyName, ValueOrProceed<AssemblyFromStrategy>> loadFromAppDomain)
@@ -28,18 +28,17 @@ namespace Prise.AssemblyLoading
 
             if (isHostAssembly && !isRemoteAssembly) // Load from Default App Domain (host)
             {
-                valueOrProceed = loadFromAppDomain(fullPathToPluginAssembly, assemblyName);
+                valueOrProceed = loadFromAppDomain(initialPluginLoadDirectory, assemblyName);
                 if (valueOrProceed.Value != null)
                     return null; // fallback to default loading mechanism
             }
 
             if (valueOrProceed.CanProceed)
-
-                valueOrProceed = loadFromDependencyContext(fullPathToPluginAssembly, assemblyName);
+                valueOrProceed = loadFromDependencyContext(initialPluginLoadDirectory, assemblyName);
 
 
             if (valueOrProceed.CanProceed)
-                valueOrProceed = loadFromRemote(fullPathToPluginAssembly, assemblyName);
+                valueOrProceed = loadFromRemote(initialPluginLoadDirectory, assemblyName);
 
             return valueOrProceed.Value;
         }

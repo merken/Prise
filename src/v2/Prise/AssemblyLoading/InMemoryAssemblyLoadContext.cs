@@ -13,9 +13,16 @@ namespace Prise.AssemblyLoading
         protected bool isCollectible = false;
         protected InMemoryAssemblyLoadContext() { }
 
-        protected InMemoryAssemblyLoadContext(bool isCollectible) : base($"InMemoryAssemblyLoadContext{Guid.NewGuid().ToString("N")}", isCollectible: isCollectible)
+        protected InMemoryAssemblyLoadContext(bool isCollectible)
+#if SUPPORTS_UNLOADING
+            : base($"InMemoryAssemblyLoadContext{Guid.NewGuid().ToString("N")}", isCollectible: isCollectible)
+#endif
         {
+#if SUPPORTS_UNLOADING
             this.isCollectible = isCollectible;
+#else
+            this.isCollectible = false;
+#endif
         }
 
         public new Assembly LoadFromAssemblyPath(string path)

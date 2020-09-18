@@ -16,6 +16,17 @@
             "stopAtEntry": false
         },
         {
+            "name": "Prise.Console2",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-console2",
+            "program": "${workspaceFolder}/Prise.Console2/bin/Debug/netcoreapp2.1/Prise.Console2.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Prise.Console2",
+            "console": "externalTerminal",
+            "stopAtEntry": false
+        },
+        {
             "name": "Prise.Web",
             "type": "coreclr",
             "request": "launch",
@@ -23,6 +34,17 @@
             "program": "${workspaceFolder}/Prise.Web/bin/Debug/netcoreapp3.1/Prise.Web.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Prise.Web",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Prise.Web2",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-web2",
+            "program": "${workspaceFolder}/Prise.Web2/bin/Debug/netcoreapp2.1/Prise.Web2.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Prise.Web2",
             "console": "internalConsole",
             "stopAtEntry": false
         },
