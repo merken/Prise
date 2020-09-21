@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyModel;
 using Prise.Core;
@@ -19,7 +20,6 @@ namespace Prise.AssemblyLoading
         public IEnumerable<HostDependency> HostDependencies { get; set; }
         public IEnumerable<RemoteDependency> RemoteDependencies { get; set; }
         public IEnumerable<PluginDependency> PluginDependencies { get; set; }
-        public IEnumerable<PluginDependency> PluginReferenceDependencies { get; set; }
         public IEnumerable<PluginResourceDependency> PluginResourceDependencies { get; set; }
         public IEnumerable<PlatformDependency> PlatformDependencies { get; set; }
         public IEnumerable<string> AdditionalProbingPaths { get; set; }
@@ -27,7 +27,6 @@ namespace Prise.AssemblyLoading
                                                IEnumerable<HostDependency> hostDependencies,
                                                IEnumerable<RemoteDependency> remoteDependencies,
                                                IEnumerable<PluginDependency> pluginDependencies,
-                                               IEnumerable<PluginDependency> pluginReferenceDependencies,
                                                IEnumerable<PluginResourceDependency> pluginResourceDependencies,
                                                IEnumerable<PlatformDependency> platformDependencies,
                                                IEnumerable<string> additionalProbingPaths)
@@ -36,10 +35,41 @@ namespace Prise.AssemblyLoading
             this.HostDependencies = hostDependencies;
             this.RemoteDependencies = remoteDependencies;
             this.PluginDependencies = pluginDependencies;
-            this.PluginReferenceDependencies = pluginReferenceDependencies;
             this.PluginResourceDependencies = pluginResourceDependencies;
             this.PlatformDependencies = platformDependencies;
             this.AdditionalProbingPaths = additionalProbingPaths ?? Enumerable.Empty<string>();
+        }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            builder.AppendLine($"Dependency context for plugin: {this.FullPathToPluginAssembly}");
+
+            builder.AppendLine($"HostDependencies");
+            foreach (var p in this.HostDependencies)
+                builder.AppendLine($"{p.DependencyName.Name} {p.DependencyName.Version}");
+
+            builder.AppendLine($"");
+            builder.AppendLine($"RemoteDependencies");
+            foreach (var p in this.RemoteDependencies)
+                builder.AppendLine($"{p.DependencyName.Name} {p.DependencyName.Version}");
+
+            builder.AppendLine($"");
+            builder.AppendLine($"PlatformDependencies");
+            foreach (var p in this.PlatformDependencies)
+                builder.AppendLine($"{p.DependencyPath} {p.DependencyNameWithoutExtension} {p.Version}");
+
+            builder.AppendLine($"");
+            builder.AppendLine($"PluginDependencies");
+            foreach (var p in this.PluginDependencies)
+                builder.AppendLine($"{p.DependencyPath} {p.DependencyNameWithoutExtension} {p.Version}");
+
+            builder.AppendLine($"");
+            builder.AppendLine($"PluginResourceDependencies");
+            foreach (var p in this.PluginResourceDependencies)
+                builder.AppendLine($"{p.Path}");
+
+            return builder.ToString();
         }
 
         public static Task<DefaultPluginDependencyContext> FromPluginLoadContext(IPluginLoadContext pluginLoadContext)
@@ -69,18 +99,36 @@ namespace Prise.AssemblyLoading
             var pluginDependencies = GetPluginDependencies(dependencyContext);
             var resourceDependencies = GetResourceDependencies(dependencyContext);
             var platformDependencies = GetPlatformDependencies(dependencyContext, runtimePlatformContext.GetPlatformExtensions());
-            var pluginReferenceDependencies = GetPluginReferenceDependencies(dependencyContext);
+            // var pluginReferenceDependencies = GetPluginReferenceDependencies(dependencyContext);
 
-            return Task.FromResult(new DefaultPluginDependencyContext(
+            var pluginDependencyContext = new DefaultPluginDependencyContext(
                 pluginLoadContext.FullPathToPluginAssembly,
                 hostDependencies,
                 remoteDependencies,
                 pluginDependencies,
-                pluginReferenceDependencies,
                 resourceDependencies,
                 platformDependencies,
                 pluginLoadContext.AdditionalProbingPaths
-                ));
+            );
+            Validate(pluginDependencyContext);
+            return Task.FromResult(pluginDependencyContext);
+        }
+
+        private static void Validate(DefaultPluginDependencyContext dependencyContext)
+        {
+            var hostDependenciesThatExistInPlugin = dependencyContext.HostDependencies
+                                                    .Join(dependencyContext.PluginDependencies, h => h.DependencyName.Name, p => p.DependencyNameWithoutExtension, (h, p) => new
+                                                    {
+                                                        Host = h,
+                                                        Plugin = p
+                                                    });
+
+            foreach (var duplicateDependency in hostDependenciesThatExistInPlugin)
+            {
+                Debug.WriteLine($"Plugin dependency {duplicateDependency.Plugin.DependencyNameWithoutExtension} {duplicateDependency.Plugin.Version} exists in the host");
+                if (duplicateDependency.Host.DependencyName.Version > duplicateDependency.Plugin.Version)
+                    Debug.WriteLine($"Host dependency {duplicateDependency.Host.DependencyName.Name} version {duplicateDependency.Host.DependencyName.Version} is newer than the plugin {duplicateDependency.Plugin.Version}");
+            }
         }
 
         private static void CheckFrameworkCompatibility(string hostFramework, string pluginFramework, bool ignorePlatformInconsistencies)
@@ -166,10 +214,29 @@ namespace Prise.AssemblyLoading
             }
         }
 
+        private static string GetCorrectRuntimeIdentifier()
+        {
+            var platform = Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment.OperatingSystemPlatform;
+            var runtimeIdentifier = Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment.GetRuntimeIdentifier();
+            switch (platform)
+            {
+                case Microsoft.DotNet.PlatformAbstractions.Platform.Darwin: // OSX
+                case Microsoft.DotNet.PlatformAbstractions.Platform.Windows: // Win
+                    return runtimeIdentifier;
+                // Linux
+                case Microsoft.DotNet.PlatformAbstractions.Platform.Unknown:
+                case Microsoft.DotNet.PlatformAbstractions.Platform.FreeBSD:
+                case Microsoft.DotNet.PlatformAbstractions.Platform.Linux:
+                    return $"{Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment.OperatingSystemPlatform.ToString().ToLower()}-{Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment.RuntimeArchitecture}";
+            }
+
+            throw new PlatformNotSupportedException($"Prise: RuntimeIdentifier could not be parsed for {runtimeIdentifier}");
+        }
+
         private static IEnumerable<PluginDependency> GetPluginDependencies(DependencyContext pluginDependencyContext)
         {
             var dependencies = new List<PluginDependency>();
-            var runtimeId = Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment.GetRuntimeIdentifier();
+            var runtimeId = GetCorrectRuntimeIdentifier();
             var dependencyGraph = DependencyContext.Default.RuntimeGraph.FirstOrDefault(g => g.Runtime == runtimeId);
             // List of supported runtimes, includes the default runtime and the fallbacks for this dependency context
             var runtimes = new List<string> { dependencyGraph?.Runtime }.AddRangeToList<string>(dependencyGraph?.Fallbacks);
@@ -186,7 +253,6 @@ namespace Prise.AssemblyLoading
                         break;
                     }
                 }
-
                 foreach (var asset in assets)
                 {
                     var path = asset.StartsWith("lib/")
@@ -196,7 +262,7 @@ namespace Prise.AssemblyLoading
                     dependencies.Add(new PluginDependency
                     {
                         DependencyNameWithoutExtension = Path.GetFileNameWithoutExtension(asset),
-                        Version = runtimeLibrary.Version,
+                        Version = new Version(runtimeLibrary.Version),
                         DependencyPath = path,
                         ProbingPath = Path.Combine(runtimeLibrary.Name.ToLowerInvariant(), runtimeLibrary.Version, path)
                     });
@@ -204,6 +270,7 @@ namespace Prise.AssemblyLoading
             }
             return dependencies;
         }
+
 
         private static IEnumerable<PluginDependency> GetPluginReferenceDependencies(DependencyContext pluginDependencyContext)
         {
@@ -215,7 +282,7 @@ namespace Prise.AssemblyLoading
                     dependencies.Add(new PluginDependency
                     {
                         DependencyNameWithoutExtension = Path.GetFileNameWithoutExtension(assembly),
-                        Version = referenceAssembly.Version,
+                        Version = new Version(referenceAssembly.Version),
                         DependencyPath = Path.Join("refs", assembly)
                     });
                 }
@@ -226,7 +293,7 @@ namespace Prise.AssemblyLoading
         private static IEnumerable<PlatformDependency> GetPlatformDependencies(DependencyContext pluginDependencyContext, IEnumerable<string> platformExtensions)
         {
             var dependencies = new List<PlatformDependency>();
-            var runtimeId = Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment.GetRuntimeIdentifier();
+            var runtimeId = GetCorrectRuntimeIdentifier();
             var dependencyGraph = DependencyContext.Default.RuntimeGraph.FirstOrDefault(g => g.Runtime == runtimeId);
             // List of supported runtimes, includes the default runtime and the fallbacks for this dependency context
             var runtimes = new List<string> { dependencyGraph?.Runtime }.AddRangeToList<string>(dependencyGraph?.Fallbacks);
