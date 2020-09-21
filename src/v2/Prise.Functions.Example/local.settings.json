@@ -1,0 +1,9 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "SQL:ConnectionString": "Server=localhost,1433;Initial Catalog=TestData;Integrated Security=False;User Id=sa;Password=MyPass@word;",
+    "TableStorage:ConnectionString": "DefaultEndpointsProtocol=https;AccountName=microtestmrkn;AccountKey=KqIN4eYKufWPRuPahb1rwPaHCoeRPReDgYF0wIyUXhXM8C1v7Wq7xt5NWRCrrlNchmQuf+p5L/fKCNdyQEppiQ==;EndpointSuffix=core.windows.net",
+    "TableStorage:TableName": "data"
+  }
+}
