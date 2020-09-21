@@ -4,66 +4,82 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Prise.AssemblyLoading;
 using Prise.Console.Contract;
+using Prise.Core;
+using Prise.Utils;
 using Prise.Web;
 namespace Prise.Console2
 {
-    
-    class LoadContext : AssemblyLoadContext
-    {
-
-        internal static async Task<Stream> LoadFileFromLocalDisk(string fullPathToAssembly)
-        {
-            var memoryStream = new MemoryStream();
-            using (var stream = new FileStream(fullPathToAssembly, FileMode.Open, FileAccess.Read))
-            {
-                memoryStream.SetLength(stream.Length);
-                await stream.ReadAsync(memoryStream.GetBuffer(), 0, (int)stream.Length);
-            }
-            return memoryStream;
-        }
-
-        public async Task<Assembly> LoadPLugin(string path)
-        {
-            return base.LoadFromStream(await LoadFileFromLocalDisk(path));
-        }
-        protected override Assembly Load(AssemblyName assemblyName)
-        {
-            var assembly = Assembly.Load(assemblyName);
-            System.Console.WriteLine($"Loaded {assembly.FullName} from {assembly.Location}");
-            return assembly;
-        }
-
-        protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
-        {
-            return base.LoadUnmanagedDll(unmanagedDllName);
-        }
-    }
     class Program
     {
         static async Task Main(string[] args)
         {
 
-            var context = new LoadContext();
             var pathToThisProgram = Assembly.GetExecutingAssembly() // this assembly location (/bin/Debug/netcoreapp3.1)
                                                   .Location;
             var pathToExecutingDir = Path.GetDirectoryName(pathToThisProgram);
-            var pathToPlugin = Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Packages/Prise.Plugin.Sql.Legacy/bin/Debug/netcoreapp2.1"));
+            var pathToPlugin = Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Packages/dist/Prise.Plugin.Sql.Legacy"));
 
             var pluginAssembly = Path.Combine(pathToPlugin, "Prise.Plugin.Sql.Legacy.dll");
-            var assembly = await context.LoadPLugin(pluginAssembly);
-            var type = assembly.GetType("Prise.Plugin.Sql.Legacy.SqlStoragePlugin");
-            var instance = assembly.CreateInstance(type.FullName, true);
-            instance.GetType().GetTypeInfo()
-                            .DeclaredFields
-                                .First(f => f.Name == "configurationService")
-                                .SetValue(instance, new AppSettingsConfigurationService());
+            var pluginContext = new PluginLoadContext(pluginAssembly, typeof(IStoragePlugin), HostFrameworkUtils.GetHostframeworkFromHost());
+            var depContext = DefaultPluginDependencyContext.FromPluginLoadContext(pluginContext).Result;
 
-            instance.GetType().GetTypeInfo().GetMethod("OnActivated").Invoke(instance, null);
+            System.Console.WriteLine($"PLUGIN {depContext.FullPathToPluginAssembly}");
+            System.Console.WriteLine($"HostDependencies");
+            foreach (var p in depContext.HostDependencies)
+                System.Console.WriteLine($"{p.DependencyName.Name}");
 
-            var plugin = instance as IStoragePlugin;
+            System.Console.WriteLine($"");
+            System.Console.WriteLine($"RemoteDependencies");
+            foreach (var p in depContext.RemoteDependencies)
+                System.Console.WriteLine($"{p.DependencyName.Name}");
 
-            // TODO THIS WORKS BUT PLATFORM UNSUPPORTED ON NET CORE 2????
+            System.Console.WriteLine($"");
+            System.Console.WriteLine($"PlatformDependencies");
+            foreach (var p in depContext.PlatformDependencies)
+                System.Console.WriteLine($"{p.DependencyPath} {p.DependencyNameWithoutExtension}");
+
+            System.Console.WriteLine($"");
+            System.Console.WriteLine($"PluginDependencies");
+            foreach (var p in depContext.PluginDependencies)
+                System.Console.WriteLine($"{p.DependencyPath} {p.DependencyNameWithoutExtension}");
+
+
+            System.Console.WriteLine($"");
+            System.Console.WriteLine($"PluginResourceDependencies");
+            foreach (var p in depContext.PluginResourceDependencies)
+                System.Console.WriteLine($"{p.Path}");
+
+            var hostServices = new ServiceCollection();
+
+            hostServices.AddTransient(typeof(IConfigurationService), typeof(AppSettingsConfigurationService));
+
+            foreach (var hostService in hostServices)
+                pluginContext
+                    // A host type will always live inside the host
+                    .AddHostTypes(new[] { hostService.ServiceType })
+                    // The implementation type will always exist on the Host, since it will be created here
+                    .AddHostTypes(new[] { hostService.ImplementationType ?? hostService.ImplementationInstance?.GetType() ?? hostService.ImplementationFactory?.Method.ReturnType });
+            ;
+
+            var priseLoader = new Prise.AssemblyLoading.DefaultAssemblyLoader();
+            var activator = new Prise.Activation.DefaultPluginActivator();
+            var assembly = priseLoader.Load(pluginContext).Result;
+            var type = assembly.Assembly.GetType("Prise.Plugin.Sql.Legacy.SqlStoragePlugin");
+
+            var options = new Activation.DefaultPluginActivationOptions
+            {
+                PluginType = type,
+                PluginAssembly = assembly,
+                ParameterConverter = new Prise.Infrastructure.JsonSerializerParameterConverter(),
+                ResultConverter = new Prise.Infrastructure.JsonSerializerResultConverter(),
+                HostServices = hostServices
+            };
+
+            var plugin = activator.ActivatePlugin<IStoragePlugin>(options).Result;
+
             System.Console.WriteLine(plugin.GetData(new Console.Contract.PluginObject
             {
                 Text = "999"
