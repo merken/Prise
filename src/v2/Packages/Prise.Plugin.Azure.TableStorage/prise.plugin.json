@@ -1,0 +1,7 @@
+{
+    "publishDir": "../dist",
+    "configuration": "Debug",
+    "nuspecFile": "Prise.Plugin.Azure.TableStorage.nuspec",
+    "includeProjectNameInPublishDir": true
+  }
+  
