@@ -130,17 +130,15 @@ namespace Prise.AssemblyLoading
                 return ValueOrProceed<AssemblyFromStrategy>.FromValue(null, false);
             }
 
-            var dependencyPath = initialPluginLoadDirectory;
-
             var pluginDependency = this.pluginDependencyContext.PluginDependencies.FirstOrDefault(d => d.DependencyNameWithoutExtension == assemblyName.Name);
             if (pluginDependency != null)
             {
-                var dependency = this.pluginDependencyResolver.ResolvePluginDependencyToPath(dependencyPath, pluginDependency, this.pluginDependencyContext.AdditionalProbingPaths);
+                var dependency = this.pluginDependencyResolver.ResolvePluginDependencyToPath(initialPluginLoadDirectory, pluginDependency, this.pluginDependencyContext.AdditionalProbingPaths);
                 if (dependency != null)
                     return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(LoadFromStream(dependency)), false);
             }
 
-            var localFile = Path.Combine(dependencyPath, assemblyName.Name + ".dll");
+            var localFile = Path.Combine(initialPluginLoadDirectory, assemblyName.Name + ".dll");
             if (File.Exists(localFile))
             {
                 return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(LoadFromAssemblyPath(localFile)), false);
@@ -169,10 +167,19 @@ namespace Prise.AssemblyLoading
             }
             catch (FileNotFoundException) { } // This can happen if the plugin uses a newer version of a package referenced in the host
 
+            // try
+            // {
+            //     var test = this.pluginDependencyContext.HostDependencies.FirstOrDefault(h => h.DependencyName.Name == assemblyName.Name);
+            //     var assembly = Default.LoadFromAssemblyName(test.DependencyName);
+            //     if (assembly != null)
+            //         return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.NotReleasable(assembly), false);
+            // }
+            // catch (FileNotFoundException) { } // This can happen if the plugin uses a newer version of a package referenced in the host
+
             var hostAssembly = this.pluginDependencyContext.HostDependencies.FirstOrDefault(h => h.DependencyName.Name == assemblyName.Name);
             if (hostAssembly != null && !hostAssembly.AllowDowngrade)
             {
-                if (!!hostAssembly.AllowDowngrade)
+                if (!hostAssembly.AllowDowngrade)
                     throw new AssemblyLoadingException($"Plugin Assembly reference {assemblyName.Name} with version {assemblyName.Version} was requested but not found in the host. The version from the host is {hostAssembly.DependencyName.Version}. Possible version mismatch. Please downgrade your plugin.");
             }
 
@@ -273,8 +280,7 @@ namespace Prise.AssemblyLoading
             var platformDependency = this.pluginDependencyContext.PlatformDependencies.FirstOrDefault(d => d.DependencyNameWithoutExtension == unmanagedDllNameWithoutFileExtension);
             if (platformDependency != null)
             {
-                var dependencyPath = initialPluginLoadDirectory;
-                var pathToDependency = this.pluginDependencyResolver.ResolvePlatformDependencyToPath(dependencyPath, platformDependency, this.pluginDependencyContext.AdditionalProbingPaths);
+                var pathToDependency = this.pluginDependencyResolver.ResolvePlatformDependencyToPath(initialPluginLoadDirectory, platformDependency, this.pluginDependencyContext.AdditionalProbingPaths);
                 if (!String.IsNullOrEmpty(pathToDependency))
                 {
                     string runtimeCandidate = null;

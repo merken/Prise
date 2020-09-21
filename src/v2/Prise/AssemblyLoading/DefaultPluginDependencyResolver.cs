@@ -16,9 +16,9 @@ namespace Prise.AssemblyLoading
             this.runtimePlatformContext = runtimePlatformContext;
         }
 
-        public virtual Stream ResolvePluginDependencyToPath(string fullPathToPluginAssembly, PluginDependency dependency, IEnumerable<string> additionalProbingPaths)
+        public virtual Stream ResolvePluginDependencyToPath(string initialPluginLoadDirectory, PluginDependency dependency, IEnumerable<string> additionalProbingPaths)
         {
-            var localFile = Path.Combine(Path.GetDirectoryName(fullPathToPluginAssembly), dependency.DependencyPath);
+            var localFile = Path.Combine(initialPluginLoadDirectory, dependency.DependencyPath);
             if (File.Exists(localFile))
             {
                 return File.OpenRead(localFile);
@@ -35,7 +35,7 @@ namespace Prise.AssemblyLoading
 
             foreach (var candidate in runtimePlatformContext.GetPluginDependencyNames(dependency.DependencyNameWithoutExtension))
             {
-                var candidateLocation = Path.Combine(Path.GetDirectoryName(fullPathToPluginAssembly), candidate);
+                var candidateLocation = Path.Combine(initialPluginLoadDirectory, candidate);
                 if (File.Exists(candidateLocation))
                 {
                     return File.OpenRead(candidateLocation);
@@ -44,18 +44,18 @@ namespace Prise.AssemblyLoading
             return null;
         }
 
-        public virtual string ResolvePlatformDependencyToPath(string fullPathToPluginAssembly, PlatformDependency dependency, IEnumerable<string> additionalProbingPaths)
+        public virtual string ResolvePlatformDependencyToPath(string initialPluginLoadDirectory, PlatformDependency dependency, IEnumerable<string> additionalProbingPaths)
         {
             foreach (var candidate in runtimePlatformContext.GetPlatformDependencyNames(dependency.DependencyNameWithoutExtension))
             {
-                var candidateLocation = Path.Combine(Path.GetDirectoryName(fullPathToPluginAssembly), candidate);
+                var candidateLocation = Path.Combine(initialPluginLoadDirectory, candidate);
                 if (File.Exists(candidateLocation))
                 {
                     return candidateLocation;
                 }
             }
 
-            var local = Path.Combine(Path.GetDirectoryName(fullPathToPluginAssembly), dependency.DependencyPath);
+            var local = Path.Combine(initialPluginLoadDirectory, dependency.DependencyPath);
             if (File.Exists(local))
             {
                 return local;
