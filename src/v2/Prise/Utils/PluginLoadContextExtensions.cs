@@ -24,23 +24,33 @@ namespace Prise.Utils
             var includeServices = hostServices.Where(s => Includes(s.ServiceType, includeTypes));
             var excludeServices = hostServices.Where(s => Excludes(s.ServiceType, excludeTypes));
 
-            foreach (var service in hostServices
+            foreach (var hostService in hostServices
                                         .Except(priseServices)
                                         .Union(includeServices)
                                         .Except(excludeServices))
-                services.Add(service);
+                pluginLoadContext.AddHostService(
+                    services,
+                    hostService);
 
-            foreach (var hostService in services)
-                pluginLoadContext
-                    // A host type will always live inside the host
-                    .AddHostTypes(new[] { hostService.ServiceType })
-                    // The implementation type will always exist on the Host, since it will be created here
-                    .AddHostTypes(new[] { hostService.ImplementationType ?? hostService.ImplementationInstance?.GetType() ?? hostService.ImplementationFactory?.Method.ReturnType });
-
-            pluginLoadContext.HostTypes = new List<Type>(pluginLoadContext.HostTypes.Union(hostTypes));
             return pluginLoadContext;
         }
 
+        public static PluginLoadContext AddHostService(this PluginLoadContext pluginLoadContext, IServiceCollection services, Type hostServiceType, Type hostServiceImplementationType, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+        {
+            return pluginLoadContext.AddHostService(services, new ServiceDescriptor(hostServiceType, hostServiceImplementationType, serviceLifetime));
+        }
+        
+        public static PluginLoadContext AddHostService(this PluginLoadContext pluginLoadContext, IServiceCollection services, ServiceDescriptor hostService)
+        {
+            // Add the Host service to the servicecollection of the plugin
+            services.Add(hostService);
+
+            return pluginLoadContext
+                  // A host type will always live inside the host
+                  .AddHostTypes(new[] { hostService.ServiceType })
+                  // The implementation type will always exist on the Host, since it will be created here
+                  .AddHostTypes(new[] { hostService.ImplementationType ?? hostService.ImplementationInstance?.GetType() ?? hostService.ImplementationFactory?.Method.ReturnType });
+        }
 
         public static PluginLoadContext AddHostTypes(this PluginLoadContext pluginLoadContext, IEnumerable<Type> hostTypes)
         {
