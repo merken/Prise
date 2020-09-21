@@ -23,16 +23,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Prise.Proxy\Exceptions\PriseProxyException.cs" Link="PriseProxyException.cs" />
-    <Compile Include="..\Prise.Proxy\Infrastructure\IParameterConverter.cs" Link="IParameterConverter.cs" />
-    <Compile Include="..\Prise.Proxy\Infrastructure\IResultConverter.cs" Link="IResultConverter.cs" />
-    <Compile Include="..\Prise.Proxy\PassthroughParameterConverter.cs" Link="PassthroughParameterConverter.cs" />
-    <Compile Include="..\Prise.Proxy\PassthroughResultConverter.cs" Link="PassthroughResultConverter.cs" />
-    <Compile Include="..\Prise.Proxy\PriseProxy.cs" Link="PriseProxy.cs" />
-    <Compile Include="..\Prise.Proxy\ResultConverter.cs" Link="ResultConverter.cs" />
-    <Compile Include="..\Prise.Proxy\TaskCompletionSource.cs" Link="TaskCompletionSource.cs" />
-    <Compile Include="..\Prise\JsonSerializerParameterConverter.cs" Link="JsonSerializerParameterConverter.cs" />
-    <Compile Include="..\Prise\JsonSerializerResultConverter.cs" Link="JsonSerializerResultConverter.cs" />
+    <Compile Include="../Prise.Proxy/Exceptions/PriseProxyException.cs" Link="PriseProxyException.cs" />
+    <Compile Include="../Prise.Proxy/Infrastructure/IParameterConverter.cs" Link="IParameterConverter.cs" />
+    <Compile Include="../Prise.Proxy/Infrastructure/IResultConverter.cs" Link="IResultConverter.cs" />
+    <Compile Include="../Prise.Proxy/PassthroughParameterConverter.cs" Link="PassthroughParameterConverter.cs" />
+    <Compile Include="../Prise.Proxy/PassthroughResultConverter.cs" Link="PassthroughResultConverter.cs" />
+    <Compile Include="../Prise.Proxy/PriseProxy.cs" Link="PriseProxy.cs" />
+    <Compile Include="../Prise.Proxy/ResultConverter.cs" Link="ResultConverter.cs" />
+    <Compile Include="../Prise.Proxy/TaskCompletionSource.cs" Link="TaskCompletionSource.cs" />
+    <Compile Include="../Prise/Infrastructure/JsonSerializerParameterConverter.cs" Link="JsonSerializerParameterConverter.cs" />
+    <Compile Include="../Prise/Infrastructure/JsonSerializerResultConverter.cs" Link="JsonSerializerResultConverter.cs" />
   </ItemGroup>
 
   <PropertyGroup>

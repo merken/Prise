@@ -32,6 +32,7 @@ namespace Prise.IntegrationTestsHost
         public void ConfigureServices(IServiceCollection services)
         {
             ConfigureTargetFramework(services);
+            
             services.AddHttpClient(); // Required for the INetworkCalculationPlugin
             services.AddHttpContextAccessor();
 

@@ -6,9 +6,12 @@ using Prise.Proxy.Exceptions;
 
 namespace Prise.Proxy
 {
-    //TODO
-    //- Generic methods (string DoStuff<T>(T stuff))
-    //- Events
+    /// <summary>
+    /// This is the PriseProxy static class that encapsulates most of the boilerplate static methods in order to interact with the remote object (Plugin)
+    /// TODO
+    /// - Generic Methods (Task<string> Do<T>(T stuff))
+    /// - Events (not sure if this is ever possible)
+    /// </summary>
     public static class PriseProxy
     {
         public static object Invoke(object remoteObject, MethodInfo targetMethod, object[] args)
@@ -120,6 +123,11 @@ namespace Prise.Proxy
         }
     }
 
+    /// <summary>
+    /// This is the PriseProxy wrapper class that will acts as the communication layer between the Host and the Plugin.
+    /// Every call from the Host to the Plugin will go through here.
+    /// </summary>
+    /// <typeparam name="T">The Plugin type</typeparam>
     public class PriseProxy<T> : DispatchProxy, IDisposable
     {
         private IParameterConverter parameterConverter;
