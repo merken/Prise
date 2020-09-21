@@ -54,7 +54,7 @@ namespace Prise.Web.Controllers
         public async Task<string> Get([FromQuery] string text)
         {
             var builder = new StringBuilder();
-            
+
             foreach (var plugin in this.plugins)
                 builder.AppendLine((await plugin.GetData(new PluginObject { Text = text })).Text);
 
@@ -79,7 +79,7 @@ namespace Prise.Web.Controllers
         public async Task<string> Get([FromQuery] string text)
         {
             var builder = new StringBuilder();
-            
+
             foreach (var plugin in this.plugins)
                 builder.AppendLine((await plugin.GetData(new PluginObject { Text = text })).Text);
 
