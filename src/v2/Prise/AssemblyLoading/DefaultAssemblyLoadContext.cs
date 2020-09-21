@@ -73,6 +73,7 @@ namespace Prise.AssemblyLoading
             this.pluginDependencyContext = await DefaultPluginDependencyContext.FromPluginLoadContext(pluginLoadContext);
             this.pluginDependencyResolver = pluginDependencyResolver ?? new DefaultPluginDependencyResolver(pluginLoadContext.RuntimePlatformContext ?? new DefaultRuntimePlatformContext());
             this.assemblyLoadStrategy = pluginLoadStrategy ?? new DefaultAssemblyLoadStrategy(pluginDependencyContext);
+            this.pluginPlatformVersion = pluginLoadContext.PluginPlatformVersion ?? PluginPlatformVersion.Empty();
 
             using (var pluginStream = await LoadFileFromLocalDisk(fullPathToPluginAssembly))
             {
@@ -166,15 +167,6 @@ namespace Prise.AssemblyLoading
                     return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.NotReleasable(assembly), false);
             }
             catch (FileNotFoundException) { } // This can happen if the plugin uses a newer version of a package referenced in the host
-
-            // try
-            // {
-            //     var test = this.pluginDependencyContext.HostDependencies.FirstOrDefault(h => h.DependencyName.Name == assemblyName.Name);
-            //     var assembly = Default.LoadFromAssemblyName(test.DependencyName);
-            //     if (assembly != null)
-            //         return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.NotReleasable(assembly), false);
-            // }
-            // catch (FileNotFoundException) { } // This can happen if the plugin uses a newer version of a package referenced in the host
 
             var hostAssembly = this.pluginDependencyContext.HostDependencies.FirstOrDefault(h => h.DependencyName.Name == assemblyName.Name);
             if (hostAssembly != null && !hostAssembly.AllowDowngrade)
@@ -318,9 +310,9 @@ namespace Prise.AssemblyLoading
         /// <summary>
         /// Load the assembly using the base.LoadUnmanagedDllFromPath functionality 
         /// </summary>
-        /// <param name="initialPluginLoadDirectory"></param>
+        /// <param name="fullPathToUnmanagedDll"></param>
         /// <returns>A loaded native library pointer</returns>
-        protected virtual IntPtr LoadUnmanagedDllFromDependencyLookup(string initialPluginLoadDirectory) => base.LoadUnmanagedDllFromPath(initialPluginLoadDirectory);
+        protected virtual IntPtr LoadUnmanagedDllFromDependencyLookup(string fullPathToUnmanagedDll) => base.LoadUnmanagedDllFromPath(fullPathToUnmanagedDll);
 
         public async Task Unload()
         {

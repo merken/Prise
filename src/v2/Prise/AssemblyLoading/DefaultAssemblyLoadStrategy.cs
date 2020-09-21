@@ -43,7 +43,7 @@ namespace Prise.AssemblyLoading
             return valueOrProceed.Value;
         }
 
-        public virtual NativeAssembly LoadUnmanagedDll(string fullPathToPluginAssembly, string unmanagedDllName,
+        public virtual NativeAssembly LoadUnmanagedDll(string initialPluginLoadDirectory, string unmanagedDllName,
             Func<string, string, ValueOrProceed<string>> loadFromDependencyContext,
             Func<string, string, ValueOrProceed<string>> loadFromRemote,
             Func<string, string, ValueOrProceed<IntPtr>> loadFromAppDomain)
@@ -51,13 +51,13 @@ namespace Prise.AssemblyLoading
             ValueOrProceed<string> valueOrProceed = ValueOrProceed<string>.FromValue(String.Empty, true);
             ValueOrProceed<IntPtr> ptrValueOrProceed = ValueOrProceed<IntPtr>.FromValue(IntPtr.Zero, true);
 
-            valueOrProceed = loadFromDependencyContext(fullPathToPluginAssembly, unmanagedDllName);
+            valueOrProceed = loadFromDependencyContext(initialPluginLoadDirectory, unmanagedDllName);
 
             if (valueOrProceed.CanProceed)
-                ptrValueOrProceed = loadFromAppDomain(fullPathToPluginAssembly, unmanagedDllName);
+                ptrValueOrProceed = loadFromAppDomain(initialPluginLoadDirectory, unmanagedDllName);
 
             if (valueOrProceed.CanProceed && ptrValueOrProceed.CanProceed)
-                valueOrProceed = loadFromRemote(fullPathToPluginAssembly, unmanagedDllName);
+                valueOrProceed = loadFromRemote(initialPluginLoadDirectory, unmanagedDllName);
 
             return NativeAssembly.Create(valueOrProceed.Value, ptrValueOrProceed.Value);
         }
