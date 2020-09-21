@@ -20,7 +20,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-console2",
-            "program": "${workspaceFolder}/Prise.Console2/bin/Debug/netcoreapp3.1/Prise.Console2.dll",
+            "program": "${workspaceFolder}/Prise.Console2/bin/Debug/netcoreapp2.1/Prise.Console2.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Prise.Console2",
             "console": "internalConsole",
