@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="../Prise.Proxy/Exceptions/PriseProxyException.cs" Link="PriseProxyException.cs" />
+    <Compile Include="../Prise.Proxy/PriseProxyException.cs" Link="PriseProxyException.cs" />
     <Compile Include="../Prise.Proxy/Infrastructure/IParameterConverter.cs" Link="IParameterConverter.cs" />
     <Compile Include="../Prise.Proxy/Infrastructure/IResultConverter.cs" Link="IResultConverter.cs" />
     <Compile Include="../Prise.Proxy/PassthroughParameterConverter.cs" Link="PassthroughParameterConverter.cs" />
