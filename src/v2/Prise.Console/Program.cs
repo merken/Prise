@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Prise.AssemblyScanning;
 using Prise.Console.Contract;
+using Prise.DependencyInjection;
 
 namespace Prise.Console
 {
@@ -15,8 +16,8 @@ namespace Prise.Console
 
         private static async Task<List<Core.AssemblyScanResult>> ScanAssemblies(string startingPath, Type pluginType, bool scanNugets)
         {
-            using (var scanner = new Prise.AssemblyScanning.DefaultAssemblyScanner())
-            using (var nugetScanner = new Prise.AssemblyScanning.DefaultNugetPackageAssemblyScanner())
+            using (var scanner = DefaultFactories.DefaultAssemblyScanner())
+            using (var nugetScanner = DefaultFactories.DefaultNuGetAssemblyScanner())
             {
                 var results = await scanner.Scan(new AssemblyScannerOptions
                 {
@@ -105,8 +106,8 @@ namespace Prise.Console
                     var hostFramework = Utils.HostFrameworkUtils.GetHostframeworkFromType(typeof(Program));
 
                     var optionToLoad = options.ElementAt(input - 1);
-                    using (var loader = new Prise.AssemblyLoading.DefaultAssemblyLoader())
-                    using (var activator = new Prise.Activation.DefaultPluginActivator())
+                    using (var loader = DefaultFactories.DefaultAssemblyLoader())
+                    using (var activator = DefaultFactories.DefaultPluginActivator())
                     {
                         var pathToAssembly = Path.Combine(optionToLoad.AssemblyPath, optionToLoad.AssemblyName);
 
@@ -118,7 +119,7 @@ namespace Prise.Console
 
                         messages.AppendLine($"Assembly {pluginAssembly.Assembly.FullName} {optionToLoad.AssemblyPath} loaded!");
 
-                        var pluginTypeSelector = new Prise.Core.DefaultPluginTypeSelector();
+                        var pluginTypeSelector = DefaultFactories.DefaultPluginTypeSelector();
 
                         var pluginTypes = pluginTypeSelector.SelectPluginTypes<IPlugin>(pluginAssembly);
                         var firstPlugin = pluginTypes.FirstOrDefault();
@@ -127,8 +128,8 @@ namespace Prise.Console
                         {
                             PluginType = firstPlugin,
                             PluginAssembly = pluginAssembly,
-                            ParameterConverter = new Prise.Infrastructure.JsonSerializerParameterConverter(),
-                            ResultConverter = new Prise.Infrastructure.JsonSerializerResultConverter()
+                            ParameterConverter = DefaultFactories.DefaultParameterConverter(),
+                            ResultConverter = DefaultFactories.DefaultResultConverter()
                         });
                         messages.AppendLine((await pluginInstance.GetData(new PluginObject { Text = "Plugin says " })).Text);
                         await loader.Unload(pluginLoadContext);

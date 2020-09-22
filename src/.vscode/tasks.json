@@ -7,7 +7,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/Prise.Console/Prise.Console.csproj",
+        "${workspaceFolder}/v2/Prise.Console/Prise.Console.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -22,7 +22,7 @@
         "/consoleloggerparameters:NoSummary"
       ],
       "options": {
-        "cwd": "${workspaceFolder}/Prise.Functions.Example"
+        "cwd": "${workspaceFolder}/v2/Prise.Functions.Example"
       },
       "type": "process",
       "problemMatcher": "$msCompile"
@@ -42,7 +42,7 @@
         "isDefault": true
       },
       "options": {
-        "cwd": "${workspaceFolder}/Prise.Functions.Example"
+        "cwd": "${workspaceFolder}/v2/Prise.Functions.Example"
       },
       "problemMatcher": "$msCompile"
     },
@@ -52,7 +52,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/Prise.Console2/Prise.Console2.csproj",
+        "${workspaceFolder}/v2/Prise.Console2/Prise.Console2.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -64,7 +64,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/Prise.Web/Prise.Web.csproj",
+        "${workspaceFolder}/v2/Prise.Web/Prise.Web.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -76,7 +76,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/Prise.Web2/Prise.Web2.csproj",
+        "${workspaceFolder}/v2/Prise.Web2/Prise.Web2.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -88,7 +88,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/Prise.Console/Prise.Console.csproj",
+        "${workspaceFolder}/v2/Prise.Console/Prise.Console.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -100,7 +100,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/Prise.Console/Prise.Console.csproj",
+        "${workspaceFolder}/v2/Prise.Console/Prise.Console.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -113,7 +113,7 @@
       "args": [
         "watch",
         "run",
-        "${workspaceFolder}/Prise.Console/Prise.Console.csproj",
+        "${workspaceFolder}/v2/Prise.Console/Prise.Console.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -124,7 +124,7 @@
       "label": "func",
       "dependsOn": ["build-func"],
       "options": {
-        "cwd": "${workspaceFolder}/Prise.Functions.Example/bin/Debug/netcoreapp3.1"
+        "cwd": "${workspaceFolder}/v2/Prise.Functions.Example/bin/Debug/netcoreapp3.1"
       },
       "command": "host start",
       "isBackground": true,

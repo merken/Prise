@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Prise/Prise.csproj"/>
+    <ProjectReference Include="../../Prise/Prise.csproj"/>
     <ProjectReference Include="../../Prise.Proxy/Prise.Proxy.csproj"/>
     <ProjectReference Include="../../Prise.Plugin/Prise.Plugin.csproj"/>
     <ProjectReference Include="../Prise.Console.Contract/Prise.Console.Contract.csproj"/>

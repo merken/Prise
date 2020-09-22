@@ -10,7 +10,7 @@ using Prise.Core;
 
 namespace Prise.AssemblyScanning
 {
-    public class DefaultNugetPackageAssemblyScanner : DefaultAssemblyScanner, IAssemblyScanner, IDisposable
+    public class DefaultNugetPackageAssemblyScanner : DefaultAssemblyScanner, IAssemblyScanner
     {
         private const string NugetExtension = "nupkg";
         private const string NuspecExtension = "nuspec";

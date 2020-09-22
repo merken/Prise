@@ -8,7 +8,7 @@ using Prise.Core;
 
 namespace Prise.AssemblyScanning
 {
-    public class DefaultAssemblyScanner : IAssemblyScanner, IDisposable
+    public class DefaultAssemblyScanner : IAssemblyScanner
     {
         private IList<MetadataLoadContext> metadataLoadContexts;
 

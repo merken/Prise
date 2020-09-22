@@ -3,7 +3,7 @@ using Prise.PluginBridge;
 
 namespace Prise.Plugin.Sql.Legacy.Configuration
 {
-    public class ConfigurationService : PluginBridgeBase, IConfigurationService
+    public class ConfigurationService : PluginBridge, IConfigurationService
     {
         public ConfigurationService(object hostService) : base(hostService) { }
 
