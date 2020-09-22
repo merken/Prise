@@ -10,14 +10,13 @@ namespace Prise.AssemblyLoading
 {
     public class DefaultAssemblyLoader : IAssemblyLoader, IDisposable
     {
-        private readonly IServiceProvider serviceProvider;
-        protected ConcurrentDictionary<string, IServiceScope> serviceScopes;
+        private readonly Func<IAssemblyLoadContext> assemblyLoadContextFactory;
         protected ConcurrentDictionary<string, IAssemblyLoadContext> loadContexts;
         protected ConcurrentDictionary<string, WeakReference> loadContextReferences;
 
-        public DefaultAssemblyLoader(IServiceProvider serviceProvider = null)
+        public DefaultAssemblyLoader(Func<IAssemblyLoadContext> assemblyLoadContextFactory)
         {
-            this.serviceProvider = serviceProvider;
+            this.assemblyLoadContextFactory = assemblyLoadContextFactory;
             this.loadContexts = new ConcurrentDictionary<string, IAssemblyLoadContext>();
             this.loadContextReferences = new ConcurrentDictionary<string, WeakReference>();
         }
@@ -31,70 +30,68 @@ namespace Prise.AssemblyLoading
 
             if (!Path.IsPathRooted(fullPathToAssembly))
                 throw new AssemblyLoadingException($"FullPathToPluginAssembly {pluginLoadContext.FullPathToPluginAssembly} is not rooted, this must be a absolute path!");
-
-            var scope = this.serviceProvider.CreateScope();
-            var loadContext = scope.ServiceProvider.GetRequiredService<IAssemblyLoadContext>();
-
-            this.serviceScopes[fullPathToAssembly] = scope;
+            
+            var loadContext = this.assemblyLoadContextFactory();
             this.loadContexts[fullPathToAssembly] = loadContext;
             this.loadContextReferences[fullPathToAssembly] = new System.WeakReference(loadContext);
-
             return loadContext.LoadPluginAssembly(pluginLoadContext);
         }
 
-        public virtual async Task Unload(IPluginLoadContext loadContext)
+        public virtual Task Unload(IPluginLoadContext loadContext)
         {
-            UnloadScopesAndContexts(loadContext.FullPathToPluginAssembly);
+            UnloadContexts(loadContext.FullPathToPluginAssembly);
+            return Task.CompletedTask;
         }
 
-        protected virtual void UnloadScopesAndContexts(string fullPathToAssembly)
+        protected virtual void UnloadContexts(string fullPathToAssembly)
         {
-            var pluginName = Path.GetFileNameWithoutExtension(fullPathToAssembly);
-            var loadContextKeys = this.loadContexts.Keys.Where(k => k == fullPathToAssembly);
-
-            foreach (var key in this.loadContexts.Keys.Where(k => k == fullPathToAssembly))
-                this.loadContexts[key].Unload();
-                // LoadContextReferences ?
-
-            foreach (var key in this.serviceScopes.Keys.Where(k => k == fullPathToAssembly))
-                this.serviceScopes[key].Dispose();
+            UnloadAndCleanup();
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
 
-        protected virtual void DisposeAndUnloadContexts()
+        protected virtual void UnloadAndCleanup(string fullPathToAssembly = null)
         {
             if (this.loadContexts != null)
-                foreach (var key in this.loadContexts.Keys)
+            {
+                var loadContexts = String.IsNullOrEmpty(fullPathToAssembly) ?
+                                            this.loadContexts.Where(c => c.Key == fullPathToAssembly).Select(c => c.Key) :
+                                            this.loadContexts.Select(c => c.Key);
+                foreach (var key in loadContexts)
                 {
-                    var loadContext = this.loadContexts[key];
-                    loadContext.Unload();
+                    this.loadContexts[key].Unload();
+                    this.loadContexts.TryRemove(key, out _);
                 }
-
-            this.loadContexts.Clear();
-            this.loadContexts = null;
+            }
 
             if (this.loadContextReferences != null)
-                foreach (var reference in this.loadContextReferences.Values)
+            {
+                var loadContextReferences = String.IsNullOrEmpty(fullPathToAssembly) ?
+                                            this.loadContextReferences.Where(c => c.Key == fullPathToAssembly).Select(c => c.Key) :
+                                            this.loadContextReferences.Select(c => c).Select(c => c.Key);
+                foreach (var key in loadContextReferences)
                 {
-                    // https://docs.microsoft.com/en-us/dotnet/standard/assembly/unloadability#use-collectible-assemblyloadcontext
+                    var reference = this.loadContextReferences[key];
                     for (int i = 0; reference.IsAlive && (i < 10); i++)
                     {
                         GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
                         GC.WaitForPendingFinalizers();
                     }
                 }
+            }
+        }
 
-            this.loadContextReferences.Clear();
+        protected virtual void DisposeAndUnloadContexts()
+        {
+            // Clean up all
+            this.UnloadAndCleanup();
+
+            this.loadContexts?.Clear();
+            this.loadContexts = null;
+
+            this.loadContextReferences?.Clear();
             this.loadContextReferences = null;
-
-            if (this.serviceScopes != null)
-                foreach (var key in this.serviceScopes.Keys)
-                    this.serviceScopes[key].Dispose();
-
-            this.serviceScopes.Clear();
-            this.serviceScopes = null;
 
             GC.Collect(); // collects all unused memory
             GC.WaitForPendingFinalizers(); // wait until GC has finished its work
@@ -102,7 +99,6 @@ namespace Prise.AssemblyLoading
         }
 
         protected bool disposed = false;
-
         public void Dispose()
         {
             Dispose(true);

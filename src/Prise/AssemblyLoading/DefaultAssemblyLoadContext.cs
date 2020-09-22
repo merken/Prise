@@ -28,10 +28,19 @@ namespace Prise.AssemblyLoading
         protected string fullPathToPluginAssembly;
         protected string initialPluginLoadDirectory;
         protected PluginPlatformVersion pluginPlatformVersion;
+        protected Func<IPluginDependencyResolver> pluginDependencyResolverFactory;
+        protected Func<IAssemblyLoadStrategy> assemblyLoadStrategyFactory;
+        protected Func<IPluginLoadContext, Task<IPluginDependencyContext>> pluginContextFactory;
 
-        public DefaultAssemblyLoadContext(INativeAssemblyUnloader nativeAssemblyUnloader)
+        public DefaultAssemblyLoadContext(Func<INativeAssemblyUnloader> nativeAssemblyUnloaderFactory,
+                                          Func<IPluginDependencyResolver> pluginDependencyResolverFactory,
+                                          Func<IAssemblyLoadStrategy> assemblyLoadStrategyFactory,
+                                          Func<IPluginLoadContext, Task<IPluginDependencyContext>> pluginContextFactory)
         {
-            this.nativeAssemblyUnloader = nativeAssemblyUnloader;
+            this.nativeAssemblyUnloader = nativeAssemblyUnloaderFactory();
+            this.pluginDependencyResolverFactory = pluginDependencyResolverFactory;
+            this.assemblyLoadStrategyFactory = assemblyLoadStrategyFactory;
+            this.pluginContextFactory = pluginContextFactory;
             this.loadedNativeLibraries = new ConcurrentDictionary<string, IntPtr>();
             this.loadedPlugins = new ConcurrentBag<string>();
             this.assemblyReferences = new ConcurrentBag<WeakReference>();
@@ -51,10 +60,7 @@ namespace Prise.AssemblyLoading
             this.loadedPlugins.Add(pluginAssemblyName);
         }
 
-        public async Task<IAssemblyShim> LoadPluginAssembly(
-            IPluginLoadContext pluginLoadContext,
-            IAssemblyLoadStrategy pluginLoadStrategy = null,
-            IPluginDependencyResolver pluginDependencyResolver = null)
+        public async Task<IAssemblyShim> LoadPluginAssembly(IPluginLoadContext pluginLoadContext)
         {
             this.fullPathToPluginAssembly = pluginLoadContext.FullPathToPluginAssembly;
             this.initialPluginLoadDirectory = Path.GetDirectoryName(fullPathToPluginAssembly);
@@ -71,10 +77,9 @@ namespace Prise.AssemblyLoading
                 throw new AssemblyLoadingException($"{nameof(AssemblyDependencyResolver)} could not be instantiated, possible issue with {this.initialPluginLoadDirectory}{Path.GetFileNameWithoutExtension(fullPathToPluginAssembly)}.deps.json file?", ex);
             }
 #endif
-
-            this.pluginDependencyContext = await DefaultPluginDependencyContext.FromPluginLoadContext(pluginLoadContext);
-            this.pluginDependencyResolver = pluginDependencyResolver ?? new DefaultPluginDependencyResolver(pluginLoadContext.RuntimePlatformContext ?? new DefaultRuntimePlatformContext());
-            this.assemblyLoadStrategy = pluginLoadStrategy ?? new DefaultAssemblyLoadStrategy(pluginDependencyContext);
+            this.pluginDependencyContext = await this.pluginContextFactory(pluginLoadContext);
+            this.pluginDependencyResolver = this.pluginDependencyResolverFactory();
+            this.assemblyLoadStrategy = this.assemblyLoadStrategyFactory();
             this.pluginPlatformVersion = pluginLoadContext.PluginPlatformVersion ?? PluginPlatformVersion.Empty();
 
             using (var pluginStream = await LoadFileFromLocalDisk(fullPathToPluginAssembly))
@@ -92,6 +97,7 @@ namespace Prise.AssemblyLoading
             return LoadAndAddToWeakReferences(assemblyLoadStrategy.LoadAssembly(
                     this.initialPluginLoadDirectory,
                     assemblyName,
+                    this.pluginDependencyContext,
                     LoadFromDependencyContext,
                     LoadFromRemote,
                     LoadFromDefaultContext
@@ -230,6 +236,7 @@ namespace Prise.AssemblyLoading
             var nativeAssembly = assemblyLoadStrategy.LoadUnmanagedDll(
                     this.initialPluginLoadDirectory,
                     unmanagedDllName,
+                    this.pluginDependencyContext,
                     LoadUnmanagedFromDependencyContext,
                     LoadUnmanagedFromRemote,
                     LoadUnmanagedFromDefault
@@ -395,13 +402,16 @@ namespace Prise.AssemblyLoading
                 this.loadedNativeLibraries = null;
                 this.loadedPlugins = null;
                 this.assemblyReferences = null;
-                this.nativeAssemblyUnloader = null;
                 this.assemblyLoadStrategy = null;
                 this.pluginDependencyContext = null;
                 this.pluginDependencyResolver = null;
                 this.fullPathToPluginAssembly = null;
                 this.initialPluginLoadDirectory = null;
                 this.pluginPlatformVersion = null;
+                this.nativeAssemblyUnloader = null;
+                this.pluginDependencyResolverFactory = null;
+                this.assemblyLoadStrategyFactory = null;
+                this.pluginContextFactory = null;
             }
             this.disposed = true;
         }

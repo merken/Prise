@@ -11,9 +11,9 @@ namespace Prise.AssemblyLoading
     {
         protected IRuntimePlatformContext runtimePlatformContext;
 
-        public DefaultPluginDependencyResolver(IRuntimePlatformContext runtimePlatformContext)
+        public DefaultPluginDependencyResolver(Func<IRuntimePlatformContext> runtimePlatformContextFactory)
         {
-            this.runtimePlatformContext = runtimePlatformContext;
+            this.runtimePlatformContext = runtimePlatformContextFactory();
         }
 
         public virtual Stream ResolvePluginDependencyToPath(string initialPluginLoadDirectory, PluginDependency dependency, IEnumerable<string> additionalProbingPaths)

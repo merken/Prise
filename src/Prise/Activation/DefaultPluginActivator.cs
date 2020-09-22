@@ -12,12 +12,15 @@ namespace Prise.Activation
         protected IRemotePluginActivator remotePluginActivator;
         protected IPluginProxyCreator proxyCreator;
 
-        public DefaultPluginActivator(IPluginActivationContextProvider pluginActivationContextProvider = null, IRemotePluginActivator remotePluginActivator = null, IPluginProxyCreator proxyCreator = null)
+        public DefaultPluginActivator(
+            Func<IPluginActivationContextProvider> pluginActivationContextProviderFactory, 
+            Func<IRemotePluginActivator> remotePluginActivatorFactory, 
+            Func<IPluginProxyCreator> proxyCreatorFactory)
         {
             this.disposables = new ConcurrentBag<IDisposable>();
-            this.pluginActivationContextProvider = pluginActivationContextProvider ?? new DefaultPluginActivationContextProvider();
-            this.remotePluginActivator = remotePluginActivator ?? new DefaultRemotePluginActivator();
-            this.proxyCreator = proxyCreator ?? new DefaultPluginProxyCreator();
+            this.pluginActivationContextProvider = pluginActivationContextProviderFactory();;
+            this.remotePluginActivator = remotePluginActivatorFactory();
+            this.proxyCreator = proxyCreatorFactory();
         }
 
         public Task<T> ActivatePlugin<T>(IPluginActivationOptions pluginActivationOptions)

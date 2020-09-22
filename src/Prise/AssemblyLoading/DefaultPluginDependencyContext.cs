@@ -72,7 +72,7 @@ namespace Prise.AssemblyLoading
             return builder.ToString();
         }
 
-        public static Task<DefaultPluginDependencyContext> FromPluginLoadContext(IPluginLoadContext pluginLoadContext)
+        public static Task<IPluginDependencyContext> FromPluginLoadContext(IPluginLoadContext pluginLoadContext)
         {
             var hostDependencies = new List<HostDependency>();
             var remoteDependencies = new List<RemoteDependency>();
@@ -111,7 +111,7 @@ namespace Prise.AssemblyLoading
                 pluginLoadContext.AdditionalProbingPaths
             );
             Validate(pluginDependencyContext);
-            return Task.FromResult(pluginDependencyContext);
+            return Task.FromResult<IPluginDependencyContext>(pluginDependencyContext);
         }
 
         private static void Validate(DefaultPluginDependencyContext dependencyContext)

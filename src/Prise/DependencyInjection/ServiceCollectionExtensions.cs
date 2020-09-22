@@ -9,7 +9,6 @@ using Prise.AssemblyScanning;
 using Prise.Core;
 using Prise.Proxy;
 using Prise.Utils;
-using Prise.Infrastructure;
 
 namespace Prise.DependencyInjection
 {
@@ -33,17 +32,17 @@ namespace Prise.DependencyInjection
                                                      IEnumerable<Type> remoteTypes = null,
                                                      IEnumerable<Type> downgradableTypes = null,
                                                      IEnumerable<string> downgradableHostAssemblies = null,
-                                                     IEnumerable<string> additionalProbingPaths = null)
+                                                     IEnumerable<string> additionalProbingPaths = null,
+                                                     ServiceLifetime serviceLifetime =ServiceLifetime.Scoped )
             where T : class
         {
-            var serviceLifetime = ServiceLifetime.Scoped;
             return services
-                        .AddService(new ServiceDescriptor(typeof(IAssemblyScanner), typeof(DefaultAssemblyScanner), serviceLifetime))
-                        .AddService(new ServiceDescriptor(typeof(IPluginTypeSelector), typeof(DefaultPluginTypeSelector), serviceLifetime))
-                        .AddService(new ServiceDescriptor(typeof(IAssemblyLoader), typeof(DefaultAssemblyLoader), serviceLifetime))
-                        .AddService(new ServiceDescriptor(typeof(IPluginActivator), (sp) => new DefaultPluginActivator(), serviceLifetime))
-                        .AddService(new ServiceDescriptor(typeof(IParameterConverter), typeof(JsonSerializerParameterConverter), serviceLifetime))
-                        .AddService(new ServiceDescriptor(typeof(IResultConverter), typeof(JsonSerializerResultConverter), serviceLifetime))
+                        .AddFactory<IAssemblyScanner>(DefaultFactories.DefaultAssemblyScanner, serviceLifetime)
+                        .AddFactory<IPluginTypeSelector>(DefaultFactories.DefaultPluginTypeSelector, serviceLifetime)
+                        .AddFactory<IParameterConverter>(DefaultFactories.DefaultParameterConverter, serviceLifetime)
+                        .AddFactory<IResultConverter>(DefaultFactories.DefaultResultConverter, serviceLifetime)
+                        .AddFactory<IPluginActivator>(DefaultFactories.DefaultPluginActivator, serviceLifetime)
+                        .AddFactory<IAssemblyLoader>(DefaultFactories.DefaultAssemblyLoader, serviceLifetime)
                         .AddService(new ServiceDescriptor(typeof(T), (sp) =>
                         {
                             var frameworkFromHost = hostFramework ?? HostFrameworkUtils.GetHostframeworkFromHost();
@@ -125,6 +124,16 @@ namespace Prise.DependencyInjection
             ;
         }
 
+        private static IServiceCollection AddFactory<T>(this IServiceCollection services, Func<T> func, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+            where T : class
+        {
+            Func<IServiceProvider, Func<T>> factoryOfFuncT = (sp) => func;
+            Func<IServiceProvider, T> factoryOfT = (sp) => sp.GetRequiredService<Func<T>>()() as T;
+            return services
+                .AddService(new ServiceDescriptor(typeof(Func<T>), factoryOfFuncT, serviceLifetime))
+                .AddService(new ServiceDescriptor(typeof(T), factoryOfT, serviceLifetime));
+        }
+
 
         public static IServiceCollection AddPrisePlugins<T>(this IServiceCollection services,
                                                             string pathToPlugins,
@@ -144,99 +153,96 @@ namespace Prise.DependencyInjection
             var serviceLifetime = ServiceLifetime.Scoped;
 
             return services
-                       .AddService(new ServiceDescriptor(typeof(IAssemblyScanner), typeof(DefaultAssemblyScanner), serviceLifetime))
-                       .AddService(new ServiceDescriptor(typeof(IPluginTypeSelector), typeof(DefaultPluginTypeSelector), serviceLifetime))
+                        .AddFactory<IAssemblyScanner>(DefaultFactories.DefaultAssemblyScanner, serviceLifetime)
+                        .AddFactory<IPluginTypeSelector>(DefaultFactories.DefaultPluginTypeSelector, serviceLifetime)
+                        .AddFactory<IParameterConverter>(DefaultFactories.DefaultParameterConverter, serviceLifetime)
+                        .AddFactory<IResultConverter>(DefaultFactories.DefaultResultConverter, serviceLifetime)
+                        .AddFactory<IPluginActivator>(DefaultFactories.DefaultPluginActivator, serviceLifetime)
+                        .AddFactory<IAssemblyLoader>(DefaultFactories.DefaultAssemblyLoader, serviceLifetime)
+                        .AddService(new ServiceDescriptor(typeof(IEnumerable<T>), (sp) =>
+                        {
+                            var frameworkFromHost = hostFramework ?? HostFrameworkUtils.GetHostframeworkFromHost();
+                            var scanner = sp.GetRequiredService<IAssemblyScanner>();
+                            var loader = sp.GetRequiredService<IAssemblyLoader>();
+                            var selector = sp.GetRequiredService<IPluginTypeSelector>();
+                            var activator = sp.GetRequiredService<IPluginActivator>();
+                            var parameterConverter = sp.GetRequiredService<IParameterConverter>();
+                            var resultConverter = sp.GetRequiredService<IResultConverter>();
 
-                       .AddService(new ServiceDescriptor(typeof(IAssemblyLoader), typeof(DefaultAssemblyLoader), ServiceLifetime.Transient)) // request a new one for each assembly
+                            var scanResults = scanner.Scan(new AssemblyScannerOptions
+                            {
+                                StartingPath = pathToPlugins,
+                                PluginType = typeof(T)
+                            }).Result;
 
-                       .AddService(new ServiceDescriptor(typeof(IPluginActivator), (sp) => new DefaultPluginActivator(), serviceLifetime))
-                       .AddService(new ServiceDescriptor(typeof(IParameterConverter), typeof(JsonSerializerParameterConverter), serviceLifetime))
-                       .AddService(new ServiceDescriptor(typeof(IResultConverter), typeof(JsonSerializerResultConverter), serviceLifetime))
-                       .AddService(new ServiceDescriptor(typeof(IEnumerable<T>), (sp) =>
-                       {
-                           var frameworkFromHost = hostFramework ?? HostFrameworkUtils.GetHostframeworkFromHost();
-                           var scanner = sp.GetRequiredService<IAssemblyScanner>();
-                           var loader = sp.GetRequiredService<IAssemblyLoader>();
-                           var selector = sp.GetRequiredService<IPluginTypeSelector>();
-                           var activator = sp.GetRequiredService<IPluginActivator>();
-                           var parameterConverter = sp.GetRequiredService<IParameterConverter>();
-                           var resultConverter = sp.GetRequiredService<IResultConverter>();
+                            if (!scanResults.Any())
+                                throw new PriseDependencyInjectionException($"No plugin assembly was found for plugin type {typeof(T).Name}");
 
-                           var scanResults = scanner.Scan(new AssemblyScannerOptions
-                           {
-                               StartingPath = pathToPlugins,
-                               PluginType = typeof(T)
-                           }).Result;
+                            var plugins = new List<T>();
+                                    foreach (var scanResult in scanResults)
+                            {
+                                var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(Path.Combine(scanResult.AssemblyPath, scanResult.AssemblyName), typeof(T), frameworkFromHost);
+                                pluginLoadContext.IgnorePlatformInconsistencies = ignorePlatormInconsistencies;
 
-                           if (!scanResults.Any())
-                               throw new PriseDependencyInjectionException($"No plugin assembly was found for plugin type {typeof(T).Name}");
+                                IServiceCollection hostServicesCollection;
+                                pluginLoadContext
+                                    .AddHostServices(services, out hostServicesCollection, includeHostServices, excludeHostServices ?? Enumerable.Empty<Type>())
+                                    .AddHostAssemblies(hostAssemblies)
+                                    .AddRemoteTypes(remoteTypes)
+                                    .AddDowngradableTypes(downgradableTypes)
+                                    .AddDowngradableHostAssemblies(downgradableHostAssemblies)
+                                    .AddAdditionalProbingPaths(additionalProbingPaths)
+                                ;
 
-                           var plugins = new List<T>();
-                           foreach (var scanResult in scanResults)
-                           {
-                               var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(Path.Combine(scanResult.AssemblyPath, scanResult.AssemblyName), typeof(T), frameworkFromHost);
-                               pluginLoadContext.IgnorePlatformInconsistencies = ignorePlatormInconsistencies;
+                                if (hostServices != null)
+                                {
+                                    hostServices.Invoke(hostServicesCollection);
 
-                               IServiceCollection hostServicesCollection;
-                               pluginLoadContext
-                                   .AddHostServices(services, out hostServicesCollection, includeHostServices, excludeHostServices ?? Enumerable.Empty<Type>())
-                                   .AddHostAssemblies(hostAssemblies)
-                                   .AddRemoteTypes(remoteTypes)
-                                   .AddDowngradableTypes(downgradableTypes)
-                                   .AddDowngradableHostAssemblies(downgradableHostAssemblies)
-                                   .AddAdditionalProbingPaths(additionalProbingPaths)
-                               ;
+                                    foreach (var hostService in hostServicesCollection)
+                                        pluginLoadContext
+                                            // A host type will always live inside the host
+                                            .AddHostTypes(new[] { hostService.ServiceType })
+                                            // The implementation type will always exist on the Host, since it will be created here
+                                            .AddHostTypes(new[] { hostService.ImplementationType ?? hostService.ImplementationInstance?.GetType() ?? hostService.ImplementationFactory?.Method.ReturnType });
+                                    ;
+                                }
 
-                               if (hostServices != null)
-                               {
-                                   //TODO Check serviecs???250
-                                   hostServices.Invoke(hostServicesCollection);
+                                var sharedServicesCollection = new ServiceCollection();
+                                if (sharedServices != null)
+                                {
+                                    sharedServices.Invoke(sharedServicesCollection);
 
-                                   foreach (var hostService in hostServicesCollection)
-                                       pluginLoadContext
-                                           // A host type will always live inside the host
-                                           .AddHostTypes(new[] { hostService.ServiceType })
-                                           // The implementation type will always exist on the Host, since it will be created here
-                                           .AddHostTypes(new[] { hostService.ImplementationType ?? hostService.ImplementationInstance?.GetType() ?? hostService.ImplementationFactory?.Method.ReturnType });
-                                   ;
-                               }
+                                    foreach (var sharedService in sharedServicesCollection)
+                                        pluginLoadContext
+                                            // The service type must exist on the remote to support backwards compatability
+                                            .AddRemoteTypes(new[] { sharedService.ServiceType })
+                                            // If a shared service is added, it must be a added as a host type
+                                            // The implementation type will always exist on the Host, since it will be created here
+                                            .AddHostTypes(new[] { sharedService.ImplementationType ?? sharedService.ImplementationInstance?.GetType() ?? sharedService.ImplementationFactory?.Method.ReturnType })
+                                        ;
+                                }
 
-                               var sharedServicesCollection = new ServiceCollection();
-                               if (sharedServices != null)
-                               {
-                                   sharedServices.Invoke(sharedServicesCollection);
-
-                                   foreach (var sharedService in sharedServicesCollection)
-                                       pluginLoadContext
-                                           // The service type must exist on the remote to support backwards compatability
-                                           .AddRemoteTypes(new[] { sharedService.ServiceType })
-                                           // If a shared service is added, it must be a added as a host type
-                                           // The implementation type will always exist on the Host, since it will be created here
-                                           .AddHostTypes(new[] { sharedService.ImplementationType ?? sharedService.ImplementationInstance?.GetType() ?? sharedService.ImplementationFactory?.Method.ReturnType })
-                                       ;
-                               }
-
-                               var pluginAssembly = loader.Load(pluginLoadContext).Result;
-                               var pluginTypes = selector.SelectPluginTypes<T>(pluginAssembly);
-                               foreach (var pluginType in pluginTypes)
-                               {
-                                   plugins.Add(activator.ActivatePlugin<T>(new Activation.DefaultPluginActivationOptions
-                                   {
-                                       PluginType = pluginType,
-                                       PluginAssembly = pluginAssembly,
-                                       ParameterConverter = parameterConverter,
-                                       ResultConverter = resultConverter,
-                                       HostServices = hostServicesCollection,
-                                       SharedServices = sharedServicesCollection
-                                   }).Result);
-                               }
-                           }
-                           return plugins;
-                       }, serviceLifetime))
+                                var pluginAssembly = loader.Load(pluginLoadContext).Result;
+                                var pluginTypes = selector.SelectPluginTypes<T>(pluginAssembly);
+                                foreach (var pluginType in pluginTypes)
+                                {
+                                    plugins.Add(activator.ActivatePlugin<T>(new Activation.DefaultPluginActivationOptions
+                                    {
+                                        PluginType = pluginType,
+                                        PluginAssembly = pluginAssembly,
+                                        ParameterConverter = parameterConverter,
+                                        ResultConverter = resultConverter,
+                                        HostServices = hostServicesCollection,
+                                        SharedServices = sharedServicesCollection
+                                    }).Result);
+                                }
+                            }
+                            return plugins;
+                        }, serviceLifetime))
 
            ;
-
         }
+
         private static IServiceCollection AddService(this IServiceCollection services, ServiceDescriptor serviceDescriptor)
         {
             services

@@ -72,7 +72,7 @@ namespace Prise.AssemblyLoading
             return builder.ToString();
         }
 
-        public static Task<DefaultPluginDependencyContext> FromPluginLoadContext(IPluginLoadContext pluginLoadContext)
+        public static Task<IPluginDependencyContext> FromPluginLoadContext(IPluginLoadContext pluginLoadContext)
         {
             var hostDependencies = new List<HostDependency>();
             var remoteDependencies = new List<RemoteDependency>();
