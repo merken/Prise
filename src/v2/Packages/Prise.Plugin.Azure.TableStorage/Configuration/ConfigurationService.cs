@@ -1,9 +1,8 @@
 using Prise.Console.Contract;
-using Prise.PluginBridge;
 
 namespace Prise.Plugin.Azure.TableStorage.Configuration
 {
-    public class ConfigurationService : PluginBridge, IConfigurationService
+    public class ConfigurationService : Prise.PluginBridge.PluginBridge, IConfigurationService
     {
         public ConfigurationService(object hostService) : base(hostService) { }
 

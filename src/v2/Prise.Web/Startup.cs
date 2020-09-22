@@ -36,17 +36,25 @@ namespace Prise.Web
             var pathToExecutingDir = Path.GetDirectoryName(pathToThisProgram);
             var pathToSinglePlugin = Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Packages/dist/Prise.Plugin.Single"));
             var pathToMultiplePlugins = Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Packages/dist"));
-            services.AddPrise<IPlugin>(pathToSinglePlugin, true);
-            services.AddPrisePlugins<IMultiplePlugin>(pathToMultiplePlugins,
-                                                      ignorePlatormInconsistencies: true);
+            
+            // services.AddPrise<IPlugin>(pathToSinglePlugin, true);
 
-            services.AddPrisePlugins<IStoragePlugin>(pathToMultiplePlugins,
-                                                     ignorePlatormInconsistencies: true,
-                                                     includeHostServices: new[] { typeof(IConfiguration) },
-                                                     sharedServices: (services) =>
-                                                     {
-                                                         services.AddScoped<IConfigurationService, AppSettingsConfigurationService>();
-                                                     });
+            // services.AddPrise<IMultiplePlugin>(
+            //     pathToMultiplePlugins,
+            //     allowMultiple:true,
+            //     ignorePlatormInconsistencies: true);
+
+            // services.AddPrise<IStoragePlugin>(pathToMultiplePlugins,
+            //     allowMultiple:true,
+            //     ignorePlatormInconsistencies: true,
+            //     includeHostServices: new[] { typeof(IConfiguration) },
+            //     sharedServices: (sharedServices) =>
+            //     {
+            //         sharedServices.AddScoped<IConfigurationService, AppSettingsConfigurationService>();
+            //     });
+            services.AddPrise();
+            services.AddScoped<IPluginLoader, PluginLoader>();
+            services.AddScoped<IConfigurationService, AppSettingsConfigurationService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

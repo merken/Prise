@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Prise.Proxy.Exceptions
+namespace Prise.Proxy
 {
     [Serializable]
     public class PriseProxyException : Exception

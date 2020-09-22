@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Prise.Console.Contract;
+using Prise.Web.Services;
 
 namespace Prise.Web.Controllers
 {
@@ -84,6 +88,49 @@ namespace Prise.Web.Controllers
                 builder.AppendLine((await plugin.GetData(new PluginObject { Text = text })).Text);
 
             return builder.ToString();
+        }
+    }
+
+    [ApiController]
+    [Route("storage-ondemand")]
+    /// <summary>
+    /// </summary>
+    public class OnDemandStorageController : ControllerBase
+    {
+        private readonly IPluginLoader loader;
+
+        public OnDemandStorageController(IPluginLoader loader)
+        {
+            this.loader = loader;
+        }
+
+        [HttpGet]
+        public async Task<string> Get([FromQuery] string text)
+        {
+            var pluginResults = await this.loader.FindPlugins<IStoragePlugin>(GetPathToDist());
+            if (!String.IsNullOrEmpty(text))
+                pluginResults = pluginResults.Where(p => p.AssemblyPath.Split(Path.DirectorySeparatorChar).Last().Equals(text));
+
+            if (!pluginResults.Any())
+                return $"PLUGIN NOT FOUND {text}";
+
+            var builder = new StringBuilder();
+
+            foreach (var pluginResult in pluginResults)
+            {
+                var plugin = await this.loader.LoadPlugin<IStoragePlugin>(pluginResult);
+                builder.AppendLine((await plugin.GetData(new PluginObject { Text = text })).Text);
+            }
+
+            return builder.ToString();
+        }
+
+        private static string GetPathToDist()
+        {
+            var pathToThisProgram = Assembly.GetExecutingAssembly() // this assembly location (/bin/Debug/netcoreapp3.1)
+                                        .Location;
+            var pathToExecutingDir = Path.GetDirectoryName(pathToThisProgram);
+            return Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Packages/dist"));
         }
     }
 }

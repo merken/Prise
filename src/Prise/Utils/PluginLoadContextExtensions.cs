@@ -39,7 +39,12 @@ namespace Prise.Utils
         {
             return pluginLoadContext.AddHostService(services, new ServiceDescriptor(hostServiceType, hostServiceImplementationType, serviceLifetime));
         }
-        
+
+        public static PluginLoadContext AddHostService<T>(this PluginLoadContext pluginLoadContext, IServiceCollection services, T implementation, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+        {
+            return pluginLoadContext.AddHostService(services, new ServiceDescriptor(typeof(T), (s) => implementation, serviceLifetime));
+        }
+
         public static PluginLoadContext AddHostService(this PluginLoadContext pluginLoadContext, IServiceCollection services, ServiceDescriptor hostService)
         {
             // Add the Host service to the servicecollection of the plugin
@@ -79,12 +84,12 @@ namespace Prise.Utils
             return pluginLoadContext;
         }
 
-        public static PluginLoadContext AddDowngradableTypes(this PluginLoadContext pluginLoadContext, IEnumerable<Type> downgradableTypes)
+        public static PluginLoadContext AddDowngradableHostTypes(this PluginLoadContext pluginLoadContext, IEnumerable<Type> downgradableHostTypes)
         {
-            if (downgradableTypes == null || !downgradableTypes.Any())
+            if (downgradableHostTypes == null || !downgradableHostTypes.Any())
                 return pluginLoadContext; // short circuit
 
-            pluginLoadContext.DowngradableTypes = new List<Type>(pluginLoadContext.DowngradableTypes.Union(downgradableTypes));
+            pluginLoadContext.DowngradableHostTypes = new List<Type>(pluginLoadContext.DowngradableHostTypes.Union(downgradableHostTypes));
             return pluginLoadContext;
         }
 
