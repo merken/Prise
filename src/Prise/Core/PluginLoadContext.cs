@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Prise.Core
 {
@@ -14,7 +12,7 @@ namespace Prise.Core
             this.HostFramework = hostFramework;
             this.HostTypes = new List<Type>() { typeof(Prise.Plugin.PluginAttribute), typeof(Microsoft.Extensions.DependencyInjection.ServiceCollection) };
             this.HostAssemblies = new List<string>();
-            this.DowngradableTypes = new List<Type>() { typeof(Prise.Plugin.PluginAttribute) };
+            this.DowngradableHostTypes = new List<Type>() { typeof(Prise.Plugin.PluginAttribute) };
             this.DowngradableHostAssemblies = new List<string>();
             this.RemoteTypes = new List<Type>() { pluginType };
             this.NativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime;
@@ -31,7 +29,7 @@ namespace Prise.Core
 
         public IEnumerable<string> HostAssemblies { get; set; }
 
-        public IEnumerable<Type> DowngradableTypes { get; set; }
+        public IEnumerable<Type> DowngradableHostTypes { get; set; }
 
         public IEnumerable<string> DowngradableHostAssemblies { get; set; }
 

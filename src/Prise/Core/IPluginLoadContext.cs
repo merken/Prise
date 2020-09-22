@@ -9,7 +9,7 @@ namespace Prise.Core
         Type PluginType { get; }
         IEnumerable<Type> HostTypes { get; }
         IEnumerable<string> HostAssemblies { get; }
-        IEnumerable<Type> DowngradableTypes { get; }
+        IEnumerable<Type> DowngradableHostTypes { get; }
         IEnumerable<string> DowngradableHostAssemblies { get; }
         IEnumerable<Type> RemoteTypes { get; }
         NativeDependencyLoadPreference NativeDependencyLoadPreference { get; }

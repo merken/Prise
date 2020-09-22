@@ -180,7 +180,7 @@ namespace Prise.AssemblyLoading
             if (hostAssembly != null && !hostAssembly.AllowDowngrade)
             {
                 if (!hostAssembly.AllowDowngrade)
-                    throw new AssemblyLoadingException($"Plugin Assembly reference {assemblyName.Name} with version {assemblyName.Version} was requested but not found in the host. The version from the host is {hostAssembly.DependencyName.Version}. Possible version mismatch. Please downgrade your plugin.");
+                    throw new AssemblyLoadingException($"Plugin Assembly reference {assemblyName.Name} with version {assemblyName.Version} was requested but not found in the host. The version from the host is {hostAssembly.DependencyName.Version}. Possible version mismatch. Please downgrade your plugin or add {assemblyName.Name} to downgradableHostAssemblies.");
             }
 
             return ValueOrProceed<AssemblyFromStrategy>.Proceed();

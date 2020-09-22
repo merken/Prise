@@ -80,11 +80,11 @@ namespace Prise.AssemblyLoading
 
             foreach (var type in pluginLoadContext.HostTypes)
                 // Load host types from current app domain
-                LoadAssemblyAndReferencesFromCurrentAppDomain(type.Assembly.GetName(), hostDependencies, pluginLoadContext.DowngradableTypes, pluginLoadContext.DowngradableHostAssemblies);
+                LoadAssemblyAndReferencesFromCurrentAppDomain(type.Assembly.GetName(), hostDependencies, pluginLoadContext.DowngradableHostTypes, pluginLoadContext.DowngradableHostAssemblies);
 
             foreach (var assemblyFileName in pluginLoadContext.HostAssemblies)
                 // Load host types from current app domain
-                LoadAssemblyAndReferencesFromCurrentAppDomain(assemblyFileName, hostDependencies, pluginLoadContext.DowngradableTypes, pluginLoadContext.DowngradableHostAssemblies);
+                LoadAssemblyAndReferencesFromCurrentAppDomain(assemblyFileName, hostDependencies, pluginLoadContext.DowngradableHostTypes, pluginLoadContext.DowngradableHostAssemblies);
 
             foreach (var type in pluginLoadContext.RemoteTypes)
                 remoteDependencies.Add(new RemoteDependency
@@ -161,7 +161,7 @@ namespace Prise.AssemblyLoading
             }
         }
 
-        private static void LoadAssemblyAndReferencesFromCurrentAppDomain(AssemblyName assemblyName, List<HostDependency> hostDependencies, IEnumerable<Type> downgradableTypes, IEnumerable<string> downgradableAssemblies)
+        private static void LoadAssemblyAndReferencesFromCurrentAppDomain(AssemblyName assemblyName, List<HostDependency> hostDependencies, IEnumerable<Type> downgradableHostTypes, IEnumerable<string> downgradableAssemblies)
         {
             if (assemblyName?.Name == null || hostDependencies.Any(h => h.DependencyName.Name == assemblyName.Name))
                 return; // Break condition
@@ -170,7 +170,7 @@ namespace Prise.AssemblyLoading
             {
                 DependencyName = assemblyName,
                 AllowDowngrade =
-                                downgradableTypes.Any(t => t.Assembly.GetName().Name == assemblyName.Name) ||
+                                downgradableHostTypes.Any(t => t.Assembly.GetName().Name == assemblyName.Name) ||
                                 downgradableAssemblies.Any(a => a == assemblyName.Name)
             });
 
@@ -178,7 +178,7 @@ namespace Prise.AssemblyLoading
             {
                 var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
                 foreach (var reference in assembly.GetReferencedAssemblies())
-                    LoadAssemblyAndReferencesFromCurrentAppDomain(reference, hostDependencies, downgradableTypes, downgradableAssemblies);
+                    LoadAssemblyAndReferencesFromCurrentAppDomain(reference, hostDependencies, downgradableHostTypes, downgradableAssemblies);
             }
             catch (FileNotFoundException)
             {
@@ -187,7 +187,7 @@ namespace Prise.AssemblyLoading
             }
         }
 
-        private static void LoadAssemblyAndReferencesFromCurrentAppDomain(string assemblyFileName, List<HostDependency> hostDependencies, IEnumerable<Type> downgradableTypes, IEnumerable<string> downgradableAssemblies)
+        private static void LoadAssemblyAndReferencesFromCurrentAppDomain(string assemblyFileName, List<HostDependency> hostDependencies, IEnumerable<Type> downgradableHostTypes, IEnumerable<string> downgradableAssemblies)
         {
             var assemblyName = new AssemblyName(assemblyFileName);
             if (assemblyFileName == null || hostDependencies.Any(h => h.DependencyName.Name == assemblyName.Name))
@@ -197,7 +197,7 @@ namespace Prise.AssemblyLoading
             {
                 DependencyName = assemblyName,
                 AllowDowngrade =
-                                downgradableTypes.Any(t => t.Assembly.GetName().Name == assemblyName.Name) ||
+                                downgradableHostTypes.Any(t => t.Assembly.GetName().Name == assemblyName.Name) ||
                                 downgradableAssemblies.Any(a => a == assemblyName.Name)
             });
 
@@ -205,7 +205,7 @@ namespace Prise.AssemblyLoading
             {
                 var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
                 foreach (var reference in assembly.GetReferencedAssemblies())
-                    LoadAssemblyAndReferencesFromCurrentAppDomain(reference, hostDependencies, downgradableTypes, downgradableAssemblies);
+                    LoadAssemblyAndReferencesFromCurrentAppDomain(reference, hostDependencies, downgradableHostTypes, downgradableAssemblies);
             }
             catch (FileNotFoundException)
             {
