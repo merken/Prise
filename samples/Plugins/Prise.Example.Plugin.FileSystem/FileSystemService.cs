@@ -9,7 +9,12 @@ using Newtonsoft.Json;
 namespace Prise.Example.Plugin.FileSystem
 {
     [JsonObject]
-    public class DataFile : List<MyDto> { }
+    public class DataFile
+    {
+        [JsonProperty("data")]
+        public List<MyDto> Data { get; set; }
+    }
+
     public interface IFileSystemService
     {
         Task<MyDto> CreateOnFileSystem(MyDto dto);
@@ -32,7 +37,7 @@ namespace Prise.Example.Plugin.FileSystem
         {
             var dataFile = await DeserializeDataFile();
 
-            dataFile.Add(dto);
+            dataFile.Data.Add(dto);
 
             await SerializeDataFile(dataFile);
 
@@ -41,7 +46,7 @@ namespace Prise.Example.Plugin.FileSystem
 
         public async Task<IEnumerable<MyDto>> ReadAllFromFileSystem()
         {
-            return await DeserializeDataFile();
+            return (await DeserializeDataFile()).Data;
         }
 
         private async Task<DataFile> DeserializeDataFile()

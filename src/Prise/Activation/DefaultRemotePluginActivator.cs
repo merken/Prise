@@ -47,7 +47,7 @@ namespace Prise.Activation
 
             bootstrapperInstance = InjectBootstrapperFieldsWithServices(bootstrapperInstance, bootstrapperServiceProvider, bootstrapperServices);
 
-            return AddToDisposables(assembly.CreateInstance(bootstrapperType.FullName));
+            return AddToDisposables(bootstrapperInstance);
         }
 
         public virtual object CreateRemoteInstance(IPluginActivationContext pluginActivationContext, IPluginBootstrapper bootstrapper = null, IServiceCollection sharedServices = null, IServiceCollection hostServices = null)
@@ -98,26 +98,26 @@ namespace Prise.Activation
                                                                       IBootstrapperServiceProvider bootstrapperServiceProvider,
                                                                       IEnumerable<BootstrapperService> bootstrapperServices)
         {
-            foreach (var boostrapperService in bootstrapperServices)
+            foreach (var bootstrapperService in bootstrapperServices)
             {
-                var fieldName = boostrapperService.FieldName;
-                var serviceInstance = bootstrapperServiceProvider.GetHostService(boostrapperService.ServiceType);
-                remoteInstance = TrySetField(remoteInstance, fieldName, serviceInstance);
+                var fieldName = bootstrapperService.FieldName;
+                var serviceInstance = bootstrapperServiceProvider.GetHostService(bootstrapperService.ServiceType);
 
-                if (boostrapperService.BridgeType == null)
-                    throw new PluginActivationException($"Field {fieldName} could not be set, please consider using a PluginBridge.");
+                if (bootstrapperService.BridgeType == null)
+                    throw new PluginActivationException($"Field {fieldName} requires a BridgeType.");
 
-                var bridgeConstructor = GetBridgeConstructor(boostrapperService.BridgeType);
+                var bridgeConstructor = GetBridgeConstructor(bootstrapperService.BridgeType);
                 if (bridgeConstructor == null)
-                    throw new PluginActivationException($"PluginBridge {boostrapperService.BridgeType.Name} must have a single public constructor with one parameter of type object.");
+                    throw new PluginActivationException($"PluginBridge {bootstrapperService.BridgeType.Name} must have a single public constructor with one parameter of type object.");
 
                 var bridgeInstance = AddToDisposables(bridgeConstructor.Invoke(new[] { serviceInstance }));
-                remoteInstance = TrySetField(remoteInstance, fieldName, bridgeInstance);
+                if (!TrySetField(remoteInstance, fieldName, bridgeInstance))
+                    throw new PluginActivationException($"Field {bootstrapperService.FieldName} on Bootstrapper could not be set.");
             }
 
             return remoteInstance;
         }
-        
+
         protected virtual object InjectPluginFieldsWithServices(object remoteInstance,
                                                                 IPluginServiceProvider pluginServiceProvider,
                                                                 IEnumerable<PluginService> pluginServices)
@@ -136,8 +136,8 @@ namespace Prise.Activation
                         break;
                 }
 
-                remoteInstance = TrySetField(remoteInstance, fieldName, serviceInstance);
-
+                if (TrySetField(remoteInstance, fieldName, serviceInstance))
+                    continue; // Field was set successfully, continueing
 
                 if (pluginService.BridgeType == null)
                     throw new PluginActivationException($"Field {pluginService.FieldName} could not be set, please consider using a PluginBridge.");
@@ -147,7 +147,8 @@ namespace Prise.Activation
                     throw new PluginActivationException($"PluginBridge {pluginService.BridgeType.Name} must have a single public constructor with one parameter of type object.");
 
                 var bridgeInstance = AddToDisposables(bridgeConstructor.Invoke(new[] { serviceInstance }));
-                remoteInstance = TrySetField(remoteInstance, fieldName, bridgeInstance);
+                if (!TrySetField(remoteInstance, fieldName, bridgeInstance))
+                    throw new PluginActivationException($"Field {pluginService.FieldName} on Plugin could not be set.");
             }
 
             return remoteInstance;
@@ -193,7 +194,7 @@ namespace Prise.Activation
                        .FirstOrDefault(c => c.GetParameters().Count() == 1 && c.GetParameters().First().ParameterType == typeof(object));
         }
 
-        protected virtual object TrySetField(object remoteInstance, string fieldName, object fieldInstance)
+        protected virtual bool TrySetField(object remoteInstance, string fieldName, object fieldInstance)
         {
             try
             {
@@ -203,9 +204,10 @@ namespace Prise.Activation
                         .DeclaredFields
                             .First(f => f.Name == fieldName)
                             .SetValue(remoteInstance, fieldInstance);
+                return true;
             }
             catch (ArgumentException) { }
-            return remoteInstance;
+            return false;
         }
 
 

@@ -34,7 +34,7 @@ namespace Prise.DependencyInjection
                     .AddFactory<IPluginActivator>(DefaultFactories.DefaultPluginActivator, serviceLifetime)
                     .AddFactory<IAssemblyLoader>(DefaultFactories.DefaultAssemblyLoader, serviceLifetime);
         }
-        
+
         /// <summary>
         /// This is the bootstrapper method to register a Plugin of <T> using Prise
         /// </summary>
@@ -98,9 +98,12 @@ namespace Prise.DependencyInjection
                                 var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(Path.Combine(scanResult.AssemblyPath, scanResult.AssemblyName), typeof(T), frameworkFromHost);
                                 pluginLoadContext.IgnorePlatformInconsistencies = ignorePlatormInconsistencies;
 
-                                IServiceCollection hostServicesCollection;
+                                IServiceCollection hostServicesCollection = new ServiceCollection();
+                                
+                                hostServices?.Invoke(hostServicesCollection);
+
                                 pluginLoadContext
-                                    .AddHostServices(services, out hostServicesCollection, includeHostServices, excludeHostServices ?? Enumerable.Empty<Type>())
+                                    .AddHostServices(services, hostServicesCollection, includeHostServices, excludeHostServices ?? Enumerable.Empty<Type>())
                                     .AddHostAssemblies(hostAssemblies)
                                     .AddRemoteTypes(remoteTypes)
                                     .AddDowngradableHostTypes(downgradableHostTypes)
@@ -108,40 +111,18 @@ namespace Prise.DependencyInjection
                                     .AddAdditionalProbingPaths(additionalProbingPaths)
                                 ;
 
-                                if (hostServices != null)
-                                {
-                                    hostServices.Invoke(hostServicesCollection);
-
-                                    foreach (var hostService in hostServicesCollection)
-                                        pluginLoadContext
-                                            // A host type will always live inside the host
-                                            .AddHostTypes(new[] { hostService.ServiceType })
-                                            // The implementation type will always exist on the Host, since it will be created here
-                                            .AddHostTypes(new[] { hostService.ImplementationType ?? hostService.ImplementationInstance?.GetType() ?? hostService.ImplementationFactory?.Method.ReturnType });
-                                    ;
-                                }
-
                                 var sharedServicesCollection = new ServiceCollection();
-                                if (sharedServices != null)
-                                {
-                                    sharedServices.Invoke(sharedServicesCollection);
-
-                                    foreach (var sharedService in sharedServicesCollection)
-                                        pluginLoadContext
-                                            // The service type must exist on the remote to support backwards compatability
-                                            .AddRemoteTypes(new[] { sharedService.ServiceType })
-                                            // If a shared service is added, it must be a added as a host type
-                                            // The implementation type will always exist on the Host, since it will be created here
-                                            .AddHostTypes(new[] { sharedService.ImplementationType ?? sharedService.ImplementationInstance?.GetType() ?? sharedService.ImplementationFactory?.Method.ReturnType })
-                                        ;
-                                }
+                                sharedServices?.Invoke(sharedServicesCollection);
+                                
+                                foreach (var sharedService in sharedServicesCollection)
+                                    pluginLoadContext.AddSharedService(sharedService);
 
                                 var pluginAssembly = loader.Load(pluginLoadContext).Result;
                                 var pluginTypes = selector.SelectPluginTypes<T>(pluginAssembly);
 
                                 if (!allowMultiple)
                                     pluginTypes = pluginTypes.Take(1);
-                                
+
                                 foreach (var pluginType in pluginTypes)
                                 {
                                     plugins.Add(activator.ActivatePlugin<T>(new Activation.DefaultPluginActivationOptions

@@ -10,11 +10,11 @@ namespace Prise.Utils
     {
         public static PluginLoadContext AddHostServices(this PluginLoadContext pluginLoadContext,
                IServiceCollection hostServices,
-               out IServiceCollection services,
+               IServiceCollection services = null,
                IEnumerable<Type> includeTypes = null,
                IEnumerable<Type> excludeTypes = null)
         {
-            services = new ServiceCollection();
+            services = services ?? new ServiceCollection();
 
             if (includeTypes == null || !includeTypes.Any())
                 return pluginLoadContext; // short circuit
@@ -55,6 +55,17 @@ namespace Prise.Utils
                   .AddHostTypes(new[] { hostService.ServiceType })
                   // The implementation type will always exist on the Host, since it will be created here
                   .AddHostTypes(new[] { hostService.ImplementationType ?? hostService.ImplementationInstance?.GetType() ?? hostService.ImplementationFactory?.Method.ReturnType });
+        }
+
+        public static PluginLoadContext AddSharedService(this PluginLoadContext pluginLoadContext, ServiceDescriptor sharedService)
+        {
+            return pluginLoadContext
+                // The service type must exist on the remote to support backwards compatability
+                .AddRemoteTypes(new[] { sharedService.ServiceType })
+                // If a shared service is added, it must be a added as a host type
+                // The implementation type will always exist on the Host, since it will be created here
+                .AddHostTypes(new[] { sharedService.ImplementationType ?? sharedService.ImplementationInstance?.GetType() ?? sharedService.ImplementationFactory?.Method.ReturnType })
+            ;
         }
 
         public static PluginLoadContext AddHostTypes(this PluginLoadContext pluginLoadContext, IEnumerable<Type> hostTypes)

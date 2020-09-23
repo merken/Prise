@@ -26,6 +26,7 @@ namespace Prise.Example.Console
 
             serviceCollection.AddPrise();
             serviceCollection.AddSingleton<IConfiguration>(builder);
+            serviceCollection.AddScoped<IConfigurationService, AppSettingsConfigurationService>();
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var type = typeof(IPlugin);
@@ -50,16 +51,13 @@ namespace Prise.Example.Console
 
             foreach (var result in results)
             {
-                var hostServices = new ServiceCollection();
-                hostServices.AddSingleton<IConfigurationService>(configurationService);
-
                 var pathToAssembly = Path.Combine(result.AssemblyPath, result.AssemblyName);
 
                 var pluginLoadContext = Prise.Core.PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(IPlugin), hostFramework);
                 // This allows the loading of netstandard plugins
                 pluginLoadContext.IgnorePlatformInconsistencies = true;
-                IServiceCollection activationServices = new ServiceCollection();
-                pluginLoadContext.AddHostServices(hostServices, out activationServices, new[] { typeof(IConfigurationService) });
+                IServiceCollection hostServices = new ServiceCollection();
+                pluginLoadContext.AddHostServices(serviceCollection, hostServices, new[] { typeof(IConfigurationService) });
 
                 var pluginAssembly = await loader.Load(pluginLoadContext);
 
@@ -73,8 +71,13 @@ namespace Prise.Example.Console
                         PluginAssembly = pluginAssembly,
                         ParameterConverter = DefaultFactories.DefaultParameterConverter(),
                         ResultConverter = DefaultFactories.DefaultResultConverter(),
-                        HostServices = activationServices
+                        HostServices = hostServices
                     });
+
+                    var pluginResults = await pluginInstance.GetAll();
+
+                    foreach (var pluginResult in pluginResults)
+                        System.Console.WriteLine($"{pluginResult.Text}");
                 }
             }
         }
