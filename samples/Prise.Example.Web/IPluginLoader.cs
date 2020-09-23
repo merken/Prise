@@ -17,16 +17,19 @@ namespace Prise.Example.Web
     {
         private readonly IHttpContextAccessorService httpContextAccessorService;
         private readonly Prise.AssemblyScanning.IAssemblyScanner assemblyScanner;
+        private readonly Prise.Core.IPluginTypeSelector pluginTypeSelector;
         private readonly Prise.AssemblyLoading.IAssemblyLoader assemblyLoader;
         private readonly Prise.Activation.IPluginActivator pluginActivator;
 
         public PluginLoader(IHttpContextAccessorService httpContextAccessorService,
                             Prise.AssemblyScanning.IAssemblyScanner assemblyScanner,
+                            Prise.Core.IPluginTypeSelector pluginTypeSelector,
                             Prise.AssemblyLoading.IAssemblyLoader assemblyLoader,
                             Prise.Activation.IPluginActivator pluginActivator)
         {
             this.httpContextAccessorService = httpContextAccessorService;
             this.assemblyScanner = assemblyScanner;
+            this.pluginTypeSelector = pluginTypeSelector;
             this.assemblyLoader = assemblyLoader;
             this.pluginActivator = pluginActivator;
         }
@@ -52,9 +55,7 @@ namespace Prise.Example.Web
             pluginLoadContext.AddHostService<IHttpContextAccessorService>(servicesForPlugin, this.httpContextAccessorService); // Add this private field to collection
 
             var pluginAssembly = await this.assemblyLoader.Load(pluginLoadContext);
-            var pluginTypeSelector = new Prise.Core.DefaultPluginTypeSelector();
-
-            var pluginTypes = pluginTypeSelector.SelectPluginTypes<T>(pluginAssembly);
+            var pluginTypes = this.pluginTypeSelector.SelectPluginTypes<T>(pluginAssembly);
 
             foreach (var pluginType in pluginTypes)
                 yield return await this.pluginActivator.ActivatePlugin<T>(new Prise.Activation.DefaultPluginActivationOptions

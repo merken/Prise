@@ -5,7 +5,13 @@
     "version": "0.2.0",
     "configurations": [
       {
-        "name": "Prise.Example.Console",
+        "name": "AzureFunctions",
+        "type": "coreclr",
+        "request": "attach",
+        "processId": "${command:azureFunctions.pickProcess}"
+      },
+      {
+        "name": "Console",
         "type": "coreclr",
         "request": "launch",
         "preLaunchTask": "build",
@@ -16,7 +22,7 @@
         "stopAtEntry": false
       },
       {
-        "name": "Prise.Example.Web",
+        "name": "Web",
         "type": "coreclr",
         "request": "launch",
         "preLaunchTask": "build-web",

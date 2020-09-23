@@ -1,29 +1,51 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-      {
-        "label": "build",
-        "command": "dotnet",
-        "type": "process",
-        "args": [
-          "build",
-          "${workspaceFolder}/Prise.Example.Console/Prise.Example.Console.csproj",
-          "/property:GenerateFullPaths=true",
-          "/consoleloggerparameters:NoSummary"
-        ],
-        "problemMatcher": "$msCompile"
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/Prise.Example.Console/Prise.Example.Console.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-web",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/Prise.Example.Web/Prise.Example.Web.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-func",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/Prise.Example.AzureFunction/Prise.Example.AzureFunction.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "type": "func",
+      "dependsOn": ["build-func"],
+      "options": {
+        "cwd": "${workspaceFolder}/Prise.Example.AzureFunction/bin/Debug/netcoreapp3.1"
       },
-      {
-        "label": "build-web",
-        "command": "dotnet",
-        "type": "process",
-        "args": [
-          "build",
-          "${workspaceFolder}/Prise.Example.Web/Prise.Example.Web.csproj",
-          "/property:GenerateFullPaths=true",
-          "/consoleloggerparameters:NoSummary"
-        ],
-        "problemMatcher": "$msCompile"
-      }
-    ]
+      "command": "host start",
+      "isBackground": true,
+      "problemMatcher": "$func-watch"
+    }
+  ]
 }
