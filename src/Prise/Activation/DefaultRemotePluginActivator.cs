@@ -10,13 +10,16 @@ namespace Prise.Activation
 {
     public class DefaultRemotePluginActivator : IRemotePluginActivator
     {
+        private Func<IServiceProvider, IEnumerable<Type>, IBootstrapperServiceProvider> bootstrapperServiceProviderFactory;
+        private Func<IServiceProvider, IEnumerable<Type>, IEnumerable<Type>, IPluginServiceProvider> pluginServiceProviderFactory;
         private ConcurrentBag<object> instances;
-        private IServiceCollection services;
 
-        public DefaultRemotePluginActivator()
+        public DefaultRemotePluginActivator(Func<IServiceProvider, IEnumerable<Type>, IBootstrapperServiceProvider> bootstrapperServiceProviderFactory,
+                                            Func<IServiceProvider, IEnumerable<Type>, IEnumerable<Type>, IPluginServiceProvider> pluginServiceProviderFactory)
         {
+            this.bootstrapperServiceProviderFactory = bootstrapperServiceProviderFactory;
+            this.pluginServiceProviderFactory = pluginServiceProviderFactory;
             this.instances = new ConcurrentBag<object>();
-            this.services = new ServiceCollection();
         }
 
         private object AddToDisposables(object obj)
@@ -25,8 +28,12 @@ namespace Prise.Activation
             return obj;
         }
 
-        public virtual object CreateRemoteBootstrapper(Type bootstrapperType, IAssemblyShim assembly)
+        public virtual object CreateRemoteBootstrapper(IPluginActivationContext pluginActivationContext, IServiceCollection hostServices = null)
         {
+            var bootstrapperType = pluginActivationContext.PluginBootstrapperType;
+            var assembly = pluginActivationContext.PluginAssembly.Assembly;
+            var bootstrapperServices = pluginActivationContext.BootstrapperServices;
+
             var contructors = bootstrapperType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
             var firstCtor = contructors.First();
 
@@ -34,8 +41,13 @@ namespace Prise.Activation
                 throw new PluginActivationException($"No public constructors found for remote bootstrapper {bootstrapperType.Name}");
             if (firstCtor.GetParameters().Any())
                 throw new PluginActivationException($"Bootstrapper {bootstrapperType.Name} must contain a public parameterless constructor");
+            var bootstrapperInstance = assembly.CreateInstance(bootstrapperType.FullName);
+            var serviceProvider = AddToDisposables(GetServiceProviderForBootstrapper(new ServiceCollection(), hostServices ?? new ServiceCollection())) as IServiceProvider;
+            var bootstrapperServiceProvider = AddToDisposables(serviceProvider.GetService<IBootstrapperServiceProvider>()) as IBootstrapperServiceProvider;
 
-            return AddToDisposables(assembly.Assembly.CreateInstance(bootstrapperType.FullName));
+            bootstrapperInstance = InjectBootstrapperFieldsWithServices(bootstrapperInstance, bootstrapperServiceProvider, bootstrapperServices);
+
+            return AddToDisposables(assembly.CreateInstance(bootstrapperType.FullName));
         }
 
         public virtual object CreateRemoteInstance(IPluginActivationContext pluginActivationContext, IPluginBootstrapper bootstrapper = null, IServiceCollection sharedServices = null, IServiceCollection hostServices = null)
@@ -49,7 +61,7 @@ namespace Prise.Activation
             if (contructors.Count() > 1)
                 throw new PluginActivationException($"Multiple public constructors found for remote plugin {pluginType.Name}");
 
-            var serviceProvider = AddToDisposables(GetServiceProvider(bootstrapper, sharedServices ?? new ServiceCollection(), hostServices ?? new ServiceCollection())) as IServiceProvider;
+            var serviceProvider = AddToDisposables(GetServiceProviderForPlugin(new ServiceCollection(), bootstrapper, sharedServices ?? new ServiceCollection(), hostServices ?? new ServiceCollection())) as IServiceProvider;
 
             if (factoryMethod != null)
                 return AddToDisposables(factoryMethod.Invoke(null, new[] { serviceProvider }));
@@ -59,7 +71,7 @@ namespace Prise.Activation
             {
                 var pluginServiceProvider = AddToDisposables(serviceProvider.GetService<IPluginServiceProvider>()) as IPluginServiceProvider;
                 var remoteInstance = pluginAssembly.Assembly.CreateInstance(pluginType.FullName);
-                remoteInstance = InjectFieldsWithServices(remoteInstance, pluginServiceProvider, pluginActivationContext.PluginServices);
+                remoteInstance = InjectPluginFieldsWithServices(remoteInstance, pluginServiceProvider, pluginActivationContext.PluginServices);
 
                 ActivateIfNecessary(remoteInstance, pluginActivationContext);
 
@@ -82,10 +94,37 @@ namespace Prise.Activation
             remoteActivationMethod.Invoke(remoteInstance, null);
         }
 
-        protected virtual object InjectFieldsWithServices(object remoteInstance, IPluginServiceProvider pluginServiceProvider, IEnumerable<PluginService> pluginServices)
+        protected virtual object InjectBootstrapperFieldsWithServices(object remoteInstance,
+                                                                      IBootstrapperServiceProvider bootstrapperServiceProvider,
+                                                                      IEnumerable<BootstrapperService> bootstrapperServices)
+        {
+            foreach (var boostrapperService in bootstrapperServices)
+            {
+                var fieldName = boostrapperService.FieldName;
+                var serviceInstance = bootstrapperServiceProvider.GetHostService(boostrapperService.ServiceType);
+                remoteInstance = TrySetField(remoteInstance, fieldName, serviceInstance);
+
+                if (boostrapperService.BridgeType == null)
+                    throw new PluginActivationException($"Field {fieldName} could not be set, please consider using a PluginBridge.");
+
+                var bridgeConstructor = GetBridgeConstructor(boostrapperService.BridgeType);
+                if (bridgeConstructor == null)
+                    throw new PluginActivationException($"PluginBridge {boostrapperService.BridgeType.Name} must have a single public constructor with one parameter of type object.");
+
+                var bridgeInstance = AddToDisposables(bridgeConstructor.Invoke(new[] { serviceInstance }));
+                remoteInstance = TrySetField(remoteInstance, fieldName, bridgeInstance);
+            }
+
+            return remoteInstance;
+        }
+        
+        protected virtual object InjectPluginFieldsWithServices(object remoteInstance,
+                                                                IPluginServiceProvider pluginServiceProvider,
+                                                                IEnumerable<PluginService> pluginServices)
         {
             foreach (var pluginService in pluginServices)
             {
+                var fieldName = pluginService.FieldName;
                 object serviceInstance = null;
                 switch (pluginService.ProvidedBy)
                 {
@@ -97,54 +136,78 @@ namespace Prise.Activation
                         break;
                 }
 
-                try
-                {
-                    remoteInstance
-                        .GetType()
-                        .GetTypeInfo()
-                            .DeclaredFields
-                                .First(f => f.Name == pluginService.FieldName)
-                                .SetValue(remoteInstance, serviceInstance);
-                    continue;
-                }
-                catch (ArgumentException) { }
+                remoteInstance = TrySetField(remoteInstance, fieldName, serviceInstance);
+
 
                 if (pluginService.BridgeType == null)
                     throw new PluginActivationException($"Field {pluginService.FieldName} could not be set, please consider using a PluginBridge.");
 
-                var bridgeConstructor = pluginService.BridgeType
-                        .GetConstructors(BindingFlags.Public | BindingFlags.Instance)
-                        .FirstOrDefault(c => c.GetParameters().Count() == 1 && c.GetParameters().First().ParameterType == typeof(object));
-
+                var bridgeConstructor = GetBridgeConstructor(pluginService.BridgeType);
                 if (bridgeConstructor == null)
                     throw new PluginActivationException($"PluginBridge {pluginService.BridgeType.Name} must have a single public constructor with one parameter of type object.");
 
                 var bridgeInstance = AddToDisposables(bridgeConstructor.Invoke(new[] { serviceInstance }));
-                remoteInstance.GetType().GetTypeInfo().DeclaredFields.First(f => f.Name == pluginService.FieldName).SetValue(remoteInstance, bridgeInstance);
+                remoteInstance = TrySetField(remoteInstance, fieldName, bridgeInstance);
             }
 
             return remoteInstance;
         }
 
-        protected virtual IServiceProvider GetServiceProvider(IPluginBootstrapper bootstrapper, IServiceCollection sharedServices, IServiceCollection hostServices)
+        protected virtual IServiceProvider GetServiceProviderForBootstrapper(IServiceCollection services, IServiceCollection hostServices)
         {
             foreach (var service in hostServices)
-                this.services.Add(service);
+                services.Add(service);
+
+            services.AddScoped<IBootstrapperServiceProvider>(sp => this.bootstrapperServiceProviderFactory(
+                sp,
+                hostServices.Select(d => d.ServiceType)
+            ));
+
+            return services.BuildServiceProvider();
+        }
+
+        protected virtual IServiceProvider GetServiceProviderForPlugin(IServiceCollection services, IPluginBootstrapper bootstrapper, IServiceCollection sharedServices, IServiceCollection hostServices)
+        {
+            foreach (var service in hostServices)
+                services.Add(service);
 
             foreach (var service in sharedServices)
-                this.services.Add(service);
+                services.Add(service);
 
             if (bootstrapper != null)
-                sharedServices = bootstrapper.Bootstrap(this.services);
+                sharedServices = bootstrapper.Bootstrap(services);
 
-            this.services.AddScoped<IPluginServiceProvider>(sp => new DefaultPluginServiceProvider(
+            services.AddScoped<IPluginServiceProvider>(sp => this.pluginServiceProviderFactory(
                 sp,
                 hostServices.Select(d => d.ServiceType),
                 sharedServices.Select(d => d.ServiceType)
             ));
 
-            return this.services.BuildServiceProvider();
+            return services.BuildServiceProvider();
         }
+
+        protected virtual ConstructorInfo GetBridgeConstructor(Type bridgeType)
+        {
+            return bridgeType
+                       .GetConstructors(BindingFlags.Public | BindingFlags.Instance)
+                       .FirstOrDefault(c => c.GetParameters().Count() == 1 && c.GetParameters().First().ParameterType == typeof(object));
+        }
+
+        protected virtual object TrySetField(object remoteInstance, string fieldName, object fieldInstance)
+        {
+            try
+            {
+                remoteInstance
+                    .GetType()
+                    .GetTypeInfo()
+                        .DeclaredFields
+                            .First(f => f.Name == fieldName)
+                            .SetValue(remoteInstance, fieldInstance);
+            }
+            catch (ArgumentException) { }
+            return remoteInstance;
+        }
+
 
         private bool disposed = false;
         protected virtual void Dispose(bool disposing)
@@ -159,7 +222,6 @@ namespace Prise.Activation
                 instances.Clear();
 
                 this.instances = null;
-                this.services = null;
             }
             this.disposed = true;
         }

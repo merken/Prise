@@ -25,8 +25,14 @@ namespace Prise.Activation
 
             var pluginServiceFields = GetFieldsOfCustomAttribute(typeInfo, typeof(Prise.Plugin.PluginServiceAttribute).Name);
             if (pluginServiceFields.Any())
-            {
                 pluginServices = pluginServiceFields.Select(f => ParsePluginService(remoteType, f)).ToList();
+
+            var bootstrapperServices = new List<BootstrapperService>();
+            if (bootstrapper != null)
+            {
+                var bootstrapperServiceFields = GetFieldsOfCustomAttribute(bootstrapper as System.Reflection.TypeInfo, typeof(Prise.Plugin.BootstrapperServiceAttribute).Name);
+                if (bootstrapperServiceFields.Any())
+                    bootstrapperServices = bootstrapperServiceFields.Select(f => ParseBootstrapperService(bootstrapper, f)).ToList();
             }
 
             var pluginActivatedMethod = GetPluginActivatedMethod(remoteType);
@@ -37,8 +43,9 @@ namespace Prise.Activation
                 PluginAssembly = pluginAssembly,
                 PluginBootstrapperType = bootstrapper,
                 PluginFactoryMethod = factoryMethod,
+                PluginActivatedMethod = pluginActivatedMethod,
                 PluginServices = pluginServices,
-                PluginActivatedMethod = pluginActivatedMethod
+                BootstrapperServices = bootstrapperServices,
             };
         }
 
@@ -64,7 +71,7 @@ namespace Prise.Activation
             var attribute = field.CustomAttributes.First(c => c.AttributeType.Name == typeof(Prise.Plugin.PluginServiceAttribute).Name);
             var serviceTypeArg = attribute.NamedArguments.FirstOrDefault(a => a.MemberName == "ServiceType");
             if (serviceTypeArg == null)
-                throw new PluginActivationException($"The ServiceType {remoteType.Name} argument is required for the PluginServiceAttribute.");
+                throw new PluginActivationException($"The ServiceType {remoteType.Name} argument is required for the {nameof(PluginServiceAttribute)}.");
 
             var serviceType = serviceTypeArg.TypedValue.Value as Type;
 
@@ -89,6 +96,32 @@ namespace Prise.Activation
             return new PluginService
             {
                 ProvidedBy = providedBy,
+                ServiceType = serviceType,
+                FieldName = field.Name,
+                BridgeType = bridgeType
+            };
+        }
+
+        private static BootstrapperService ParseBootstrapperService(Type remoteType, FieldInfo field)
+        {
+            var attribute = field.CustomAttributes.First(c => c.AttributeType.Name == typeof(Prise.Plugin.BootstrapperServiceAttribute).Name);
+            var serviceTypeArg = attribute.NamedArguments.FirstOrDefault(a => a.MemberName == "ServiceType");
+            if (serviceTypeArg == null)
+                throw new PluginActivationException($"The ServiceType {remoteType.Name} argument is required for the {nameof(BootstrapperServiceAttribute)}.");
+
+            var serviceType = serviceTypeArg.TypedValue.Value as Type;
+
+            Type bridgeType = null;
+            var bridgeTypeArg = attribute.NamedArguments.FirstOrDefault(a => a.MemberName == "BridgeType");
+            if (bridgeTypeArg != null)
+            {
+                var bridgeTypeArgValue = bridgeTypeArg.TypedValue.Value;
+                if (bridgeTypeArgValue != null)
+                    bridgeType = bridgeTypeArgValue as Type;
+            }
+
+            return new BootstrapperService
+            {
                 ServiceType = serviceType,
                 FieldName = field.Name,
                 BridgeType = bridgeType

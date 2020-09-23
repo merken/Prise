@@ -1,0 +1,19 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Prise.Example.Console",
+        "type": "coreclr",
+        "request": "launch",
+        "preLaunchTask": "build",
+        "program": "${workspaceFolder}/Prise.Example.Console/bin/Debug/netcoreapp3.1/Prise.Example.Console.dll",
+        "args": [],
+        "cwd": "${workspaceFolder}/Prise.Example.Console",
+        "console": "externalTerminal",
+        "stopAtEntry": false
+      }
+    ]
+}

@@ -41,7 +41,7 @@ namespace Prise.Activation
 
             if (pluginActivationContext.PluginBootstrapperType != null)
             {
-                var remoteBootstrapperInstance = this.remotePluginActivator.CreateRemoteBootstrapper(pluginActivationContext.PluginBootstrapperType, pluginActivationOptions.PluginAssembly);
+                var remoteBootstrapperInstance = this.remotePluginActivator.CreateRemoteBootstrapper(pluginActivationContext, pluginActivationOptions.HostServices);
 
                 var remoteBootstrapperProxy = this.proxyCreator.CreateBootstrapperProxy(remoteBootstrapperInstance);
 

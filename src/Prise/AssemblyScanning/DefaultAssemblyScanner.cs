@@ -19,8 +19,11 @@ namespace Prise.AssemblyScanning
 
         public virtual Task<IEnumerable<AssemblyScanResult>> Scan(IAssemblyScannerOptions options)
         {
-            var startingPath = options.StartingPath;
-            var typeToScan = options.PluginType;
+            if (options == null)
+                throw new ArgumentNullException($"{typeof(IAssemblyScannerOptions).Name} {nameof(options)}");
+
+            var startingPath = options.StartingPath ?? throw new ArgumentNullException($"{nameof(options.StartingPath)}");
+            var typeToScan = options.PluginType ?? throw new ArgumentNullException($"{nameof(options.PluginType)}");
             var fileTypes = options.FileTypes;
 
             if (!Path.IsPathRooted(startingPath))

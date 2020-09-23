@@ -3,6 +3,13 @@ using Prise.Plugin;
 
 namespace Prise.Activation
 {
+    public class BootstrapperService
+    {
+        public string FieldName { get; set; }
+        public Type ServiceType { get; set; }
+        public Type BridgeType { get; set; }
+    }
+
     public class PluginService
     {
         public string FieldName { get; set; }

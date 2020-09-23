@@ -12,5 +12,6 @@ namespace Prise.Activation
         MethodInfo PluginFactoryMethod { get; }
         MethodInfo PluginActivatedMethod { get; }
         IEnumerable<PluginService> PluginServices { get; }
+        IEnumerable<BootstrapperService> BootstrapperServices { get; }
     }
 }

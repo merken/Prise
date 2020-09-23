@@ -7,6 +7,7 @@ using Prise.Core;
 using Prise.Proxy;
 using Prise.Infrastructure;
 using Prise.Platform;
+using System.Collections.Generic;
 
 namespace Prise.DependencyInjection
 {
@@ -19,7 +20,9 @@ namespace Prise.DependencyInjection
         public static Func<IResultConverter> DefaultResultConverter = () => new JsonSerializerResultConverter( );
         public static Func<IPluginActivator> DefaultPluginActivator = () => new DefaultPluginActivator(DefaultPluginActivationContextProvider, DefaultRemotePluginActivator,DefaultPluginProxyCreator );
         public static Func<IPluginActivationContextProvider> DefaultPluginActivationContextProvider = () => new DefaultPluginActivationContextProvider();
-        public static Func<IRemotePluginActivator> DefaultRemotePluginActivator = () => new DefaultRemotePluginActivator();
+        public static Func<IRemotePluginActivator> DefaultRemotePluginActivator = () => new DefaultRemotePluginActivator(DefaultBootstrapperServiceProvider, DefaultPluginServiceProvider);
+        public static Func<IServiceProvider, IEnumerable<Type>, IBootstrapperServiceProvider> DefaultBootstrapperServiceProvider = (sp, hostTypes) => new DefaultBootstrapperServiceProvider(sp, hostTypes);
+        public static Func<IServiceProvider, IEnumerable<Type>, IEnumerable<Type>, IPluginServiceProvider> DefaultPluginServiceProvider = (sp, hostTypes, sharedTypes) => new DefaultPluginServiceProvider(sp, hostTypes, sharedTypes);
         public static Func<IPluginProxyCreator> DefaultPluginProxyCreator = () => new DefaultPluginProxyCreator();
         public static Func<IAssemblyLoader> DefaultAssemblyLoader = () => new DefaultAssemblyLoader(DefaultAssemblyLoadContextFactory);
         public static Func<INativeAssemblyUnloader> DefaultNativeAssemblyUnloaderFactory = () => new DefaultNativeAssemblyUnloader();
