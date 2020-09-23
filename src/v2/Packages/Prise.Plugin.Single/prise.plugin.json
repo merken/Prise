@@ -1,6 +1,0 @@
-{
-  "publishDir": "../dist",
-  "configuration": "Debug",
-  "nuspecFile": "Prise.Plugin.Single.nuspec",
-  "includeProjectNameInPublishDir": true
-}
