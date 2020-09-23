@@ -111,11 +111,15 @@ namespace Prise.Web.Controllers
 
             foreach (var pluginResult in pluginResults)
             {
-                await foreach (var plugin in this.loader.LoadPlugins<IPlugin>(pluginResult)){
+                await foreach (var plugin in this.loader.LoadPlugins<IPlugin>(pluginResult))
+                {
                     builder.AppendLine((await plugin.GetData(new PluginObject { Text = "" })).Text);
-                    try{
-                    builder.AppendLine((await plugin.MyNewMethod(new PluginObject { Text = "" })).Text);
-                    }catch(Prise.Proxy.PriseProxyException pex){
+                    try
+                    {
+                        builder.AppendLine((await plugin.MyNewMethod(new PluginObject { Text = "" })).Text);
+                    }
+                    catch (Prise.Proxy.PriseProxyException pex)
+                    {
                         builder.AppendLine("This is an older plugin");
                     }
                 }

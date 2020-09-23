@@ -11,23 +11,13 @@ namespace Prise.Example.Plugin.Sql
     [Plugin(PluginType = typeof(IPlugin))]
     public class SqlPlugin // I do not necessarily need to implement the IPlugin interface, I just need to make sure my methods respect the Contract
     {
-        private SqlDbContext dbContext;
-        
-        [PluginService(ProvidedBy = ProvidedBy.Host, ServiceType = typeof(IConfigurationService), BridgeType = typeof(ConfigurationService))]
-        private readonly IConfigurationService configurationService;
+        [PluginService(ProvidedBy = ProvidedBy.Plugin, ServiceType = typeof(SqlDbContext))]
+        private readonly SqlDbContext dbContext;
 
         [PluginActivated]
         public void OnActivated()
         {
-            var connectionString = this.configurationService.GetConfigurationValueForKey("SQL:ConnectionString");
-            var connection = new SqlConnection(connectionString);
-            connection.Open();
-
-            var options = new DbContextOptionsBuilder<SqlDbContext>()
-                    .UseSqlServer(connection)
-                    .Options;
-
-            this.dbContext = new SqlDbContext(options);
+            // TODO some activation code here
         }
 
         public async Task<IEnumerable<MyDto>> GetAll()

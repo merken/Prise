@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <!-- Include the Prise project references -->
+  <ItemGroup>
+    <ProjectReference Include="../../../src/Prise.Plugin/Prise.Plugin.csproj" />
+    <ProjectReference Include="../../../src/Prise.PluginBridge/Prise.PluginBridge.csproj" />
+    <ProjectReference Include="../../Prise.Example.Contract/Prise.Example.Contract.csproj" />
+  </ItemGroup>
+
+</Project>
