@@ -19,23 +19,17 @@ namespace Prise.Example.Console
     {
         static async Task Main(string[] args)
         {
-            var builder = new ConfigurationBuilder()
-                    .AddJsonFile("appsettings.json")
-                    .Build();
-            var serviceCollection = new ServiceCollection();
+            var mainServiceCollection = new ServiceCollection()
+                                .AddPrise()
+                                .AddSingleton<IConfiguration>(new ConfigurationBuilder()
+                                                                .AddJsonFile("appsettings.json")
+                                                                .Build())
+                                .AddScoped<IConfigurationService, AppSettingsConfigurationService>();
 
-            serviceCollection.AddPrise();
-            serviceCollection.AddSingleton<IConfiguration>(builder);
-            serviceCollection.AddScoped<IConfigurationService, AppSettingsConfigurationService>();
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider = mainServiceCollection.BuildServiceProvider();
 
-            var type = typeof(IPlugin);
-            var pathToThisProgram = Assembly.GetExecutingAssembly() // this assembly location (/bin/Debug/netcoreapp3.1)
-                                        .Location;
-            var pathToExecutingDir = Path.GetDirectoryName(pathToThisProgram);
-            var pathToDist = Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Plugins/dist"));
-
-            var hostFramework = Prise.Utils.HostFrameworkUtils.GetHostframeworkFromType(typeof(Program));
+            var pathToDist = GetPathToDist();
+            var hostFramework = HostFrameworkUtils.GetHostframeworkFromType(typeof(Program));
 
             var scanner = serviceProvider.GetRequiredService<IAssemblyScanner>();
             var loader = serviceProvider.GetRequiredService<IAssemblyLoader>();
@@ -53,16 +47,16 @@ namespace Prise.Example.Console
             {
                 var pathToAssembly = Path.Combine(result.AssemblyPath, result.AssemblyName);
 
-                var pluginLoadContext = Prise.Core.PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(IPlugin), hostFramework);
+                var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(IPlugin), hostFramework);
                 // This allows the loading of netstandard plugins
                 pluginLoadContext.IgnorePlatformInconsistencies = true;
+
                 IServiceCollection hostServices = new ServiceCollection();
-                pluginLoadContext.AddHostServices(serviceCollection, hostServices, new[] { typeof(IConfigurationService) });
+                pluginLoadContext.AddHostServices(mainServiceCollection, hostServices, new[] { typeof(IConfigurationService) });
 
                 var pluginAssembly = await loader.Load(pluginLoadContext);
-
+                
                 var pluginTypes = typeSelector.SelectPluginTypes<IPlugin>(pluginAssembly);
-
                 foreach (var pluginType in pluginTypes)
                 {
                     var pluginInstance = await activator.ActivatePlugin<IPlugin>(new Activation.DefaultPluginActivationOptions
@@ -80,6 +74,14 @@ namespace Prise.Example.Console
                         System.Console.WriteLine($"{pluginResult.Text}");
                 }
             }
+        }
+
+        private static string GetPathToDist()
+        {
+            var pathToThisProgram = Assembly.GetExecutingAssembly() // this assembly location (/bin/Debug/netcoreapp3.1)
+                                        .Location;
+            var pathToExecutingDir = Path.GetDirectoryName(pathToThisProgram);
+            return Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Plugins/dist"));
         }
     }
 }

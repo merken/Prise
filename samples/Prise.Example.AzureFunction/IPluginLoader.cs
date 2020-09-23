@@ -59,10 +59,11 @@ namespace Prise.Example.AzureFunction
             var servicesForPlugin = new ServiceCollection();
 
             var pathToAssembly = Path.Combine(plugin.AssemblyPath, plugin.AssemblyName);
-
             var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(T), hostFramework);
             // This allows the loading of netstandard plugins
             pluginLoadContext.IgnorePlatformInconsistencies = true;
+            
+            // Add this private field to collection
             pluginLoadContext.AddHostService<IConfigurationService>(servicesForPlugin, this.configurationService);
 
             var pluginAssembly = await this.assemblyLoader.Load(pluginLoadContext);

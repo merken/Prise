@@ -1,69 +1,81 @@
 using System.IO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Prise.DependencyInjection;
 using Prise.Utils;
 using Prise.Example.Contract;
+using Prise.AssemblyScanning;
+using Prise.Core;
+using Prise.AssemblyLoading;
+using Prise.Proxy;
+using Prise.Activation;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Prise.Example.Web
 {
     public interface IPluginLoader
     {
-        Task<IEnumerable<Prise.Core.AssemblyScanResult>> FindPlugins<T>(string pathToPlugins);
-        IAsyncEnumerable<T> LoadPlugins<T>(Prise.Core.AssemblyScanResult plugin);
+        Task<IEnumerable<AssemblyScanResult>> FindPlugins<T>(string pathToPlugins);
+        IAsyncEnumerable<T> LoadPlugins<T>(AssemblyScanResult plugin);
     }
 
     public class PluginLoader : IPluginLoader
     {
         private readonly IHttpContextAccessorService httpContextAccessorService;
-        private readonly Prise.AssemblyScanning.IAssemblyScanner assemblyScanner;
-        private readonly Prise.Core.IPluginTypeSelector pluginTypeSelector;
-        private readonly Prise.AssemblyLoading.IAssemblyLoader assemblyLoader;
-        private readonly Prise.Activation.IPluginActivator pluginActivator;
-
+        private readonly IAssemblyScanner assemblyScanner;
+        private readonly IPluginTypeSelector pluginTypeSelector;
+        private readonly IAssemblyLoader assemblyLoader;
+        private readonly IParameterConverter parameterConverter;
+        private readonly IResultConverter resultConverter;
+        private readonly IPluginActivator pluginActivator;
         public PluginLoader(IHttpContextAccessorService httpContextAccessorService,
-                            Prise.AssemblyScanning.IAssemblyScanner assemblyScanner,
-                            Prise.Core.IPluginTypeSelector pluginTypeSelector,
-                            Prise.AssemblyLoading.IAssemblyLoader assemblyLoader,
-                            Prise.Activation.IPluginActivator pluginActivator)
+                            IAssemblyScanner assemblyScanner,
+                            IPluginTypeSelector pluginTypeSelector,
+                            IAssemblyLoader assemblyLoader,
+                            IParameterConverter parameterConverter,
+                            IResultConverter resultConverter,
+                            IPluginActivator pluginActivator)
         {
             this.httpContextAccessorService = httpContextAccessorService;
             this.assemblyScanner = assemblyScanner;
             this.pluginTypeSelector = pluginTypeSelector;
             this.assemblyLoader = assemblyLoader;
+            this.parameterConverter = parameterConverter;
+            this.resultConverter = resultConverter;
             this.pluginActivator = pluginActivator;
         }
 
-        public async Task<IEnumerable<Prise.Core.AssemblyScanResult>> FindPlugins<T>(string pathToPlugins)
+        public async Task<IEnumerable<AssemblyScanResult>> FindPlugins<T>(string pathToPlugins)
         {
-            return (await this.assemblyScanner.Scan(new Prise.AssemblyScanning.AssemblyScannerOptions
+            return (await this.assemblyScanner.Scan(new AssemblyScannerOptions
             {
                 StartingPath = pathToPlugins,
                 PluginType = typeof(T)
             }));
         }
 
-        public async IAsyncEnumerable<T> LoadPlugins<T>(Prise.Core.AssemblyScanResult plugin)
+        public async IAsyncEnumerable<T> LoadPlugins<T>(AssemblyScanResult plugin)
         {
-            var hostFramework = Prise.Utils.HostFrameworkUtils.GetHostframeworkFromHost();
-            var servicesForPlugin = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
+            var hostFramework = HostFrameworkUtils.GetHostframeworkFromHost();
+            var servicesForPlugin = new ServiceCollection();
 
             var pathToAssembly = Path.Combine(plugin.AssemblyPath, plugin.AssemblyName);
-            var pluginLoadContext = Prise.Core.PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(T), hostFramework);
+            var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(T), hostFramework);
             // This allows the loading of netstandard plugins
             pluginLoadContext.IgnorePlatformInconsistencies = true;
-            pluginLoadContext.AddHostService<IHttpContextAccessorService>(servicesForPlugin, this.httpContextAccessorService); // Add this private field to collection
+            
+            // Add this private field to collection
+            pluginLoadContext.AddHostService<IHttpContextAccessorService>(servicesForPlugin, this.httpContextAccessorService);
 
             var pluginAssembly = await this.assemblyLoader.Load(pluginLoadContext);
             var pluginTypes = this.pluginTypeSelector.SelectPluginTypes<T>(pluginAssembly);
 
             foreach (var pluginType in pluginTypes)
-                yield return await this.pluginActivator.ActivatePlugin<T>(new Prise.Activation.DefaultPluginActivationOptions
+                yield return await this.pluginActivator.ActivatePlugin<T>(new DefaultPluginActivationOptions
                 {
                     PluginType = pluginType,
                     PluginAssembly = pluginAssembly,
-                    ParameterConverter = DefaultFactories.DefaultParameterConverter(),
-                    ResultConverter = DefaultFactories.DefaultResultConverter(),
+                    ParameterConverter = this.parameterConverter,
+                    ResultConverter = this.resultConverter,
                     HostServices = servicesForPlugin
                 });
         }
