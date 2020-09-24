@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Prise/Prise.csproj" />
+    <ProjectReference Include="../../src/Prise.Proxy/Prise.Proxy.csproj" />
+    <ProjectReference Include="../../src/Prise.Plugin/Prise.Plugin.csproj" />
+    <ProjectReference Include="../Prise.Example.Contract/Prise.Example.Contract.csproj" />
+    <PackageReference Include="System.Text.Json" Version="5.0.0-rc.1.20451.14" />
+  </ItemGroup>
+
+</Project>

@@ -31,6 +31,17 @@
         "cwd": "${workspaceFolder}/Prise.Example.Web",
         "console": "externalTerminal",
         "stopAtEntry": false
+      },
+      {
+        "name": "Mvc",
+        "type": "coreclr",
+        "request": "launch",
+        "preLaunchTask": "build-mvc",
+        "program": "${workspaceFolder}/Prise.Example.Razor/bin/Debug/net5.0/Prise.Example.Razor.dll",
+        "args": [],
+        "cwd": "${workspaceFolder}/Prise.Example.Razor",
+        "console": "externalTerminal",
+        "stopAtEntry": false
       }
     ]
 }
