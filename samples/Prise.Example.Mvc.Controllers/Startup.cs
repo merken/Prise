@@ -10,9 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Prise.DependencyInjection;
 using Prise.Example.Contract;
-using Prise.Example.Razor.Services;
 
-namespace Prise.Example.Razor
+namespace Prise.Example.Mvc.Controllers
 {
     public class Startup
     {
@@ -27,6 +26,8 @@ namespace Prise.Example.Razor
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddRazorPages().AddRazorRuntimeCompilation();
+
             services.AddTransient<IConfigurationService, AppSettingsConfigurationService>();
             services.AddTransient<IPluginLoader, PluginLoader>();
             services.AddTransient<IDataService, DataService>();
@@ -46,7 +47,7 @@ namespace Prise.Example.Razor
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();

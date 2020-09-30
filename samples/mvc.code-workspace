@@ -1,0 +1,24 @@
+{
+	"folders": [
+		{
+			"name": "Prise.Mvc",
+			"path": "../src/Prise.Mvc"
+		},
+		{
+			"name": "Prise.Example.Mvc.Controllers",
+			"path": "Prise.Example.Mvc.Controllers"
+		},
+		{
+			"name": "Prise.Example.Contract",
+			"path": "Prise.Example.Contract"
+		},
+		{
+			"name": "Plugins",
+			"path": "Plugins"
+		},
+		{
+			"path": "../src/Prise"
+		}
+	],
+	"settings": {}
+}

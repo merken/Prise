@@ -14,12 +14,22 @@ namespace Prise.Mvc
         {
             var pluginLoadOptions = context.HttpContext.RequestServices.GetRequiredService<IPluginLoadOptions<T>>();
             var cache = context.HttpContext.RequestServices.GetRequiredService<IPluginCache<T>>();
+
+
+
             var controllerType = context.ActionDescriptor.ControllerTypeInfo.AsType();
 
             foreach (var pluginAssembly in cache.GetAll())
             {
                 if (pluginAssembly.GetTypes().Any(t => t.Name == controllerType.Name))
                 {
+
+
+
+                    var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(pluginAssembly, controllerType, frameworkFromHost);
+
+
+
                     var pluginActivationContext = pluginLoadOptions.PluginActivationContextProvider.ProvideActivationContext(controllerType, pluginAssembly);
                     IPluginBootstrapper bootstrapperProxy = null;
                     if (pluginActivationContext.PluginBootstrapperType != null)
@@ -34,11 +44,11 @@ namespace Prise.Mvc
                     var remoteController = pluginLoadOptions.Activator.CreateRemoteInstance(
                         pluginActivationContext,
                         bootstrapperProxy);
-                        //TODO CHECK
-                        //controllerType,
-                        //pluginAssembly,
-                        //bootstrapperProxy,
-                        //pluginActivationContext.PluginFactoryMethod);
+                    //TODO CHECK
+                    //controllerType,
+                    //pluginAssembly,
+                    //bootstrapperProxy,
+                    //pluginActivationContext.PluginFactoryMethod);
 
                     // TODO Create own Controller Activator
 

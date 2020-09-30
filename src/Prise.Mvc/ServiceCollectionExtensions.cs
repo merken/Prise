@@ -24,21 +24,27 @@ namespace Prise.Mvc
         /// <typeparam name="T">The Plugin Contract Type</typeparam>
         /// <param name="builder"></param>
         /// <returns>A fully configured Prise setup that will load Controllers from Plugin Assemblies</returns>
-        public static PluginLoadOptionsBuilder<T> AddPriseControllersAsPlugins<T>(this PluginLoadOptionsBuilder<T> builder)
+        public static IServiceCollection AddPriseControllersAsPlugins<T>(this IServiceCollection services)
         {
-            return builder
-                 // Use a singleton cache
-                 .WithSingletonCache()
-                 .ConfigureServices(services =>
-                    services
-                        .ConfigureMVCServices<T>())
-#if NETCORE2_1
-                 // This is required in 2.1 because there is no AssemblyDependencyResolver
-                 .UsePluginContextAsDependencyPath()
-#endif
-                 // Makes sure controllers can be casted to the host's representation of ControllerBase
-                 .WithHostType(typeof(ControllerBase))
-            ;
+
+            return services
+                .AddSingleton(typeof(DefaultScopedPluginCache<T>))
+                .ConfigureMVCServices<T>()
+
+                ;
+            //             return builder
+            //                  // Use a singleton cache
+            //                  .WithSingletonCache()
+            //                  .ConfigureServices(services =>
+            //                     services
+            //                         .ConfigureMVCServices<T>())
+            // #if NETCORE2_1
+            //                  // This is required in 2.1 because there is no AssemblyDependencyResolver
+            //                  .UsePluginContextAsDependencyPath()
+            // #endif
+            //                  // Makes sure controllers can be casted to the host's representation of ControllerBase
+            //                  .WithHostType(typeof(ControllerBase))
+            //             ;
         }
 
 
@@ -53,8 +59,15 @@ namespace Prise.Mvc
         /// <param name="builder"></param>
         /// <param name="webRootPath">By default, this should be the IWebHostEnvironment.WebRootPaht or IHostingEnvironment.WebRootPath</param>
         /// <returns></returns>
-        public static PluginLoadOptionsBuilder<T> AddPriseRazorPlugins<T>(this PluginLoadOptionsBuilder<T> builder, string webRootPath)
+        public static PluginLoadOptionsBuilder<T> AddPriseRazorPlugins<T>(this IServiceCollection services, string webRootPath)
         {
+            return services
+                    .AddSingleton(typeof(DefaultScopedPluginCache<T>))
+                    .ConfigureMVCServices<T>()
+                    .ConfigureRazorServices<T>(webRootPath)
+
+            ;
+
             return builder
                 // Use a singleton cache
                 .WithSingletonCache()
