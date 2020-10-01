@@ -1,7 +1,6 @@
 ﻿using System.Data.Common;
 using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Prise.Plugin;
 using Prise.Example.Contract;

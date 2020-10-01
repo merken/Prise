@@ -50,15 +50,14 @@ namespace Prise.DependencyInjection
                                                             string pathToPlugins,
                                                             string hostFramework = null,
                                                             bool allowMultiple = false,
+                                                            ServiceLifetime serviceLifetime = ServiceLifetime.Scoped,
                                                             Action<PluginLoadContext> configureContext = null,
                                                             Action<IServiceCollection> hostServices = null,
                                                             Action<IServiceCollection> sharedServices = null)
                    where T : class
         {
-            var serviceLifetime = ServiceLifetime.Scoped;
-
             return services
-                        .AddPrise() // Adds the default Prise Services
+                        .AddPrise(serviceLifetime) // Adds the default Prise Services
                         .AddService(new ServiceDescriptor(allowMultiple ? typeof(IEnumerable<T>) : typeof(T), (sp) =>
                         {
                             var frameworkFromHost = hostFramework ?? HostFrameworkUtils.GetHostframeworkFromHost();
@@ -117,7 +116,7 @@ namespace Prise.DependencyInjection
            ;
         }
 
-        private static IServiceCollection AddFactory<T>(this IServiceCollection services, Func<T> func, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+        public static IServiceCollection AddFactory<T>(this IServiceCollection services, Func<T> func, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
                     where T : class
         {
             Func<IServiceProvider, Func<T>> factoryOfFuncT = (sp) => func;

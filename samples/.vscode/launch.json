@@ -33,13 +33,24 @@
         "stopAtEntry": false
       },
       {
+        "name": "RazorViews",
+        "type": "coreclr",
+        "request": "launch",
+        "preLaunchTask": "build-razor-views",
+        "program": "${workspaceFolder}/Prise.Example.Razor/bin/Debug/net5.0/Prise.Example.Razor.dll",
+        "args": [],
+        "cwd": "${workspaceFolder}/Prise.Example.Razor",
+        "console": "externalTerminal",
+        "stopAtEntry": false
+      },
+      {
         "name": "Mvc",
         "type": "coreclr",
         "request": "launch",
         "preLaunchTask": "build-mvc",
-        "program": "${workspaceFolder}/Prise.Example.Razor/bin/Debug/net5.0/Prise.Example.Razor.dll",
+        "program": "${workspaceFolder}/Prise.Example.Mvc.Controllers/bin/Debug/net5.0/Prise.Example.Mvc.Controllers.dll",
         "args": [],
-        "cwd": "${workspaceFolder}/Prise.Example.Razor",
+        "cwd": "${workspaceFolder}/Prise.Example.Mvc.Controllers",
         "console": "externalTerminal",
         "stopAtEntry": false
       }

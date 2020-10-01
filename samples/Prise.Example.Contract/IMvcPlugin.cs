@@ -1,11 +1,11 @@
 namespace Prise.Example.Contract
 {
-    public interface IMVCPlugin
+    public interface IMvcPlugin
     {
     }
 
     [System.AttributeUsage(System.AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-    public class MVCFeatureDescriptionAttribute : System.Attribute
+    public class MvcPluginDescriptionAttribute : System.Attribute
     {
         string description;
         public string Description

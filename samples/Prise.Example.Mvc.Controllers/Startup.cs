@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Prise.DependencyInjection;
 using Prise.Example.Contract;
+using Prise.Mvc;
 
 namespace Prise.Example.Mvc.Controllers
 {
@@ -29,9 +30,7 @@ namespace Prise.Example.Mvc.Controllers
             services.AddRazorPages().AddRazorRuntimeCompilation();
 
             services.AddTransient<IConfigurationService, AppSettingsConfigurationService>();
-            services.AddTransient<IPluginLoader, PluginLoader>();
-            services.AddTransient<IDataService, DataService>();
-            services.AddPrise();
+            services.AddPriseMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -2,11 +2,11 @@
 using System.Reflection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
-using Prise.Infrastructure;
+using Prise.Caching;
 
 namespace Prise.Mvc
 {
-    public class PrisePluginViewsAssemblyFileProvider<T> : IFileProvider
+    public class PrisePluginViewsAssemblyFileProvider : IFileProvider
     {
         protected PhysicalFileProvider webRootFileProvider;
         public PrisePluginViewsAssemblyFileProvider(string hostingRootPath)
@@ -14,9 +14,9 @@ namespace Prise.Mvc
             this.webRootFileProvider = new PhysicalFileProvider(hostingRootPath);
         }
 
-        private IPluginCache<T> GetLoadedPluginsCache()
+        private IPluginCache GetLoadedPluginsCache()
         {
-            return StaticPluginCacheAccessor<T>.CurrentCache;
+            return StaticPluginCacheAccessor.CurrentCache;
         }
 
         private IFileProvider GetPluginFileProvider(string subpath)
@@ -27,7 +27,7 @@ namespace Prise.Mvc
 
             foreach (var loadedPlugin in cache.GetAll())
             {
-                var pluginAssemblyName = Path.GetFileNameWithoutExtension(loadedPlugin.GetName().Name);
+                var pluginAssemblyName = Path.GetFileNameWithoutExtension(loadedPlugin.AssemblyShim.Assembly.GetName().Name);
                 var executingFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                 if (File.Exists(Path.Join(Path.Combine(executingFolder, "Plugins", pluginAssemblyName), subpath)))
                 {

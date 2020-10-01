@@ -1,11 +1,10 @@
 ﻿using System.Threading;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Primitives;
-using Prise.Mvc.Infrastructure;
 
 namespace Prise.Mvc
 {
-    public class PriseActionDescriptorChangeProvider : IActionDescriptorChangeProvider, IPriseActionDescriptorChangeProvider
+    public class PriseMvcActionDescriptorChangeProvider : IActionDescriptorChangeProvider, IPriseMvcActionDescriptorChangeProvider
     {
         public CancellationTokenSource TokenSource { get; private set; }
 

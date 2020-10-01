@@ -1,8 +1,46 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model HomeViewModel
+@{
+    ViewData["Title"] = "ASP.NET Core MVC application with Prise features as controllers!";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">ASP.NET Core MVC Plugins using Prise2!</h1>
+    <img src="https://github.com/merken/Prise/blob/master/docs/prise.png?raw=true" height="50px" />
+    <div class="display-4" style="font-size:21pt">These are the features (IMvcPlugin) plugins discovered using Prise Assembly Scanning</div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Plugin Name
+                </th>
+                <th>
+                    Plugin Description
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Plugins)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td style="text-align:left">
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td>
+                        @if (!item.IsEnabled)
+                        {
+                            <a asp-action="Enable" asp-route-id="@item.Name">Enable</a>
+                        }
+                        else
+                        {
+                            <a asp-action="Disable" asp-route-id="@item.Name">Disable</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>

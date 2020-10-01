@@ -26,12 +26,24 @@
       "problemMatcher": "$msCompile"
     },
     {
-      "label": "build-mvc",
+      "label": "build-razor-views",
       "command": "dotnet",
       "type": "process",
       "args": [
         "build",
         "${workspaceFolder}/Prise.Example.Razor/Prise.Example.Razor.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-mvc",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/Prise.Example.Mvc.Controllers/Prise.Example.Mvc.Controllers.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
