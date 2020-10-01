@@ -13,6 +13,7 @@
     <ProjectReference Include="../../src/Prise/Prise.csproj" />
     <ProjectReference Include="../../src/Prise.Proxy/Prise.Proxy.csproj" />
     <ProjectReference Include="../../src/Prise.Plugin/Prise.Plugin.csproj" />
+    <ProjectReference Include="../../src/Prise.Mvc/Prise.Mvc.csproj" />
     <ProjectReference Include="../Prise.Example.Contract/Prise.Example.Contract.csproj" />
   </ItemGroup>
 </Project>

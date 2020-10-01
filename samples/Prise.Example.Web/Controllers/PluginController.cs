@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Prise.Example.Contract;
+using Prise.Core;
 
 namespace Prise.Example.Web.Controllers
 {
@@ -16,10 +13,12 @@ namespace Prise.Example.Web.Controllers
     public class PluginController : ControllerBase
     {
         private readonly IPluginLoader pluginLoader;
+        private readonly IHttpContextAccessorService httpContextAccessorService;
 
-        public PluginController(IPluginLoader pluginLoader)
+        public PluginController(IPluginLoader pluginLoader, IHttpContextAccessorService httpContextAccessorService)
         {
             this.pluginLoader = pluginLoader;
+            this.httpContextAccessorService = httpContextAccessorService;
         }
 
         [HttpPost]
@@ -30,7 +29,11 @@ namespace Prise.Example.Web.Controllers
 
             foreach (var pluginResult in pluginResults)
             {
-                await foreach (var plugin in this.pluginLoader.LoadPlugins<IPlugin>(pluginResult))
+                await foreach (var plugin in this.pluginLoader.LoadPlugins<IPlugin>(pluginResult,
+                    (context) =>
+                    {
+                        context.AddHostService<IHttpContextAccessorService>(this.httpContextAccessorService);
+                    }))
                 {
                     foreach (var data in await plugin.GetAll())
                         builder.AppendLine(data.Text);

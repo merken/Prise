@@ -9,16 +9,19 @@ using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Prise.Core;
 
 namespace Prise.Example.AzureFunction
 {
     public class PluginFunctions
     {
         private readonly IPluginLoader pluginLoader;
+        private readonly IConfigurationService configurationService;
 
-        public PluginFunctions(IPluginLoader pluginLoader)
+        public PluginFunctions(IPluginLoader pluginLoader, IConfigurationService configurationService)
         {
             this.pluginLoader = pluginLoader;
+            this.configurationService = configurationService;
         }
 
         [FunctionName("PluginFunction")]
@@ -33,7 +36,10 @@ namespace Prise.Example.AzureFunction
             if (pluginScanResult == null)
                 return (ActionResult)new BadRequestObjectResult($"Plugin not found: {pluginToLoad}");
 
-            var plugin = await this.pluginLoader.LoadPlugin<IPlugin>(pluginScanResult);
+            var plugin = await this.pluginLoader.LoadPlugin<IPlugin>(pluginScanResult, (context) =>
+                    {
+                        context.AddHostService<IConfigurationService>(this.configurationService);
+                    });
 
             var builder = new StringBuilder();
             foreach (var result in await plugin.GetAll())

@@ -8,35 +8,31 @@ using Prise.Core;
 using Prise.AssemblyLoading;
 using Prise.Proxy;
 using Prise.Activation;
-using Microsoft.Extensions.DependencyInjection;
-using System;
 
-namespace Prise.Example.Razor.Services
+namespace Prise.Mvc
 {
-    public interface IPluginLoader
+    public interface IMvcPluginLoader
     {
         Task<IEnumerable<AssemblyScanResult>> FindPlugins<T>(string pathToPlugins);
-        IAsyncEnumerable<T> LoadPlugins<T>(AssemblyScanResult plugin, Action<PluginLoadContext> configureLoadContext = null);
+        IAsyncEnumerable<IAssemblyShim> LoadPluginAssembly(AssemblyScanResult plugin, Action<IServiceCollection, DefaultPluginLoadContext> configureLoadContext = null);
+        IAsyncEnumerable<IAssemblyShim> UnloadPluginAssembly(AssemblyScanResult plugin);
     }
 
-    public class PluginLoader : IPluginLoader
+    public class DefaultMvcPluginLoader : IMvcPluginLoader
     {
-        private readonly IConfigurationService configurationService;
         private readonly IAssemblyScanner assemblyScanner;
         private readonly IPluginTypeSelector pluginTypeSelector;
         private readonly IAssemblyLoader assemblyLoader;
         private readonly IParameterConverter parameterConverter;
         private readonly IResultConverter resultConverter;
         private readonly IPluginActivator pluginActivator;
-        public PluginLoader(IConfigurationService configurationService,
-                            IAssemblyScanner assemblyScanner,
+        public DefaultMvcPluginLoader(IAssemblyScanner assemblyScanner,
                             IPluginTypeSelector pluginTypeSelector,
                             IAssemblyLoader assemblyLoader,
                             IParameterConverter parameterConverter,
                             IResultConverter resultConverter,
                             IPluginActivator pluginActivator)
         {
-            this.configurationService = configurationService;
             this.assemblyScanner = assemblyScanner;
             this.pluginTypeSelector = pluginTypeSelector;
             this.assemblyLoader = assemblyLoader;
@@ -45,7 +41,7 @@ namespace Prise.Example.Razor.Services
             this.pluginActivator = pluginActivator;
         }
 
-        public async Task<IEnumerable<AssemblyScanResult>> FindPlugins<T>(string pathToPlugins)
+        public async virtual Task<IEnumerable<AssemblyScanResult>> FindPlugins<T>(string pathToPlugins)
         {
             return (await this.assemblyScanner.Scan(new AssemblyScannerOptions
             {
@@ -53,29 +49,16 @@ namespace Prise.Example.Razor.Services
                 PluginType = typeof(T)
             }));
         }
-
-        public async IAsyncEnumerable<T> LoadPlugins<T>(AssemblyScanResult plugin, Action<PluginLoadContext> configureLoadContext = null)
+        public async IAsyncEnumerable<IAssemblyShim> LoadPluginAssembly(AssemblyScanResult plugin, Action<IServiceCollection, DefaultPluginLoadContext> configureLoadContext = null)
         {
             var hostFramework = HostFrameworkUtils.GetHostframeworkFromHost();
+            var servicesForPlugin = new ServiceCollection();
+
             var pathToAssembly = Path.Combine(plugin.AssemblyPath, plugin.AssemblyName);
             var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(T), hostFramework);
-            // This allows the loading of netstandard plugins
-            pluginLoadContext.IgnorePlatformInconsistencies = true;
-
             configureLoadContext?.Invoke(pluginLoadContext);
 
-            var pluginAssembly = await this.assemblyLoader.Load(pluginLoadContext);
-            var pluginTypes = this.pluginTypeSelector.SelectPluginTypes<T>(pluginAssembly);
-
-            foreach (var pluginType in pluginTypes)
-                yield return await this.pluginActivator.ActivatePlugin<T>(new DefaultPluginActivationOptions
-                {
-                    PluginType = pluginType,
-                    PluginAssembly = pluginAssembly,
-                    ParameterConverter = this.parameterConverter,
-                    ResultConverter = this.resultConverter,
-                    HostServices = pluginLoadContext.HostServices
-                });
         }
+
     }
 }

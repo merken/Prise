@@ -51,8 +51,7 @@ namespace Prise.Example.Console
                 // This allows the loading of netstandard plugins
                 pluginLoadContext.IgnorePlatformInconsistencies = true;
 
-                IServiceCollection hostServices = new ServiceCollection();
-                pluginLoadContext.AddHostServices(mainServiceCollection, hostServices, new[] { typeof(IConfigurationService) });
+                pluginLoadContext.AddHostServices(mainServiceCollection, new[] { typeof(IConfigurationService) });
 
                 var pluginAssembly = await loader.Load(pluginLoadContext);
                 
@@ -65,7 +64,7 @@ namespace Prise.Example.Console
                         PluginAssembly = pluginAssembly,
                         ParameterConverter = DefaultFactories.DefaultParameterConverter(),
                         ResultConverter = DefaultFactories.DefaultResultConverter(),
-                        HostServices = hostServices
+                        HostServices = pluginLoadContext.HostServices
                     });
 
                     var pluginResults = await pluginInstance.GetAll();

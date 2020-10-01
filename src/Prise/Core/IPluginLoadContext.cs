@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Prise.Core
 {
@@ -16,6 +17,7 @@ namespace Prise.Core
         PluginPlatformVersion PluginPlatformVersion { get; }
         IRuntimePlatformContext RuntimePlatformContext { get; }
         IEnumerable<string> AdditionalProbingPaths { get; }
+        IServiceCollection HostServices { get; }
         string HostFramework { get; }
         bool IgnorePlatformInconsistencies { get; }
     }

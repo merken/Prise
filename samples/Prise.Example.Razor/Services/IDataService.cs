@@ -14,8 +14,10 @@ namespace Prise.Example.Razor.Services
     public class DataService : IDataService
     {
         private readonly IPluginLoader pluginLoader;
-        public DataService(IPluginLoader pluginLoader)
+        private readonly IConfigurationService configurationService;
+        public DataService(IPluginLoader pluginLoader, IConfigurationService configurationService)
         {
+            this.configurationService = configurationService;
             this.pluginLoader = pluginLoader;
         }
 
@@ -26,7 +28,10 @@ namespace Prise.Example.Razor.Services
 
             foreach (var pluginResult in pluginResults)
             {
-                await foreach (var plugin in this.pluginLoader.LoadPlugins<IPlugin>(pluginResult))
+                await foreach (var plugin in this.pluginLoader.LoadPlugins<IPlugin>(pluginResult, (context) =>
+                    {
+                        context.AddHostService<IConfigurationService>(this.configurationService);
+                    }))
                 {
                     data.AddRange(await plugin.GetAll());
                 }

@@ -28,8 +28,9 @@ namespace Prise.Mvc
         {
 
             return services
-                .AddSingleton(typeof(DefaultScopedPluginCache<T>))
-                .ConfigureMVCServices<T>()
+                    .AddPrise()
+                    .AddSingleton(typeof(DefaultScopedPluginCache<T>))
+                    .ConfigureMVCServices<T>()
 
                 ;
             //             return builder
@@ -62,6 +63,7 @@ namespace Prise.Mvc
         public static PluginLoadOptionsBuilder<T> AddPriseRazorPlugins<T>(this IServiceCollection services, string webRootPath)
         {
             return services
+                    .AddPrise()
                     .AddSingleton(typeof(DefaultScopedPluginCache<T>))
                     .ConfigureMVCServices<T>()
                     .ConfigureRazorServices<T>(webRootPath)

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace Prise.Example.AzureFunction
     public interface IPluginLoader
     {
         Task<AssemblyScanResult> FindPlugin<T>(string pathToPlugins, string plugin);
-        Task<T> LoadPlugin<T>(AssemblyScanResult plugin);
+        Task<T> LoadPlugin<T>(AssemblyScanResult plugin, Action<PluginLoadContext> configureLoadContext = null);
     }
 
     public class FunctionPluginLoader : IPluginLoader
@@ -53,7 +54,7 @@ namespace Prise.Example.AzureFunction
             })).FirstOrDefault(p => p.AssemblyPath.Split(Path.DirectorySeparatorChar).Last().Equals(plugin));
         }
 
-        public async Task<T> LoadPlugin<T>(AssemblyScanResult plugin)
+        public async Task<T> LoadPlugin<T>(AssemblyScanResult plugin, Action<PluginLoadContext> configureLoadContext = null)
         {
             var hostFramework = HostFrameworkUtils.GetHostframeworkFromHost();
             var servicesForPlugin = new ServiceCollection();
@@ -62,9 +63,8 @@ namespace Prise.Example.AzureFunction
             var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(T), hostFramework);
             // This allows the loading of netstandard plugins
             pluginLoadContext.IgnorePlatformInconsistencies = true;
-            
-            // Add this private field to collection
-            pluginLoadContext.AddHostService<IConfigurationService>(servicesForPlugin, this.configurationService);
+
+            configureLoadContext?.Invoke(pluginLoadContext);
 
             var pluginAssembly = await this.assemblyLoader.Load(pluginLoadContext);
             var pluginTypes = this.pluginTypeSelector.SelectPluginTypes<T>(pluginAssembly);

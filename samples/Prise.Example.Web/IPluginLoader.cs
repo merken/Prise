@@ -9,33 +9,31 @@ using Prise.AssemblyLoading;
 using Prise.Proxy;
 using Prise.Activation;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace Prise.Example.Web
 {
     public interface IPluginLoader
     {
         Task<IEnumerable<AssemblyScanResult>> FindPlugins<T>(string pathToPlugins);
-        IAsyncEnumerable<T> LoadPlugins<T>(AssemblyScanResult plugin);
+        IAsyncEnumerable<T> LoadPlugins<T>(AssemblyScanResult plugin, Action<PluginLoadContext> configureLoadContext = null);
     }
 
     public class PluginLoader : IPluginLoader
     {
-        private readonly IHttpContextAccessorService httpContextAccessorService;
         private readonly IAssemblyScanner assemblyScanner;
         private readonly IPluginTypeSelector pluginTypeSelector;
         private readonly IAssemblyLoader assemblyLoader;
         private readonly IParameterConverter parameterConverter;
         private readonly IResultConverter resultConverter;
         private readonly IPluginActivator pluginActivator;
-        public PluginLoader(IHttpContextAccessorService httpContextAccessorService,
-                            IAssemblyScanner assemblyScanner,
+        public PluginLoader(IAssemblyScanner assemblyScanner,
                             IPluginTypeSelector pluginTypeSelector,
                             IAssemblyLoader assemblyLoader,
                             IParameterConverter parameterConverter,
                             IResultConverter resultConverter,
                             IPluginActivator pluginActivator)
         {
-            this.httpContextAccessorService = httpContextAccessorService;
             this.assemblyScanner = assemblyScanner;
             this.pluginTypeSelector = pluginTypeSelector;
             this.assemblyLoader = assemblyLoader;
@@ -53,18 +51,15 @@ namespace Prise.Example.Web
             }));
         }
 
-        public async IAsyncEnumerable<T> LoadPlugins<T>(AssemblyScanResult plugin)
+        public async IAsyncEnumerable<T> LoadPlugins<T>(AssemblyScanResult plugin, Action<PluginLoadContext> configurePluginLoadContext = null)
         {
             var hostFramework = HostFrameworkUtils.GetHostframeworkFromHost();
-            var servicesForPlugin = new ServiceCollection();
-
             var pathToAssembly = Path.Combine(plugin.AssemblyPath, plugin.AssemblyName);
             var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(T), hostFramework);
             // This allows the loading of netstandard plugins
             pluginLoadContext.IgnorePlatformInconsistencies = true;
-            
-            // Add this private field to collection
-            pluginLoadContext.AddHostService<IHttpContextAccessorService>(servicesForPlugin, this.httpContextAccessorService);
+
+            configurePluginLoadContext?.Invoke(pluginLoadContext);
 
             var pluginAssembly = await this.assemblyLoader.Load(pluginLoadContext);
             var pluginTypes = this.pluginTypeSelector.SelectPluginTypes<T>(pluginAssembly);
@@ -76,7 +71,7 @@ namespace Prise.Example.Web
                     PluginAssembly = pluginAssembly,
                     ParameterConverter = this.parameterConverter,
                     ResultConverter = this.resultConverter,
-                    HostServices = servicesForPlugin
+                    HostServices = pluginLoadContext.HostServices
                 });
         }
     }

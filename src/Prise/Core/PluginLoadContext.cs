@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Prise.Core
 {
@@ -19,6 +20,7 @@ namespace Prise.Core
             this.IgnorePlatformInconsistencies = false;
             this.RuntimePlatformContext = null;
             this.PluginPlatformVersion = PluginPlatformVersion.Empty();
+            this.HostServices = new ServiceCollection();
         }
 
         public string FullPathToPluginAssembly { get; set; }
@@ -46,6 +48,8 @@ namespace Prise.Core
         public bool IgnorePlatformInconsistencies { get; set; }
 
         public string HostFramework { get; set; }
+
+        public IServiceCollection HostServices { get; }
 
         public static PluginLoadContext DefaultPluginLoadContext(string fullPathToPluginAssembly,
                                                                   Type pluginType,

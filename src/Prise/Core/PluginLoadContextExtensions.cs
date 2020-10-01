@@ -2,20 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Prise.Core;
 
-namespace Prise.Utils
+namespace Prise.Core
 {
     public static class PluginLoadContextExtensions
     {
         public static PluginLoadContext AddHostServices(this PluginLoadContext pluginLoadContext,
                IServiceCollection hostServices,
-               IServiceCollection services = null,
                IEnumerable<Type> includeTypes = null,
                IEnumerable<Type> excludeTypes = null)
         {
-            services = services ?? new ServiceCollection();
-
             if (includeTypes == null || !includeTypes.Any())
                 return pluginLoadContext; // short circuit
 
@@ -28,27 +24,25 @@ namespace Prise.Utils
                                         .Except(priseServices)
                                         .Union(includeServices)
                                         .Except(excludeServices))
-                pluginLoadContext.AddHostService(
-                    services,
-                    hostService);
+                pluginLoadContext.AddHostService(hostService);
 
             return pluginLoadContext;
         }
 
-        public static PluginLoadContext AddHostService(this PluginLoadContext pluginLoadContext, IServiceCollection services, Type hostServiceType, Type hostServiceImplementationType, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+        public static PluginLoadContext AddHostService(this PluginLoadContext pluginLoadContext, Type hostServiceType, Type hostServiceImplementationType, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
         {
-            return pluginLoadContext.AddHostService(services, new ServiceDescriptor(hostServiceType, hostServiceImplementationType, serviceLifetime));
+            return pluginLoadContext.AddHostService(new ServiceDescriptor(hostServiceType, hostServiceImplementationType, serviceLifetime));
         }
 
-        public static PluginLoadContext AddHostService<T>(this PluginLoadContext pluginLoadContext, IServiceCollection services, T implementation, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+        public static PluginLoadContext AddHostService<T>(this PluginLoadContext pluginLoadContext, T implementation, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
         {
-            return pluginLoadContext.AddHostService(services, new ServiceDescriptor(typeof(T), (s) => implementation, serviceLifetime));
+            return pluginLoadContext.AddHostService(new ServiceDescriptor(typeof(T), (s) => implementation, serviceLifetime));
         }
 
-        public static PluginLoadContext AddHostService(this PluginLoadContext pluginLoadContext, IServiceCollection services, ServiceDescriptor hostService)
+        public static PluginLoadContext AddHostService(this PluginLoadContext pluginLoadContext, ServiceDescriptor hostService)
         {
             // Add the Host service to the servicecollection of the plugin
-            services.Add(hostService);
+            pluginLoadContext.HostServices.Add(hostService);
 
             return pluginLoadContext
                   // A host type will always live inside the host
