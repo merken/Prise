@@ -1,6 +1,6 @@
 using Example.Contract;
 
-namespace PluginSql
+namespace Plugin.Sql
 {
     public class ConfigurationService : Prise.PluginBridge.PluginBridge, IConfigurationService
     {

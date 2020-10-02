@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
-namespace PluginAzureTableStorage
+namespace Plugin.AzureTableStorage
 {
     public class DataEntity : TableEntity
     {

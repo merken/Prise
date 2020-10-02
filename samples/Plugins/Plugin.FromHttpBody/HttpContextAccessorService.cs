@@ -1,7 +1,7 @@
 using Example.Contract;
 using System.Threading.Tasks;
 
-namespace PluginFromHttpBody
+namespace Plugin.FromHttpBody
 {
     public class HttpContextAccessorService : Prise.PluginBridge.PluginBridge, IHttpContextAccessorService
     {

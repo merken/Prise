@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Example.Contract;
 using Newtonsoft.Json;
 
-namespace PluginFileSystem
+namespace Plugin.FileSystem
 {
     [JsonObject]
     public class DataFile

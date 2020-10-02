@@ -1,7 +1,7 @@
 
 using Example.Contract;
 
-namespace PluginFileSystem
+namespace Plugin.FileSystem
 {
     public class ConfigurationService : Prise.PluginBridge.PluginBridge, IConfigurationService
     {

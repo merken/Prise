@@ -1,8 +1,7 @@
 using Example.Contract;
 using Microsoft.EntityFrameworkCore;
-using System;
 
-namespace PluginSql
+namespace Plugin.Sql
 {
     public class SqlDbContext : DbContext
     {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Example.Contract;
 using Prise.Plugin;
 
-namespace PluginFileSystem
+namespace Plugin.FileSystem
 {
     [Plugin(PluginType = typeof(IPlugin))]
     public class FileSystemPlugin : IPlugin

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace TwitterWidgetPlugin
+namespace MvcPlugin.Twitter
 {
     [Route("twitter")]
     // The name of the Views folder must be TwitterWidget

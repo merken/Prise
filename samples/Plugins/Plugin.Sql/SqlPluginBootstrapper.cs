@@ -10,7 +10,7 @@ using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
 
-namespace PluginSql
+namespace Plugin.Sql
 {
     [Prise.Plugin.PluginBootstrapper(PluginType = typeof(SqlPlugin))]
     public class SqlPluginBootstrapper : Prise.Plugin.IPluginBootstrapper

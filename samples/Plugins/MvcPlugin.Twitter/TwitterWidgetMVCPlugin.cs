@@ -1,7 +1,7 @@
 ﻿using Prise.Plugin;
 using Example.Contract;
 
-namespace TwitterWidgetPlugin
+namespace MvcPlugin.Twitter
 {
     [Plugin(PluginType = typeof(IMvcPlugin))]
     [MvcPluginDescription(Description = "This feature will add the '/twitter' widget to the current MVC Host.")]

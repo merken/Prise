@@ -1,7 +1,7 @@
 
 using Example.Contract;
 
-namespace PluginAzureTableStorage
+namespace Plugin.AzureTableStorage
 {
     public class ConfigurationService : Prise.PluginBridge.PluginBridge, IConfigurationService
     {

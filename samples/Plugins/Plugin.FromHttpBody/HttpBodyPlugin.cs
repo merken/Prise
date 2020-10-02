@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Example.Contract;
 using System.Text.Json;
 
-namespace PluginFromHttpBody
+namespace Plugin.FromHttpBody
 {
     [Plugin(PluginType = typeof(IPlugin))]
     public class HttpBodyPlugin : IPlugin

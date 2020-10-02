@@ -1,13 +1,10 @@
 
 using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Table;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace PluginAzureTableStorage
+namespace Plugin.AzureTableStorage
 {
     public class TableConfig
     {

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Example.Contract;
 using Prise.Plugin;
 
-namespace PluginFileSystem
+namespace Plugin.FileSystem
 {
     [Prise.Plugin.PluginBootstrapper(PluginType = typeof(FileSystemPlugin))]
     public class FileSystemPluginBootstrapper : Prise.Plugin.IPluginBootstrapper

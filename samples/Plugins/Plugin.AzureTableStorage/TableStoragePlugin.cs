@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Example.Contract;
 using Prise.Plugin;
 
-namespace PluginAzureTableStorage
+namespace Plugin.AzureTableStorage
 {
     [Plugin(PluginType = typeof(IPlugin))]
     public class TableStoragePlugin : TableStorageProviderBase<DataEntity>, IPlugin
