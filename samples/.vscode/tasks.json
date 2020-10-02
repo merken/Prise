@@ -7,7 +7,19 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/Prise.Example.Console/Prise.Example.Console.csproj",
+        "${workspaceFolder}/Example.Console/Example.Console.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-webapi",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/Example.WebApi/Example.WebApi.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -19,19 +31,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/Prise.Example.Web/Prise.Example.Web.csproj",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "build-razor-views",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "build",
-        "${workspaceFolder}/Prise.Example.Razor/Prise.Example.Razor.csproj",
+        "${workspaceFolder}/Example.Web/Example.Web.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -43,7 +43,19 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/Prise.Example.Mvc.Controllers/Prise.Example.Mvc.Controllers.csproj",
+        "${workspaceFolder}/Example.Mvc.Controllers/Example.Mvc.Controllers.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-mvc-razor",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/Example.Mvc.Razor/Example.Mvc.Razor.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -55,7 +67,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/Prise.Example.AzureFunction/Prise.Example.AzureFunction.csproj",
+        "${workspaceFolder}/Example.AzureFunction/Example.AzureFunction.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -65,7 +77,7 @@
       "type": "func",
       "dependsOn": ["build-func"],
       "options": {
-        "cwd": "${workspaceFolder}/Prise.Example.AzureFunction/bin/Debug/netcoreapp3.1"
+        "cwd": "${workspaceFolder}/Example.AzureFunction/bin/Debug/netcoreapp3.1"
       },
       "command": "host start",
       "isBackground": true,
