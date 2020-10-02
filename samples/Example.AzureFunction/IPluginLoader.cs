@@ -76,7 +76,7 @@ namespace Example.AzureFunction
                 PluginAssembly = pluginAssembly,
                 ParameterConverter = this.parameterConverter,
                 ResultConverter = this.resultConverter,
-                HostServices = servicesForPlugin
+                HostServices = pluginLoadContext.HostServices
             });
         }
     }
