@@ -12,7 +12,7 @@ using Prise.Caching;
 
 namespace Prise.Mvc
 {
-    public class PriseMvcControllerActivator : IControllerActivator
+    public class DefaultPriseMvcControllerActivator : IControllerActivator
     {
         public object Create(ControllerContext context)
         {

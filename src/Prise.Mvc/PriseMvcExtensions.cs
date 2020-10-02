@@ -21,12 +21,12 @@ namespace Prise.Mvc
 {
     public static class PriseMvcExtensions
     {
-        public static PluginLoadContext AddMvc(this PluginLoadContext loadContext)
+        internal static PluginLoadContext AddMvcTypes(this PluginLoadContext loadContext)
         {
             return loadContext.AddHostTypes(new[] { typeof(ControllerBase) });
         }
 
-        public static PluginLoadContext AddMvcRazor(this PluginLoadContext loadContext)
+        internal static PluginLoadContext AddMvcRazorTypes(this PluginLoadContext loadContext)
         {
             return loadContext.AddHostTypes(new[] { typeof(ControllerBase), typeof(ITempDataDictionaryFactory) });
         }
@@ -59,7 +59,7 @@ namespace Prise.Mvc
                     .AddCorePriseServices()
                     .AddSingleton<IPluginCache, DefaultScopedPluginCache>()
                     .AddScoped<IMvcPluginLoader, DefaultMvcPluginLoader>()
-                    .ConfigureMVCServices()
+                    .ConfigureMvcServices()
                 ;
         }
 
@@ -74,14 +74,16 @@ namespace Prise.Mvc
         /// <param name="builder"></param>
         /// <param name="webRootPath">By default, this should be the IWebHostEnvironment.WebRootPaht or IHostingEnvironment.WebRootPath</param>
         /// <returns></returns>
-        //         public static PluginLoadOptionsBuilder<T> AddPriseRazorPlugins<T>(this IServiceCollection services, string webRootPath)
-        //         {
-        //             return services
-        //                     .AddPrise()
-        //                     .AddSingleton(typeof(DefaultScopedPluginCache<T>))
-        //                     .ConfigureMVCServices<T>()
-        //                     .ConfigureRazorServices<T>(webRootPath)
-
+        public static IServiceCollection AddPriseRazorPlugins(this IServiceCollection services, string webRootPath, string pathToPlugins)
+        {
+            return services
+                    .AddCorePriseServices()
+                    .AddSingleton<IPluginCache, DefaultScopedPluginCache>()
+                    .AddScoped<IMvcPluginLoader, DefaultMvcRazorPluginLoader>()
+                    .ConfigureMvcServices()
+                    .ConfigureRazorServices(webRootPath, pathToPlugins)
+                ;
+        }
         //             ;
 
         //             return builder
@@ -102,33 +104,33 @@ namespace Prise.Mvc
         //             ;
         //         }
 
-        private static IServiceCollection ConfigureMVCServices(this IServiceCollection services)
+        private static IServiceCollection ConfigureMvcServices(this IServiceCollection services)
         {
-            var actionDescriptorChangeProvider = new PriseMvcActionDescriptorChangeProvider();
+            var actionDescriptorChangeProvider = new DefaultPriseMvcActionDescriptorChangeProvider();
             // Registers the change provider
             return services
                 .AddSingleton<IPriseMvcActionDescriptorChangeProvider>(actionDescriptorChangeProvider)
                 .AddSingleton<IActionDescriptorChangeProvider>(actionDescriptorChangeProvider)
                 // Registers the activator for controllers from plugin assemblies
-                .Replace(ServiceDescriptor.Transient<IControllerActivator, PriseMvcControllerActivator>());
+                .Replace(ServiceDescriptor.Transient<IControllerActivator, DefaultPriseMvcControllerActivator>());
         }
 
-        private static IServiceCollection ConfigureRazorServices(this IServiceCollection services, string webRootPath)
+        private static IServiceCollection ConfigureRazorServices(this IServiceCollection services, string webRootPath, string pathToPlugins)
         {
             return services
 #if NETCORE2_1
                 .Configure<RazorViewEngineOptions>(options =>
                 {
-                    options.FileProviders.Add(new PrisePluginViewsAssemblyFileProvider(webRootPath));
+                    options.FileProviders.Add(new PrisePluginViewsAssemblyFileProvider(webRootPath, pathToPlugins));
                 })
 #else
                 .Configure<MvcRazorRuntimeCompilationOptions>(options =>
                 {
-                    options.FileProviders.Add(new PrisePluginViewsAssemblyFileProvider(webRootPath));
+                    options.FileProviders.Add(new DefaultPrisePluginViewsAssemblyFileProvider(webRootPath, pathToPlugins));
                 })
 #endif
                 // Registers the static Plugin Cache Accessor
-                .AddSingleton<IPluginCacheAccessorBootstrapper, StaticPluginCacheAccessorBootstrapper>();
+                .AddSingleton<IPluginCacheAccessorBootstrapper, DefaultStaticPluginCacheAccessorBootstrapper>();
         }
 
     }

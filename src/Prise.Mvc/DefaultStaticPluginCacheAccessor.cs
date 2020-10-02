@@ -2,7 +2,7 @@
 
 namespace Prise.Mvc
 {
-    public static class StaticPluginCacheAccessor
+    public static class DefaultStaticPluginCacheAccessor
     {
         public static IPluginCache CurrentCache { get; internal set; }
     }

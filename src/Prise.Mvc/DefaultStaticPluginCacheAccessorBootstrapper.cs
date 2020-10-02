@@ -3,15 +3,10 @@ using Prise.Caching;
 
 namespace Prise.Mvc
 {
-    public interface IPluginCacheAccessorBootstrapper
-    {
-        void SetCurrentCache(IPluginCache cache);
-    }
-
-    public class StaticPluginCacheAccessorBootstrapper : IPluginCacheAccessorBootstrapper
+    public class DefaultStaticPluginCacheAccessorBootstrapper : IPluginCacheAccessorBootstrapper
     {
         protected bool isBootstrapped;
-        public StaticPluginCacheAccessorBootstrapper(IPluginCache cache)
+        public DefaultStaticPluginCacheAccessorBootstrapper(IPluginCache cache)
         {
             if (this.isBootstrapped)
                 throw new NotSupportedException($"IPluginCache was already bootstrapped");
@@ -22,7 +17,7 @@ namespace Prise.Mvc
 
         public void SetCurrentCache(IPluginCache cache)
         {
-            StaticPluginCacheAccessor.CurrentCache = cache;
+            DefaultStaticPluginCacheAccessor.CurrentCache = cache;
         }
     }
 }

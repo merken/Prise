@@ -13,10 +13,10 @@ namespace Prise.Mvc
 {
     public class DefaultMvcPluginLoader : IMvcPluginLoader
     {
-        private readonly IAssemblyScanner assemblyScanner;
-        private readonly IPluginTypeSelector pluginTypeSelector;
-        private readonly IAssemblyLoader assemblyLoader;
-        private readonly IPluginCache pluginCache;
+        protected readonly IAssemblyScanner assemblyScanner;
+        protected readonly IPluginTypeSelector pluginTypeSelector;
+        protected readonly IAssemblyLoader assemblyLoader;
+        protected readonly IPluginCache pluginCache;
         public DefaultMvcPluginLoader(IAssemblyScanner assemblyScanner,
                             IPluginTypeSelector pluginTypeSelector,
                             IAssemblyLoader assemblyLoader,
@@ -37,13 +37,13 @@ namespace Prise.Mvc
             }));
         }
 
-        public async Task<IAssemblyShim> LoadPluginAssembly<T>(AssemblyScanResult plugin, Action<PluginLoadContext> configureLoadContext = null)
+        public async virtual Task<IAssemblyShim> LoadPluginAssembly<T>(AssemblyScanResult plugin, Action<PluginLoadContext> configureLoadContext = null)
         {
             var pluginLoadContext = ToPluginLoadContext<T>(plugin);
 
             configureLoadContext?.Invoke(pluginLoadContext);
 
-            pluginLoadContext.AddMvc();
+            pluginLoadContext.AddMvcTypes();
 
             var pluginAssembly = await this.assemblyLoader.Load(pluginLoadContext);
 
@@ -52,7 +52,7 @@ namespace Prise.Mvc
             return pluginAssembly;
         }
 
-        public async Task UnloadPluginAssembly<T>(AssemblyScanResult plugin)
+        public async virtual Task UnloadPluginAssembly<T>(AssemblyScanResult plugin)
         {
             var pluginLoadContext = ToPluginLoadContext<T>(plugin);
             await this.assemblyLoader.Unload(pluginLoadContext);
@@ -61,7 +61,7 @@ namespace Prise.Mvc
             this.pluginCache.Remove(pathToAssembly);
         }
 
-        private PluginLoadContext ToPluginLoadContext<T>(AssemblyScanResult plugin)
+        protected PluginLoadContext ToPluginLoadContext<T>(AssemblyScanResult plugin)
         {
             var hostFramework = HostFrameworkUtils.GetHostframeworkFromHost();
             var pathToAssembly = Path.Combine(plugin.AssemblyPath, plugin.AssemblyName);

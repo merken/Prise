@@ -1,22 +1,27 @@
-﻿using System.IO;
-using System.Reflection;
+﻿using System;
+using System.IO;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using Prise.Caching;
 
 namespace Prise.Mvc
 {
-    public class PrisePluginViewsAssemblyFileProvider : IFileProvider
+    public class DefaultPrisePluginViewsAssemblyFileProvider : IFileProvider
     {
-        protected PhysicalFileProvider webRootFileProvider;
-        public PrisePluginViewsAssemblyFileProvider(string hostingRootPath)
+        protected readonly PhysicalFileProvider webRootFileProvider;
+        protected readonly string pathToPlugins;
+        public DefaultPrisePluginViewsAssemblyFileProvider(string hostingRootPath, string pathToPlugins)
         {
+            if (!Path.IsPathRooted(pathToPlugins))
+                throw new ArgumentException($"{nameof(pathToPlugins)} must be rooted (absolute path).");
+
+            this.pathToPlugins = pathToPlugins;
             this.webRootFileProvider = new PhysicalFileProvider(hostingRootPath);
         }
 
         private IPluginCache GetLoadedPluginsCache()
         {
-            return StaticPluginCacheAccessor.CurrentCache;
+            return DefaultStaticPluginCacheAccessor.CurrentCache;
         }
 
         private IFileProvider GetPluginFileProvider(string subpath)
@@ -27,14 +32,20 @@ namespace Prise.Mvc
 
             foreach (var loadedPlugin in cache.GetAll())
             {
-                var pluginAssemblyName = Path.GetFileNameWithoutExtension(loadedPlugin.AssemblyShim.Assembly.GetName().Name);
-                var executingFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                if (File.Exists(Path.Join(Path.Combine(executingFolder, "Plugins", pluginAssemblyName), subpath)))
-                {
-                    return new PhysicalFileProvider(Path.Combine(executingFolder, "Plugins", pluginAssemblyName));
-                }
+                var pluginAssemblyName = loadedPlugin.AssemblyShim.Assembly.GetName().Name;
+                var pathToPlugin = Path.Combine(pathToPlugins, pluginAssemblyName);
+                var pathCandidate = Path.Combine(pathToPlugin, SanitizeSubPath(subpath));
+                if (File.Exists(pathCandidate))
+                    return new PhysicalFileProvider(pathToPlugin);
             }
             return null;
+        }
+
+        private string SanitizeSubPath(string subPath)
+        {
+            if (subPath.StartsWith('/'))
+                return subPath.Substring(1);
+            return subPath;
         }
 
         public IDirectoryContents GetDirectoryContents(string subpath)

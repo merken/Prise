@@ -4,7 +4,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace Prise.Mvc
 {
-    public class PriseMvcActionDescriptorChangeProvider : IActionDescriptorChangeProvider, IPriseMvcActionDescriptorChangeProvider
+    public class DefaultPriseMvcActionDescriptorChangeProvider : IActionDescriptorChangeProvider, IPriseMvcActionDescriptorChangeProvider
     {
         public CancellationTokenSource TokenSource { get; private set; }
 
