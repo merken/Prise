@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Example.Contract;
 using System.IO;
 
-namespace Example.WebApi
+namespace Example.Web.Services
 {
     public class HttpContextAccessorService : IHttpContextAccessorService
     {

@@ -9,20 +9,22 @@ namespace Example.Web.Services
 {
     public interface IDataService
     {
-        Task<IEnumerable<MyDto>> GetDataFromAllIPlugins();
+        Task<IEnumerable<MyDto>> GetDataFromAllPlugins();
     }
 
     public class DataService : IDataService
     {
         private readonly IPluginLoader pluginLoader;
+        private readonly IHttpContextAccessorService httpContextAccessorService;
         private readonly IConfigurationService configurationService;
-        public DataService(IPluginLoader pluginLoader, IConfigurationService configurationService)
+        public DataService(IPluginLoader pluginLoader, IHttpContextAccessorService httpContextAccessorService, IConfigurationService configurationService)
         {
-            this.configurationService = configurationService;
             this.pluginLoader = pluginLoader;
+            this.httpContextAccessorService = httpContextAccessorService;
+            this.configurationService = configurationService;
         }
 
-        public async Task<IEnumerable<MyDto>> GetDataFromAllIPlugins()
+        public async Task<IEnumerable<MyDto>> GetDataFromAllPlugins()
         {
             var data = new List<MyDto>();
             var pluginResults = await this.pluginLoader.FindPlugins<IPlugin>(GetPathToDist());
@@ -31,6 +33,7 @@ namespace Example.Web.Services
             {
                 await foreach (var plugin in this.pluginLoader.LoadPlugins<IPlugin>(pluginResult, (context) =>
                     {
+                        context.AddHostService<IHttpContextAccessorService>(this.httpContextAccessorService);
                         context.AddHostService<IConfigurationService>(this.configurationService);
                     }))
                 {

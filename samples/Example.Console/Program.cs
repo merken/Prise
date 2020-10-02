@@ -58,7 +58,7 @@ namespace Example.Console
                 var pluginTypes = typeSelector.SelectPluginTypes<IPlugin>(pluginAssembly);
                 foreach (var pluginType in pluginTypes)
                 {
-                    var pluginInstance = await activator.ActivatePlugin<IPlugin>(new Activation.DefaultPluginActivationOptions
+                    var pluginInstance = await activator.ActivatePlugin<IPlugin>(new DefaultPluginActivationOptions
                     {
                         PluginType = pluginType,
                         PluginAssembly = pluginAssembly,

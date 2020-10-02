@@ -26,12 +26,26 @@ namespace PluginFromHttpBody
 
         public async Task<IEnumerable<MyDto>> GetAll()
         {
+            if (this.httpContextAccessor == null)
+                return EmptyResponse("No Http Context");
+
             var httpBody = await httpContextAccessor.GetHttpBody();
+            if (String.IsNullOrEmpty(httpBody))
+                return EmptyResponse("No Http Body");
+
             var results = System.Text.Json.JsonSerializer.Deserialize<List<MyDto>>(httpBody, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
             return results;
+        }
+
+        private IEnumerable<MyDto> EmptyResponse(string message)
+        {
+            return new[] { new MyDto
+                {
+                    Text = message
+                }};
         }
     }
 }

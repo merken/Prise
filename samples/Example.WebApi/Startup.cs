@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Example.Contract;
 using Prise.DependencyInjection;
+using Example.WebApi.Services;
 
 namespace Example.WebApi
 {
@@ -30,6 +31,7 @@ namespace Example.WebApi
             services.AddControllers();
             services.AddHttpContextAccessor();
             services.AddTransient<IHttpContextAccessorService, HttpContextAccessorService>();
+            services.AddTransient<IConfigurationService, AppSettingsConfigurationService>();
             services.AddTransient<IPluginLoader, PluginLoader>();
             services.AddPrise();
         }

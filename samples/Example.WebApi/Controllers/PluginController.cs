@@ -14,11 +14,13 @@ namespace Example.WebApi.Controllers
     {
         private readonly IPluginLoader pluginLoader;
         private readonly IHttpContextAccessorService httpContextAccessorService;
+        private readonly IConfigurationService configurationService;
 
-        public PluginController(IPluginLoader pluginLoader, IHttpContextAccessorService httpContextAccessorService)
+        public PluginController(IPluginLoader pluginLoader, IHttpContextAccessorService httpContextAccessorService, IConfigurationService configurationService)
         {
             this.pluginLoader = pluginLoader;
             this.httpContextAccessorService = httpContextAccessorService;
+            this.configurationService = configurationService;
         }
 
         [HttpPost]
@@ -33,6 +35,7 @@ namespace Example.WebApi.Controllers
                     (context) =>
                     {
                         context.AddHostService<IHttpContextAccessorService>(this.httpContextAccessorService);
+                        context.AddHostService<IConfigurationService>(this.configurationService);
                     }))
                 {
                     foreach (var data in await plugin.GetAll())

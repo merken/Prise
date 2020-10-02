@@ -70,7 +70,7 @@ namespace Example.AzureFunction
             var pluginTypes = this.pluginTypeSelector.SelectPluginTypes<T>(pluginAssembly);
             var firstPlugin = pluginTypes.FirstOrDefault();
 
-            return await this.pluginActivator.ActivatePlugin<T>(new Activation.DefaultPluginActivationOptions
+            return await this.pluginActivator.ActivatePlugin<T>(new DefaultPluginActivationOptions
             {
                 PluginType = firstPlugin,
                 PluginAssembly = pluginAssembly,

@@ -1,8 +1,8 @@
-﻿@inject Prise.Example.Web.Services.IDataService dataService
+﻿@inject Example.Web.Services.IDataService dataService
 
 @{
     ViewData["Title"] = "Home Page";
-    var data = await this.dataService.GetDataFromAllIPlugins();  
+    var data = await this.dataService.GetDataFromAllPlugins();  
 }
 
 <div class="text-center">
