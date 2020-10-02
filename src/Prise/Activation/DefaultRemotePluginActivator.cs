@@ -169,14 +169,23 @@ namespace Prise.Activation
 
         protected virtual IServiceProvider GetServiceProviderForPlugin(IServiceCollection services, IPluginBootstrapper bootstrapper, IServiceCollection hostServices)
         {
+            // Add all the host services to the main collection
             foreach (var service in hostServices)
+                services.Add(service);
+
+            IServiceCollection pluginServices = new ServiceCollection();
+            // If a bootstrapper was provided, add the services for the plugin to a new collection
+            if (bootstrapper != null)
+                pluginServices = bootstrapper.Bootstrap(pluginServices);
+
+            // Add all the plugin services to the main collection
+            foreach (var service in pluginServices)
                 services.Add(service);
 
             services.AddScoped<IPluginServiceProvider>(sp => this.pluginServiceProviderFactory(
                 sp,
                 hostServices.Select(d => d.ServiceType),
-                // Plugin Services
-                bootstrapper?.Bootstrap(services)?.Select(d => d.ServiceType) ?? Enumerable.Empty<Type>()
+                pluginServices.Select(d => d.ServiceType)
             ));
 
             return services.BuildServiceProvider();
