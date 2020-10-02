@@ -43,7 +43,6 @@ namespace Prise.DependencyInjection
         /// <param name="allowMultiple">If <true>, an IEnumerable<T> is registered, all plugins of this type will have the same configuration. If <false> only the first found Plugin is registered</param>
         /// <param name="configureContext">A builder function that you can use configure the load context</param>
         /// <param name="hostServices">A builder function that you can use to add Host services to share with the Plugin, accumulates with includeHostServices</param>
-        /// <param name="sharedServices">A builder function that you can use to add Shared services to the Plugin</param>
         /// <typeparam name="T">The Plugin type</typeparam>
         /// <returns>A full configured ServiceCollection that will resolve <T> or an IEnumerable<T> based on <allowMultiple></returns>
         public static IServiceCollection AddPrise<T>(this IServiceCollection services,
@@ -52,8 +51,7 @@ namespace Prise.DependencyInjection
                                                             bool allowMultiple = false,
                                                             ServiceLifetime serviceLifetime = ServiceLifetime.Scoped,
                                                             Action<PluginLoadContext> configureContext = null,
-                                                            Action<IServiceCollection> hostServices = null,
-                                                            Action<IServiceCollection> sharedServices = null)
+                                                            Action<IServiceCollection> hostServices = null)
                    where T : class
         {
             return services
@@ -86,12 +84,6 @@ namespace Prise.DependencyInjection
 
                                 hostServices?.Invoke(hostServicesCollection);
 
-                                var sharedServicesCollection = new ServiceCollection();
-                                sharedServices?.Invoke(sharedServicesCollection);
-
-                                foreach (var sharedService in sharedServicesCollection)
-                                    pluginLoadContext.AddSharedService(sharedService);
-
                                 var pluginAssembly = loader.Load(pluginLoadContext).Result;
                                 var pluginTypes = selector.SelectPluginTypes<T>(pluginAssembly);
 
@@ -106,8 +98,7 @@ namespace Prise.DependencyInjection
                                         PluginAssembly = pluginAssembly,
                                         ParameterConverter = parameterConverter,
                                         ResultConverter = resultConverter,
-                                        HostServices = hostServicesCollection,
-                                        SharedServices = sharedServicesCollection
+                                        HostServices = hostServicesCollection
                                     }).Result);
                                 }
                             }

@@ -8,7 +8,6 @@ namespace Prise.Activation
     {
         public IAssemblyShim PluginAssembly { get; set; }
         public Type PluginType { get; set; }
-        public IServiceCollection SharedServices { get; set; }
         public IServiceCollection HostServices { get; set; }
         public IParameterConverter ParameterConverter { get; set; }
         public IResultConverter ResultConverter { get; set; }

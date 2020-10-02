@@ -22,7 +22,7 @@ namespace Prise.DependencyInjection
         public static Func<IPluginActivationContextProvider> DefaultPluginActivationContextProvider = () => new DefaultPluginActivationContextProvider();
         public static Func<IRemotePluginActivator> DefaultRemotePluginActivator = () => new DefaultRemotePluginActivator(DefaultBootstrapperServiceProvider, DefaultPluginServiceProvider);
         public static Func<IServiceProvider, IEnumerable<Type>, IBootstrapperServiceProvider> DefaultBootstrapperServiceProvider = (sp, hostTypes) => new DefaultBootstrapperServiceProvider(sp, hostTypes);
-        public static Func<IServiceProvider, IEnumerable<Type>, IEnumerable<Type>, IPluginServiceProvider> DefaultPluginServiceProvider = (sp, hostTypes, sharedTypes) => new DefaultPluginServiceProvider(sp, hostTypes, sharedTypes);
+        public static Func<IServiceProvider, IEnumerable<Type>, IEnumerable<Type>, IPluginServiceProvider> DefaultPluginServiceProvider = (sp, hostTypes, pluginTypes) => new DefaultPluginServiceProvider(sp, hostTypes, pluginTypes);
         public static Func<IPluginProxyCreator> DefaultPluginProxyCreator = () => new DefaultPluginProxyCreator();
         public static Func<IAssemblyLoader> DefaultAssemblyLoader = () => new DefaultAssemblyLoader(DefaultAssemblyLoadContextFactory);
         public static Func<INativeAssemblyUnloader> DefaultNativeAssemblyUnloaderFactory = () => new DefaultNativeAssemblyUnloader();

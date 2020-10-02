@@ -52,7 +52,6 @@ namespace Prise.Activation
             var remoteObject = this.remotePluginActivator.CreateRemoteInstance(
                 pluginActivationContext,
                 bootstrapperProxy,
-                pluginActivationOptions.SharedServices,
                 pluginActivationOptions.HostServices
             );
 

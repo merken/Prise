@@ -50,7 +50,7 @@ namespace Prise.Activation
             return AddToDisposables(bootstrapperInstance);
         }
 
-        public virtual object CreateRemoteInstance(IPluginActivationContext pluginActivationContext, IPluginBootstrapper bootstrapper = null, IServiceCollection sharedServices = null, IServiceCollection hostServices = null)
+        public virtual object CreateRemoteInstance(IPluginActivationContext pluginActivationContext, IPluginBootstrapper bootstrapper = null, IServiceCollection hostServices = null)
         {
             var pluginType = pluginActivationContext.PluginType;
             var pluginAssembly = pluginActivationContext.PluginAssembly;
@@ -61,7 +61,7 @@ namespace Prise.Activation
             if (contructors.Count() > 1)
                 throw new PluginActivationException($"Multiple public constructors found for remote plugin {pluginType.Name}");
 
-            var serviceProvider = AddToDisposables(GetServiceProviderForPlugin(new ServiceCollection(), bootstrapper, sharedServices ?? new ServiceCollection(), hostServices ?? new ServiceCollection())) as IServiceProvider;
+            var serviceProvider = AddToDisposables(GetServiceProviderForPlugin(new ServiceCollection(), bootstrapper, hostServices ?? new ServiceCollection())) as IServiceProvider;
 
             if (factoryMethod != null)
                 return AddToDisposables(factoryMethod.Invoke(null, new[] { serviceProvider }));
@@ -167,21 +167,16 @@ namespace Prise.Activation
             return services.BuildServiceProvider();
         }
 
-        protected virtual IServiceProvider GetServiceProviderForPlugin(IServiceCollection services, IPluginBootstrapper bootstrapper, IServiceCollection sharedServices, IServiceCollection hostServices)
+        protected virtual IServiceProvider GetServiceProviderForPlugin(IServiceCollection services, IPluginBootstrapper bootstrapper, IServiceCollection hostServices)
         {
             foreach (var service in hostServices)
                 services.Add(service);
 
-            foreach (var service in sharedServices)
-                services.Add(service);
-
-            if (bootstrapper != null)
-                sharedServices = bootstrapper.Bootstrap(services);
-
             services.AddScoped<IPluginServiceProvider>(sp => this.pluginServiceProviderFactory(
                 sp,
                 hostServices.Select(d => d.ServiceType),
-                sharedServices.Select(d => d.ServiceType)
+                // Plugin Services
+                bootstrapper?.Bootstrap(services)?.Select(d => d.ServiceType) ?? Enumerable.Empty<Type>()
             ));
 
             return services.BuildServiceProvider();
