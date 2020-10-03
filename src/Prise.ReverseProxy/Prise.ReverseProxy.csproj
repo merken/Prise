@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Title>Prise.PluginBridge</Title>
-    <PackageId>Prise.PluginBridge</PackageId>
+    <Title>Prise.ReverseProxy</Title>
+    <PackageId>Prise.ReverseProxy</PackageId>
     <PackageDescription>Adds support for sharing services between a Prise host and a Prise Plugin</PackageDescription>
     <Authors>Maarten Merken</Authors>
     <Company>MRKN</Company>

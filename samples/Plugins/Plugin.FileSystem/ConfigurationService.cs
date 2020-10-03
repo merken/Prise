@@ -3,7 +3,7 @@ using Example.Contract;
 
 namespace Plugin.FileSystem
 {
-    public class ConfigurationService : Prise.PluginBridge.PluginBridge, IConfigurationService
+    public class ConfigurationService : Prise.Proxy.ReverseProxy, IConfigurationService
     {
         public ConfigurationService(object hostService) : base(hostService) { }
 

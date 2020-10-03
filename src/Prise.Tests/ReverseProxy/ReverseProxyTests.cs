@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Prise.Tests
 {
-    public class MyServiceBridge : PluginBridge.PluginBridge, IMyService
+    public class MyServiceBridge : Prise.Proxy.ReverseProxy, IMyService
     {
         public MyServiceBridge(object originalObject) : base(originalObject) { }
 
@@ -14,7 +14,7 @@ namespace Prise.Tests
     }
 
     [TestClass]
-    public class PluginBridgeTests
+    public class ReverseProxyTests
     {
         [TestMethod]
         public async Task InvokingProxyWorks()

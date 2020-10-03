@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Example.Contract;
 using Microsoft.Extensions.DependencyInjection;
-using Prise.PluginBridge;
 using Prise.Plugin;
 
 namespace MvcPlugin.DataStorage.Azure

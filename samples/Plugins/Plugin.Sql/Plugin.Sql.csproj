@@ -13,7 +13,7 @@
   <!-- Include the Prise project references -->
   <ItemGroup>
     <ProjectReference Include="../../../src/Prise.Plugin/Prise.Plugin.csproj" />
-    <ProjectReference Include="../../../src/Prise.PluginBridge/Prise.PluginBridge.csproj" />
+    <ProjectReference Include="../../../src/Prise.Proxy.ReverseProxy/Prise.Proxy.ReverseProxy.csproj" />
     <ProjectReference Include="../../Example.Contract/Example.Contract.csproj" />
   </ItemGroup>
 

@@ -16,8 +16,8 @@
   <ItemGroup>
     <ProjectReference Include="../Prise/Prise.csproj"/>
     <ProjectReference Include="../Prise.Plugin/Prise.Plugin.csproj"/>
-    <ProjectReference Include="../Prise.PluginBridge/Prise.PluginBridge.csproj"/>
     <ProjectReference Include="../Prise.Proxy/Prise.Proxy.csproj"/>
+    <ProjectReference Include="../Prise.ReverseProxy/Prise.ReverseProxy.csproj"/>
   </ItemGroup>
 
 </Project>

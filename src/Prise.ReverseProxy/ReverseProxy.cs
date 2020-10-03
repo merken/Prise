@@ -1,14 +1,13 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Prise.Infrastructure;
-using Prise.Proxy;
 
-namespace Prise.PluginBridge
+namespace Prise.Proxy
 {
-    public abstract class PluginBridge
+    public abstract class ReverseProxy
     {
         protected object hostService;
-        protected PluginBridge(object hostService)
+        protected ReverseProxy(object hostService)
         {
             this.hostService = hostService;
         }
