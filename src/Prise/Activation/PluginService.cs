@@ -7,14 +7,11 @@ namespace Prise.Activation
     {
         public string FieldName { get; set; }
         public Type ServiceType { get; set; }
-        public Type BridgeType { get; set; }
+        public Type ProxyType { get; set; }
     }
 
-    public class PluginService
+    public class PluginService :BootstrapperService
     {
-        public string FieldName { get; set; }
-        public Type ServiceType { get; set; }
         public ProvidedBy ProvidedBy { get; set; }
-        public Type BridgeType { get; set; }
     }
 }

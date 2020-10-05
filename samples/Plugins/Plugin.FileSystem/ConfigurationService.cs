@@ -1,9 +1,10 @@
 
 using Example.Contract;
+using Prise.Proxy;
 
 namespace Plugin.FileSystem
 {
-    public class ConfigurationService : Prise.Proxy.ReverseProxy, IConfigurationService
+    public class ConfigurationService : ReverseProxy, IConfigurationService
     {
         public ConfigurationService(object hostService) : base(hostService) { }
 

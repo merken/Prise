@@ -1,9 +1,10 @@
 using Example.Contract;
 using System.Threading.Tasks;
+using Prise.Proxy;
 
 namespace Plugin.FromHttpBody
 {
-    public class HttpContextAccessorService : Prise.Proxy.ReverseProxy, IHttpContextAccessorService
+    public class HttpContextAccessorService : ReverseProxy, IHttpContextAccessorService
     {
         public HttpContextAccessorService(object hostService) : base(hostService) { }
 

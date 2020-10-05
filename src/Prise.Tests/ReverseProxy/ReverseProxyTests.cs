@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 
 namespace Prise.Tests
 {
-    public class MyServiceBridge : Prise.Proxy.ReverseProxy, IMyService
+    public class MyServiceProxy : Prise.Proxy.ReverseProxy, IMyService
     {
-        public MyServiceBridge(object originalObject) : base(originalObject) { }
+        public MyServiceProxy(object originalObject) : base(originalObject) { }
 
         public Task<string> GetString()
         {
@@ -21,8 +21,8 @@ namespace Prise.Tests
         {
             var originalObject = new MyService();
 
-            var bridge = new MyServiceBridge(originalObject);
-            var result = await bridge.GetString();
+            var proxy = new MyServiceProxy(originalObject);
+            var result = await proxy.GetString();
 
             Assert.AreEqual("Test", result);
         }

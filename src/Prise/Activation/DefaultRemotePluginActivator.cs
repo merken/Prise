@@ -103,16 +103,16 @@ namespace Prise.Activation
                 var fieldName = bootstrapperService.FieldName;
                 var serviceInstance = bootstrapperServiceProvider.GetHostService(bootstrapperService.ServiceType);
 
-                if (bootstrapperService.BridgeType == null)
-                    throw new PluginActivationException($"Field {fieldName} requires a BridgeType.");
+                if (bootstrapperService.ProxyType == null)
+                    throw new PluginActivationException($"Field {fieldName} requires a ProxyType (BridgeType).");
 
-                var bridgeConstructor = GetBridgeConstructor(bootstrapperService.BridgeType);
-                if (bridgeConstructor == null)
-                    throw new PluginActivationException($"PluginBridge {bootstrapperService.BridgeType.Name} must have a single public constructor with one parameter of type object.");
+                 var reverseProxyCtor = GetReverseProxyConstructor(bootstrapperService.ProxyType);
+                if (reverseProxyCtor == null)
+                    throw new PluginActivationException($"ReverseProxy {bootstrapperService.ProxyType.Name} must have a single public constructor with one parameter of type object.");
 
-                var bridgeInstance = AddToDisposables(bridgeConstructor.Invoke(new[] { serviceInstance }));
-                if (!TrySetField(remoteInstance, fieldName, bridgeInstance))
-                    throw new PluginActivationException($"Field {bootstrapperService.FieldName} on Bootstrapper could not be set.");
+                var reverseProxyInstance = AddToDisposables(reverseProxyCtor.Invoke(new[] { serviceInstance }));
+                if (!TrySetField(remoteInstance, fieldName, reverseProxyInstance))
+                    throw new PluginActivationException($"Field {bootstrapperService.FieldName} on Plugin could not be set.");
             }
 
             return remoteInstance;
@@ -139,15 +139,15 @@ namespace Prise.Activation
                 if (TrySetField(remoteInstance, fieldName, serviceInstance))
                     continue; // Field was set successfully, continueing
 
-                if (pluginService.BridgeType == null)
-                    throw new PluginActivationException($"Field {pluginService.FieldName} could not be set, please consider using a PluginBridge.");
+                if (pluginService.ProxyType == null)
+                    throw new PluginActivationException($"Field {pluginService.FieldName} could not be set, please consider using a ReverseProxy.");
 
-                var bridgeConstructor = GetBridgeConstructor(pluginService.BridgeType);
-                if (bridgeConstructor == null)
-                    throw new PluginActivationException($"PluginBridge {pluginService.BridgeType.Name} must have a single public constructor with one parameter of type object.");
+                var reverseProxyCtor = GetReverseProxyConstructor(pluginService.ProxyType);
+                if (reverseProxyCtor == null)
+                    throw new PluginActivationException($"ReverseProxy {pluginService.ProxyType.Name} must have a single public constructor with one parameter of type object.");
 
-                var bridgeInstance = AddToDisposables(bridgeConstructor.Invoke(new[] { serviceInstance }));
-                if (!TrySetField(remoteInstance, fieldName, bridgeInstance))
+                var reverseProxyInstance = AddToDisposables(reverseProxyCtor.Invoke(new[] { serviceInstance }));
+                if (!TrySetField(remoteInstance, fieldName, reverseProxyInstance))
                     throw new PluginActivationException($"Field {pluginService.FieldName} on Plugin could not be set.");
             }
 
@@ -191,9 +191,9 @@ namespace Prise.Activation
             return services.BuildServiceProvider();
         }
 
-        protected virtual ConstructorInfo GetBridgeConstructor(Type bridgeType)
+        protected virtual ConstructorInfo GetReverseProxyConstructor(Type proxyType)
         {
-            return bridgeType
+            return proxyType
                        .GetConstructors(BindingFlags.Public | BindingFlags.Instance)
                        .FirstOrDefault(c => c.GetParameters().Count() == 1 && c.GetParameters().First().ParameterType == typeof(object));
         }
