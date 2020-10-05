@@ -119,15 +119,11 @@ namespace Prise.Activation
         {
             Type proxyType = null;
             var proxyTypeArg = attribute.NamedArguments.FirstOrDefault(a => a.MemberName == "ProxyType");
-            if (proxyTypeArg == null) // TODO End support of BridgeType by next major release
+            if (proxyTypeArg.TypedValue.Value == null) // TODO End support of BridgeType by next major release
                 proxyTypeArg = attribute.NamedArguments.FirstOrDefault(a => a.MemberName == "BridgeType");
 
-            if (proxyTypeArg != null)
-            {
-                var proxyTypeArgValue = proxyTypeArg.TypedValue.Value;
-                if (proxyTypeArgValue != null)
-                    proxyType = proxyTypeArgValue as Type;
-            }
+            if (proxyTypeArg.TypedValue.Value != null)
+                proxyType = proxyTypeArg.TypedValue.Value as Type;
 
             return proxyType;
         }
