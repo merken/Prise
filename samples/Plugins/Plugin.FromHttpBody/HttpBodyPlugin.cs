@@ -10,7 +10,7 @@ namespace Plugin.FromHttpBody
     [Plugin(PluginType = typeof(IPlugin))]
     public class HttpBodyPlugin : IPlugin
     {
-        [PluginService(ProvidedBy = ProvidedBy.Host, ServiceType = typeof(IHttpContextAccessorService), BridgeType = typeof(HttpContextAccessorService))]
+        [PluginService(ProvidedBy = ProvidedBy.Host, ServiceType = typeof(IHttpContextAccessorService), ProxyType =  typeof(HttpContextAccessorService))]
         private readonly IHttpContextAccessorService httpContextAccessor;
 
         [PluginActivated]

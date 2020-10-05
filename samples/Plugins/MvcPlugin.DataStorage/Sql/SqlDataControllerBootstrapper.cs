@@ -18,7 +18,7 @@ namespace MvcPlugin.DataStorage.Sql
     [PluginBootstrapper(PluginType = typeof(SqlDataController))]
     public class SqlDataControllerBootstrapper : IPluginBootstrapper
     {
-        [BootstrapperService(ServiceType = typeof(IConfigurationService), BridgeType = typeof(ConfigurationService))]
+        [BootstrapperService(ServiceType = typeof(IConfigurationService), ProxyType =  typeof(ConfigurationService))]
         private readonly IConfigurationService configurationService;
 
         public IServiceCollection Bootstrap(IServiceCollection services)

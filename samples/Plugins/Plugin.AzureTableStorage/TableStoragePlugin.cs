@@ -10,7 +10,7 @@ namespace Plugin.AzureTableStorage
     [Plugin(PluginType = typeof(IPlugin))]
     public class TableStoragePlugin : TableStorageProviderBase<DataEntity>, IPlugin
     {
-        [PluginService(ProvidedBy = ProvidedBy.Host, ServiceType = typeof(IConfigurationService), BridgeType = typeof(ConfigurationService))]
+        [PluginService(ProvidedBy = ProvidedBy.Host, ServiceType = typeof(IConfigurationService), ProxyType =  typeof(ConfigurationService))]
         private readonly IConfigurationService configurationService;
 
         [PluginActivated]

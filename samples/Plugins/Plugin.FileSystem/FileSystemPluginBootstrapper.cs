@@ -11,7 +11,7 @@ namespace Plugin.FileSystem
     [Prise.Plugin.PluginBootstrapper(PluginType = typeof(FileSystemPlugin))]
     public class FileSystemPluginBootstrapper : Prise.Plugin.IPluginBootstrapper
     {
-        [BootstrapperService(ServiceType = typeof(IConfigurationService), BridgeType = typeof(ConfigurationService))]
+        [BootstrapperService(ServiceType = typeof(IConfigurationService), ProxyType =  typeof(ConfigurationService))]
         private readonly IConfigurationService configurationService;
 
         public IServiceCollection Bootstrap(IServiceCollection services)

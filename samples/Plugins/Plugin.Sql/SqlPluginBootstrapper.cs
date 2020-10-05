@@ -15,7 +15,7 @@ namespace Plugin.Sql
     [Prise.Plugin.PluginBootstrapper(PluginType = typeof(SqlPlugin))]
     public class SqlPluginBootstrapper : Prise.Plugin.IPluginBootstrapper
     {
-        [BootstrapperService(ServiceType = typeof(IConfigurationService), BridgeType = typeof(ConfigurationService))]
+        [BootstrapperService(ServiceType = typeof(IConfigurationService), ProxyType =  typeof(ConfigurationService))]
         private readonly IConfigurationService configurationService;
 
         public IServiceCollection Bootstrap(IServiceCollection services)
