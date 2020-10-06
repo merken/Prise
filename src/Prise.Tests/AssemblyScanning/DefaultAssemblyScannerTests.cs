@@ -74,15 +74,12 @@ namespace Prise.Tests.AssemblyScanning
         [TestMethod]
         public async Task Scan_Succeeds()
         {
+            var startingPath = "/home/maarten";
             var metadataLoadContext = this.mockRepository.Create<IMetadataLoadContext>();
             var assemblyShim = this.mockRepository.Create<IAssemblyShim>();
             var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
-            var scanner = new DefaultAssemblyScanner(
-                (s) => metadataLoadContext.Object,
-                () => directoryTraverser.Object
-            );
 
-            directoryTraverser.Setup(d => d.TraverseDirectories(It.IsAny<string>())).Returns(new[] { "pathy/mcpathface" });
+            directoryTraverser.Setup(d => d.TraverseDirectories(startingPath)).Returns(new[] { "pathy/mcpathface" });
             directoryTraverser.Setup(d => d.TraverseFiles(It.IsAny<string>(), It.IsAny<IEnumerable<string>>())).Returns(new[] { "filey.mcfile.face" });
 
             var contract = TestableTypeBuilder.NewTestableType()
@@ -109,9 +106,13 @@ namespace Prise.Tests.AssemblyScanning
 
             metadataLoadContext.Setup(c => c.LoadFromAssemblyName(It.IsAny<string>())).Returns(assemblyShim.Object);
 
+            var scanner = new DefaultAssemblyScanner(
+                (s) => metadataLoadContext.Object,
+                () => directoryTraverser.Object
+            );
             var types = await scanner.Scan(new AssemblyScannerOptions
             {
-                StartingPath = "/home/maarten",
+                StartingPath = startingPath,
                 PluginType = contract
             });
 

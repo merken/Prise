@@ -13,10 +13,11 @@ namespace Prise.DependencyInjection
 {
     public static class DefaultFactories
     {
+        public static Func<INugetPackageUtilities> DefaultNugetPackageUtilities = () => new DefaultNugetPackageUtilities();
         public static Func<IDirectoryTraverser> DefaultDirectoryTraverser = () => new DefaultDirectoryTraverser();
         public static Func<string, IMetadataLoadContext> DefaultMetadataLoadContext = (fullPathToAssembly) => new DefaultMetadataLoadContext(fullPathToAssembly);
         public static Func<IAssemblyScanner> DefaultAssemblyScanner = () => new DefaultAssemblyScanner(DefaultMetadataLoadContext, DefaultDirectoryTraverser);
-        public static Func<IAssemblyScanner> DefaultNuGetAssemblyScanner = () => new DefaultNugetPackageAssemblyScanner(DefaultMetadataLoadContext, DefaultDirectoryTraverser);
+        public static Func<IAssemblyScanner> DefaultNuGetAssemblyScanner = () => new DefaultNugetPackageAssemblyScanner(DefaultMetadataLoadContext, DefaultDirectoryTraverser, DefaultNugetPackageUtilities);
         public static Func<IPluginTypeSelector> DefaultPluginTypeSelector = () => new DefaultPluginTypeSelector();
         public static Func<IParameterConverter> DefaultParameterConverter = () => new JsonSerializerParameterConverter();
         public static Func<IResultConverter> DefaultResultConverter = () => new JsonSerializerResultConverter();

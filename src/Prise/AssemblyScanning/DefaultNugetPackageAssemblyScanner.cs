@@ -1,33 +1,39 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Prise.Core;
+using Prise.Utils;
 
 namespace Prise.AssemblyScanning
 {
     public class DefaultNugetPackageAssemblyScanner : DefaultAssemblyScanner, IAssemblyScanner
     {
-        private const string NugetExtension = "nupkg";
-        private const string NuspecExtension = "nuspec";
         private const string ExtractedDirectoryName = "_extracted";
 
-        public DefaultNugetPackageAssemblyScanner(Func<string, IMetadataLoadContext> metadataLoadContextFactory, Func<IDirectoryTraverser> directoryTraverser)
+        protected readonly INugetPackageUtilities nugetPackageUtilities;
+
+        public DefaultNugetPackageAssemblyScanner(
+            Func<string, IMetadataLoadContext> metadataLoadContextFactory,
+            Func<IDirectoryTraverser> directoryTraverser,
+            Func<INugetPackageUtilities> nugetPackageUtilities)
             : base(metadataLoadContextFactory, directoryTraverser)
-        { }
+        { this.nugetPackageUtilities = nugetPackageUtilities.ThrowIfNull(nameof(nugetPackageUtilities))(); }
 
         public override Task<IEnumerable<AssemblyScanResult>> Scan(IAssemblyScannerOptions options)
         {
-            var startingPath = options.StartingPath;
-            var typeToScan = options.PluginType;
+            if (options == null)
+                throw new ArgumentNullException($"{typeof(IAssemblyScannerOptions).Name} {nameof(options)}");
+
+            var startingPath = options.StartingPath ?? throw new ArgumentException($"{nameof(options.StartingPath)}");
+            var typeToScan = options.PluginType ?? throw new ArgumentException($"{nameof(options.PluginType)}");
             var fileTypes = options.FileTypes;
 
-            var searchPattern = $"*.{NugetExtension}";
-            var packageFiles = Directory.GetFiles(startingPath, searchPattern, SearchOption.AllDirectories);
+            if (!Path.IsPathRooted(startingPath))
+                throw new AssemblyScanningException($"startingPath {startingPath} is not rooted, this must be a absolute path!");
+
+            var packageFiles = this.nugetPackageUtilities.FindAllNugetPackagesFiles(startingPath);
 
             if (!packageFiles.Any())
                 throw new AssemblyScanningException($"Scanning for NuGet packages had no results for Plugin Type {typeToScan.Name}");
@@ -36,18 +42,13 @@ namespace Prise.AssemblyScanning
 
             foreach (var packageFile in packageFiles)
             {
-                var matches = Regex.Match(packageFile, @"^(.*?)\.((?:\.?[0-9]+){3,}(?:[-a-z]+)?)\.nupkg$").Groups;
-                var versionString = matches[matches.Count - 1].Value;
-                var version = new Version(versionString);
-                var packageFileName = Path.GetFileName(packageFile);
-                var packageNameWithoutVersion = packageFileName.Replace($".{versionString}", String.Empty);
-                var packageNameWithoutExtension = packageNameWithoutVersion.Split(new[] { $".{NugetExtension}" }, StringSplitOptions.RemoveEmptyEntries)[0];
-
+                var version = this.nugetPackageUtilities.GetVersionFromPackageFile(packageFile);
+                var packageName = this.nugetPackageUtilities.GetPackageName(packageFile);
                 packages.Add(new PluginNugetPackage
                 {
                     Version = version,
                     FullPath = packageFile,
-                    PackageName = packageNameWithoutExtension
+                    PackageName = packageName
                 });
             }
 
@@ -55,30 +56,25 @@ namespace Prise.AssemblyScanning
             foreach (var package in packages.GroupBy(p => p.PackageName, (key, g) => g.OrderByDescending(p => p.Version).First()))
             {
                 var latestVersion = package.Version;
-                var extractionDirectory = Path.Combine(startingPath, ExtractedDirectoryName, package.PackageName);
+                var extractedNugetDirectory = Path.Combine(startingPath, ExtractedDirectoryName, package.PackageName);
                 var hasMultipleVersions = packages.Count(p => p.PackageName == package.PackageName) > 1;
-                var hasAlreadyBeenExtracted = Directory.Exists(extractionDirectory);
+                var hasAlreadyBeenExtracted = this.nugetPackageUtilities.HasAlreadyBeenExtracted(extractedNugetDirectory);
 
                 if (hasAlreadyBeenExtracted && !hasMultipleVersions)
                     continue;
 
-                if (hasAlreadyBeenExtracted)
+                if (hasAlreadyBeenExtracted) // At this point, there are multiple versions of the same nuget package present in the directory
                 {
-                    var currentNuspec = Directory.GetFiles(extractionDirectory, $"*.{NuspecExtension}", SearchOption.AllDirectories).FirstOrDefault();
-                    var currentVersionAsString = XDocument.Load(currentNuspec).Root
-                                        .DescendantNodes().OfType<XElement>()
-                                        .FirstOrDefault(x => x.Name.LocalName.Equals("version"))?.Value;
-
-                    var currentVersion = !String.IsNullOrEmpty(currentVersionAsString) ? new Version(currentVersionAsString) : new Version("0.0.0");
+                    var currentVersion = this.nugetPackageUtilities.GetCurrentVersionFromExtractedNuget(extractedNugetDirectory);
                     var hasNewerVersion = latestVersion > currentVersion;
                     if (!hasNewerVersion)
-                        continue;
+                        continue; // The latest version has already been extracted, nothing to do here
 
                     // Newer version was detected, delete the current version
-                    Directory.Delete(extractionDirectory, true);
+                    this.nugetPackageUtilities.DeleteNugetDirectory(extractedNugetDirectory);
                 }
 
-                ZipFile.ExtractToDirectory(package.FullPath, extractionDirectory);
+                this.nugetPackageUtilities.UnCompressNugetPackage(package.FullPath, extractedNugetDirectory);
             }
 
             // Continue with default assembly scanning
