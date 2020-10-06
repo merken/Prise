@@ -14,6 +14,7 @@ namespace Prise.DependencyInjection
     public static class DefaultFactories
     {
         public static Func<INugetPackageUtilities> DefaultNugetPackageUtilities = () => new DefaultNugetPackageUtilities();
+        public static Func<IPlatformAbstraction> DefaultPlatformAbstraction = () => new DefaultPlatformAbstraction();
         public static Func<IDirectoryTraverser> DefaultDirectoryTraverser = () => new DefaultDirectoryTraverser();
         public static Func<string, IMetadataLoadContext> DefaultMetadataLoadContext = (fullPathToAssembly) => new DefaultMetadataLoadContext(fullPathToAssembly);
         public static Func<IAssemblyScanner> DefaultAssemblyScanner = () => new DefaultAssemblyScanner(DefaultMetadataLoadContext, DefaultDirectoryTraverser);
@@ -35,7 +36,7 @@ namespace Prise.DependencyInjection
                     DefaultAssemblyLoadStrategyFactory,
                     DefaultPluginDependencyContextFactory
         );
-        public static Func<IRuntimePlatformContext> DefaultRuntimePlatformContextFactory = () => new DefaultRuntimePlatformContext();
+        public static Func<IRuntimePlatformContext> DefaultRuntimePlatformContextFactory = () => new DefaultRuntimePlatformContext(DefaultPlatformAbstraction,DefaultDirectoryTraverser) ;
         public static Func<IAssemblyLoadStrategy> DefaultAssemblyLoadStrategyFactory = () => new DefaultAssemblyLoadStrategy();
         public static Func<IPluginDependencyResolver> DefaultPluginDependencyResolverFactory = () => new DefaultPluginDependencyResolver(DefaultRuntimePlatformContextFactory);
         public static Func<IPluginLoadContext, Task<IPluginDependencyContext>> DefaultPluginDependencyContextFactory = (pluginLoadContext) => DefaultPluginDependencyContext.FromPluginLoadContext(pluginLoadContext);

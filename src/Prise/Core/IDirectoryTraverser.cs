@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Prise.AssemblyScanning
+namespace Prise.Core
 {
     public interface IDirectoryTraverser
     {

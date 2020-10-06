@@ -76,7 +76,7 @@ namespace Prise.AssemblyLoading
         {
             var hostDependencies = new List<HostDependency>();
             var remoteDependencies = new List<RemoteDependency>();
-            var runtimePlatformContext = pluginLoadContext.RuntimePlatformContext ?? new DefaultRuntimePlatformContext();
+            var runtimePlatformContext = pluginLoadContext.RuntimePlatformContext.ThrowIfNull(nameof(pluginLoadContext.RuntimePlatformContext));
 
             foreach (var type in pluginLoadContext.HostTypes)
                 // Load host types from current app domain

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Prise.AssemblyScanning
+namespace Prise.Core
 {
     public class DefaultDirectoryTraverser : IDirectoryTraverser
     {
