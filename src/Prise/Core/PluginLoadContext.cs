@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
+using Prise.Utils;
 
 namespace Prise.Core
 {
@@ -8,9 +9,9 @@ namespace Prise.Core
     {
         public PluginLoadContext(string fullPathToPluginAssembly, Type pluginType, string hostFramework)
         {
-            this.FullPathToPluginAssembly = fullPathToPluginAssembly;
-            this.PluginType = pluginType;
-            this.HostFramework = hostFramework;
+            this.FullPathToPluginAssembly = fullPathToPluginAssembly.ThrowIfNullOrEmpty(nameof(pluginType));
+            this.PluginType = pluginType.ThrowIfNull(nameof(pluginType));
+            this.HostFramework = hostFramework.ThrowIfNullOrEmpty(nameof(pluginType));
             this.HostTypes = new List<Type>() { typeof(Prise.Plugin.PluginAttribute), typeof(Microsoft.Extensions.DependencyInjection.ServiceCollection) };
             this.HostAssemblies = new List<string>();
             this.DowngradableHostTypes = new List<Type>() { typeof(Prise.Plugin.PluginAttribute) };

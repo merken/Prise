@@ -10,7 +10,7 @@ namespace Prise.Activation
         public Type ProxyType { get; set; }
     }
 
-    public class PluginService :BootstrapperService
+    public class PluginService :  BootstrapperService
     {
         public ProvidedBy ProvidedBy { get; set; }
     }

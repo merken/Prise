@@ -31,12 +31,12 @@ namespace Prise.AssemblyLoading
                                                IEnumerable<PlatformDependency> platformDependencies,
                                                IEnumerable<string> additionalProbingPaths)
         {
-            this.FullPathToPluginAssembly = fullPathToPluginAssembly;
-            this.HostDependencies = hostDependencies;
-            this.RemoteDependencies = remoteDependencies;
-            this.PluginDependencies = pluginDependencies;
-            this.PluginResourceDependencies = pluginResourceDependencies;
-            this.PlatformDependencies = platformDependencies;
+            this.FullPathToPluginAssembly = fullPathToPluginAssembly.ThrowIfNull(nameof(fullPathToPluginAssembly));
+            this.HostDependencies = hostDependencies.ThrowIfNull(nameof(hostDependencies));
+            this.RemoteDependencies = remoteDependencies.ThrowIfNull(nameof(remoteDependencies));
+            this.PluginDependencies = pluginDependencies.ThrowIfNull(nameof(pluginDependencies));
+            this.PluginResourceDependencies = pluginResourceDependencies.ThrowIfNull(nameof(pluginResourceDependencies));
+            this.PlatformDependencies = platformDependencies.ThrowIfNull(nameof(platformDependencies));
             this.AdditionalProbingPaths = additionalProbingPaths ?? Enumerable.Empty<string>();
         }
 

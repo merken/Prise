@@ -7,6 +7,7 @@ using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Prise.Core;
 using Prise.Platform;
+using Prise.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Prise.AssemblyLoading
@@ -37,10 +38,10 @@ namespace Prise.AssemblyLoading
                                           Func<IAssemblyLoadStrategy> assemblyLoadStrategyFactory,
                                           Func<IPluginLoadContext, Task<IPluginDependencyContext>> pluginContextFactory)
         {
-            this.nativeAssemblyUnloader = nativeAssemblyUnloaderFactory();
-            this.pluginDependencyResolverFactory = pluginDependencyResolverFactory;
-            this.assemblyLoadStrategyFactory = assemblyLoadStrategyFactory;
-            this.pluginContextFactory = pluginContextFactory;
+            this.nativeAssemblyUnloader = nativeAssemblyUnloaderFactory.ThrowIfNull(nameof(nativeAssemblyUnloaderFactory))();
+            this.pluginDependencyResolverFactory = pluginDependencyResolverFactory.ThrowIfNull(nameof(pluginDependencyResolverFactory));
+            this.assemblyLoadStrategyFactory = assemblyLoadStrategyFactory.ThrowIfNull(nameof(assemblyLoadStrategyFactory));
+            this.pluginContextFactory = pluginContextFactory.ThrowIfNull(nameof(pluginContextFactory));
             this.loadedNativeLibraries = new ConcurrentDictionary<string, IntPtr>();
             this.loadedPlugins = new ConcurrentBag<string>();
             this.assemblyReferences = new ConcurrentBag<WeakReference>();

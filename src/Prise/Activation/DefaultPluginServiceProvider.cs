@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Prise.Utils;
 
 namespace Prise.Activation
 {
@@ -13,8 +14,8 @@ namespace Prise.Activation
 
         public DefaultBootstrapperServiceProvider(IServiceProvider localProvider, IEnumerable<Type> hostTypes)
         {
-            this.localProvider = localProvider;
-            this.hostTypes = hostTypes;
+            this.localProvider = localProvider.ThrowIfNull(nameof(localProvider));
+            this.hostTypes = hostTypes.ThrowIfNull(nameof(hostTypes));
             this.instances = new ConcurrentBag<object>();
         }
 

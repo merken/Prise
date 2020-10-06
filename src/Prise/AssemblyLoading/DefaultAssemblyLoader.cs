@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Prise.Core;
+using Prise.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Prise.AssemblyLoading
@@ -16,7 +17,7 @@ namespace Prise.AssemblyLoading
 
         public DefaultAssemblyLoader(Func<IAssemblyLoadContext> assemblyLoadContextFactory)
         {
-            this.assemblyLoadContextFactory = assemblyLoadContextFactory;
+            this.assemblyLoadContextFactory = assemblyLoadContextFactory.ThrowIfNull(nameof(assemblyLoadContextFactory));
             this.loadContexts = new ConcurrentDictionary<string, IAssemblyLoadContext>();
             this.loadContextReferences = new ConcurrentDictionary<string, WeakReference>();
         }

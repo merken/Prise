@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Prise.Plugin;
+using Prise.Utils;
 
 namespace Prise.Activation
 {
@@ -17,8 +18,8 @@ namespace Prise.Activation
         public DefaultRemotePluginActivator(Func<IServiceProvider, IEnumerable<Type>, IBootstrapperServiceProvider> bootstrapperServiceProviderFactory,
                                             Func<IServiceProvider, IEnumerable<Type>, IEnumerable<Type>, IPluginServiceProvider> pluginServiceProviderFactory)
         {
-            this.bootstrapperServiceProviderFactory = bootstrapperServiceProviderFactory;
-            this.pluginServiceProviderFactory = pluginServiceProviderFactory;
+            this.bootstrapperServiceProviderFactory = bootstrapperServiceProviderFactory.ThrowIfNull(nameof(bootstrapperServiceProviderFactory));
+            this.pluginServiceProviderFactory = pluginServiceProviderFactory.ThrowIfNull(nameof(pluginServiceProviderFactory));
             this.instances = new ConcurrentBag<object>();
         }
 

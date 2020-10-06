@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Prise.Core;
+using Prise.Utils;
 
 namespace Prise.AssemblyLoading
 {
@@ -13,7 +14,7 @@ namespace Prise.AssemblyLoading
 
         public DefaultPluginDependencyResolver(Func<IRuntimePlatformContext> runtimePlatformContextFactory)
         {
-            this.runtimePlatformContext = runtimePlatformContextFactory();
+            this.runtimePlatformContext = runtimePlatformContextFactory.ThrowIfNull(nameof(runtimePlatformContextFactory))();
         }
 
         public virtual Stream ResolvePluginDependencyToPath(string initialPluginLoadDirectory, PluginDependency dependency, IEnumerable<string> additionalProbingPaths)
