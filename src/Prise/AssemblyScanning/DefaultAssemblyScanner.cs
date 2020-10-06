@@ -5,16 +5,19 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Prise.Core;
+using Prise.Utils;
 
 namespace Prise.AssemblyScanning
 {
     public class DefaultAssemblyScanner : IAssemblyScanner
     {
-        private IList<MetadataLoadContext> metadataLoadContexts;
+        protected IList<IDisposable> disposables;
+        protected Func<string, IMetadataLoadContext> metadataLoadContextFactory;
 
-        public DefaultAssemblyScanner()
+        public DefaultAssemblyScanner(Func<string, IMetadataLoadContext> metadataLoadContextFactory)
         {
-            this.metadataLoadContexts = new List<MetadataLoadContext>();
+            this.disposables = new List<IDisposable>();
+            this.metadataLoadContextFactory = metadataLoadContextFactory.ThrowIfNull(nameof(metadataLoadContextFactory));
         }
 
         public virtual Task<IEnumerable<AssemblyScanResult>> Scan(IAssemblyScannerOptions options)
@@ -22,8 +25,8 @@ namespace Prise.AssemblyScanning
             if (options == null)
                 throw new ArgumentNullException($"{typeof(IAssemblyScannerOptions).Name} {nameof(options)}");
 
-            var startingPath = options.StartingPath ?? throw new ArgumentNullException($"{nameof(options.StartingPath)}");
-            var typeToScan = options.PluginType ?? throw new ArgumentNullException($"{nameof(options.PluginType)}");
+            var startingPath = options.StartingPath ?? throw new ArgumentException($"{nameof(options.StartingPath)}");
+            var typeToScan = options.PluginType ?? throw new ArgumentException($"{nameof(options.PluginType)}");
             var fileTypes = options.FileTypes;
 
             if (!Path.IsPathRooted(startingPath))
@@ -66,11 +69,11 @@ namespace Prise.AssemblyScanning
 
         private IEnumerable<Type> GetImplementationsOfTypeFromAssembly(Type type, string assemblyFullPath)
         {
-            var context = new MetadataLoadContext(new DefaultAssemblyResolver(assemblyFullPath));
+            var context = this.metadataLoadContextFactory(assemblyFullPath);
             var assembly = context.LoadFromAssemblyName(Path.GetFileNameWithoutExtension(assemblyFullPath));
-            this.metadataLoadContexts.Add(context);
+            this.disposables.Add(context);
 
-            return assembly.GetTypes()
+            return assembly.Types
                         .Where(t => t.CustomAttributes
                             .Any(c => c.AttributeType.Name == typeof(Prise.Plugin.PluginAttribute).Name
                             && (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Name == type.Name
@@ -84,9 +87,9 @@ namespace Prise.AssemblyScanning
         {
             if (!this.disposed && disposing)
             {
-                if (this.metadataLoadContexts != null && this.metadataLoadContexts.Any())
-                    foreach (var context in this.metadataLoadContexts)
-                        context.Dispose();
+                if (this.disposables != null && this.disposables.Any())
+                    foreach (var disposable in this.disposables)
+                        disposable.Dispose();
                 GC.Collect(); // collects all unused memory
                 GC.WaitForPendingFinalizers(); // wait until GC has finished its work
             }

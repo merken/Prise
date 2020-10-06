@@ -13,8 +13,9 @@ namespace Prise.DependencyInjection
 {
     public static class DefaultFactories
     {
-        public static Func<IAssemblyScanner> DefaultAssemblyScanner = () => new DefaultAssemblyScanner();
-        public static Func<IAssemblyScanner> DefaultNuGetAssemblyScanner = () => new DefaultNugetPackageAssemblyScanner();
+        public static Func<string, IMetadataLoadContext> DefaultMetadataLoadContext = (fullPathToAssembly) => new DefaultMetadataLoadContext(fullPathToAssembly);
+        public static Func<IAssemblyScanner> DefaultAssemblyScanner = () => new DefaultAssemblyScanner(DefaultMetadataLoadContext);
+        public static Func<IAssemblyScanner> DefaultNuGetAssemblyScanner = () => new DefaultNugetPackageAssemblyScanner(DefaultMetadataLoadContext);
         public static Func<IPluginTypeSelector> DefaultPluginTypeSelector = () => new DefaultPluginTypeSelector();
         public static Func<IParameterConverter> DefaultParameterConverter = () => new JsonSerializerParameterConverter();
         public static Func<IResultConverter> DefaultResultConverter = () => new JsonSerializerResultConverter( );
