@@ -3,6 +3,7 @@ using Moq;
 using Prise.AssemblyScanning;
 using Prise.Tests.Plugins;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -21,22 +22,28 @@ namespace Prise.Tests.AssemblyScanning
         }
 
         [TestMethod]
-        public void Ctor_No_Factory_Throws_ArgumentNullException()
+        public void Ctor_No_MetadataLoadContextFactory_Throws_ArgumentNullException()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new DefaultAssemblyScanner(null));
+            Assert.ThrowsException<ArgumentNullException>(() => new DefaultAssemblyScanner(null, null));
+        }
+
+        [TestMethod]
+        public void Ctor_No_DirectoryTraverserFactory_Throws_ArgumentNullException()
+        {
+            Assert.ThrowsException<ArgumentNullException>(() => new DefaultAssemblyScanner((s) => null, null));
         }
 
         [TestMethod]
         public async Task Scan_No_Options_Throws_ArgumentNullException()
         {
-            var scanner = new DefaultAssemblyScanner((s) => null);
+            var scanner = new DefaultAssemblyScanner((s) => null, () => null);
             await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => scanner.Scan(null));
         }
 
         [TestMethod]
         public async Task Scan_No_StartingPath_Throws_ArgumentException()
         {
-            var scanner = new DefaultAssemblyScanner((s) => null);
+            var scanner = new DefaultAssemblyScanner((s) => null, () => null);
             await Assert.ThrowsExceptionAsync<ArgumentException>(() => scanner.Scan(new AssemblyScannerOptions
             {
                 PluginType = typeof(ITestPlugin)
@@ -46,7 +53,7 @@ namespace Prise.Tests.AssemblyScanning
         [TestMethod]
         public async Task Scan_No_PluginType_Throws_ArgumentException()
         {
-            var scanner = new DefaultAssemblyScanner((s) => null);
+            var scanner = new DefaultAssemblyScanner((s) => null, () => null);
             await Assert.ThrowsExceptionAsync<ArgumentException>(() => scanner.Scan(new AssemblyScannerOptions
             {
                 StartingPath = "/home/maarten"
@@ -56,7 +63,7 @@ namespace Prise.Tests.AssemblyScanning
         [TestMethod]
         public async Task Scan_Unrooted_Path_Throws_AssemblyScanningException()
         {
-            var scanner = new DefaultAssemblyScanner((s) => null);
+            var scanner = new DefaultAssemblyScanner((s) => null, () => null);
             await Assert.ThrowsExceptionAsync<AssemblyScanningException>(() => scanner.Scan(new AssemblyScannerOptions
             {
                 StartingPath = "../home/maarten",
@@ -69,9 +76,21 @@ namespace Prise.Tests.AssemblyScanning
         {
             var metadataLoadContext = this.mockRepository.Create<IMetadataLoadContext>();
             var assemblyShim = this.mockRepository.Create<IAssemblyShim>();
-            var scanner = new DefaultAssemblyScanner((s) => metadataLoadContext.Object);
+            var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
+            var scanner = new DefaultAssemblyScanner(
+                (s) => metadataLoadContext.Object,
+                () => directoryTraverser.Object
+            );
 
-            var pluginAttributeTypedValue = new CustomAttributeTypedArgument(typeof(Prise.Plugin.PluginAttribute));
+            directoryTraverser.Setup(d => d.TraverseDirectories(It.IsAny<string>())).Returns(new[] { "pathy/mcpathface" });
+            directoryTraverser.Setup(d => d.TraverseFiles(It.IsAny<string>(), It.IsAny<IEnumerable<string>>())).Returns(new[] { "filey.mcfile.face" });
+
+            var contract = TestableTypeBuilder.NewTestableType()
+                .WithName("IMyTestType")
+                .WithNamespace("Test.Type")
+                .Build();
+
+            var pluginAttributeTypedValue = new CustomAttributeTypedArgument(contract);
             var pluginAttribute = new TestableAttribute
             {
                 _AttributeType = typeof(Prise.Plugin.PluginAttribute),
@@ -79,7 +98,7 @@ namespace Prise.Tests.AssemblyScanning
                     _Name = "PluginType"
                 },pluginAttributeTypedValue)}
             };
-            
+
             var testableType = TestableTypeBuilder.NewTestableType()
                 .WithCustomAttributes(pluginAttribute)
                 .WithName("MyTestType")
@@ -93,20 +112,13 @@ namespace Prise.Tests.AssemblyScanning
             var types = await scanner.Scan(new AssemblyScannerOptions
             {
                 StartingPath = "/home/maarten",
-                PluginType = testableType
+                PluginType = contract
             });
 
             var result = types.FirstOrDefault();
             Assert.IsNotNull(result);
             Assert.AreEqual("MyTestType", result.PluginType.Name);
             Assert.AreEqual("Test.Type", result.PluginType.Namespace);
-        }
-
-        private static string GetPathToBinDebug()
-        {
-            var pathToThisProgram = Assembly.GetExecutingAssembly() // this assembly location (/bin/Debug/netcoreapp3.1)
-                                        .Location;
-            return Path.GetDirectoryName(pathToThisProgram);
         }
     }
 }

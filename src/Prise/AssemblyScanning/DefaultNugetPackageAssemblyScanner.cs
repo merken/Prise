@@ -16,7 +16,8 @@ namespace Prise.AssemblyScanning
         private const string NuspecExtension = "nuspec";
         private const string ExtractedDirectoryName = "_extracted";
 
-        public DefaultNugetPackageAssemblyScanner(Func<string, IMetadataLoadContext> metadataLoadContextFactory) : base(metadataLoadContextFactory)
+        public DefaultNugetPackageAssemblyScanner(Func<string, IMetadataLoadContext> metadataLoadContextFactory, Func<IDirectoryTraverser> directoryTraverser)
+            : base(metadataLoadContextFactory, directoryTraverser)
         { }
 
         public override Task<IEnumerable<AssemblyScanResult>> Scan(IAssemblyScannerOptions options)

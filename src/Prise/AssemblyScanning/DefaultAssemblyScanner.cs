@@ -13,11 +13,13 @@ namespace Prise.AssemblyScanning
     {
         protected IList<IDisposable> disposables;
         protected Func<string, IMetadataLoadContext> metadataLoadContextFactory;
+        protected IDirectoryTraverser directoryTraverser;
 
-        public DefaultAssemblyScanner(Func<string, IMetadataLoadContext> metadataLoadContextFactory)
+        public DefaultAssemblyScanner(Func<string, IMetadataLoadContext> metadataLoadContextFactory, Func<IDirectoryTraverser> directoryTraverser)
         {
             this.disposables = new List<IDisposable>();
             this.metadataLoadContextFactory = metadataLoadContextFactory.ThrowIfNull(nameof(metadataLoadContextFactory));
+            this.directoryTraverser = directoryTraverser.ThrowIfNull(nameof(directoryTraverser))();
         }
 
         public virtual Task<IEnumerable<AssemblyScanResult>> Scan(IAssemblyScannerOptions options)
@@ -36,10 +38,9 @@ namespace Prise.AssemblyScanning
                 fileTypes = new List<string> { "*.dll" };
 
             var results = new List<AssemblyScanResult>();
-            foreach (var directoryPath in GetDirectoriesIncludingRoot(startingPath))
+            foreach (var directory in this.directoryTraverser.TraverseDirectories(startingPath))
             {
-                var files = fileTypes.SelectMany(p => Directory.GetFiles(directoryPath, p, SearchOption.AllDirectories));
-                foreach (var assemblyFilePath in ExcludeRuntimesFolder(files))
+                foreach (var assemblyFilePath in this.directoryTraverser.TraverseFiles(directory, fileTypes))
                 {
                     var implementation = GetImplementationsOfTypeFromAssembly(typeToScan, assemblyFilePath).FirstOrDefault();
                     if (implementation != null)
@@ -54,15 +55,6 @@ namespace Prise.AssemblyScanning
             }
 
             return Task.FromResult(results.AsEnumerable());
-        }
-
-        private IEnumerable<string> GetDirectoriesIncludingRoot(string startingPath)
-        {
-            var directories = Directory.GetDirectories(startingPath);
-            if (!directories.Any())
-                directories = directories.Union(new[] { startingPath }).ToArray();
-
-            return directories;
         }
 
         private IEnumerable<string> ExcludeRuntimesFolder(IEnumerable<string> files) => files.Where(f => !f.Contains($"{Path.DirectorySeparatorChar}runtimes{Path.DirectorySeparatorChar}"));

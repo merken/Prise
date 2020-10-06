@@ -13,13 +13,14 @@ namespace Prise.DependencyInjection
 {
     public static class DefaultFactories
     {
+        public static Func<IDirectoryTraverser> DefaultDirectoryTraverser = () => new DefaultDirectoryTraverser();
         public static Func<string, IMetadataLoadContext> DefaultMetadataLoadContext = (fullPathToAssembly) => new DefaultMetadataLoadContext(fullPathToAssembly);
-        public static Func<IAssemblyScanner> DefaultAssemblyScanner = () => new DefaultAssemblyScanner(DefaultMetadataLoadContext);
-        public static Func<IAssemblyScanner> DefaultNuGetAssemblyScanner = () => new DefaultNugetPackageAssemblyScanner(DefaultMetadataLoadContext);
+        public static Func<IAssemblyScanner> DefaultAssemblyScanner = () => new DefaultAssemblyScanner(DefaultMetadataLoadContext, DefaultDirectoryTraverser);
+        public static Func<IAssemblyScanner> DefaultNuGetAssemblyScanner = () => new DefaultNugetPackageAssemblyScanner(DefaultMetadataLoadContext, DefaultDirectoryTraverser);
         public static Func<IPluginTypeSelector> DefaultPluginTypeSelector = () => new DefaultPluginTypeSelector();
         public static Func<IParameterConverter> DefaultParameterConverter = () => new JsonSerializerParameterConverter();
-        public static Func<IResultConverter> DefaultResultConverter = () => new JsonSerializerResultConverter( );
-        public static Func<IPluginActivator> DefaultPluginActivator = () => new DefaultPluginActivator(DefaultPluginActivationContextProvider, DefaultRemotePluginActivator,DefaultPluginProxyCreator );
+        public static Func<IResultConverter> DefaultResultConverter = () => new JsonSerializerResultConverter();
+        public static Func<IPluginActivator> DefaultPluginActivator = () => new DefaultPluginActivator(DefaultPluginActivationContextProvider, DefaultRemotePluginActivator, DefaultPluginProxyCreator);
         public static Func<IPluginActivationContextProvider> DefaultPluginActivationContextProvider = () => new DefaultPluginActivationContextProvider();
         public static Func<IRemotePluginActivator> DefaultRemotePluginActivator = () => new DefaultRemotePluginActivator(DefaultBootstrapperServiceProvider, DefaultPluginServiceProvider);
         public static Func<IServiceProvider, IEnumerable<Type>, IBootstrapperServiceProvider> DefaultBootstrapperServiceProvider = (sp, hostTypes) => new DefaultBootstrapperServiceProvider(sp, hostTypes);
