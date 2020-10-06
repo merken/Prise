@@ -12,15 +12,8 @@ using System.Threading.Tasks;
 namespace Prise.Tests.AssemblyScanning
 {
     [TestClass]
-    public class DefaultNugetPackageAssemblyScannerTests
+    public class DefaultNugetPackageAssemblyScannerTests : TestBase
     {
-        private MockRepository mockRepository;
-
-        public DefaultNugetPackageAssemblyScannerTests()
-        {
-            this.mockRepository = new MockRepository(MockBehavior.Strict);
-        }
-
         [TestMethod]
         public void Ctor_No_NugetUtilitiesFactory_Throws_ArgumentNullException()
         {

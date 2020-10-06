@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Prise.Tests
 {
     [TestClass]
-    public class ProxyTests
+    public class ProxyTests : TestBase
     {
         [TestMethod]
         public async Task InvokingProxyWorks()

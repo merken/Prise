@@ -12,15 +12,8 @@ using System.Threading.Tasks;
 namespace Prise.Tests.AssemblyScanning
 {
     [TestClass]
-    public class DefaultAssemblyScannerTests
+    public class DefaultAssemblyScannerTests:TestBase
     {
-        private MockRepository mockRepository;
-
-        public DefaultAssemblyScannerTests()
-        {
-            this.mockRepository = new MockRepository(MockBehavior.Strict);
-        }
-
         [TestMethod]
         public void Ctor_No_MetadataLoadContextFactory_Throws_ArgumentNullException()
         {
