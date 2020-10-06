@@ -1,0 +1,34 @@
+{
+  "testData": [
+    {
+      "name": "First",
+      "number": 1
+    },
+    {
+      "name": "Second",
+      "number": 2
+    },
+    {
+      "name": "Third",
+      "number": 3
+    },
+    {
+      "name": "FourthWithChildren",
+      "number": 4,
+      "children": [
+        {
+          "name": "4.First",
+          "number": 1
+        },
+        {
+          "name": "4.Second",
+          "number": 2
+        },
+        {
+          "name": "4.Third",
+          "number": 3
+        }
+      ]
+    }
+  ]
+}
