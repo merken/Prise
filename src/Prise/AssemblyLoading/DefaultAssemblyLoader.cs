@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Prise.Core;
 using Prise.Utils;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Prise.AssemblyLoading
 {
@@ -27,20 +26,29 @@ namespace Prise.AssemblyLoading
             if (pluginLoadContext == null)
                 throw new ArgumentNullException(nameof(pluginLoadContext));
 
-            var fullPathToAssembly = pluginLoadContext.FullPathToPluginAssembly;
+            var fullPathToAssembly = pluginLoadContext.FullPathToPluginAssembly.ThrowIfNullOrEmpty(nameof(pluginLoadContext.FullPathToPluginAssembly));
 
             if (!Path.IsPathRooted(fullPathToAssembly))
                 throw new AssemblyLoadingException($"FullPathToPluginAssembly {pluginLoadContext.FullPathToPluginAssembly} is not rooted, this must be a absolute path!");
-            
+
             var loadContext = this.assemblyLoadContextFactory();
             this.loadContexts[fullPathToAssembly] = loadContext;
             this.loadContextReferences[fullPathToAssembly] = new System.WeakReference(loadContext);
             return loadContext.LoadPluginAssembly(pluginLoadContext);
         }
 
-        public virtual Task Unload(IPluginLoadContext loadContext)
+        public virtual Task Unload(IPluginLoadContext pluginLoadContext)
         {
-            UnloadContexts(loadContext.FullPathToPluginAssembly);
+            if (pluginLoadContext == null)
+                throw new ArgumentNullException(nameof(pluginLoadContext));
+
+            var fullPathToAssembly = pluginLoadContext.FullPathToPluginAssembly.ThrowIfNullOrEmpty(nameof(pluginLoadContext.FullPathToPluginAssembly));
+
+            if (!Path.IsPathRooted(fullPathToAssembly))
+                throw new AssemblyLoadingException($"FullPathToPluginAssembly {pluginLoadContext.FullPathToPluginAssembly} is not rooted, this must be a absolute path!");
+
+            UnloadContexts(fullPathToAssembly);
+
             return Task.CompletedTask;
         }
 

@@ -6,7 +6,7 @@ namespace Prise.AssemblyLoading
 {
     public interface IAssemblyLoader : IDisposable
     {
-        Task<IAssemblyShim> Load(IPluginLoadContext loadContext);
-        Task Unload(IPluginLoadContext loadContext);
+        Task<IAssemblyShim> Load(IPluginLoadContext pluginLoadContext);
+        Task Unload(IPluginLoadContext pluginLoadContext);
     }
 }

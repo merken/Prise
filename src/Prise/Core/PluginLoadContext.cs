@@ -11,7 +11,7 @@ namespace Prise.Core
         {
             this.FullPathToPluginAssembly = fullPathToPluginAssembly.ThrowIfNullOrEmpty(nameof(pluginType));
             this.PluginType = pluginType.ThrowIfNull(nameof(pluginType));
-            this.HostFramework = hostFramework.ThrowIfNullOrEmpty(nameof(pluginType));
+            this.HostFramework = hostFramework.ThrowIfNullOrEmpty(nameof(hostFramework));
             this.HostTypes = new List<Type>() { typeof(Prise.Plugin.PluginAttribute), typeof(Microsoft.Extensions.DependencyInjection.ServiceCollection) };
             this.HostAssemblies = new List<string>();
             this.DowngradableHostTypes = new List<Type>() { typeof(Prise.Plugin.PluginAttribute) };

@@ -7,6 +7,9 @@ using Prise.Utils;
 
 namespace Prise.AssemblyScanning
 {
+    /// <summary>
+    /// This class is not tested
+    /// </summary>
     public class DefaultAssemblyResolver : MetadataAssemblyResolver
     {
         private readonly string assemblyPath;

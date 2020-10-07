@@ -30,13 +30,17 @@ namespace Prise.DependencyInjection
         public static Func<IPluginProxyCreator> DefaultPluginProxyCreator = () => new DefaultPluginProxyCreator();
         public static Func<IAssemblyLoader> DefaultAssemblyLoader = () => new DefaultAssemblyLoader(DefaultAssemblyLoadContextFactory);
         public static Func<INativeAssemblyUnloader> DefaultNativeAssemblyUnloaderFactory = () => new DefaultNativeAssemblyUnloader();
+        public static Func<string, IAssemblyDependencyResolver> DefaultAssemblyDependencyResolver = (p) => new DefaultAssemblyDependencyResolver(p);
+        public static Func<IFileSystemUtilities> DefaultFileSystemUtilities = () => new DefaultFileSystemUtilities();
         public static Func<IAssemblyLoadContext> DefaultAssemblyLoadContextFactory = () => new DefaultAssemblyLoadContext(
                     DefaultNativeAssemblyUnloaderFactory,
                     DefaultPluginDependencyResolverFactory,
                     DefaultAssemblyLoadStrategyFactory,
-                    DefaultPluginDependencyContextFactory
+                    DefaultPluginDependencyContextFactory,
+                    DefaultAssemblyDependencyResolver,
+                    DefaultFileSystemUtilities
         );
-        public static Func<IRuntimePlatformContext> DefaultRuntimePlatformContextFactory = () => new DefaultRuntimePlatformContext(DefaultPlatformAbstraction,DefaultDirectoryTraverser) ;
+        public static Func<IRuntimePlatformContext> DefaultRuntimePlatformContextFactory = () => new DefaultRuntimePlatformContext(DefaultPlatformAbstraction, DefaultDirectoryTraverser);
         public static Func<IAssemblyLoadStrategy> DefaultAssemblyLoadStrategyFactory = () => new DefaultAssemblyLoadStrategy();
         public static Func<IPluginDependencyResolver> DefaultPluginDependencyResolverFactory = () => new DefaultPluginDependencyResolver(DefaultRuntimePlatformContextFactory);
         public static Func<IPluginLoadContext, Task<IPluginDependencyContext>> DefaultPluginDependencyContextFactory = (pluginLoadContext) => DefaultPluginDependencyContext.FromPluginLoadContext(pluginLoadContext);
