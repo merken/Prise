@@ -318,8 +318,7 @@ namespace Prise.AssemblyLoading
             return assembly;
         }
 
-        protected bool disposed = false;
-        protected bool disposing = false;
+       
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed && disposing)
@@ -346,9 +345,9 @@ namespace Prise.AssemblyLoading
                 this.loadedPlugins.Clear();
                 this.assemblyReferences.Clear();
                 this.loadedNativeLibraries.Clear();
-                this.pluginDependencyContext.Dispose();
-                this.pluginDependencyResolver.Dispose();
-                this.resolver.Dispose();
+                this.pluginDependencyContext?.Dispose();
+                this.pluginDependencyResolver?.Dispose();
+                this.resolver?.Dispose();
                 this.resolver = null;
                 this.loadedNativeLibraries = null;
                 this.loadedPlugins = null;
