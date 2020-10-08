@@ -171,7 +171,6 @@ namespace Prise.AssemblyLoading
         {
             try
             {
-                //TODO
                 var assembly = Default.LoadFromAssemblyName(assemblyName);
                 if (assembly != null)
                     return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.NotReleasable(assembly), false);
@@ -195,7 +194,6 @@ namespace Prise.AssemblyLoading
             if (dependency == null)
                 return ValueOrProceed<AssemblyFromStrategy>.Proceed();
 
-            //TODO
             return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(Assembly.Load(this.fileSystemUtilities.ToByteArray(dependency))), false);
         }
 
