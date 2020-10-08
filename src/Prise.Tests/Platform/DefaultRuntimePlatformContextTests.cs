@@ -41,8 +41,8 @@ namespace Prise.Tests.Platform
             var platformAbstraction = this.mockRepository.Create<IPlatformAbstraction>();
             var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
 
-            platformAbstraction.Setup(p => p.IsLinux()).Returns(false);
             platformAbstraction.Setup(p => p.IsWindows()).Returns(false);
+            platformAbstraction.Setup(p => p.IsLinux()).Returns(false);
             platformAbstraction.Setup(p => p.IsOSX()).Returns(false);
 
             var context = new DefaultRuntimePlatformContext(() => platformAbstraction.Object, () => directoryTraverser.Object);
@@ -56,9 +56,8 @@ namespace Prise.Tests.Platform
             var platformAbstraction = this.mockRepository.Create<IPlatformAbstraction>();
             var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
 
-            platformAbstraction.Setup(p => p.IsLinux()).Returns(true);
             platformAbstraction.Setup(p => p.IsWindows()).Returns(false);
-            platformAbstraction.Setup(p => p.IsOSX()).Returns(false);
+            platformAbstraction.Setup(p => p.IsLinux()).Returns(true);
 
             var context = new DefaultRuntimePlatformContext(() => platformAbstraction.Object, () => directoryTraverser.Object);
             var results = context.GetPlatformExtensions();
@@ -73,9 +72,7 @@ namespace Prise.Tests.Platform
             var platformAbstraction = this.mockRepository.Create<IPlatformAbstraction>();
             var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
 
-            platformAbstraction.Setup(p => p.IsLinux()).Returns(false);
             platformAbstraction.Setup(p => p.IsWindows()).Returns(true);
-            platformAbstraction.Setup(p => p.IsOSX()).Returns(false);
 
             var context = new DefaultRuntimePlatformContext(() => platformAbstraction.Object, () => directoryTraverser.Object);
             var results = context.GetPlatformExtensions();
@@ -89,8 +86,8 @@ namespace Prise.Tests.Platform
             var platformAbstraction = this.mockRepository.Create<IPlatformAbstraction>();
             var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
 
-            platformAbstraction.Setup(p => p.IsLinux()).Returns(false);
             platformAbstraction.Setup(p => p.IsWindows()).Returns(false);
+            platformAbstraction.Setup(p => p.IsLinux()).Returns(false);
             platformAbstraction.Setup(p => p.IsOSX()).Returns(true);
 
             var context = new DefaultRuntimePlatformContext(() => platformAbstraction.Object, () => directoryTraverser.Object);
@@ -120,8 +117,8 @@ namespace Prise.Tests.Platform
             var platformAbstraction = this.mockRepository.Create<IPlatformAbstraction>();
             var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
 
-            platformAbstraction.Setup(p => p.IsLinux()).Returns(false);
             platformAbstraction.Setup(p => p.IsWindows()).Returns(false);
+            platformAbstraction.Setup(p => p.IsLinux()).Returns(false);
             platformAbstraction.Setup(p => p.IsOSX()).Returns(false);
 
             var context = new DefaultRuntimePlatformContext(() => platformAbstraction.Object, () => directoryTraverser.Object);
@@ -135,9 +132,8 @@ namespace Prise.Tests.Platform
             var platformAbstraction = this.mockRepository.Create<IPlatformAbstraction>();
             var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
 
-            platformAbstraction.Setup(p => p.IsLinux()).Returns(true);
             platformAbstraction.Setup(p => p.IsWindows()).Returns(false);
-            platformAbstraction.Setup(p => p.IsOSX()).Returns(false);
+            platformAbstraction.Setup(p => p.IsLinux()).Returns(true);
 
             var context = new DefaultRuntimePlatformContext(() => platformAbstraction.Object, () => directoryTraverser.Object);
             var results = context.GetPlatformDependencyNames("MyPlugin");
@@ -154,9 +150,7 @@ namespace Prise.Tests.Platform
             var platformAbstraction = this.mockRepository.Create<IPlatformAbstraction>();
             var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
 
-            platformAbstraction.Setup(p => p.IsLinux()).Returns(false);
             platformAbstraction.Setup(p => p.IsWindows()).Returns(true);
-            platformAbstraction.Setup(p => p.IsOSX()).Returns(false);
 
             var context = new DefaultRuntimePlatformContext(() => platformAbstraction.Object, () => directoryTraverser.Object);
             var results = context.GetPlatformDependencyNames("MyPlugin");
@@ -170,8 +164,8 @@ namespace Prise.Tests.Platform
             var platformAbstraction = this.mockRepository.Create<IPlatformAbstraction>();
             var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
 
-            platformAbstraction.Setup(p => p.IsLinux()).Returns(false);
             platformAbstraction.Setup(p => p.IsWindows()).Returns(false);
+            platformAbstraction.Setup(p => p.IsLinux()).Returns(false);
             platformAbstraction.Setup(p => p.IsOSX()).Returns(true);
 
             var context = new DefaultRuntimePlatformContext(() => platformAbstraction.Object, () => directoryTraverser.Object);
@@ -188,8 +182,8 @@ namespace Prise.Tests.Platform
             var platformAbstraction = this.mockRepository.Create<IPlatformAbstraction>();
             var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
 
-            platformAbstraction.Setup(p => p.IsLinux()).Returns(false);
             platformAbstraction.Setup(p => p.IsWindows()).Returns(false);
+            platformAbstraction.Setup(p => p.IsLinux()).Returns(false);
             platformAbstraction.Setup(p => p.IsOSX()).Returns(false);
 
             var context = new DefaultRuntimePlatformContext(() => platformAbstraction.Object, () => directoryTraverser.Object);
@@ -206,9 +200,8 @@ namespace Prise.Tests.Platform
             var unknownPlatorm = "MICROSOFT.ASPNETNEW.APP";
             var platormDependendLocation = "/usr/share/dotnet/shared";
 
-            platformAbstraction.Setup(p => p.IsLinux()).Returns(true);
             platformAbstraction.Setup(p => p.IsWindows()).Returns(false);
-            platformAbstraction.Setup(p => p.IsOSX()).Returns(false);
+            platformAbstraction.Setup(p => p.IsLinux()).Returns(true);
             directoryTraverser.Setup(d => d.TraverseDirectories(platormDependendLocation)).Returns(new[] { $"{platormDependendLocation}/{unknownPlatorm}" });
 
             var context = new DefaultRuntimePlatformContext(() => platformAbstraction.Object, () => directoryTraverser.Object);
@@ -233,9 +226,8 @@ namespace Prise.Tests.Platform
             var platformAbstraction = this.mockRepository.Create<IPlatformAbstraction>();
             var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
 
-            platformAbstraction.Setup(p => p.IsLinux()).Returns(true);
             platformAbstraction.Setup(p => p.IsWindows()).Returns(false);
-            platformAbstraction.Setup(p => p.IsOSX()).Returns(false);
+            platformAbstraction.Setup(p => p.IsLinux()).Returns(true);
             directoryTraverser.Setup(d => d.TraverseDirectories(platormDependendLocation)).Returns(runtimes);
             directoryTraverser.Setup(d => d.TraverseDirectories(runtimes[0])).Returns(versions.Select(v => $"{runtimes[0]}/{v}"));
             directoryTraverser.Setup(d => d.TraverseDirectories(runtimes[1])).Returns(versions.Select(v => $"{runtimes[1]}/{v}"));
@@ -271,9 +263,7 @@ namespace Prise.Tests.Platform
             var platformAbstraction = this.mockRepository.Create<IPlatformAbstraction>();
             var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
 
-            platformAbstraction.Setup(p => p.IsLinux()).Returns(false);
             platformAbstraction.Setup(p => p.IsWindows()).Returns(true);
-            platformAbstraction.Setup(p => p.IsOSX()).Returns(false);
             directoryTraverser.Setup(d => d.TraverseDirectories(System.IO.Path.GetFullPath(platormDependendLocation))).Returns(runtimes);
             directoryTraverser.Setup(d => d.TraverseDirectories(runtimes[0])).Returns(versions.Select(v => $"{runtimes[0]}/{v}"));
             directoryTraverser.Setup(d => d.TraverseDirectories(runtimes[1])).Returns(versions.Select(v => $"{runtimes[1]}/{v}"));
@@ -310,8 +300,8 @@ namespace Prise.Tests.Platform
             var platformAbstraction = this.mockRepository.Create<IPlatformAbstraction>();
             var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
 
-            platformAbstraction.Setup(p => p.IsLinux()).Returns(false);
             platformAbstraction.Setup(p => p.IsWindows()).Returns(false);
+            platformAbstraction.Setup(p => p.IsLinux()).Returns(false);
             platformAbstraction.Setup(p => p.IsOSX()).Returns(true);
             directoryTraverser.Setup(d => d.TraverseDirectories(platormDependendLocation)).Returns(runtimes);
             directoryTraverser.Setup(d => d.TraverseDirectories(runtimes[0])).Returns(versions.Select(v => $"{runtimes[0]}/{v}"));

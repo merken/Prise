@@ -30,16 +30,7 @@ namespace Prise.Platform
 
         public RuntimeInfo GetRuntimeInfo()
         {
-            var runtimeBasePath = String.Empty;
-            if (this.platformAbstraction.IsWindows())
-                runtimeBasePath = "C:\\Program Files\\dotnet\\shared";
-            if (this.platformAbstraction.IsLinux())
-                runtimeBasePath = "/usr/share/dotnet/shared";
-            if (this.platformAbstraction.IsOSX())
-                runtimeBasePath = "/usr/local/share/dotnet/shared";
-
-            if (String.IsNullOrEmpty(runtimeBasePath))
-                throw new PlatformException($"Platform {System.Runtime.InteropServices.RuntimeInformation.OSDescription} is not supported");
+            var runtimeBasePath = GetRuntimeBasePath();
 
             var platformIndependendPath = System.IO.Path.GetFullPath(runtimeBasePath);
             var runtimes = new List<Runtime>();
@@ -64,6 +55,17 @@ namespace Prise.Platform
             {
                 Runtimes = runtimes
             };
+        }
+
+        private string GetRuntimeBasePath()
+        {
+            if (this.platformAbstraction.IsWindows())
+                return "C:\\Program Files\\dotnet\\shared";
+            if (this.platformAbstraction.IsLinux())
+                return "/usr/share/dotnet/shared";
+            if (this.platformAbstraction.IsOSX())
+                return "/usr/local/share/dotnet/shared";
+            throw new PlatformException($"Platform {System.Runtime.InteropServices.RuntimeInformation.OSDescription} is not supported");
         }
 
         private RuntimeType ParseType(string runtimeName)
