@@ -29,13 +29,15 @@ namespace Prise.AssemblyLoading
         protected Func<IPluginLoadContext, Task<IPluginDependencyContext>> pluginDependencyContextFactory;
         protected Func<string, IAssemblyDependencyResolver> assemblyDependencyResolverFactory;
         protected IFileSystemUtilities fileSystemUtilities;
+        protected IRuntimeDefaultAssemblyContext runtimeDefaultAssemblyLoadContext;
 
         public DefaultAssemblyLoadContext(Func<INativeAssemblyUnloader> nativeAssemblyUnloaderFactory,
                                           Func<IPluginDependencyResolver> pluginDependencyResolverFactory,
                                           Func<IAssemblyLoadStrategy> assemblyLoadStrategyFactory,
                                           Func<IPluginLoadContext, Task<IPluginDependencyContext>> pluginDependencyContextFactory,
                                           Func<string, IAssemblyDependencyResolver> assemblyDependencyResolverFactory,
-                                          Func<IFileSystemUtilities> fileSystemUtilitiesFactory)
+                                          Func<IFileSystemUtilities> fileSystemUtilitiesFactory,
+                                          Func<IRuntimeDefaultAssemblyContext> runtimeDefaultAssemblyLoadContextFactory)
         {
             this.nativeAssemblyUnloader = nativeAssemblyUnloaderFactory.ThrowIfNull(nameof(nativeAssemblyUnloaderFactory))();
             this.pluginDependencyResolverFactory = pluginDependencyResolverFactory.ThrowIfNull(nameof(pluginDependencyResolverFactory));
@@ -43,6 +45,7 @@ namespace Prise.AssemblyLoading
             this.pluginDependencyContextFactory = pluginDependencyContextFactory.ThrowIfNull(nameof(pluginDependencyContextFactory));
             this.assemblyDependencyResolverFactory = assemblyDependencyResolverFactory.ThrowIfNull(nameof(assemblyDependencyResolverFactory));
             this.fileSystemUtilities = fileSystemUtilitiesFactory.ThrowIfNull(nameof(fileSystemUtilitiesFactory))();
+            this.runtimeDefaultAssemblyLoadContext = runtimeDefaultAssemblyLoadContextFactory.ThrowIfNull(nameof(runtimeDefaultAssemblyLoadContextFactory))();
             this.loadedNativeLibraries = new ConcurrentDictionary<string, IntPtr>();
             this.loadedPlugins = new ConcurrentBag<string>();
             this.assemblyReferences = new ConcurrentBag<WeakReference>();
@@ -171,7 +174,7 @@ namespace Prise.AssemblyLoading
         {
             try
             {
-                var assembly = Default.LoadFromAssemblyName(assemblyName);
+                var assembly = this.runtimeDefaultAssemblyLoadContext.LoadFromDefaultContext(assemblyName);
                 if (assembly != null)
                     return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.NotReleasable(assembly), false);
             }
@@ -316,7 +319,7 @@ namespace Prise.AssemblyLoading
             return assembly;
         }
 
-       
+
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed && disposing)
@@ -362,6 +365,7 @@ namespace Prise.AssemblyLoading
                 this.pluginDependencyContextFactory = null;
                 this.assemblyDependencyResolverFactory = null;
                 this.fileSystemUtilities = null;
+                this.runtimeDefaultAssemblyLoadContext = null;
             }
             this.disposed = true;
         }

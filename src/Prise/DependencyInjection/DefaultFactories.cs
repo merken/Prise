@@ -13,6 +13,7 @@ namespace Prise.DependencyInjection
 {
     public static class DefaultFactories
     {
+        public static Func<IRuntimeDefaultAssemblyContext> RuntimeDefaultAssemblyContext = () => new RuntimeDefaultAssemblyContext();
         public static Func<INugetPackageUtilities> DefaultNugetPackageUtilities = () => new DefaultNugetPackageUtilities();
         public static Func<IPlatformAbstraction> DefaultPlatformAbstraction = () => new DefaultPlatformAbstraction();
         public static Func<IDirectoryTraverser> DefaultDirectoryTraverser = () => new DefaultDirectoryTraverser();
@@ -38,7 +39,8 @@ namespace Prise.DependencyInjection
                     DefaultAssemblyLoadStrategyFactory,
                     DefaultPluginDependencyContextFactory,
                     DefaultAssemblyDependencyResolver,
-                    DefaultFileSystemUtilities
+                    DefaultFileSystemUtilities,
+                    RuntimeDefaultAssemblyContext
         );
         public static Func<IRuntimePlatformContext> DefaultRuntimePlatformContextFactory = () => new DefaultRuntimePlatformContext(DefaultPlatformAbstraction, DefaultDirectoryTraverser);
         public static Func<IAssemblyLoadStrategy> DefaultAssemblyLoadStrategyFactory = () => new DefaultAssemblyLoadStrategy();
