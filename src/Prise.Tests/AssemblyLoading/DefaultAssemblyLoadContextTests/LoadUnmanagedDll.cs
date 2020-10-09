@@ -25,7 +25,11 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
             var assemblyName = this.GetType().Assembly.GetName().Name;
             loadContext.Dispose();
 
-            var result = (IntPtr)loadContext.GetType().GetMethod("LoadUnmanagedDll", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(loadContext, new[] { assemblyName });
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<IntPtr>(
+                            loadContext,
+                            "LoadUnmanagedDll",
+                            new object[] { assemblyName });
+
             Assert.AreEqual(IntPtr.Zero, result);
         }
 
@@ -55,7 +59,10 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
             // This must be invoked before anything else can be tested
             await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
-            var result = (IntPtr)loadContext.GetType().GetMethod("LoadUnmanagedDll", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(loadContext, new[] { nativeDependency });
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<IntPtr>(
+                            loadContext,
+                            "LoadUnmanagedDll",
+                            new object[] { nativeDependency });
 
             Assert.IsNotNull(result);
             Assert.AreEqual(nativePtr, result);

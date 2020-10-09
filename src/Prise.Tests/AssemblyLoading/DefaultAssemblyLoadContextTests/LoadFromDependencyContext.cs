@@ -44,8 +44,11 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
             // This must be invoked before anything else can be tested
             await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
-            var result = loadContext.GetType().GetMethod("LoadFromDependencyContext", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(loadContext, new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName }) as ValueOrProceed<AssemblyFromStrategy>;
 
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
+                            loadContext,
+                            "LoadFromDependencyContext",
+                            new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName });
             Assert.IsNotNull(result);
             Assert.AreEqual(newtonsoftAssemblyName.Name, result.Value.Assembly.GetName().Name);
         }
@@ -77,8 +80,10 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
             // This must be invoked before anything else can be tested
             await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
-            var result = loadContext.GetType().GetMethod("LoadFromDependencyContext", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(loadContext, new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName }) as ValueOrProceed<AssemblyFromStrategy>;
-
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
+                            loadContext,
+                            "LoadFromDependencyContext",
+                            new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName });
             Assert.IsNotNull(result);
             Assert.IsNull(result.Value);
             Assert.IsFalse(result.CanProceed);
@@ -122,8 +127,11 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
             // This must be invoked before anything else can be tested
             await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
-            var result = loadContext.GetType().GetMethod("LoadFromDependencyContext", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(loadContext, new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName }) as ValueOrProceed<AssemblyFromStrategy>;
-
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
+                            loadContext,
+                            "LoadFromDependencyContext",
+                            new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName });
+                            
             Assert.IsNotNull(result);
             Assert.AreEqual(newtonsoftAssemblyName.Name, result.Value.Assembly.GetName().Name);
         }
@@ -173,7 +181,10 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
             // This must be invoked before anything else can be tested
             await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
-            var result = loadContext.GetType().GetMethod("LoadFromDependencyContext", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(loadContext, new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName }) as ValueOrProceed<AssemblyFromStrategy>;
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
+                            loadContext,
+                            "LoadFromDependencyContext",
+                            new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName });
 
             Assert.IsNotNull(result);
             Assert.AreEqual(newtonsoftAssemblyName.Name, result.Value.Assembly.GetName().Name);
@@ -220,8 +231,10 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
             // This must be invoked before anything else can be tested
             await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
-            var result = loadContext.GetType().GetMethod("LoadFromDependencyContext", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(loadContext, new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName }) as ValueOrProceed<AssemblyFromStrategy>;
-
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
+                            loadContext,
+                            "LoadFromDependencyContext",
+                            new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName });
             Assert.IsNotNull(result);
             Assert.AreEqual(newtonsoftAssemblyName.Name, result.Value.Assembly.GetName().Name);
         }
@@ -267,8 +280,10 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
             // This must be invoked before anything else can be tested
             await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
-            var result = loadContext.GetType().GetMethod("LoadFromDependencyContext", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(loadContext, new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName }) as ValueOrProceed<AssemblyFromStrategy>;
-
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
+                            loadContext,
+                            "LoadFromDependencyContext",
+                            new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName });
             Assert.IsNotNull(result);
             Assert.IsTrue(result.CanProceed);
         }

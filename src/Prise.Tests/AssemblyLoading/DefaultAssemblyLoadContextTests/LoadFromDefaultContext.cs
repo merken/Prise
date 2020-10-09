@@ -40,7 +40,10 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
             // This must be invoked before anything else can be tested
             await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
-            var result = loadContext.GetType().GetMethod("LoadFromDefaultContext", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(loadContext, new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName }) as ValueOrProceed<AssemblyFromStrategy>;
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
+                loadContext,
+                "LoadFromDefaultContext",
+                new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName });
 
             Assert.IsNotNull(result);
             Assert.IsFalse(result.CanProceed);
@@ -81,7 +84,13 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
             // This must be invoked before anything else can be tested
             await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
-            var exception = Assert.ThrowsException<TargetInvocationException>(() => loadContext.GetType().GetMethod("LoadFromDefaultContext", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(loadContext, new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName }));
+            var exception = Assert
+                .ThrowsException<TargetInvocationException>(() =>
+                    InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
+                        loadContext,
+                        "LoadFromDefaultContext",
+                        new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName })
+                );
             Assert.IsInstanceOfType(exception.InnerException, typeof(AssemblyLoadingException));
         }
 
@@ -118,8 +127,11 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
             // This must be invoked before anything else can be tested
             await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
-            var result = loadContext.GetType().GetMethod("LoadFromDefaultContext", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(loadContext, new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName }) as ValueOrProceed<AssemblyFromStrategy>;
-
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
+                loadContext,
+                "LoadFromDefaultContext",
+                new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName });
+            
             Assert.IsNull(result.Value);
             Assert.IsTrue(result.CanProceed);
         }
@@ -150,7 +162,10 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
             // This must be invoked before anything else can be tested
             await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
-            var result = loadContext.GetType().GetMethod("LoadFromDefaultContext", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(loadContext, new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName }) as ValueOrProceed<AssemblyFromStrategy>;
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
+                loadContext,
+                "LoadFromDefaultContext",
+                new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName });
 
             Assert.IsNull(result.Value);
             Assert.IsTrue(result.CanProceed);
@@ -188,7 +203,10 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
             // This must be invoked before anything else can be tested
             await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
-            var result = loadContext.GetType().GetMethod("LoadFromDefaultContext", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(loadContext, new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName }) as ValueOrProceed<AssemblyFromStrategy>;
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
+                loadContext,
+                "LoadFromDefaultContext",
+                new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName });
 
             Assert.IsNull(result.Value);
             Assert.IsTrue(result.CanProceed);

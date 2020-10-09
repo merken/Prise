@@ -11,12 +11,11 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
     public class Base : TestBase
     {
         protected T InvokeProtectedMethodOnLoadContextAndGetResult<T>(IAssemblyLoadContext loadContext, string methodName, params object[] args)
-            where T : class
         {
-            return loadContext
+            return (T)loadContext
                 .GetType()
                 .GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic)
-                .Invoke(loadContext, args) as T;
+                .Invoke(loadContext, args);
         }
 
         protected IPluginLoadContext GetPluginLoadContext(string pluginAssemblyPath, Action<PluginLoadContext> configure = null)

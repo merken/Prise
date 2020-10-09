@@ -27,7 +27,6 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
             loadContext.Dispose();
             var result = loadContext.GetType().GetMethod("Load", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(loadContext, new[] { assemblyName }) as Assembly;
-            // var result = loadContext.LoadFromAssemblyPath(assembly.Location);
             Assert.IsNull(result);
         }
 
@@ -62,7 +61,11 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
             // This must be invoked before anything else can be tested
             await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
-            var result = loadContext.GetType().GetMethod("Load", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(loadContext, new[] { newtonsoftAssemblyName }) as Assembly;
+
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<Assembly>(
+                loadContext,
+                "Load",
+                new object[] { newtonsoftAssemblyName });
 
             Assert.IsNotNull(result);
         }
