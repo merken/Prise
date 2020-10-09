@@ -77,6 +77,7 @@ namespace Prise.AssemblyLoading
 
             this.fullPathToPluginAssembly = pluginLoadContext.FullPathToPluginAssembly;
             this.initialPluginLoadDirectory = Path.GetDirectoryName(fullPathToPluginAssembly);
+            this.nativeDependencyLoadPreference = pluginLoadContext.NativeDependencyLoadPreference;
 
             GuardIfAlreadyLoaded(fullPathToPluginAssembly);
 
