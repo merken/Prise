@@ -2,7 +2,7 @@ POST http://localhost:5003/plugin
 
 [
     {
-        "number":1,
+        "number": 1,
         "text": "from HTTP Host Body!"
     }
 ]

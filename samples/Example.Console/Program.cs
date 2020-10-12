@@ -54,23 +54,27 @@ namespace Example.Console
                 pluginLoadContext.AddHostServices(mainServiceCollection, new[] { typeof(IConfigurationService) });
 
                 var pluginAssembly = await loader.Load(pluginLoadContext);
-                
+
                 var pluginTypes = typeSelector.SelectPluginTypes<IPlugin>(pluginAssembly);
                 foreach (var pluginType in pluginTypes)
                 {
-                    var pluginInstance = await activator.ActivatePlugin<IPlugin>(new DefaultPluginActivationOptions
+                    try
                     {
-                        PluginType = pluginType,
-                        PluginAssembly = pluginAssembly,
-                        ParameterConverter = DefaultFactories.DefaultParameterConverter(),
-                        ResultConverter = DefaultFactories.DefaultResultConverter(),
-                        HostServices = pluginLoadContext.HostServices
-                    });
+                        var pluginInstance = await activator.ActivatePlugin<IPlugin>(new DefaultPluginActivationOptions
+                        {
+                            PluginType = pluginType,
+                            PluginAssembly = pluginAssembly,
+                            ParameterConverter = DefaultFactories.DefaultParameterConverter(),
+                            ResultConverter = DefaultFactories.DefaultResultConverter(),
+                            HostServices = pluginLoadContext.HostServices
+                        });
 
-                    var pluginResults = await pluginInstance.GetAll();
+                        var pluginResults = await pluginInstance.GetAll();
 
-                    foreach (var pluginResult in pluginResults)
-                        System.Console.WriteLine($"{pluginResult.Text}");
+                        foreach (var pluginResult in pluginResults)
+                            System.Console.WriteLine($"{pluginResult.Text}");
+                    }
+                    catch (PluginActivationException pex) { }
                 }
             }
         }
