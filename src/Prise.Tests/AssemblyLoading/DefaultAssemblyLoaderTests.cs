@@ -20,7 +20,8 @@ namespace Prise.Tests.AssemblyLoading
         [TestMethod]
         public void Ctor_No_AssemblyLoadContextFactory_Throws_ArgumentNullException()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new DefaultAssemblyLoader(null));
+            var exception = Assert.ThrowsException<ArgumentNullException>(() => new DefaultAssemblyLoader(null));
+            exception.Message.Contains("assemblyLoadContextFactory");
         }
 
         [TestMethod]

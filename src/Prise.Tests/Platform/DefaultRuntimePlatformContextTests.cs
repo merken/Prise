@@ -20,13 +20,15 @@ namespace Prise.Tests.Platform
         [TestMethod]
         public void Ctor_Throws_When_PlatformAbstraction_Null()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new DefaultRuntimePlatformContext(null, null));
+            var exception = Assert.ThrowsException<ArgumentNullException>(() => new DefaultRuntimePlatformContext(null, null));
+            exception.Message.Contains("platformAbstractionFactory");
         }
 
         [TestMethod]
         public void Ctor_Throws_When_DirectoryTraverser_Null()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new DefaultRuntimePlatformContext(() => null, null));
+            var exception = Assert.ThrowsException<ArgumentNullException>(() => new DefaultRuntimePlatformContext(() => null, null));
+            exception.Message.Contains("directoryTraverserFactory");
         }
 
         [TestMethod]

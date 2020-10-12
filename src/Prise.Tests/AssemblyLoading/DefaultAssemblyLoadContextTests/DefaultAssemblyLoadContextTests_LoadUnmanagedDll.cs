@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 {
     [TestClass]
-    public class LoadUnmanagedDll : Base
+    public class DefaultAssemblyLoadContextTests_LoadUnmanagedDll : TestWithLoadedPluginBase
     {
         [TestMethod]
         public async Task Disposing_Prevents_LoadUnmanagedDll()
@@ -36,29 +36,20 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
         [TestMethod]
         public async Task LoadUnmanagedDll_Works()
         {
-            var testContext = SetupAssemblyLoadContext();
+            var testContext = await SetupLoadedPluginTextContext();
             var loadContext = testContext.Sut();
-            var fileSystemUtility = testContext.GetMock<IFileSystemUtilities>();
+            var initialPluginLoadDirectory = testContext.InitialPluginLoadDirectory;
             var assemblyLoadStrategy = testContext.GetMock<IAssemblyLoadStrategy>();
             var pluginDependencyContext = testContext.GetMock<IPluginDependencyContext>();
 
-            var pluginAssemblyPath = Path.Combine(GetPathToAssemblies(), "Prise.Tests.dll");
-            var initialPluginLoadDirectory = Path.GetDirectoryName(pluginAssemblyPath);
-            var assemblyStream = File.OpenRead(pluginAssemblyPath);
-
             var nativeDependency = "Nativelib.dll";
             var nativePtr = new IntPtr(1024 * 10000);
-
-            fileSystemUtility.Setup(f => f.EnsureFileExists(pluginAssemblyPath)).Returns(pluginAssemblyPath);
-            fileSystemUtility.Setup(f => f.ReadFileFromDisk(pluginAssemblyPath)).ReturnsAsync(assemblyStream);
 
             assemblyLoadStrategy.Setup(a => a.LoadUnmanagedDll(initialPluginLoadDirectory, nativeDependency, pluginDependencyContext.Object,
                 It.IsAny<Func<string, string, ValueOrProceed<string>>>(),
                 It.IsAny<Func<string, string, ValueOrProceed<string>>>(),
                 It.IsAny<Func<string, string, ValueOrProceed<IntPtr>>>())).Returns(NativeAssembly.Create(null, nativePtr));
 
-            // This must be invoked before anything else can be tested
-            await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
             var result = InvokeProtectedMethodOnLoadContextAndGetResult<IntPtr>(
                             loadContext,
                             "LoadUnmanagedDll",

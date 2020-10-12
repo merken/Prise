@@ -14,32 +14,22 @@ using System.Threading.Tasks;
 namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 {
     [TestClass]
-    public class LoadFromDefaultContext : Base
+    public class DefaultAssemblyLoadContextTests_LoadFromDefaultContext : TestWithLoadedPluginBase
     {
         [TestMethod]
         public async Task LoadFromDefaultContext_Returns_Assembly()
         {
-            var testContext = SetupAssemblyLoadContext();
+            var testContext = await SetupLoadedPluginTextContext();
             var loadContext = testContext.Sut();
             var fileSystemUtility = testContext.GetMock<IFileSystemUtilities>();
             var runtimeDefaultAssemblyLoadContext = testContext.GetMock<IRuntimeDefaultAssemblyContext>();
-
-            var pluginAssemblyPath = Path.Combine(GetPathToAssemblies(), "Prise.Tests.dll");
-            var initialPluginLoadDirectory = Path.GetDirectoryName(pluginAssemblyPath);
-            var assemblyStream = File.OpenRead(pluginAssemblyPath);
-
-            var newtonsoftAssemblyPath = Path.Combine(GetPathToAssemblies(), "Newtonsoft.Json.dll");
-            var newtonsoftAssembly = Assembly.LoadFile(newtonsoftAssemblyPath);
-            var newtonsoftAssemblyName = AssemblyLoadContext.GetAssemblyName(newtonsoftAssemblyPath);
-            var newtonsoftAssemblyStream = File.OpenRead(newtonsoftAssemblyPath);
-
-            fileSystemUtility.Setup(f => f.EnsureFileExists(pluginAssemblyPath)).Returns(pluginAssemblyPath);
-            fileSystemUtility.Setup(f => f.ReadFileFromDisk(pluginAssemblyPath)).ReturnsAsync(assemblyStream);
+            var initialPluginLoadDirectory = testContext.InitialPluginLoadDirectory;
+            var pluginLoadContext = testContext.PluginLoadContext;
+            var newtonsoftAssemblyName = testContext.NewtonsoftAssemblyName;
+            var newtonsoftAssembly = testContext.NewtonsoftAssembly;
 
             runtimeDefaultAssemblyLoadContext.Setup(r => r.LoadFromDefaultContext(newtonsoftAssemblyName)).Returns(newtonsoftAssembly);
 
-            // This must be invoked before anything else can be tested
-            await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
             var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
                 loadContext,
                 "LoadFromDefaultContext",
@@ -54,23 +44,15 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
         [TestMethod]
         public async Task LoadFromDefaultContext_Throws_AssemblyLoadingException_When_FileNotFoundException_And_AllowDowngrade_False()
         {
-            var testContext = SetupAssemblyLoadContext();
+            var testContext = await SetupLoadedPluginTextContext();
             var loadContext = testContext.Sut();
             var fileSystemUtility = testContext.GetMock<IFileSystemUtilities>();
             var runtimeDefaultAssemblyLoadContext = testContext.GetMock<IRuntimeDefaultAssemblyContext>();
             var pluginDependencyContext = testContext.GetMock<IPluginDependencyContext>();
-
-            var pluginAssemblyPath = Path.Combine(GetPathToAssemblies(), "Prise.Tests.dll");
-            var initialPluginLoadDirectory = Path.GetDirectoryName(pluginAssemblyPath);
-            var assemblyStream = File.OpenRead(pluginAssemblyPath);
-
-            var newtonsoftAssemblyPath = Path.Combine(GetPathToAssemblies(), "Newtonsoft.Json.dll");
-            var newtonsoftAssembly = Assembly.LoadFile(newtonsoftAssemblyPath);
-            var newtonsoftAssemblyName = AssemblyLoadContext.GetAssemblyName(newtonsoftAssemblyPath);
-            var newtonsoftAssemblyStream = File.OpenRead(newtonsoftAssemblyPath);
-
-            fileSystemUtility.Setup(f => f.EnsureFileExists(pluginAssemblyPath)).Returns(pluginAssemblyPath);
-            fileSystemUtility.Setup(f => f.ReadFileFromDisk(pluginAssemblyPath)).ReturnsAsync(assemblyStream);
+            var initialPluginLoadDirectory = testContext.InitialPluginLoadDirectory;
+            var pluginLoadContext = testContext.PluginLoadContext;
+            var newtonsoftAssemblyName = testContext.NewtonsoftAssemblyName;
+            var newtonsoftAssembly = testContext.NewtonsoftAssembly;
 
             runtimeDefaultAssemblyLoadContext.Setup(r => r.LoadFromDefaultContext(newtonsoftAssemblyName)).Throws<FileNotFoundException>();
 
@@ -82,8 +64,6 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
                 }
             });
 
-            // This must be invoked before anything else can be tested
-            await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
             var exception = Assert
                 .ThrowsException<TargetInvocationException>(() =>
                     InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
@@ -97,23 +77,15 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
         [TestMethod]
         public async Task LoadFromDefaultContext_Returns_Proceed_When_FileNotFoundException_And_AllowDowngrade_True()
         {
-            var testContext = SetupAssemblyLoadContext();
+            var testContext = await SetupLoadedPluginTextContext();
             var loadContext = testContext.Sut();
             var fileSystemUtility = testContext.GetMock<IFileSystemUtilities>();
             var runtimeDefaultAssemblyLoadContext = testContext.GetMock<IRuntimeDefaultAssemblyContext>();
             var pluginDependencyContext = testContext.GetMock<IPluginDependencyContext>();
-
-            var pluginAssemblyPath = Path.Combine(GetPathToAssemblies(), "Prise.Tests.dll");
-            var initialPluginLoadDirectory = Path.GetDirectoryName(pluginAssemblyPath);
-            var assemblyStream = File.OpenRead(pluginAssemblyPath);
-
-            var newtonsoftAssemblyPath = Path.Combine(GetPathToAssemblies(), "Newtonsoft.Json.dll");
-            var newtonsoftAssembly = Assembly.LoadFile(newtonsoftAssemblyPath);
-            var newtonsoftAssemblyName = AssemblyLoadContext.GetAssemblyName(newtonsoftAssemblyPath);
-            var newtonsoftAssemblyStream = File.OpenRead(newtonsoftAssemblyPath);
-
-            fileSystemUtility.Setup(f => f.EnsureFileExists(pluginAssemblyPath)).Returns(pluginAssemblyPath);
-            fileSystemUtility.Setup(f => f.ReadFileFromDisk(pluginAssemblyPath)).ReturnsAsync(assemblyStream);
+            var initialPluginLoadDirectory = testContext.InitialPluginLoadDirectory;
+            var pluginLoadContext = testContext.PluginLoadContext;
+            var newtonsoftAssemblyName = testContext.NewtonsoftAssemblyName;
+            var newtonsoftAssembly = testContext.NewtonsoftAssembly;
 
             runtimeDefaultAssemblyLoadContext.Setup(r => r.LoadFromDefaultContext(newtonsoftAssemblyName)).Returns((Assembly)null);
 
@@ -125,13 +97,11 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
                 }
             });
 
-            // This must be invoked before anything else can be tested
-            await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
             var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
                 loadContext,
                 "LoadFromDefaultContext",
                 new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName });
-            
+
             Assert.IsNull(result.Value);
             Assert.IsTrue(result.CanProceed);
         }
@@ -139,29 +109,19 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
         [TestMethod]
         public async Task LoadFromDefaultContext_Returns_Proceed_When_Assembly_Null()
         {
-            var testContext = SetupAssemblyLoadContext();
+            var testContext = await SetupLoadedPluginTextContext();
             var loadContext = testContext.Sut();
             var fileSystemUtility = testContext.GetMock<IFileSystemUtilities>();
             var runtimeDefaultAssemblyLoadContext = testContext.GetMock<IRuntimeDefaultAssemblyContext>();
             var pluginDependencyContext = testContext.GetMock<IPluginDependencyContext>();
-
-            var pluginAssemblyPath = Path.Combine(GetPathToAssemblies(), "Prise.Tests.dll");
-            var initialPluginLoadDirectory = Path.GetDirectoryName(pluginAssemblyPath);
-            var assemblyStream = File.OpenRead(pluginAssemblyPath);
-
-            var newtonsoftAssemblyPath = Path.Combine(GetPathToAssemblies(), "Newtonsoft.Json.dll");
-            var newtonsoftAssembly = Assembly.LoadFile(newtonsoftAssemblyPath);
-            var newtonsoftAssemblyName = AssemblyLoadContext.GetAssemblyName(newtonsoftAssemblyPath);
-            var newtonsoftAssemblyStream = File.OpenRead(newtonsoftAssemblyPath);
-
-            fileSystemUtility.Setup(f => f.EnsureFileExists(pluginAssemblyPath)).Returns(pluginAssemblyPath);
-            fileSystemUtility.Setup(f => f.ReadFileFromDisk(pluginAssemblyPath)).ReturnsAsync(assemblyStream);
+            var initialPluginLoadDirectory = testContext.InitialPluginLoadDirectory;
+            var pluginLoadContext = testContext.PluginLoadContext;
+            var newtonsoftAssemblyName = testContext.NewtonsoftAssemblyName;
+            var newtonsoftAssembly = testContext.NewtonsoftAssembly;
 
             runtimeDefaultAssemblyLoadContext.Setup(r => r.LoadFromDefaultContext(newtonsoftAssemblyName)).Returns((Assembly)null);
             pluginDependencyContext.SetupGet(p => p.HostDependencies).Returns(Enumerable.Empty<HostDependency>());
 
-            // This must be invoked before anything else can be tested
-            await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
             var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
                 loadContext,
                 "LoadFromDefaultContext",
@@ -174,23 +134,15 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
         [TestMethod]
         public async Task LoadFromDefaultContext_Returns_Proceed_When_HostAssembly_Not_Found()
         {
-            var testContext = SetupAssemblyLoadContext();
+            var testContext = await SetupLoadedPluginTextContext();
             var loadContext = testContext.Sut();
             var fileSystemUtility = testContext.GetMock<IFileSystemUtilities>();
             var runtimeDefaultAssemblyLoadContext = testContext.GetMock<IRuntimeDefaultAssemblyContext>();
             var pluginDependencyContext = testContext.GetMock<IPluginDependencyContext>();
-
-            var pluginAssemblyPath = Path.Combine(GetPathToAssemblies(), "Prise.Tests.dll");
-            var initialPluginLoadDirectory = Path.GetDirectoryName(pluginAssemblyPath);
-            var assemblyStream = File.OpenRead(pluginAssemblyPath);
-
-            var newtonsoftAssemblyPath = Path.Combine(GetPathToAssemblies(), "Newtonsoft.Json.dll");
-            var newtonsoftAssembly = Assembly.LoadFile(newtonsoftAssemblyPath);
-            var newtonsoftAssemblyName = AssemblyLoadContext.GetAssemblyName(newtonsoftAssemblyPath);
-            var newtonsoftAssemblyStream = File.OpenRead(newtonsoftAssemblyPath);
-
-            fileSystemUtility.Setup(f => f.EnsureFileExists(pluginAssemblyPath)).Returns(pluginAssemblyPath);
-            fileSystemUtility.Setup(f => f.ReadFileFromDisk(pluginAssemblyPath)).ReturnsAsync(assemblyStream);
+            var initialPluginLoadDirectory = testContext.InitialPluginLoadDirectory;
+            var pluginLoadContext = testContext.PluginLoadContext;
+            var newtonsoftAssemblyName = testContext.NewtonsoftAssemblyName;
+            var newtonsoftAssembly = testContext.NewtonsoftAssembly;
 
             runtimeDefaultAssemblyLoadContext.Setup(r => r.LoadFromDefaultContext(newtonsoftAssemblyName)).Returns((Assembly)null);
 
@@ -201,8 +153,6 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
                 }
             });
 
-            // This must be invoked before anything else can be tested
-            await loadContext.LoadPluginAssembly(GetPluginLoadContext(pluginAssemblyPath));
             var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
                 loadContext,
                 "LoadFromDefaultContext",

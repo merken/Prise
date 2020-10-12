@@ -18,7 +18,8 @@ namespace Prise.Tests.AssemblyScanning
         [TestMethod]
         public void Ctor_No_NugetUtilitiesFactory_Throws_ArgumentNullException()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new DefaultNugetPackageAssemblyScanner((s) => null, () => null, null));
+            var exception = Assert.ThrowsException<ArgumentNullException>(() => new DefaultNugetPackageAssemblyScanner((s) => null, () => null, null));
+            exception.Message.Contains("nugetPackageUtilities");
         }
 
         [TestMethod]

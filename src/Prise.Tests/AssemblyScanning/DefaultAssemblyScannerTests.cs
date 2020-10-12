@@ -13,18 +13,20 @@ using System.Threading.Tasks;
 namespace Prise.Tests.AssemblyScanning
 {
     [TestClass]
-    public class DefaultAssemblyScannerTests:TestBase
+    public class DefaultAssemblyScannerTests : TestBase
     {
         [TestMethod]
         public void Ctor_No_MetadataLoadContextFactory_Throws_ArgumentNullException()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new DefaultAssemblyScanner(null, null));
+            var exception = Assert.ThrowsException<ArgumentNullException>(() => new DefaultAssemblyScanner(null, null));
+            exception.Message.Contains("metadataLoadContextFactory");
         }
 
         [TestMethod]
         public void Ctor_No_DirectoryTraverserFactory_Throws_ArgumentNullException()
         {
-            Assert.ThrowsException<ArgumentNullException>(() => new DefaultAssemblyScanner((s) => null, null));
+            var exception = Assert.ThrowsException<ArgumentNullException>(() => new DefaultAssemblyScanner((s) => null, null));
+            exception.Message.Contains("directoryTraverser");
         }
 
         [TestMethod]

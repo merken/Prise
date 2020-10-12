@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 {
     [TestClass]
-    public class LoadPluginAssembly : Base
+    public class DefaultAssemblyLoadContextTests_LoadPluginAssembly : Base
     {
         [TestMethod]
         public async Task Load_No_Context_Throws_ArgumentNullException()
@@ -50,6 +50,8 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
             var testContext = SetupAssemblyLoadContext();
             var loadContext = testContext.Sut();
             var fileSystemUtility = testContext.GetMock<IFileSystemUtilities>();
+            var pluginDependencyContextProvider = testContext.GetMock<IPluginDependencyContextProvider>();
+            var pluginDependencyContext = testContext.GetMock<IPluginDependencyContext>();
 
             var contract = TestableTypeBuilder.NewTestableType()
                 .WithName("IMyTestType")
@@ -61,8 +63,9 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
             fileSystemUtility.Setup(f => f.EnsureFileExists(pluginAssemblyPath)).Returns(pluginAssemblyPath);
             fileSystemUtility.Setup(f => f.ReadFileFromDisk(pluginAssemblyPath)).ReturnsAsync(assemblyStream);
-
             var pluginLoadContext = new PluginLoadContext(pluginAssemblyPath, contract, "netcoreapp3.1");
+            pluginDependencyContextProvider.Setup(p => p.FromPluginLoadContext(pluginLoadContext)).ReturnsAsync(pluginDependencyContext.Object);
+
             var priseAssembly = await loadContext.LoadPluginAssembly(pluginLoadContext);
 
             Assert.AreEqual(assembly.FullName, priseAssembly.Assembly.FullName);
@@ -75,6 +78,8 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
             var loadContext = testContext.Sut();
             var fileSystemUtility = testContext.GetMock<IFileSystemUtilities>();
             var pluginAssemblyPath = "/var/home/MyPluginAssembly.dll";
+            var pluginDependencyContextProvider = testContext.GetMock<IPluginDependencyContextProvider>();
+            var pluginDependencyContext = testContext.GetMock<IPluginDependencyContext>();
 
             var contract = TestableTypeBuilder.NewTestableType()
                 .WithName("IMyTestType")
@@ -88,6 +93,8 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
             fileSystemUtility.Setup(f => f.ReadFileFromDisk(pluginAssemblyPath)).ReturnsAsync(assemblyStream);
 
             var pluginLoadContext = new PluginLoadContext(pluginAssemblyPath, contract, "netcoreapp3.1");
+            pluginDependencyContextProvider.Setup(p => p.FromPluginLoadContext(pluginLoadContext)).ReturnsAsync(pluginDependencyContext.Object);
+
             var priseAssembly = await loadContext.LoadPluginAssembly(pluginLoadContext);
 
             await Assert.ThrowsExceptionAsync<AssemblyLoadingException>(() => loadContext.LoadPluginAssembly(pluginLoadContext));
