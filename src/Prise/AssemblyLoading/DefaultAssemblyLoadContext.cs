@@ -26,26 +26,26 @@ namespace Prise.AssemblyLoading
         protected PluginPlatformVersion pluginPlatformVersion;
         protected Func<IPluginDependencyResolver> pluginDependencyResolverFactory;
         protected Func<IAssemblyLoadStrategy> assemblyLoadStrategyFactory;
-        protected Func<IPluginLoadContext, Task<IPluginDependencyContext>> pluginDependencyContextFactory;
         protected Func<string, IAssemblyDependencyResolver> assemblyDependencyResolverFactory;
         protected IFileSystemUtilities fileSystemUtilities;
         protected IRuntimeDefaultAssemblyContext runtimeDefaultAssemblyLoadContext;
+        protected IPluginDependencyContextProvider pluginDependencyContextProvider;
 
         public DefaultAssemblyLoadContext(Func<INativeAssemblyUnloader> nativeAssemblyUnloaderFactory,
                                           Func<IPluginDependencyResolver> pluginDependencyResolverFactory,
                                           Func<IAssemblyLoadStrategy> assemblyLoadStrategyFactory,
-                                          Func<IPluginLoadContext, Task<IPluginDependencyContext>> pluginDependencyContextFactory,
                                           Func<string, IAssemblyDependencyResolver> assemblyDependencyResolverFactory,
                                           Func<IFileSystemUtilities> fileSystemUtilitiesFactory,
-                                          Func<IRuntimeDefaultAssemblyContext> runtimeDefaultAssemblyLoadContextFactory)
+                                          Func<IRuntimeDefaultAssemblyContext> runtimeDefaultAssemblyLoadContextFactory,
+                                          Func<IPluginDependencyContextProvider> pluginDependencyContextProviderFactory)
         {
             this.nativeAssemblyUnloader = nativeAssemblyUnloaderFactory.ThrowIfNull(nameof(nativeAssemblyUnloaderFactory))();
             this.pluginDependencyResolverFactory = pluginDependencyResolverFactory.ThrowIfNull(nameof(pluginDependencyResolverFactory));
             this.assemblyLoadStrategyFactory = assemblyLoadStrategyFactory.ThrowIfNull(nameof(assemblyLoadStrategyFactory));
-            this.pluginDependencyContextFactory = pluginDependencyContextFactory.ThrowIfNull(nameof(pluginDependencyContextFactory));
             this.assemblyDependencyResolverFactory = assemblyDependencyResolverFactory.ThrowIfNull(nameof(assemblyDependencyResolverFactory));
             this.fileSystemUtilities = fileSystemUtilitiesFactory.ThrowIfNull(nameof(fileSystemUtilitiesFactory))();
             this.runtimeDefaultAssemblyLoadContext = runtimeDefaultAssemblyLoadContextFactory.ThrowIfNull(nameof(runtimeDefaultAssemblyLoadContextFactory))();
+            this.pluginDependencyContextProvider = pluginDependencyContextProviderFactory.ThrowIfNull(nameof(pluginDependencyContextProviderFactory))();
             this.loadedNativeLibraries = new ConcurrentDictionary<string, IntPtr>();
             this.loadedPlugins = new ConcurrentBag<string>();
             this.assemblyReferences = new ConcurrentBag<WeakReference>();
@@ -82,7 +82,7 @@ namespace Prise.AssemblyLoading
             GuardIfAlreadyLoaded(fullPathToPluginAssembly);
 
             this.resolver = this.assemblyDependencyResolverFactory(fullPathToPluginAssembly);
-            this.pluginDependencyContext = await this.pluginDependencyContextFactory(pluginLoadContext);
+            this.pluginDependencyContext = await this.pluginDependencyContextProvider.FromPluginLoadContext(pluginLoadContext);
             this.pluginDependencyResolver = this.pluginDependencyResolverFactory();
             this.assemblyLoadStrategy = this.assemblyLoadStrategyFactory();
             this.pluginPlatformVersion = pluginLoadContext.PluginPlatformVersion ?? PluginPlatformVersion.Empty();
@@ -363,10 +363,10 @@ namespace Prise.AssemblyLoading
                 this.nativeAssemblyUnloader = null;
                 this.pluginDependencyResolverFactory = null;
                 this.assemblyLoadStrategyFactory = null;
-                this.pluginDependencyContextFactory = null;
                 this.assemblyDependencyResolverFactory = null;
                 this.fileSystemUtilities = null;
                 this.runtimeDefaultAssemblyLoadContext = null;
+                this.pluginDependencyContextProvider = null;
             }
             this.disposed = true;
         }

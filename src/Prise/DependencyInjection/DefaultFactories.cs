@@ -33,18 +33,18 @@ namespace Prise.DependencyInjection
         public static Func<INativeAssemblyUnloader> DefaultNativeAssemblyUnloaderFactory = () => new DefaultNativeAssemblyUnloader();
         public static Func<string, IAssemblyDependencyResolver> DefaultAssemblyDependencyResolver = (p) => new DefaultAssemblyDependencyResolver(p);
         public static Func<IFileSystemUtilities> DefaultFileSystemUtilities = () => new DefaultFileSystemUtilities();
+        public static Func<IPluginDependencyContextProvider> DefaultPluginDependencyContextProvider = () => new DefaultPluginDependencyContextProvider(DefaultRuntimePlatformContextFactory);
         public static Func<IAssemblyLoadContext> DefaultAssemblyLoadContextFactory = () => new DefaultAssemblyLoadContext(
                     DefaultNativeAssemblyUnloaderFactory,
                     DefaultPluginDependencyResolverFactory,
                     DefaultAssemblyLoadStrategyFactory,
-                    DefaultPluginDependencyContextFactory,
                     DefaultAssemblyDependencyResolver,
                     DefaultFileSystemUtilities,
-                    RuntimeDefaultAssemblyContext
+                    RuntimeDefaultAssemblyContext,
+                    DefaultPluginDependencyContextProvider
         );
         public static Func<IRuntimePlatformContext> DefaultRuntimePlatformContextFactory = () => new DefaultRuntimePlatformContext(DefaultPlatformAbstraction, DefaultDirectoryTraverser);
         public static Func<IAssemblyLoadStrategy> DefaultAssemblyLoadStrategyFactory = () => new DefaultAssemblyLoadStrategy();
         public static Func<IPluginDependencyResolver> DefaultPluginDependencyResolverFactory = () => new DefaultPluginDependencyResolver(DefaultRuntimePlatformContextFactory);
-        public static Func<IPluginLoadContext, Task<IPluginDependencyContext>> DefaultPluginDependencyContextFactory = (pluginLoadContext) => DefaultPluginDependencyContext.FromPluginLoadContext(pluginLoadContext);
     }
 }

@@ -15,7 +15,6 @@ namespace Prise.Core
         IEnumerable<Type> RemoteTypes { get; }
         NativeDependencyLoadPreference NativeDependencyLoadPreference { get; }
         PluginPlatformVersion PluginPlatformVersion { get; }
-        IRuntimePlatformContext RuntimePlatformContext { get; }
         IEnumerable<string> AdditionalProbingPaths { get; }
         IServiceCollection HostServices { get; }
         string HostFramework { get; }

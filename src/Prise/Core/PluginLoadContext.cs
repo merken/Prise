@@ -19,7 +19,6 @@ namespace Prise.Core
             this.RemoteTypes = new List<Type>() { pluginType };
             this.NativeDependencyLoadPreference = NativeDependencyLoadPreference.PreferInstalledRuntime;
             this.IgnorePlatformInconsistencies = false;
-            this.RuntimePlatformContext = null;
             this.PluginPlatformVersion = PluginPlatformVersion.Empty();
             this.HostServices = new ServiceCollection();
         }

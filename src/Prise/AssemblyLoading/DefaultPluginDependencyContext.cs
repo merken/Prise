@@ -9,74 +9,28 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyModel;
 using Prise.Core;
-using Prise.Platform;
 using Prise.Utils;
 
 namespace Prise.AssemblyLoading
 {
-    public class DefaultPluginDependencyContext : IPluginDependencyContext
+    public interface IPluginDependencyContextProvider
     {
-        public string FullPathToPluginAssembly { get; set; }
-        public IEnumerable<HostDependency> HostDependencies { get; set; }
-        public IEnumerable<RemoteDependency> RemoteDependencies { get; set; }
-        public IEnumerable<PluginDependency> PluginDependencies { get; set; }
-        public IEnumerable<PluginResourceDependency> PluginResourceDependencies { get; set; }
-        public IEnumerable<PlatformDependency> PlatformDependencies { get; set; }
-        public IEnumerable<string> AdditionalProbingPaths { get; set; }
-        private DefaultPluginDependencyContext(string fullPathToPluginAssembly,
-                                               IEnumerable<HostDependency> hostDependencies,
-                                               IEnumerable<RemoteDependency> remoteDependencies,
-                                               IEnumerable<PluginDependency> pluginDependencies,
-                                               IEnumerable<PluginResourceDependency> pluginResourceDependencies,
-                                               IEnumerable<PlatformDependency> platformDependencies,
-                                               IEnumerable<string> additionalProbingPaths)
+        Task<IPluginDependencyContext> FromPluginLoadContext(IPluginLoadContext pluginLoadContext);
+    }
+
+    public class DefaultPluginDependencyContextProvider : IPluginDependencyContextProvider
+    {
+        private readonly IRuntimePlatformContext runtimePlatformContext;
+        public DefaultPluginDependencyContextProvider(Func<IRuntimePlatformContext> runtimePlatformContextFactory)
         {
-            this.FullPathToPluginAssembly = fullPathToPluginAssembly.ThrowIfNull(nameof(fullPathToPluginAssembly));
-            this.HostDependencies = hostDependencies.ThrowIfNull(nameof(hostDependencies));
-            this.RemoteDependencies = remoteDependencies.ThrowIfNull(nameof(remoteDependencies));
-            this.PluginDependencies = pluginDependencies.ThrowIfNull(nameof(pluginDependencies));
-            this.PluginResourceDependencies = pluginResourceDependencies.ThrowIfNull(nameof(pluginResourceDependencies));
-            this.PlatformDependencies = platformDependencies.ThrowIfNull(nameof(platformDependencies));
-            this.AdditionalProbingPaths = additionalProbingPaths ?? Enumerable.Empty<string>();
+            this.runtimePlatformContext = runtimePlatformContextFactory.ThrowIfNull(nameof(runtimePlatformContextFactory))();
         }
 
-        public override string ToString()
-        {
-            var builder = new StringBuilder();
-            builder.AppendLine($"Dependency context for plugin: {this.FullPathToPluginAssembly}");
-
-            builder.AppendLine($"HostDependencies");
-            foreach (var p in this.HostDependencies)
-                builder.AppendLine($"{p.DependencyName.Name} {p.DependencyName.Version}");
-
-            builder.AppendLine($"");
-            builder.AppendLine($"RemoteDependencies");
-            foreach (var p in this.RemoteDependencies)
-                builder.AppendLine($"{p.DependencyName.Name} {p.DependencyName.Version}");
-
-            builder.AppendLine($"");
-            builder.AppendLine($"PlatformDependencies");
-            foreach (var p in this.PlatformDependencies)
-                builder.AppendLine($"{p.DependencyPath} {p.DependencyNameWithoutExtension} {p.Version}");
-
-            builder.AppendLine($"");
-            builder.AppendLine($"PluginDependencies");
-            foreach (var p in this.PluginDependencies)
-                builder.AppendLine($"{p.DependencyPath} {p.DependencyNameWithoutExtension} {p.Version}");
-
-            builder.AppendLine($"");
-            builder.AppendLine($"PluginResourceDependencies");
-            foreach (var p in this.PluginResourceDependencies)
-                builder.AppendLine($"{p.Path}");
-
-            return builder.ToString();
-        }
-
-        public static Task<IPluginDependencyContext> FromPluginLoadContext(IPluginLoadContext pluginLoadContext)
+        public Task<IPluginDependencyContext> FromPluginLoadContext(IPluginLoadContext pluginLoadContext)
         {
             var hostDependencies = new List<HostDependency>();
             var remoteDependencies = new List<RemoteDependency>();
-            var runtimePlatformContext = pluginLoadContext.RuntimePlatformContext.ThrowIfNull(nameof(pluginLoadContext.RuntimePlatformContext));
+            // var runtimePlatformContext = pluginLoadContext.RuntimePlatformContext.ThrowIfNull(nameof(pluginLoadContext.RuntimePlatformContext));
 
             foreach (var type in pluginLoadContext.HostTypes)
                 // Load host types from current app domain
@@ -98,8 +52,7 @@ namespace Prise.AssemblyLoading
 
             var pluginDependencies = GetPluginDependencies(dependencyContext);
             var resourceDependencies = GetResourceDependencies(dependencyContext);
-            var platformDependencies = GetPlatformDependencies(dependencyContext, runtimePlatformContext.GetPlatformExtensions());
-            // var pluginReferenceDependencies = GetPluginReferenceDependencies(dependencyContext);
+            var platformDependencies = GetPlatformDependencies(dependencyContext, this.runtimePlatformContext.GetPlatformExtensions());
 
             var pluginDependencyContext = new DefaultPluginDependencyContext(
                 pluginLoadContext.FullPathToPluginAssembly,
@@ -110,7 +63,9 @@ namespace Prise.AssemblyLoading
                 platformDependencies,
                 pluginLoadContext.AdditionalProbingPaths
             );
+
             Validate(pluginDependencyContext);
+
             return Task.FromResult<IPluginDependencyContext>(pluginDependencyContext);
         }
 
@@ -346,6 +301,65 @@ namespace Prise.AssemblyLoading
         {
             var file = File.OpenRead(Path.Combine(Path.GetDirectoryName(fullPathToPluginAssembly), $"{Path.GetFileNameWithoutExtension(fullPathToPluginAssembly)}.deps.json"));
             return new DependencyContextJsonReader().Read(file);
+        }
+    }
+
+    public class DefaultPluginDependencyContext : IPluginDependencyContext
+    {
+        public string FullPathToPluginAssembly { get; set; }
+        public IEnumerable<HostDependency> HostDependencies { get; set; }
+        public IEnumerable<RemoteDependency> RemoteDependencies { get; set; }
+        public IEnumerable<PluginDependency> PluginDependencies { get; set; }
+        public IEnumerable<PluginResourceDependency> PluginResourceDependencies { get; set; }
+        public IEnumerable<PlatformDependency> PlatformDependencies { get; set; }
+        public IEnumerable<string> AdditionalProbingPaths { get; set; }
+        internal DefaultPluginDependencyContext(string fullPathToPluginAssembly,
+                                               IEnumerable<HostDependency> hostDependencies,
+                                               IEnumerable<RemoteDependency> remoteDependencies,
+                                               IEnumerable<PluginDependency> pluginDependencies,
+                                               IEnumerable<PluginResourceDependency> pluginResourceDependencies,
+                                               IEnumerable<PlatformDependency> platformDependencies,
+                                               IEnumerable<string> additionalProbingPaths)
+        {
+            this.FullPathToPluginAssembly = fullPathToPluginAssembly.ThrowIfNull(nameof(fullPathToPluginAssembly));
+            this.HostDependencies = hostDependencies.ThrowIfNull(nameof(hostDependencies));
+            this.RemoteDependencies = remoteDependencies.ThrowIfNull(nameof(remoteDependencies));
+            this.PluginDependencies = pluginDependencies.ThrowIfNull(nameof(pluginDependencies));
+            this.PluginResourceDependencies = pluginResourceDependencies.ThrowIfNull(nameof(pluginResourceDependencies));
+            this.PlatformDependencies = platformDependencies.ThrowIfNull(nameof(platformDependencies));
+            this.AdditionalProbingPaths = additionalProbingPaths ?? Enumerable.Empty<string>();
+        }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            builder.AppendLine($"Dependency context for plugin: {this.FullPathToPluginAssembly}");
+
+            builder.AppendLine($"HostDependencies");
+            foreach (var p in this.HostDependencies)
+                builder.AppendLine($"{p.DependencyName.Name} {p.DependencyName.Version}");
+
+            builder.AppendLine($"");
+            builder.AppendLine($"RemoteDependencies");
+            foreach (var p in this.RemoteDependencies)
+                builder.AppendLine($"{p.DependencyName.Name} {p.DependencyName.Version}");
+
+            builder.AppendLine($"");
+            builder.AppendLine($"PlatformDependencies");
+            foreach (var p in this.PlatformDependencies)
+                builder.AppendLine($"{p.DependencyPath} {p.DependencyNameWithoutExtension} {p.Version}");
+
+            builder.AppendLine($"");
+            builder.AppendLine($"PluginDependencies");
+            foreach (var p in this.PluginDependencies)
+                builder.AppendLine($"{p.DependencyPath} {p.DependencyNameWithoutExtension} {p.Version}");
+
+            builder.AppendLine($"");
+            builder.AppendLine($"PluginResourceDependencies");
+            foreach (var p in this.PluginResourceDependencies)
+                builder.AppendLine($"{p.Path}");
+
+            return builder.ToString();
         }
 
         private bool disposed = false;

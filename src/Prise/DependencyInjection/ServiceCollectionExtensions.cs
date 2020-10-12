@@ -78,7 +78,11 @@ namespace Prise.DependencyInjection
                             var plugins = new List<T>();
                             foreach (var scanResult in scanResults)
                             {
-                                var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(Path.Combine(scanResult.AssemblyPath, scanResult.AssemblyName), typeof(T), frameworkFromHost);
+                                var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(
+                                    Path.Combine(scanResult.AssemblyPath, scanResult.AssemblyName), 
+                                    typeof(T), 
+                                    frameworkFromHost);
+                                    
                                 configureContext?.Invoke(pluginLoadContext);
                                 IServiceCollection hostServicesCollection = new ServiceCollection();
 
