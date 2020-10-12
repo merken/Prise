@@ -125,10 +125,5 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
                 pluginDependencyContextProvider
             );
         }
-
-        protected string GetPathToAssemblies()
-        {
-            return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Assemblies");
-        }
     }
 }
