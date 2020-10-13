@@ -88,7 +88,7 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
         protected Type GetContractType()
         {
-            return TestableTypeBuilder.NewTestableType()
+            return TestableTypeBuilder.New()
                .WithName("IMyTestType")
                .WithNamespace("Test.Type")
                .Build();

@@ -78,7 +78,7 @@ namespace Prise.Tests.AssemblyScanning
             directoryTraverser.Setup(d => d.TraverseDirectories(startingPath)).Returns(new[] { "pathy/mcpathface" });
             directoryTraverser.Setup(d => d.TraverseFiles(It.IsAny<string>(), It.IsAny<IEnumerable<string>>())).Returns(new[] { "filey.mcfile.face" });
 
-            var contract = TestableTypeBuilder.NewTestableType()
+            var contract = TestableTypeBuilder.New()
                 .WithName("IMyTestType")
                 .WithNamespace("Test.Type")
                 .Build();
@@ -92,7 +92,7 @@ namespace Prise.Tests.AssemblyScanning
                 },pluginAttributeTypedValue)}
             };
 
-            var testableType = TestableTypeBuilder.NewTestableType()
+            var testableType = TestableTypeBuilder.New()
                 .WithCustomAttributes(pluginAttribute)
                 .WithName("MyTestType")
                 .WithNamespace("Test.Type")

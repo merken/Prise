@@ -26,7 +26,7 @@ namespace Prise.Tests.Core
         public void Selecting_Plugin_Types_Works()
         {
             var assemblyShim = this.mockRepository.Create<IAssemblyShim>();
-            var contract = TestableTypeBuilder.NewTestableType()
+            var contract = TestableTypeBuilder.New()
                .WithName("IMyTestType")
                .WithNamespace("Test.Type")
                .Build();
@@ -40,13 +40,13 @@ namespace Prise.Tests.Core
                 },pluginAttributeTypedValue)}
             };
 
-            var testableType = TestableTypeBuilder.NewTestableType()
+            var testableType = TestableTypeBuilder.New()
                 .WithCustomAttributes(pluginAttribute)
                 .WithName("MyTestType")
                 .WithNamespace("Test.Type")
                 .Build();
 
-            var testableType2 = TestableTypeBuilder.NewTestableType()
+            var testableType2 = TestableTypeBuilder.New()
                 .WithCustomAttributes(pluginAttribute)
                 .WithName("MyTestType2")
                 .WithNamespace("Test.Type")

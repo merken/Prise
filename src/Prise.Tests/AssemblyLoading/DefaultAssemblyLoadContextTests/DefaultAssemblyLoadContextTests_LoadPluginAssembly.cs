@@ -53,7 +53,7 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
             var pluginDependencyContextProvider = testContext.GetMock<IPluginDependencyContextProvider>();
             var pluginDependencyContext = testContext.GetMock<IPluginDependencyContext>();
 
-            var contract = TestableTypeBuilder.NewTestableType()
+            var contract = TestableTypeBuilder.New()
                 .WithName("IMyTestType")
                 .WithNamespace("Test.Type")
                 .Build();
@@ -81,7 +81,7 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
             var pluginDependencyContextProvider = testContext.GetMock<IPluginDependencyContextProvider>();
             var pluginDependencyContext = testContext.GetMock<IPluginDependencyContext>();
 
-            var contract = TestableTypeBuilder.NewTestableType()
+            var contract = TestableTypeBuilder.New()
                 .WithName("IMyTestType")
                 .WithNamespace("Test.Type")
                 .Build();
