@@ -12,3 +12,4 @@ appsettings.Development.json
 !Monorepo.sln
 global.json
 *.user
+.DS_Store
