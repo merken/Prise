@@ -16,6 +16,7 @@ namespace Prise.Activation
                         .Any(c => c.AttributeType.Name == typeof(Prise.Plugin.PluginBootstrapperAttribute).Name &&
                         (c.NamedArguments.First(a => a.MemberName == "PluginType").TypedValue.Value as Type).Name == remoteType.Name));
 
+            // TODO End support for PluginFactories by next major release
             var factoryMethod = remoteType.GetMethods()
                     .FirstOrDefault(m => m.CustomAttributes
                         .Any(c => c.AttributeType.Name == typeof(Prise.Plugin.PluginFactoryAttribute).Name));
@@ -84,21 +85,14 @@ namespace Prise.Activation
                     providedBy = (ProvidedBy)(int)providedByArgValue;
             }
 
-            Type bridgeType = null;
-            var bridgeTypeArg = attribute.NamedArguments.FirstOrDefault(a => a.MemberName == "BridgeType");
-            if (bridgeTypeArg != null)
-            {
-                var bridgeTypeArgValue = bridgeTypeArg.TypedValue.Value;
-                if (bridgeTypeArgValue != null)
-                    bridgeType = bridgeTypeArgValue as Type;
-            }
+            Type proxyType = GetProxyTypeFromAttribute(attribute);
 
             return new PluginService
             {
                 ProvidedBy = providedBy,
                 ServiceType = serviceType,
                 FieldName = field.Name,
-                BridgeType = bridgeType
+                ProxyType = proxyType
             };
         }
 
@@ -111,21 +105,27 @@ namespace Prise.Activation
 
             var serviceType = serviceTypeArg.TypedValue.Value as Type;
 
-            Type bridgeType = null;
-            var bridgeTypeArg = attribute.NamedArguments.FirstOrDefault(a => a.MemberName == "BridgeType");
-            if (bridgeTypeArg != null)
-            {
-                var bridgeTypeArgValue = bridgeTypeArg.TypedValue.Value;
-                if (bridgeTypeArgValue != null)
-                    bridgeType = bridgeTypeArgValue as Type;
-            }
+            Type proxyType = GetProxyTypeFromAttribute(attribute);
 
             return new BootstrapperService
             {
                 ServiceType = serviceType,
                 FieldName = field.Name,
-                BridgeType = bridgeType
+                ProxyType = proxyType
             };
+        }
+
+        private static Type GetProxyTypeFromAttribute(CustomAttributeData attribute)
+        {
+            Type proxyType = null;
+            var proxyTypeArg = attribute.NamedArguments.FirstOrDefault(a => a.MemberName == "ProxyType");
+            if (proxyTypeArg.TypedValue.Value == null) // TODO End support of BridgeType by next major release
+                proxyTypeArg = attribute.NamedArguments.FirstOrDefault(a => a.MemberName == "BridgeType");
+
+            if (proxyTypeArg.TypedValue.Value != null)
+                proxyType = proxyTypeArg.TypedValue.Value as Type;
+
+            return proxyType;
         }
     }
 }

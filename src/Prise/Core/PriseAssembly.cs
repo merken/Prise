@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Prise.Utils;
 
 namespace Prise
 {
@@ -9,7 +10,7 @@ namespace Prise
     {
         public PriseAssembly(Assembly assembly)
         {
-            this.Assembly = assembly;
+            this.Assembly = assembly.ThrowIfNull(nameof(assembly));
         }
 
         public Assembly Assembly { get; private set; }

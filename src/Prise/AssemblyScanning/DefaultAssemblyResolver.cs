@@ -3,9 +3,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using Prise.Utils;
 
 namespace Prise.AssemblyScanning
 {
+    /// <summary>
+    /// This class is not tested
+    /// </summary>
     public class DefaultAssemblyResolver : MetadataAssemblyResolver
     {
         private readonly string assemblyPath;
@@ -13,7 +17,7 @@ namespace Prise.AssemblyScanning
 
         public DefaultAssemblyResolver(string fullPathToAssembly)
         {
-            this.assemblyPath = Path.GetDirectoryName(fullPathToAssembly);
+            this.assemblyPath = Path.GetDirectoryName(fullPathToAssembly.ThrowIfNullOrEmpty(nameof(fullPathToAssembly)));
         }
 
         public override Assembly Resolve(MetadataLoadContext context, AssemblyName assemblyName)

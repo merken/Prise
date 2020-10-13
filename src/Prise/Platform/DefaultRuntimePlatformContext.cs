@@ -1,13 +1,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Prise.Core;
+using Prise.Utils;
 
 namespace Prise.Platform
 {
     public class DefaultRuntimePlatformContext : IRuntimePlatformContext
     {
+        private readonly IPlatformAbstraction platformAbstraction;
+        private readonly IDirectoryTraverser directoryTraverser;
+
+        public DefaultRuntimePlatformContext(
+            Func<IPlatformAbstraction> platformAbstractionFactory,
+            Func<IDirectoryTraverser> directoryTraverserFactory)
+        {
+            this.platformAbstraction = platformAbstractionFactory.ThrowIfNull(nameof(platformAbstractionFactory))();
+            this.directoryTraverser = directoryTraverserFactory.ThrowIfNull(nameof(directoryTraverserFactory))();
+        }
+
         public IEnumerable<string> GetPlatformExtensions() => GetPlatformDependencyFileExtensions();
 
         public IEnumerable<string> GetPluginDependencyNames(string nameWithoutFileExtension) =>
@@ -19,21 +30,15 @@ namespace Prise.Platform
 
         public RuntimeInfo GetRuntimeInfo()
         {
-            var runtimeBasePath = String.Empty;
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                runtimeBasePath = "C:\\Program Files\\dotnet\\shared";
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                runtimeBasePath = "/usr/share/dotnet/shared";
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                runtimeBasePath = "/usr/local/share/dotnet/shared";
+            var runtimeBasePath = GetRuntimeBasePath();
 
             var platformIndependendPath = System.IO.Path.GetFullPath(runtimeBasePath);
             var runtimes = new List<Runtime>();
-            foreach (var pathToDirectory in System.IO.Directory.GetDirectories(platformIndependendPath))
+            foreach (var pathToDirectory in this.directoryTraverser.TraverseDirectories(platformIndependendPath))
             {
                 var runtimeName = System.IO.Path.GetFileName(pathToDirectory); // Gets the directory name
                 var runtimeType = ParseType(runtimeName);
-                foreach (var pathToVersion in System.IO.Directory.GetDirectories(pathToDirectory))
+                foreach (var pathToVersion in this.directoryTraverser.TraverseDirectories(pathToDirectory))
                 {
                     var runtimeVersion = System.IO.Path.GetFileName(pathToVersion); // Gets the directory name
                     var runtimeLocation = pathToVersion;
@@ -50,6 +55,17 @@ namespace Prise.Platform
             {
                 Runtimes = runtimes
             };
+        }
+
+        private string GetRuntimeBasePath()
+        {
+            if (this.platformAbstraction.IsWindows())
+                return "C:\\Program Files\\dotnet\\shared";
+            if (this.platformAbstraction.IsLinux())
+                return "/usr/share/dotnet/shared";
+            if (this.platformAbstraction.IsOSX())
+                return "/usr/local/share/dotnet/shared";
+            throw new PlatformException($"Platform {System.Runtime.InteropServices.RuntimeInformation.OSDescription} is not supported");
         }
 
         private RuntimeType ParseType(string runtimeName)
@@ -77,15 +93,15 @@ namespace Prise.Platform
 
         private string[] GetPlatformDependencyFileCandidates(string fileNameWithoutExtension)
         {
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (this.platformAbstraction.IsWindows())
                 return new[] { $"{fileNameWithoutExtension}.dll" };
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            if (this.platformAbstraction.IsLinux())
                 return new[] {
                     $"{fileNameWithoutExtension}.so",
                     $"{fileNameWithoutExtension}.so.1",
                     $"lib{fileNameWithoutExtension}.so",
                     $"lib{fileNameWithoutExtension}.so.1" };
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            if (this.platformAbstraction.IsOSX())
                 return new[] {
                     $"{fileNameWithoutExtension}.dylib",
                     $"lib{fileNameWithoutExtension}.dylib" };
@@ -95,11 +111,11 @@ namespace Prise.Platform
 
         private string[] GetPlatformDependencyFileExtensions()
         {
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (this.platformAbstraction.IsWindows())
                 return new[] { ".dll" };
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            if (this.platformAbstraction.IsLinux())
                 return new[] { ".so", ".so.1" };
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            if (this.platformAbstraction.IsOSX())
                 return new[] { ".dylib" };
 
             throw new PlatformException($"Platform {System.Runtime.InteropServices.RuntimeInformation.OSDescription} is not supported");

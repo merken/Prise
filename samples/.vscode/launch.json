@@ -1,30 +1,75 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "name": "Prise.Example.Console",
-        "type": "coreclr",
-        "request": "launch",
-        "preLaunchTask": "build",
-        "program": "${workspaceFolder}/Prise.Example.Console/bin/Debug/netcoreapp3.1/Prise.Example.Console.dll",
-        "args": [],
-        "cwd": "${workspaceFolder}/Prise.Example.Console",
-        "console": "externalTerminal",
-        "stopAtEntry": false
-      },
-      {
-        "name": "Prise.Example.Web",
-        "type": "coreclr",
-        "request": "launch",
-        "preLaunchTask": "build-web",
-        "program": "${workspaceFolder}/Prise.Example.Web/bin/Debug/netcoreapp3.1/Prise.Example.Web.dll",
-        "args": [],
-        "cwd": "${workspaceFolder}/Prise.Example.Web",
-        "console": "externalTerminal",
-        "stopAtEntry": false
-      }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For `more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Unit Tests",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": "${command:pickProcess}"
+    },
+    {
+      "name": "AzureFunctions",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": "${command:azureFunctions.pickProcess}"
+    },
+    {
+      "name": "Console",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/Example.Console/bin/Debug/net5.0/Example.Console.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/Example.Console",
+      "console": "externalTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Web",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-web",
+      "program": "${workspaceFolder}/Example.Web/bin/Debug/net5.0/Example.Web.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/Example.Web",
+      "console": "externalTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "WebApi",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-webapi",
+      "program": "${workspaceFolder}/Example.WebApi/bin/Debug/net5.0/Example.WebApi.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/Example.WebApi",
+      "console": "externalTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "MvcRazor",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-mvc-razor",
+      "program": "${workspaceFolder}/Example.Mvc.Razor/bin/Debug/net5.0/Example.Mvc.Razor.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/Example.Mvc.Razor",
+      "console": "externalTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Mvc",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-mvc",
+      "program": "${workspaceFolder}/Example.Mvc.Controllers/bin/Debug/net5.0/Example.Mvc.Controllers.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/Example.Mvc.Controllers",
+      "console": "externalTerminal",
+      "stopAtEntry": false
+    }
+  ]
 }

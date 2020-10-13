@@ -7,7 +7,7 @@ namespace Prise.AssemblyLoading
     public class DefaultAssemblyLoadStrategy : IAssemblyLoadStrategy
     {
         public virtual AssemblyFromStrategy LoadAssembly(
-            string initialPluginLoadDirectory, 
+            string initialPluginLoadDirectory,
             AssemblyName assemblyName,
             IPluginDependencyContext pluginDependencyContext,
             Func<string, AssemblyName, ValueOrProceed<AssemblyFromStrategy>> loadFromDependencyContext,
@@ -26,9 +26,9 @@ namespace Prise.AssemblyLoading
                 if (valueOrProceed.Value != null)
                     return null; // fallback to default loading mechanism
             }
+
             if (valueOrProceed.CanProceed)
                 valueOrProceed = loadFromDependencyContext(initialPluginLoadDirectory, assemblyName);
-
 
             if (valueOrProceed.CanProceed)
                 valueOrProceed = loadFromRemote(initialPluginLoadDirectory, assemblyName);
@@ -37,7 +37,7 @@ namespace Prise.AssemblyLoading
         }
 
         public virtual NativeAssembly LoadUnmanagedDll(
-            string initialPluginLoadDirectory, 
+            string initialPluginLoadDirectory,
             string unmanagedDllName,
             IPluginDependencyContext pluginDependencyContext,
             Func<string, string, ValueOrProceed<string>> loadFromDependencyContext,
@@ -59,6 +59,6 @@ namespace Prise.AssemblyLoading
         }
 
         protected virtual bool IsHostAssembly(AssemblyName assemblyName, IPluginDependencyContext pluginDependencyContext) => pluginDependencyContext.HostDependencies.Any(h => h.DependencyName.Name == assemblyName.Name);
-        protected virtual bool IsRemoteAssembly(AssemblyName assemblyName, IPluginDependencyContext pluginDependencyContext ) => pluginDependencyContext.RemoteDependencies.Any(r => r.DependencyName.Name == assemblyName.Name);
+        protected virtual bool IsRemoteAssembly(AssemblyName assemblyName, IPluginDependencyContext pluginDependencyContext) => pluginDependencyContext.RemoteDependencies.Any(r => r.DependencyName.Name == assemblyName.Name);
     }
 }

@@ -10,6 +10,8 @@ namespace Prise.AssemblyLoading
     /// </summary>
     public abstract class InMemoryAssemblyLoadContext : AssemblyLoadContext
     {
+        protected bool disposed = false;
+        protected bool disposing = false;
         protected bool isCollectible = false;
         protected InMemoryAssemblyLoadContext() { }
 
@@ -27,6 +29,10 @@ namespace Prise.AssemblyLoading
 
         public new Assembly LoadFromAssemblyPath(string path)
         {
+            // This fixes the issue where the ALC is still alive and utilized in the host
+            if (this.disposed || this.disposing)
+                return null;
+
             try
             {
                 using (var stream = File.OpenRead(path))

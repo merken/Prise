@@ -85,3 +85,8 @@ public interface IPlugin
 3. Use field injection + PluginServiceAttribute + PrisePluginBridge + PluginActivated method to inject and bootstrap your Plugin
 Prise2 relies heavily on Plugin field injection
 TODO
+
+4. Try to stick with `netcoreapp` as your Plugin's `<TargetFramework>`
+For ultimate backwards compatability, choose a framework implementation, such as netcoreapp2.1, netcoreapp3.0, net5.0 for your plugins.
+You could use netstandard, however, lots of the native API's are delegated to the Host, meaning possible version conflicts could occur.
+By chosing netcoreappx.x, netx.x, the plugins publish directory will contain all the references it needs in order to execute correctly.

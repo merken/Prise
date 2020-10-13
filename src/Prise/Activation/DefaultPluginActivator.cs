@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Prise.Plugin;
+using Prise.Utils;
 
 namespace Prise.Activation
 {
@@ -18,9 +19,9 @@ namespace Prise.Activation
             Func<IPluginProxyCreator> proxyCreatorFactory)
         {
             this.disposables = new ConcurrentBag<IDisposable>();
-            this.pluginActivationContextProvider = pluginActivationContextProviderFactory();;
-            this.remotePluginActivator = remotePluginActivatorFactory();
-            this.proxyCreator = proxyCreatorFactory();
+            this.pluginActivationContextProvider = pluginActivationContextProviderFactory.ThrowIfNull(nameof(pluginActivationContextProviderFactory))();
+            this.remotePluginActivator = remotePluginActivatorFactory.ThrowIfNull(nameof(remotePluginActivatorFactory))();
+            this.proxyCreator = proxyCreatorFactory.ThrowIfNull(nameof(proxyCreatorFactory))();
         }
 
         public Task<T> ActivatePlugin<T>(IPluginActivationOptions pluginActivationOptions)
@@ -52,7 +53,6 @@ namespace Prise.Activation
             var remoteObject = this.remotePluginActivator.CreateRemoteInstance(
                 pluginActivationContext,
                 bootstrapperProxy,
-                pluginActivationOptions.SharedServices,
                 pluginActivationOptions.HostServices
             );
 

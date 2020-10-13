@@ -3,20 +3,16 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Prise.Core;
-using Prise.Platform;
-using Microsoft.Extensions.DependencyInjection;
+using Prise.Utils;
 
 namespace Prise.AssemblyLoading
 {
     public class DefaultAssemblyLoadContext : InMemoryAssemblyLoadContext, IAssemblyLoadContext
     {
         private readonly IServiceProvider serviceProvider;
-#if HAS_NATIVE_RESOLVER
-        protected AssemblyDependencyResolver resolver;
-#endif
+        protected IAssemblyDependencyResolver resolver;
         protected ConcurrentDictionary<string, IntPtr> loadedNativeLibraries;
         protected ConcurrentBag<string> loadedPlugins;
         protected ConcurrentBag<WeakReference> assemblyReferences;
@@ -30,17 +26,26 @@ namespace Prise.AssemblyLoading
         protected PluginPlatformVersion pluginPlatformVersion;
         protected Func<IPluginDependencyResolver> pluginDependencyResolverFactory;
         protected Func<IAssemblyLoadStrategy> assemblyLoadStrategyFactory;
-        protected Func<IPluginLoadContext, Task<IPluginDependencyContext>> pluginContextFactory;
+        protected Func<string, IAssemblyDependencyResolver> assemblyDependencyResolverFactory;
+        protected IFileSystemUtilities fileSystemUtilities;
+        protected IRuntimeDefaultAssemblyContext runtimeDefaultAssemblyLoadContext;
+        protected IPluginDependencyContextProvider pluginDependencyContextProvider;
 
         public DefaultAssemblyLoadContext(Func<INativeAssemblyUnloader> nativeAssemblyUnloaderFactory,
                                           Func<IPluginDependencyResolver> pluginDependencyResolverFactory,
                                           Func<IAssemblyLoadStrategy> assemblyLoadStrategyFactory,
-                                          Func<IPluginLoadContext, Task<IPluginDependencyContext>> pluginContextFactory)
+                                          Func<string, IAssemblyDependencyResolver> assemblyDependencyResolverFactory,
+                                          Func<IFileSystemUtilities> fileSystemUtilitiesFactory,
+                                          Func<IRuntimeDefaultAssemblyContext> runtimeDefaultAssemblyLoadContextFactory,
+                                          Func<IPluginDependencyContextProvider> pluginDependencyContextProviderFactory)
         {
-            this.nativeAssemblyUnloader = nativeAssemblyUnloaderFactory();
-            this.pluginDependencyResolverFactory = pluginDependencyResolverFactory;
-            this.assemblyLoadStrategyFactory = assemblyLoadStrategyFactory;
-            this.pluginContextFactory = pluginContextFactory;
+            this.nativeAssemblyUnloader = nativeAssemblyUnloaderFactory.ThrowIfNull(nameof(nativeAssemblyUnloaderFactory))();
+            this.pluginDependencyResolverFactory = pluginDependencyResolverFactory.ThrowIfNull(nameof(pluginDependencyResolverFactory));
+            this.assemblyLoadStrategyFactory = assemblyLoadStrategyFactory.ThrowIfNull(nameof(assemblyLoadStrategyFactory));
+            this.assemblyDependencyResolverFactory = assemblyDependencyResolverFactory.ThrowIfNull(nameof(assemblyDependencyResolverFactory));
+            this.fileSystemUtilities = fileSystemUtilitiesFactory.ThrowIfNull(nameof(fileSystemUtilitiesFactory))();
+            this.runtimeDefaultAssemblyLoadContext = runtimeDefaultAssemblyLoadContextFactory.ThrowIfNull(nameof(runtimeDefaultAssemblyLoadContextFactory))();
+            this.pluginDependencyContextProvider = pluginDependencyContextProviderFactory.ThrowIfNull(nameof(pluginDependencyContextProviderFactory))();
             this.loadedNativeLibraries = new ConcurrentDictionary<string, IntPtr>();
             this.loadedPlugins = new ConcurrentBag<string>();
             this.assemblyReferences = new ConcurrentBag<WeakReference>();
@@ -62,27 +67,29 @@ namespace Prise.AssemblyLoading
 
         public async Task<IAssemblyShim> LoadPluginAssembly(IPluginLoadContext pluginLoadContext)
         {
+            if (pluginLoadContext == null)
+                throw new ArgumentNullException(nameof(pluginLoadContext));
+
+            var fullPathToAssembly = pluginLoadContext.FullPathToPluginAssembly.ThrowIfNullOrEmpty(nameof(pluginLoadContext.FullPathToPluginAssembly));
+
+            if (!Path.IsPathRooted(fullPathToAssembly))
+                throw new AssemblyLoadingException($"FullPathToPluginAssembly {pluginLoadContext.FullPathToPluginAssembly} is not rooted, this must be a absolute path!");
+
             this.fullPathToPluginAssembly = pluginLoadContext.FullPathToPluginAssembly;
             this.initialPluginLoadDirectory = Path.GetDirectoryName(fullPathToPluginAssembly);
+            this.nativeDependencyLoadPreference = pluginLoadContext.NativeDependencyLoadPreference;
 
             GuardIfAlreadyLoaded(fullPathToPluginAssembly);
 
-#if HAS_NATIVE_RESOLVER
-            try
-            {
-                this.resolver = new AssemblyDependencyResolver(fullPathToPluginAssembly);
-            }
-            catch (System.ArgumentException ex)
-            {
-                throw new AssemblyLoadingException($"{nameof(AssemblyDependencyResolver)} could not be instantiated, possible issue with {this.initialPluginLoadDirectory}{Path.GetFileNameWithoutExtension(fullPathToPluginAssembly)}.deps.json file?", ex);
-            }
-#endif
-            this.pluginDependencyContext = await this.pluginContextFactory(pluginLoadContext);
+            this.resolver = this.assemblyDependencyResolverFactory(fullPathToPluginAssembly);
+            this.pluginDependencyContext = await this.pluginDependencyContextProvider.FromPluginLoadContext(pluginLoadContext);
             this.pluginDependencyResolver = this.pluginDependencyResolverFactory();
             this.assemblyLoadStrategy = this.assemblyLoadStrategyFactory();
             this.pluginPlatformVersion = pluginLoadContext.PluginPlatformVersion ?? PluginPlatformVersion.Empty();
 
-            using (var pluginStream = await LoadFileFromLocalDisk(fullPathToPluginAssembly))
+            var ensuredPath = this.fileSystemUtilities.EnsureFileExists(fullPathToPluginAssembly);
+
+            using (var pluginStream = await this.fileSystemUtilities.ReadFileFromDisk(ensuredPath))
             {
                 return new PriseAssembly(LoadAndAddToWeakReferences(pluginStream));
             }
@@ -116,20 +123,18 @@ namespace Prise.AssemblyLoading
         /// <returns></returns>
         protected ValueOrProceed<AssemblyFromStrategy> LoadFromDependencyContext(string initialPluginLoadDirectory, AssemblyName assemblyName)
         {
-#if HAS_NATIVE_RESOLVER
-            var assemblyPath = resolver.ResolveAssemblyToPath(assemblyName);
-            if (!String.IsNullOrEmpty(assemblyPath) && File.Exists(assemblyPath))
+            var assemblyPath = this.resolver.ResolveAssemblyToPath(assemblyName);
+            if (!String.IsNullOrEmpty(assemblyPath) && this.fileSystemUtilities.DoesFileExist(assemblyPath))
             {
                 return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(LoadFromAssemblyPath(assemblyPath)), false);
             }
-#endif
 
             if (IsResourceAssembly(assemblyName))
             {
                 foreach (var resourceDependency in this.pluginDependencyContext.PluginResourceDependencies)
                 {
                     var resourcePath = Path.Combine(resourceDependency.Path, assemblyName.CultureName, assemblyName.Name + ".dll");
-                    if (File.Exists(resourcePath))
+                    if (this.fileSystemUtilities.DoesFileExist(resourcePath))
                     {
                         return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(LoadFromAssemblyPath(resourcePath)), false);
                     }
@@ -148,7 +153,7 @@ namespace Prise.AssemblyLoading
             }
 
             var localFile = Path.Combine(initialPluginLoadDirectory, assemblyName.Name + ".dll");
-            if (File.Exists(localFile))
+            if (this.fileSystemUtilities.DoesFileExist(localFile))
             {
                 return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(LoadFromAssemblyPath(localFile)), false);
             }
@@ -159,7 +164,7 @@ namespace Prise.AssemblyLoading
         protected virtual ValueOrProceed<AssemblyFromStrategy> LoadFromRemote(string initialPluginLoadDirectory, AssemblyName assemblyName)
         {
             var assemblyFileName = $"{assemblyName.Name}.dll";
-            if (File.Exists(Path.Combine(initialPluginLoadDirectory, assemblyFileName)))
+            if (this.fileSystemUtilities.DoesFileExist(Path.Combine(initialPluginLoadDirectory, assemblyFileName)))
             {
                 return LoadDependencyFromLocalDisk(initialPluginLoadDirectory, assemblyFileName);
             }
@@ -170,7 +175,7 @@ namespace Prise.AssemblyLoading
         {
             try
             {
-                var assembly = Default.LoadFromAssemblyName(assemblyName);
+                var assembly = this.runtimeDefaultAssemblyLoadContext.LoadFromDefaultContext(assemblyName);
                 if (assembly != null)
                     return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.NotReleasable(assembly), false);
             }
@@ -188,41 +193,12 @@ namespace Prise.AssemblyLoading
 
         protected virtual ValueOrProceed<AssemblyFromStrategy> LoadDependencyFromLocalDisk(string directory, string assemblyFileName)
         {
-            var dependency = LoadFileFromLocalDisk(directory, assemblyFileName);
+            var dependency = this.fileSystemUtilities.ReadDependencyFileFromDisk(directory, assemblyFileName);
 
             if (dependency == null)
                 return ValueOrProceed<AssemblyFromStrategy>.Proceed();
 
-            return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(Assembly.Load(ToByteArray(dependency))), false);
-        }
-
-        internal static Stream LoadFileFromLocalDisk(string loadPath, string pluginAssemblyName)
-        {
-            var probingPath = EnsureFileExists(loadPath, pluginAssemblyName);
-            var memoryStream = new MemoryStream();
-            using (var stream = new FileStream(probingPath, FileMode.Open, FileAccess.Read))
-            {
-                memoryStream.SetLength(stream.Length);
-                stream.Read(memoryStream.GetBuffer(), 0, (int)stream.Length);
-            }
-            return memoryStream;
-        }
-
-        internal static byte[] ToByteArray(Stream stream)
-        {
-            stream.Position = 0;
-            byte[] buffer = new byte[stream.Length];
-            for (int totalBytesCopied = 0; totalBytesCopied < stream.Length;)
-                totalBytesCopied += stream.Read(buffer, totalBytesCopied, Convert.ToInt32(stream.Length) - totalBytesCopied);
-            return buffer;
-        }
-
-        private static string EnsureFileExists(string loadPath, string pluginAssemblyName)
-        {
-            var probingPath = Path.GetFullPath(Path.Combine(loadPath, pluginAssemblyName));
-            if (!File.Exists(probingPath))
-                throw new AssemblyLoadingException($"Plugin assembly does not exist in path : {probingPath}");
-            return probingPath;
+            return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(Assembly.Load(this.fileSystemUtilities.ToByteArray(dependency))), false);
         }
 
         protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
@@ -264,8 +240,7 @@ namespace Prise.AssemblyLoading
         /// <returns></returns>
         protected ValueOrProceed<string> LoadUnmanagedFromDependencyContext(string initialPluginLoadDirectory, string unmanagedDllName)
         {
-#if HAS_NATIVE_RESOLVER
-            string libraryPath = resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
+            string libraryPath = this.resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
             if (!String.IsNullOrEmpty(libraryPath))
             {
                 string runtimeCandidate = null;
@@ -275,7 +250,6 @@ namespace Prise.AssemblyLoading
 
                 return ValueOrProceed<string>.FromValue(runtimeCandidate ?? libraryPath, false);
             }
-#endif
 
             var unmanagedDllNameWithoutFileExtension = Path.GetFileNameWithoutExtension(unmanagedDllName);
             var platformDependency = this.pluginDependencyContext.PlatformDependencies.FirstOrDefault(d => d.DependencyNameWithoutExtension == unmanagedDllNameWithoutFileExtension);
@@ -300,7 +274,7 @@ namespace Prise.AssemblyLoading
         {
             var assemblyFileName = $"{unmanagedDllName}.dll";
             var pathToDependency = Path.Combine(initialPluginLoadDirectory, assemblyFileName);
-            if (File.Exists(pathToDependency))
+            if (this.fileSystemUtilities.DoesFileExist(pathToDependency))
             {
                 return ValueOrProceed<string>.FromValue(pathToDependency, false);
             }
@@ -346,28 +320,7 @@ namespace Prise.AssemblyLoading
             return assembly;
         }
 
-        internal static async Task<Stream> LoadFileFromLocalDisk(string fullPathToAssembly)
-        {
-            var probingPath = EnsureFileExists(fullPathToAssembly);
-            var memoryStream = new MemoryStream();
-            using (var stream = new FileStream(probingPath, FileMode.Open, FileAccess.Read))
-            {
-                memoryStream.SetLength(stream.Length);
-                await stream.ReadAsync(memoryStream.GetBuffer(), 0, (int)stream.Length);
-            }
-            return memoryStream;
-        }
 
-        private static string EnsureFileExists(string fullPathToAssembly)
-        {
-            var probingPath = Path.GetFullPath(fullPathToAssembly);
-            if (!File.Exists(probingPath))
-                throw new AssemblyLoadingException($"Plugin assembly does not exist in path : {probingPath}");
-            return probingPath;
-        }
-
-        protected bool disposed = false;
-        protected bool disposing = false;
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed && disposing)
@@ -394,11 +347,10 @@ namespace Prise.AssemblyLoading
                 this.loadedPlugins.Clear();
                 this.assemblyReferences.Clear();
                 this.loadedNativeLibraries.Clear();
-                this.pluginDependencyContext.Dispose();
-                this.pluginDependencyResolver.Dispose();
-#if HAS_NATIVE_UNLOADER
+                this.pluginDependencyContext?.Dispose();
+                this.pluginDependencyResolver?.Dispose();
+                this.resolver?.Dispose();
                 this.resolver = null;
-#endif
                 this.loadedNativeLibraries = null;
                 this.loadedPlugins = null;
                 this.assemblyReferences = null;
@@ -411,7 +363,10 @@ namespace Prise.AssemblyLoading
                 this.nativeAssemblyUnloader = null;
                 this.pluginDependencyResolverFactory = null;
                 this.assemblyLoadStrategyFactory = null;
-                this.pluginContextFactory = null;
+                this.assemblyDependencyResolverFactory = null;
+                this.fileSystemUtilities = null;
+                this.runtimeDefaultAssemblyLoadContext = null;
+                this.pluginDependencyContextProvider = null;
             }
             this.disposed = true;
         }

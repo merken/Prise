@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Title>Prise.ReverseProxy</Title>
+    <PackageId>Prise.ReverseProxy</PackageId>
+    <PackageDescription>Adds support for sharing services between a Prise host and a Prise Plugin</PackageDescription>
+    <Authors>Maarten Merken</Authors>
+    <Company>MRKN</Company>
+    <PackageTags>plugin;framework;prise;decoupling;assembly;dispatchproxy;proxy</PackageTags>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+
+  <Target DependsOnTargets="ResolveReferences" Name="CopyProjectReferencesToPackage">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="4.6.1" />
+    <PackageReference Include="System.Reflection.DispatchProxy" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../Prise.Proxy/PriseProxyException.cs" Link="PriseProxyException.cs" />
+    <Compile Include="../Prise.Proxy/Infrastructure/IParameterConverter.cs" Link="IParameterConverter.cs" />
+    <Compile Include="../Prise.Proxy/Infrastructure/IResultConverter.cs" Link="IResultConverter.cs" />
+    <Compile Include="../Prise.Proxy/PassthroughParameterConverter.cs" Link="PassthroughParameterConverter.cs" />
+    <Compile Include="../Prise.Proxy/PassthroughResultConverter.cs" Link="PassthroughResultConverter.cs" />
+    <Compile Include="../Prise.Proxy/PriseProxy.cs" Link="PriseProxy.cs" />
+    <Compile Include="../Prise.Proxy/ResultConverter.cs" Link="ResultConverter.cs" />
+    <Compile Include="../Prise.Proxy/TaskCompletionSource.cs" Link="TaskCompletionSource.cs" />
+    <Compile Include="../Prise/Infrastructure/JsonSerializerParameterConverter.cs" Link="JsonSerializerParameterConverter.cs" />
+    <Compile Include="../Prise/Infrastructure/JsonSerializerResultConverter.cs" Link="JsonSerializerResultConverter.cs" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PackageIcon>icon.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Prise.Utils;
 
 namespace Prise.Activation
 {
@@ -13,8 +14,8 @@ namespace Prise.Activation
 
         public DefaultBootstrapperServiceProvider(IServiceProvider localProvider, IEnumerable<Type> hostTypes)
         {
-            this.localProvider = localProvider;
-            this.hostTypes = hostTypes;
+            this.localProvider = localProvider.ThrowIfNull(nameof(localProvider));
+            this.hostTypes = hostTypes.ThrowIfNull(nameof(hostTypes));
             this.instances = new ConcurrentBag<object>();
         }
 
@@ -23,7 +24,7 @@ namespace Prise.Activation
             var hostType = this.hostTypes.FirstOrDefault(t => t.Name == type.Name);
             if (hostType == null)
                 //TODO
-                throw new PluginActivationException($"An instance of type {type.Name} is required to activate this plugin, but it was not registered as a Shared Type or a Host Type, please configure this type via the UseHostServices, ConfigureHostServices or ConfigureSharedServices builder method.");
+                throw new PluginActivationException($"An instance of type {type.Name} is required to activate this plugin, but it was not registered as a Host Type, please configure this type via the UseHostServices, ConfigureHostServices or ConfigureSharedServices builder method.");
 
             var instance = this.localProvider.GetService(hostType);
             if (instance == null)
@@ -58,19 +59,19 @@ namespace Prise.Activation
 
     public class DefaultPluginServiceProvider : DefaultBootstrapperServiceProvider, IPluginServiceProvider
     {
-        private IEnumerable<Type> sharedTypes;
+        private IEnumerable<Type> pluginTypes;
 
-        public DefaultPluginServiceProvider(IServiceProvider localProvider, IEnumerable<Type> hostTypes, IEnumerable<Type> sharedTypes)
+        public DefaultPluginServiceProvider(IServiceProvider localProvider, IEnumerable<Type> hostTypes, IEnumerable<Type> pluginTypes)
             : base(localProvider, hostTypes)
         {
-            this.sharedTypes = sharedTypes;
+            this.pluginTypes = pluginTypes;
         }
 
         public object GetPluginService(Type type)
         {
             // Plugin services are registered via a PluginBootstrapper, eventually they'll land inside the localProvider.
-            var sharedType = this.sharedTypes.FirstOrDefault(t => t.Name == type.Name);
-            if (sharedType == null)
+            var pluginType = this.pluginTypes.FirstOrDefault(t => t.Name == type.Name);
+            if (pluginType == null)
                 throw new PluginActivationException($"An instance of type {type.Name} is required to activate this plugin, but it was not registered as a Plugin Type, please provide this service via a PluginBootstrapper builder.");
 
             var instance = this.localProvider.GetService(type);
@@ -83,13 +84,12 @@ namespace Prise.Activation
 
         public override object GetHostService(Type type)
         {
-            // Host Services can either be provided as Shared Service or Host Service
+            // Host services are provided by the Host.
             var hostType = this.hostTypes.FirstOrDefault(t => t.Name == type.Name);
-            var sharedType = this.sharedTypes.FirstOrDefault(t => t.Name == type.Name);
-            if ((hostType ?? sharedType) == null)
-                throw new PluginActivationException($"An instance of type {type.Name} is required to activate this plugin, but it was not registered as a Shared Type or a Host Type, please configure this type via the UseHostServices, ConfigureHostServices or ConfigureSharedServices builder method.");
+            if (hostType == null)
+                throw new PluginActivationException($"An instance of type {type.Name} is required to activate this plugin, but it was not registered as a Host Type, please configure this type via the UseHostServices, ConfigureHostServices or ConfigureSharedServices builder method.");
 
-            var instance = this.localProvider.GetService(hostType ?? sharedType);
+            var instance = this.localProvider.GetService(hostType);
             if (instance == null)
                 throw new PluginActivationException($"An instance of Host Service type {type.Name} could not be properly constructed (null).");
 
@@ -109,7 +109,7 @@ namespace Prise.Activation
                 this.instances = null;
                 this.localProvider = null;
                 this.hostTypes = null;
-                this.sharedTypes = null;
+                this.pluginTypes = null;
             }
             this.disposed = true;
         }

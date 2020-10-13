@@ -1,0 +1,3 @@
+GET http://localhost:7071/api/PluginFunction?&plugin=Plugin.Sql
+
+GET http://localhost:7071/api/PluginFunction?&plugin=Plugin.AzureTableStorage
