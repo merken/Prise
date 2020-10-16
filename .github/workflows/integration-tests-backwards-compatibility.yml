@@ -10,41 +10,19 @@ jobs:
     steps:
       - uses: actions/checkout@v1
         
-      - name: Setup .NET Core 3.1
+      - name: Setup .NET 5
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.201
-
-      # Creates Prise beta versions
-      - name: pack Prise
-        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ./dist src/Prise/Prise.csproj
-      - name: pack Prise.Plugin
-        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.Plugin/Prise.Plugin.csproj
-      - name: pack Prise.Proxy
-        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.Proxy/Prise.Proxy.csproj
-      - name: pack Prise.PluginBridge
-        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ../../dist src/Prise.PluginBridge/Prise.PluginBridge.csproj
-      - name: pack Prise.Mvc
-        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ./dist src/Prise.Mvc/Prise.Mvc.csproj
-      - name: pack Prise.AssemblyScanning.Discovery
-        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ./dist src/Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj
-      - name: pack Prise.AssemblyScanning.Discovery.Nuget
-        run: dotnet pack -c Release /p:Version=1.9.0-beta1 -o ./dist src/Prise.AssemblyScanning.Discovery.Nuget/Prise.AssemblyScanning.Discovery.Nuget.csproj
+          dotnet-version: 5.0.100-rc.2
 
       # Copies all compatability plugins to integration test directory
-      - run: mkdir -p src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r src/Tests/compatibility/netstandard2.1/PluginA src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r src/Tests/compatibility/netstandard2.1/PluginB src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r src/Tests/compatibility/netstandard2.0/PluginC src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r src/Tests/compatibility/netcoreapp3.1/PluginD src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r src/Tests/compatibility/netstandard2.1/PluginE src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r src/Tests/compatibility/netcoreapp3.1/PluginF src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r src/Tests/compatibility/netstandard2.0/LegacyPlugin1.4 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp -r src/Tests/compatibility/netstandard2.0/LegacyPlugin1.5 src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
-      - run: cp src/Tests/compatibility/netcoreapp3.1/*.nupkg src/Tests/Prise.IntegrationTests/bin/Debug/netcoreapp3.1/Plugins
+      - run: mkdir -p src/Prise.IntegrationTests/dist
+      - run: cp -r src/compatibility/netstandard2.1/PluginA src/Prise.IntegrationTests/dist
+      - run: cp -r src/compatibility/netstandard2.1/PluginB src/Prise.IntegrationTests/dist
+      - run: cp -r src/compatibility/netstandard2.0/PluginC src/Prise.IntegrationTests/dist
       
       - name: Restore IntegrationTestsHost
-        run: dotnet restore src/Tests/Prise.IntegrationTestsHost/Prise.IntegrationTestsHost.csproj --configfile src/Tests/Prise.IntegrationTestsHost/NuGet.config
+        run: dotnet restore src/Prise.IntegrationTestsHost/Prise.IntegrationTestsHost.csproj
 
-      - name: Test Prise.IntegrationTests with netcoreapp3.1
-        run: dotnet test src/Tests/Prise.IntegrationTests/Prise.IntegrationTests.csproj
+      - name: Test Prise.IntegrationTests
+        run: dotnet test src/Prise.IntegrationTests/Prise.IntegrationTests.csproj

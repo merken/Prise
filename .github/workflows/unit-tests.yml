@@ -10,10 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
         
-      - name: Setup .NET Core 3.1
+      - name: Setup .NET 5
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.201
+          dotnet-version: 5.0.100-rc.2
 
-      - name: Test Prise.Tests with netcoreapp3.1
-        run: dotnet test src/Tests/Prise.Tests/Prise.Tests.csproj -f netcoreapp3.1
+      - name: Test Prise.Tests
+        run: dotnet test src/Prise.Tests/Prise.Tests.csproj
