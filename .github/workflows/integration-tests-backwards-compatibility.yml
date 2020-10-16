@@ -17,12 +17,12 @@ jobs:
 
       # Copies all compatability plugins to integration test directory
       - run: mkdir -p src/Prise.IntegrationTests/dist
-      - run: cp -r src/compatibility/netstandard2.1/PluginA src/Prise.IntegrationTests/dist
-      - run: cp -r src/compatibility/netstandard2.1/PluginB src/Prise.IntegrationTests/dist
-      - run: cp -r src/compatibility/netstandard2.0/PluginC src/Prise.IntegrationTests/dist
+      - run: cp -r src/compatibility/netstandard2.1/PluginA src/Prise.Tests.Integration/dist
+      - run: cp -r src/compatibility/netstandard2.1/PluginB src/Prise.Tests.Integration/dist
+      - run: cp -r src/compatibility/netstandard2.0/PluginC src/Prise.Tests.Integration/dist
       
       - name: Restore IntegrationTestsHost
-        run: dotnet restore src/Prise.IntegrationTestsHost/Prise.IntegrationTestsHost.csproj
+        run: dotnet restore src/Prise.Tests.Integration/Prise.IntegrationTestsHost/Prise.IntegrationTestsHost.csproj
 
       - name: Test Prise.IntegrationTests
-        run: dotnet test src/Prise.IntegrationTests/Prise.IntegrationTests.csproj
+        run: dotnet test src/Prise.Tests.Integration/Prise.IntegrationTests/Prise.IntegrationTests.csproj

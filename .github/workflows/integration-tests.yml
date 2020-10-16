@@ -16,18 +16,18 @@ jobs:
           dotnet-version: 5.0.100-rc.2.20479.15
 
       # Publishes all plugins to publish directory
-      - run: dotnet publish src/IntegrationTestsPlugins/PluginA/PluginA.csproj -o ~/publish/PluginA
-      - run: dotnet publish src/IntegrationTestsPlugins/PluginB/PluginB.csproj -o ~/publish/PluginB
-      - run: dotnet publish src/IntegrationTestsPlugins/PluginC/PluginC.csproj -o ~/publish/PluginC
+      - run: dotnet publish src/Prise.Tests.Integration/IntegrationTestsPlugins/PluginA/PluginA.csproj -o ~/publish/PluginA
+      - run: dotnet publish src/Prise.Tests.Integration/IntegrationTestsPlugins/PluginB/PluginB.csproj -o ~/publish/PluginB
+      - run: dotnet publish src/Prise.Tests.Integration/IntegrationTestsPlugins/PluginC/PluginC.csproj -o ~/publish/PluginC
 
       # Copies all published plugins to integration test directory
       - run: mkdir -p src/Prise.IntegrationTests/dist
-      - run: cp -r ~/publish/PluginA src/Prise.IntegrationTests/dist
-      - run: cp -r ~/publish/PluginB src/Prise.IntegrationTests/dist
-      - run: cp -r ~/publish/PluginC src/Prise.IntegrationTests/dist
+      - run: cp -r ~/publish/PluginA src/Prise.Tests.Integration/dist
+      - run: cp -r ~/publish/PluginB src/Prise.Tests.Integration/dist
+      - run: cp -r ~/publish/PluginC src/Prise.Tests.Integration/dist
 
       - name: Restore IntegrationTestsHost
-        run: dotnet restore src/Prise.IntegrationTestsHost/Prise.IntegrationTestsHost.csproj
-        
+        run: dotnet restore src/Prise.Tests.Integration/Prise.IntegrationTestsHost/Prise.IntegrationTestsHost.csproj
+
       - name: Test Prise.IntegrationTests
-        run: dotnet test src/Prise.IntegrationTests/Prise.IntegrationTests.csproj
+        run: dotnet test src/Prise.Tests.Integration/Prise.IntegrationTests/Prise.IntegrationTests.csproj
