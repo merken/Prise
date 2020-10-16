@@ -3,7 +3,9 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Prise.IntegrationTestsContract;
+using Prise.IntegrationTestsHost.PluginLoaders;
 using Prise.IntegrationTestsHost.Models;
+using System.Threading.Tasks;
 
 namespace Prise.IntegrationTestsHost.Controllers
 {
@@ -11,22 +13,22 @@ namespace Prise.IntegrationTestsHost.Controllers
     [Route("multiple")]
     public class MultipleCalculationController
     {
-        private readonly ILogger<MultipleCalculationController> _logger;
-        private readonly IEnumerable<ICalculationPlugin> _plugins;
+        private readonly ILogger<MultipleCalculationController> logger;
+        private readonly ICalculationPluginLoader loader;
 
-        // Multiple instances of plugins can be injected using an IEnumerable<TPlugin>
-        public MultipleCalculationController(ILogger<MultipleCalculationController> logger, IEnumerable<ICalculationPlugin> plugins)
+        public MultipleCalculationController(ILogger<MultipleCalculationController> logger, ICalculationPluginLoader loader)
         {
-            _logger = logger;
-            _plugins = plugins;
+            this.logger = logger;
+            this.loader = loader;
         }
 
         [HttpPost]
-        public CalculationResponseModel Calculate(CalculationRequestModel requestModel)
+        public async Task<CalculationResponseModel> Calculate(CalculationRequestModel requestModel)
         {
+            var plugins = await this.loader.GetPlugins();
             return new CalculationResponseModel
             {
-                Result = _plugins.Sum(p => p.Calculate(requestModel.A, requestModel.B))
+                Result = plugins.Sum(p => p.Calculate(requestModel.A, requestModel.B))
             };
         }
     }

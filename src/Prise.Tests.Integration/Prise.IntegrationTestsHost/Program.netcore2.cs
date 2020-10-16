@@ -26,7 +26,8 @@ namespace Prise.IntegrationTestsHost
                 {
                     services.AddSingleton<ICommandLineArguments>(new CommandLineArguments(consoleConfig));
                 })
-                .UseStartup<Startup>();
+                .UseStartup<Startup>()
+                .UseUrls("http://localhost:5003");
         }
 #endif
     }

@@ -3,33 +3,42 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Prise.IntegrationTestsContract;
 using Prise.IntegrationTestsHost.Models;
+using Prise.IntegrationTestsHost.PluginLoaders;
 
 namespace Prise.IntegrationTestsHost.Controllers
 {
-    public class CalculationControllerBase : ControllerBase
+    public abstract class CalculationControllerBase : ControllerBase
     {
-        protected ICalculationPlugin _plugin;
-        protected void SetPlugin(ICalculationPlugin plugin) => this._plugin = plugin;
+        protected ICalculationPluginLoader pluginLoader;
+        public CalculationControllerBase(ICalculationPluginLoader pluginLoader)
+        {
+            this.pluginLoader = pluginLoader;
+        }
 
-        protected CalculationResponseModel Calculate(CalculationRequestModel requestModel)
+        protected virtual async Task<ICalculationPlugin> GetCalculationPlugin()
+        {
+            return await this.pluginLoader.GetPlugin();
+        }
+
+        protected async Task<CalculationResponseModel> Calculate(CalculationRequestModel requestModel)
         {
             // The plugin is eagerly loaded (in-scope)
             return new CalculationResponseModel
             {
-                Result = _plugin.Calculate(requestModel.A, requestModel.B)
+                Result = (await GetCalculationPlugin()).Calculate(requestModel.A, requestModel.B)
             };
         }
 
-        protected CalculationResponseModel CalculateInt(CalculationRequestModel requestModel)
+        protected async Task<CalculationResponseModel> CalculateInt(CalculationRequestModel requestModel)
         {
             // Overloading works due to matching the Proxy on parameter count and types
             return new CalculationResponseModel
             {
-                Result = _plugin.Calculate((int)requestModel.A, (int)requestModel.B)
+                Result = (await GetCalculationPlugin()).Calculate((int)requestModel.A, (int)requestModel.B)
             };
         }
 
-        protected CalculationResponseModel CalculateComplex(CalculationRequestModel requestModel)
+        protected async Task<CalculationResponseModel> CalculateComplex(CalculationRequestModel requestModel)
         {
             // Complex parameters are serialized across Application Domains using Newtonsoft JSON
             var context = new CalculationContext
@@ -39,11 +48,11 @@ namespace Prise.IntegrationTestsHost.Controllers
             };
             return new CalculationResponseModel
             {
-                Result = _plugin.CalculateComplex(context)
+                Result = (await GetCalculationPlugin()).CalculateComplex(context)
             };
         }
 
-        protected CalculationResponseModel CalculateComplexOutput(CalculationRequestModel requestModel)
+        protected async Task<CalculationResponseModel> CalculateComplexOutput(CalculationRequestModel requestModel)
         {
             var context = new CalculationContext
             {
@@ -53,11 +62,11 @@ namespace Prise.IntegrationTestsHost.Controllers
             // Complex results are dezerialized using XML Deserialization (by default)
             return new CalculationResponseModel
             {
-                Result = _plugin.CalculateComplexResult(context).Result
+                Result = (await GetCalculationPlugin()).CalculateComplexResult(context).Result
             };
         }
 
-        protected CalculationResponseModel CalculateMultiple(CalculationRequestMultiModel requestModel)
+        protected async Task<CalculationResponseModel> CalculateMultiple(CalculationRequestMultiModel requestModel)
         {
             // Ever more complex objects are serialized correctly
             var calculationContext = new ComplexCalculationContext
@@ -67,7 +76,7 @@ namespace Prise.IntegrationTestsHost.Controllers
 
             return new CalculationResponseModel
             {
-                Result = _plugin.CalculateMutiple(calculationContext).Results.Sum(r => r.Result)
+                Result = (await GetCalculationPlugin()).CalculateMutiple(calculationContext).Results.Sum(r => r.Result)
             };
         }
 
@@ -81,7 +90,7 @@ namespace Prise.IntegrationTestsHost.Controllers
 
             return new CalculationResponseModel
             {
-                Result = (await _plugin.CalculateMutipleAsync(calculationContext)).Results.Sum(r => r.Result)
+                Result = (await (await GetCalculationPlugin()).CalculateMutipleAsync(calculationContext)).Results.Sum(r => r.Result)
             };
         }
     }

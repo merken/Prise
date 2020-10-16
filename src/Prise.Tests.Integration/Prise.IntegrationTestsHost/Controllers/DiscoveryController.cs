@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
+using Prise.IntegrationTestsHost.PluginLoaders;
 using Prise.IntegrationTestsHost.Models;
 using Prise.IntegrationTestsContract;
 using Prise.Infrastructure;
@@ -14,19 +15,19 @@ namespace Prise.IntegrationTestsHost.Controllers
     [Route("disco")]
     public class DiscoveryController : ControllerBase
     {
-        private readonly ILogger<DiscoveryController> _logger;
-        private readonly IPluginLoader<ICalculationPlugin> _loader;
+        private readonly ILogger<DiscoveryController> logger;
+        private readonly ICalculationPluginLoader loader;
 
-        public DiscoveryController(ILogger<DiscoveryController> logger, IPluginLoader<ICalculationPlugin> loader)
+        public DiscoveryController(ILogger<DiscoveryController> logger, ICalculationPluginLoader loader)
         {
-            _logger = logger;
-            _loader = loader;
+            this.logger = logger;
+            this.loader = loader;
         }
 
         [HttpGet]
         public async Task<string> DiscoverPlugins()
         {
-            var plugins = await _loader.LoadAll();
+            var plugins = await this.loader.GetPlugins();
 
             return string.Join(',', plugins.Select(p => p.Name));
         }
@@ -34,7 +35,7 @@ namespace Prise.IntegrationTestsHost.Controllers
         [HttpGet("description")]
         public async Task<string> DiscoverPluginsWithDescription()
         {
-            var plugins = await _loader.LoadAll();
+            var plugins = await this.loader.GetPlugins();
 
             return string.Join(',', plugins.Select(p => p.Description));
         }

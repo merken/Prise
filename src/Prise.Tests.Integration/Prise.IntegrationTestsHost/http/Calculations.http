@@ -1,0 +1,9 @@
+POST http://localhost:5003/calculation
+Content-Type: application/json
+# PluginType: PluginA
+PluginType: PluginC
+
+{
+    "a":1,
+    "b":2
+}

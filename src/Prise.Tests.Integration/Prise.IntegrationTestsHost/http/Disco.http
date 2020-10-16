@@ -1,0 +1,4 @@
+GET http://localhost:5003/disco
+Content-Type: application/json
+# PluginType: PluginA
+PluginType: PluginA

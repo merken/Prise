@@ -1,15 +1,19 @@
 using System.Reflection;
 using System.Runtime.Versioning;
-using Prise.Infrastructure;
 
 namespace Prise.IntegrationTestsHost
 {
+    public interface IHostFrameworkProvider
+    {
+        string ProvideHostFramework();
+    }
+    
     /// <summary>
     /// This is required for testing
     /// </summary>
     public class AppHostFrameworkProvider : IHostFrameworkProvider
     {
-        public string ProvideHostFramwork() => typeof(AppHostFrameworkProvider).Assembly
+        public string ProvideHostFramework() => typeof(AppHostFrameworkProvider).Assembly
             .GetCustomAttribute<TargetFrameworkAttribute>()?
             .FrameworkName;
     }

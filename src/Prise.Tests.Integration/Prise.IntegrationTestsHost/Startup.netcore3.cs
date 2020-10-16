@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Prise;
 using Prise.IntegrationTestsContract;
 using Prise.IntegrationTestsHost.Services;
-using Prise.IntegrationTestsHost.Custom;
 using System;
 
 namespace Prise.IntegrationTestsHost

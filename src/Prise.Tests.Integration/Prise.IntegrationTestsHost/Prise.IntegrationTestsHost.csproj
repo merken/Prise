@@ -19,13 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Prise" Version="1.9.0-beta1" />
-    <PackageReference Include="Prise.Mvc" Version="1.9.0-beta1" />
-    <PackageReference Include="Prise.AssemblyScanning.Discovery" Version="1.9.0-beta1" />
-    <PackageReference Include="Prise.AssemblyScanning.Discovery.Nuget" Version="1.9.0-beta1" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="../../Prise/Prise.csproj" />
+    <ProjectReference Include="../../Prise.Plugin/Prise.Plugin.csproj" />
+    <ProjectReference Include="../../Prise.Proxy/Prise.Proxy.csproj" />
     <ProjectReference Include="..\IntegrationTestsPlugins\ExternalServiceForPluginD\ExternalServiceForPluginD.csproj" />
     <ProjectReference Include="..\IntegrationTestsPlugins\Legacy.Contract\Legacy.Contract.csproj" />
     <ProjectReference Include="..\Prise.IntegrationTestsContract\Prise.IntegrationTestsContract.csproj" />

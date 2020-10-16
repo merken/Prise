@@ -25,7 +25,9 @@ namespace Prise.IntegrationTestsHost
                     services.AddSingleton<ICommandLineArguments>(new CommandLineArguments(consoleConfig)))
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder
+                        .UseStartup<Startup>()
+                        .UseUrls("http://localhost:5003");
                 });
         }
 #endif
