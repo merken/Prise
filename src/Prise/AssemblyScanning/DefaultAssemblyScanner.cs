@@ -42,15 +42,15 @@ namespace Prise.AssemblyScanning
             {
                 foreach (var assemblyFilePath in this.directoryTraverser.TraverseFiles(directory, fileTypes))
                 {
-                    var implementation = GetImplementationsOfTypeFromAssembly(typeToScan, assemblyFilePath).FirstOrDefault();
-                    if (implementation != null)
-                        results.Add(new AssemblyScanResult
-                        {
-                            ContractType = typeToScan,
-                            AssemblyName = Path.GetFileName(assemblyFilePath),
-                            AssemblyPath = Path.GetDirectoryName(assemblyFilePath),
-                            PluginType = implementation
-                        });
+                    foreach (var implementation in GetImplementationsOfTypeFromAssembly(typeToScan, assemblyFilePath))
+                        if (implementation != null)
+                            results.Add(new AssemblyScanResult
+                            {
+                                ContractType = typeToScan,
+                                AssemblyName = Path.GetFileName(assemblyFilePath),
+                                AssemblyPath = Path.GetDirectoryName(assemblyFilePath),
+                                PluginType = implementation
+                            });
                 }
             }
 

@@ -38,7 +38,7 @@ namespace Prise.DependencyInjection
         /// <summary>
         /// This is the bootstrapper method to register a Plugin of <T> using Prise
         /// </summary>
-        /// <param name="pathToPlugins">The path to start scanning for plugins</param>
+        /// <param name="pathToPlugin">The path to start scanning for plugins</param>
         /// <param name="hostFramework">The framework of the host, optional</param>
         /// <param name="allowMultiple">If <true>, an IEnumerable<T> is registered, all plugins of this type will have the same configuration. If <false> only the first found Plugin is registered</param>
         /// <param name="configureContext">A builder function that you can use configure the load context</param>
@@ -46,8 +46,8 @@ namespace Prise.DependencyInjection
         /// <typeparam name="T">The Plugin type</typeparam>
         /// <returns>A full configured ServiceCollection that will resolve <T> or an IEnumerable<T> based on <allowMultiple></returns>
         public static IServiceCollection AddPrise<T>(this IServiceCollection services,
-                                                            string pathToPlugins,
-                                                            string hostFramework = null,
+                                                            Func<IServiceProvider, string> pathToPlugin,
+                                                            Func<IServiceProvider, string> hostFramework = null,
                                                             bool allowMultiple = false,
                                                             ServiceLifetime serviceLifetime = ServiceLifetime.Scoped,
                                                             Action<PluginLoadContext> configureContext = null,
@@ -58,7 +58,7 @@ namespace Prise.DependencyInjection
                         .AddPrise(serviceLifetime) // Adds the default Prise Services
                         .AddService(new ServiceDescriptor(allowMultiple ? typeof(IEnumerable<T>) : typeof(T), (sp) =>
                         {
-                            var frameworkFromHost = hostFramework ?? HostFrameworkUtils.GetHostframeworkFromHost();
+                            var frameworkFromHost = hostFramework?.Invoke(sp) ?? HostFrameworkUtils.GetHostframeworkFromHost();
                             var scanner = sp.GetRequiredService<IAssemblyScanner>();
                             var loader = sp.GetRequiredService<IAssemblyLoader>();
                             var selector = sp.GetRequiredService<IPluginTypeSelector>();
@@ -68,7 +68,7 @@ namespace Prise.DependencyInjection
 
                             var scanResults = scanner.Scan(new AssemblyScannerOptions
                             {
-                                StartingPath = pathToPlugins,
+                                StartingPath = pathToPlugin.Invoke(sp),
                                 PluginType = typeof(T)
                             }).Result;
 
