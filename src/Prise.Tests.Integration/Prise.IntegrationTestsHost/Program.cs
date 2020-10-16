@@ -15,7 +15,7 @@ namespace Prise.IntegrationTestsHost
     {
         public static void Main(string[] args)
         {
-#if NETCORE3_0 || NETCORE3_1
+#if NETCORE3_1
             CreateHostBuilder(args).Build().Run();
 
 #endif

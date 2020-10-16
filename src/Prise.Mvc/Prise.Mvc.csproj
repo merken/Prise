@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp3.0;netcoreapp3.1;net5.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net5.0</TargetFrameworks>
     <Title>Prise.Mvc</Title>
     <PackageId>Prise.Mvc</PackageId>
     <PackageDescription>Adds ASP.NET Core MVC features to an existing Prise setup!</PackageDescription>
@@ -19,11 +19,7 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
     <DefineConstants>NETCORE2_1</DefineConstants>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
-    <DefineConstants>NETCORE3_0</DefineConstants>
-  </PropertyGroup>
-
+  
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <DefineConstants>NETCORE3_1</DefineConstants>
   </PropertyGroup>

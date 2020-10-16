@@ -84,25 +84,6 @@ namespace Prise.Mvc
                     .ConfigureRazorServices(webRootPath, pathToPlugins)
                 ;
         }
-        //             ;
-
-        //             return builder
-        //                 // Use a singleton cache
-        //                 .WithSingletonCache()
-        //                 .ConfigureServices(services =>
-        //                     services
-        //                         .ConfigureMVCServices<T>()
-        //                         .ConfigureRazorServices<T>(webRootPath))
-        // #if NETCORE2_1
-        //                  // This is required in 2.1 because there is no AssemblyDependencyResolver
-        //                  .UsePluginContextAsDependencyPath()
-        // #endif
-        //                  // Makes sure controllers can be casted to the host's representation of ControllerBase
-        //                  .WithHostType(typeof(ControllerBase))
-        //                  // Makes sure the Microsoft.AspNetCore.Mvc.ViewFeatures assembly is loaded from the host
-        //                  .WithHostType(typeof(ITempDataDictionaryFactory))
-        //             ;
-        //         }
 
         private static IServiceCollection ConfigureMvcServices(this IServiceCollection services)
         {
@@ -121,7 +102,7 @@ namespace Prise.Mvc
 #if NETCORE2_1
                 .Configure<RazorViewEngineOptions>(options =>
                 {
-                    options.FileProviders.Add(new PrisePluginViewsAssemblyFileProvider(webRootPath, pathToPlugins));
+                    options.FileProviders.Add(new DefaultPrisePluginViewsAssemblyFileProvider(webRootPath, pathToPlugins));
                 })
 #else
                 .Configure<MvcRazorRuntimeCompilationOptions>(options =>

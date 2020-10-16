@@ -22,7 +22,7 @@ namespace Prise.IntegrationTests
             };
 
             //Act
-#if NETCORE3_0 || NETCORE3_1
+#if NETCORE3_1
             await Assert.ThrowsAsync<System.IO.DirectoryNotFoundException>(async () => await Post<CalculationResponseModel>(_client, "PluginZ", "/calculation", payload));
 #endif
 #if NETCORE2_1
@@ -34,7 +34,7 @@ namespace Prise.IntegrationTests
         public async Task PluginB_Description_Does_Not_Work()
         {
             // Arrange, Act
-#if NETCORE3_0 || NETCORE3_1
+#if NETCORE3_1
             await Assert.ThrowsAsync<Prise.Proxy.PriseProxyException>(async () => await GetRaw(_client, "PluginB", "/disco/description"));
 #endif
 #if NETCORE2_1

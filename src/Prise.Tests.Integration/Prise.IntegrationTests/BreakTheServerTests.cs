@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Prise.IntegrationTests
 {
-#if NETCORE3_0 || NETCORE3_1
+#if NETCORE3_1
     public class BreakTheServerTests : CalculationPluginTestsBase
     {
         public BreakTheServerTests() : base(AppHostWebApplicationFactory.Default()) { }
