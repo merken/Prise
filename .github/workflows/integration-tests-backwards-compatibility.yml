@@ -16,7 +16,7 @@ jobs:
           dotnet-version: 5.0.100-rc.2.20479.15
 
       # Copies all compatability plugins to integration test directory
-      - run: mkdir -p src/Prise.IntegrationTests/dist
+      - run: mkdir -p src/Prise.Tests.Integration/dist
       - run: cp -r src/Prise.Tests.Integration/compatibility/netstandard2.1/PluginA src/Prise.Tests.Integration/dist
       - run: cp -r src/Prise.Tests.Integration/compatibility/netstandard2.1/PluginB src/Prise.Tests.Integration/dist
       - run: cp -r src/Prise.Tests.Integration/compatibility/netstandard2.0/PluginC src/Prise.Tests.Integration/dist
