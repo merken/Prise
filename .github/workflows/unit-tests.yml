@@ -16,4 +16,4 @@ jobs:
           dotnet-version: 5.0.100-rc.2.20479.15
 
       - name: Test Prise.Tests
-        run: dotnet test src/Prise.Tests/Prise.Tests.csproj
+        run: dotnet test src/Prise.Tests/Prise.Tests.csproj -f net5.0

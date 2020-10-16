@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net5.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1;net5.0</TargetFrameworks>
     <Title>Prise.Mvc</Title>
     <PackageId>Prise.Mvc</PackageId>
     <PackageDescription>Adds ASP.NET Core MVC features to an existing Prise setup!</PackageDescription>
