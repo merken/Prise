@@ -1,29 +1,27 @@
 var target = Argument("target", "default");
 var configuration = Argument("configuration", "Release");
 var apikey = Argument("apikey", "");
-var outputDir = "../dist";
-var betaVersion = "1.9.0-beta1";
-var priseVersion = "1.7.6";
-var proxyVersion = "1.7.5";
-var pluginVersion = "1.7.0";
-var pluginBridgeVersion = "1.7.5";
-var mvcVersion = "1.7.5";
-var assemblyDiscoveryVersion = "1.7.1";
-var nugetDiscoveryVersion = "1.7.4";
+var outputDir = "../_dist";
+var betaVersion = "-beta1";
+var priseVersion = "2.0.0";
+var proxyVersion = "2.0.0";
+var pluginVersion = "2.0.0";
+var pluginReverseProxyVersion = "2.0.0";
+var mvcVersion = "2.0.0";
 var nugetSource = "https://api.nuget.org/v3/index.json";
 
 Task("build").Does( () =>
 { 
+    var net5 = new DotNetCoreBuildSettings
+    {
+        Configuration = "Release",
+        Framework = "net5.0"
+    };
+
     var netcoreapp2 = new DotNetCoreBuildSettings
     {
         Configuration = "Release",
         Framework = "netcoreapp2.1"
-    };
-
-    var netcoreapp3 = new DotNetCoreBuildSettings
-    {
-        Configuration = "Release",
-        Framework = "netcoreapp3.0"
     };
 
     var netcoreapp3_1 = new DotNetCoreBuildSettings
@@ -38,72 +36,57 @@ Task("build").Does( () =>
         Framework = "netstandard2.0"
     };
 
-    DotNetCoreBuild("Prise.AssemblyScanning.Discovery.Nuget/Prise.AssemblyScanning.Discovery.Nuget.csproj", netstandard2);
-    DotNetCoreBuild("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", netstandard2);
-   
     DotNetCoreBuild("Prise.Plugin/Prise.Plugin.csproj", netstandard2);
     DotNetCoreBuild("Prise.Proxy/Prise.Proxy.csproj", netstandard2);
-    DotNetCoreBuild("Prise.PluginBridge/Prise.PluginBridge.csproj", netstandard2);
+    DotNetCoreBuild("Prise.ReverseProxy/Prise.ReverseProxy.csproj", netstandard2);
 
-    DotNetCoreBuild("Prise.MVC/Prise.MVC.csproj", netcoreapp2);
-    DotNetCoreBuild("Prise.MVC/Prise.MVC.csproj", netcoreapp3);
-    DotNetCoreBuild("Prise.MVC/Prise.MVC.csproj", netcoreapp3_1);
+    DotNetCoreBuild("Prise.Mvc/Prise.Mvc.csproj", netcoreapp2);
+    DotNetCoreBuild("Prise.Mvc/Prise.Mvc.csproj", netcoreapp3_1);
+    DotNetCoreBuild("Prise.Mvc/Prise.Mvc.csproj", net5);
     DotNetCoreBuild("Prise/Prise.csproj", netcoreapp2);
-    DotNetCoreBuild("Prise/Prise.csproj", netcoreapp3);
     DotNetCoreBuild("Prise/Prise.csproj", netcoreapp3_1);
+    DotNetCoreBuild("Prise/Prise.csproj", net5);
 });
 
-private DotNetCorePackSettings GetPackSettings(string version, string betaVersion = null){
-  if (betaVersion == null)
-    betaVersion = version;
-  
-  return new DotNetCorePackSettings {
+private DotNetCorePackSettings GetPackSettings(string version, string betaVersion = null){  
+  var versionString =version;
+  if(betaVersion!=null)
+    versionString +=betaVersion;
+  var settings= new DotNetCorePackSettings {
         NoBuild = false,
         Configuration = configuration,
         OutputDirectory = outputDir,
         ArgumentCustomization = (args) => {
             return args
                 .Append("--include-source")
-                .Append("/p:Version={0}", betaVersion)
+                .Append("/p:Version={0}", versionString)
                 .Append("/p:AssemblyVersion={0}", version)
-                .Append("/p:FileVersion={0}", version)
+                .Append("/p:FileVersion={0}", versionString)
                 .Append("/p:AssemblyInformationalVersion={0}", version);
+            ;
         }
     };
+    if (betaVersion != null)
+      settings.VersionSuffix = betaVersion;
+    return settings;
 }
 
 Task("publish")
   .IsDependentOn("build")
   .Does(() =>
-  { 
-    // delete the dist folder
-    CleanDirectories(outputDir);
-
-    DotNetCorePack("Prise.AssemblyScanning.Discovery.Nuget/Prise.AssemblyScanning.Discovery.Nuget.csproj", GetPackSettings(nugetDiscoveryVersion));
-    DotNetCorePack("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", GetPackSettings(assemblyDiscoveryVersion));
-    DotNetCorePack("Prise.MVC/Prise.MVC.csproj", GetPackSettings(mvcVersion));
-    DotNetCorePack("Prise.Plugin/Prise.Plugin.csproj", GetPackSettings(pluginVersion));
-    DotNetCorePack("Prise.PluginBridge/Prise.PluginBridge.csproj", GetPackSettings(pluginBridgeVersion));
-    DotNetCorePack("Prise.Proxy/Prise.Proxy.csproj", GetPackSettings(proxyVersion));
-    DotNetCorePack("Prise/Prise.csproj", GetPackSettings(priseVersion));
-  });
-
-Task("beta")
-  .IsDependentOn("build")
-  .Does(() =>
   {
     // delete the dist folder
     CleanDirectories(outputDir);
-    Console.WriteLine("Creating beta versions " + betaVersion);
-    DotNetCorePack("Prise.AssemblyScanning.Discovery.Nuget/Prise.AssemblyScanning.Discovery.Nuget.csproj", GetPackSettings(nugetDiscoveryVersion, betaVersion));
-    DotNetCorePack("Prise.AssemblyScanning.Discovery/Prise.AssemblyScanning.Discovery.csproj", GetPackSettings(assemblyDiscoveryVersion, betaVersion));
-    DotNetCorePack("Prise.MVC/Prise.MVC.csproj", GetPackSettings(mvcVersion,  betaVersion));
+    DotNetCorePack("Prise.Mvc/Prise.Mvc.csproj", GetPackSettings(mvcVersion,  betaVersion));
     DotNetCorePack("Prise.Plugin/Prise.Plugin.csproj", GetPackSettings(pluginVersion, betaVersion));
-    DotNetCorePack("Prise.PluginBridge/Prise.PluginBridge.csproj", GetPackSettings(pluginBridgeVersion, betaVersion));
+    DotNetCorePack("Prise.ReverseProxy/Prise.ReverseProxy.csproj", GetPackSettings(pluginReverseProxyVersion, betaVersion));
     DotNetCorePack("Prise.Proxy/Prise.Proxy.csproj", GetPackSettings(proxyVersion, betaVersion));
     DotNetCorePack("Prise/Prise.csproj", GetPackSettings(priseVersion, betaVersion));
   });
 
+private string GetPushVersion(string version, string betaVersion){
+  return betaVersion !=null? version + betaVersion : version;
+}
 Task("push")
   .IsDependentOn("publish")
   .Does(() =>
@@ -115,7 +98,7 @@ Task("push")
     };
     try
     {
-      DotNetCoreNuGetPush(outputDir + "/Prise.PluginBridge." + pluginBridgeVersion +  ".nupkg", settings); 
+      DotNetCoreNuGetPush(outputDir + "/Prise.ReverseProxy." + GetPushVersion(pluginReverseProxyVersion, betaVersion) +  ".nupkg", settings); 
     }
     catch(Exception ex)
     {
@@ -123,7 +106,7 @@ Task("push")
     }
     try
     {
-      DotNetCoreNuGetPush(outputDir + "/Prise.Proxy." + proxyVersion +  ".nupkg", settings); 
+      DotNetCoreNuGetPush(outputDir + "/Prise.Proxy." + GetPushVersion(proxyVersion,betaVersion) +  ".nupkg", settings); 
     }
     catch(Exception ex)
     {
@@ -131,7 +114,7 @@ Task("push")
     }
     try
     {
-      DotNetCoreNuGetPush(outputDir + "/Prise." + priseVersion +  ".nupkg", settings); 
+      DotNetCoreNuGetPush(outputDir + "/Prise." + GetPushVersion(priseVersion,betaVersion) +  ".nupkg", settings); 
     }
     catch(Exception ex)
     {
@@ -139,7 +122,7 @@ Task("push")
     }
     try
     {
-      DotNetCoreNuGetPush(outputDir + "/Prise.MVC." + mvcVersion +  ".nupkg", settings); 
+      DotNetCoreNuGetPush(outputDir + "/Prise.Mvc." + GetPushVersion(mvcVersion,betaVersion) +  ".nupkg", settings); 
     }
     catch(Exception ex)
     {
@@ -147,27 +130,11 @@ Task("push")
     }
     try
     {
-      DotNetCoreNuGetPush(outputDir + "/Prise.Plugin." + pluginVersion +  ".nupkg", settings); 
+      DotNetCoreNuGetPush(outputDir + "/Prise.Plugin." + GetPushVersion(pluginVersion,betaVersion) +  ".nupkg", settings); 
     }
     catch(Exception ex)
     {
       Console.WriteLine(ex.Message);
-    }
-    try
-    {
-      DotNetCoreNuGetPush(outputDir + "/Prise.AssemblyScanning.Discovery." + assemblyDiscoveryVersion +  ".nupkg", settings); 
-    }
-    catch(Exception ex)
-    {
-      Console.WriteLine(ex.Message);      
-    }
-    try
-    {
-      DotNetCoreNuGetPush(outputDir + "/Prise.AssemblyScanning.Discovery.Nuget." + nugetDiscoveryVersion +  ".nupkg", settings); 
-    }
-    catch(Exception ex)
-    {
-      Console.WriteLine(ex.Message);      
     }
   });
 
