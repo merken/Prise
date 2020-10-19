@@ -28,5 +28,8 @@
     <Content Include="TestData.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+     <Content Include="TestFile.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>
