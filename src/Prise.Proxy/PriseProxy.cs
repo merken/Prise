@@ -21,7 +21,7 @@ namespace Prise.Proxy
             try
             {
                 var localType = targetMethod.ReturnType;
-                var remoteMethod = FindMethodOnRemoteObject(targetMethod, remoteObject);
+                var remoteMethod = FindMethodOnObject(targetMethod, remoteObject);
                 if (remoteMethod == null)
                     throw new PriseProxyException($"Target method {targetMethod.Name} is not found on Proxy Type {remoteObject.GetType().Name}.");
 
@@ -36,25 +36,39 @@ namespace Prise.Proxy
 
                 var remoteType = remoteMethod.ReturnType;
                 if (remoteType.BaseType == typeof(System.Threading.Tasks.Task))
-                {
                     return resultConverter.ConvertToLocalTypeAsync(localType, remoteType, result as System.Threading.Tasks.Task);
-                }
+
+                if (remoteType == typeof(System.Threading.Tasks.Task))
+                    return resultConverter.ConvertToLocalTypeAsync(localType, remoteType, result as System.Threading.Tasks.Task);
+
+
+                if (remoteType == typeof(void))
+                    return null;
+
                 return resultConverter.ConvertToLocalType(localType, remoteType, result);
             }
-            catch (Exception ex) when (ex is TargetInvocationException)
+            catch (Exception ex) //when (ex is TargetInvocationException)
             {
                 throw ex.InnerException ?? ex;
             }
         }
 
-        internal static MethodInfo FindMethodOnRemoteObject(MethodInfo callingMethod, object targetObject)
+        public static MethodInfo FindMethodOnObject(MethodInfo callingMethod, object targetObject)
         {
             bool isNameCorrect(MethodInfo targetMethod) => targetMethod.Name == callingMethod.Name;
 
-            var targetMethods = targetObject.GetType().GetMethods().Where(targetMethod => targetMethod.Name == callingMethod.Name);
+            // First, find by method name
+            var targetMethods = targetObject.GetType().GetMethods().Where(isNameCorrect);
             if (!targetMethods.Any())
                 throw new PriseProxyException($"Target method {callingMethod.Name} is not found on Proxy Type {targetObject.GetType().Name}.");
 
+            if (targetMethods.Count() == 1)
+                return targetMethods.First();
+
+            bool isReturnTypeCorrect(MethodInfo targetMethod) => targetMethod.ReturnType == callingMethod.ReturnType;
+
+            // Second, find by method name AND return type
+            targetMethods = targetMethods.Where(isReturnTypeCorrect);
             if (targetMethods.Count() == 1)
                 return targetMethods.First();
 
@@ -75,14 +89,13 @@ namespace Prise.Proxy
                 return true;
             }
 
-            targetMethods = targetObject.GetType().GetMethods().Where(targetMethod =>
-                isNameCorrect(targetMethod) &&
+            targetMethods = targetMethods.Where(targetMethod =>
                 isParameterCountCorrect(targetMethod) &&
                 doAllParametersMatch(targetMethod)
             );
 
             if (targetMethods.Count() > 1)
-                throw new PriseProxyException($"Target method {callingMethod.Name} is found multiple times on Proxy Type {targetObject.GetType().Name}.");
+                throw new PriseProxyException($"Target method {callingMethod.Name} could not be determined on object {targetObject.GetType().Name}.");
 
             return targetMethods.First();
         }

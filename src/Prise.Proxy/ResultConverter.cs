@@ -16,8 +16,8 @@ namespace Prise.Proxy
 
         public object ConvertToLocalTypeAsync(Type localType, Type remoteType, Task task)
         {
-            var taskResultType = localType.GenericTypeArguments[0];
-            var taskCompletionSource = new TaskCompletionSource(taskResultType);
+            var taskResultType = localType.GenericTypeArguments != null && localType.GenericTypeArguments.Any() ? localType.GenericTypeArguments[0] : null;
+            var taskCompletionSource = new TaskCompletionSource(taskResultType ?? typeof(object));
 
             task.ContinueWith(t =>
             {
@@ -25,6 +25,8 @@ namespace Prise.Proxy
                     taskCompletionSource.TrySetCanceled();
                 else if (t.IsFaulted)
                     taskCompletionSource.TrySetException(t.Exception);
+                else if (taskResultType == null)
+                    taskCompletionSource.TrySetResult(null);
                 else
                 {
                     var property = t.GetType()
