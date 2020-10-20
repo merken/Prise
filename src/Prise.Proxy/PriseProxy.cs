@@ -47,7 +47,7 @@ namespace Prise.Proxy
 
                 return resultConverter.ConvertToLocalType(localType, remoteType, result);
             }
-            catch (Exception ex) //when (ex is TargetInvocationException)
+            catch (Exception ex) when (ex is TargetInvocationException)
             {
                 throw ex.InnerException ?? ex;
             }

@@ -9,6 +9,8 @@
     <Company>MRKN</Company>
     <PackageTags>plugin;framework;prise;decoupling;assembly;dispatchproxy;proxy</PackageTags>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+    <Nullable>enable</Nullable>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
 
   <Target DependsOnTargets="ResolveReferences" Name="CopyProjectReferencesToPackage">
@@ -18,7 +20,7 @@
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="System.Reflection.DispatchProxy" Version="4.5.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
   </ItemGroup>
 
   <PropertyGroup>
