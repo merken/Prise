@@ -10,7 +10,7 @@ namespace Plugin.FileSystem
 
         public string GetConfigurationValueForKey(string key)
         {
-            return this.InvokeThisMethodOnHostService<string>(new[] { key });
+            return this.InvokeOnHostService<string>(key);
         }
     }
 }

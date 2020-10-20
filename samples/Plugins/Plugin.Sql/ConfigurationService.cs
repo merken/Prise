@@ -9,7 +9,7 @@ namespace Plugin.Sql
 
         public string GetConfigurationValueForKey(string key)
         {
-            return this.InvokeThisMethodOnHostService<string>(new[] { key });
+            return this.InvokeOnHostService<string>(key);
         }
     }
 }

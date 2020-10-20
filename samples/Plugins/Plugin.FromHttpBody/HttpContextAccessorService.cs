@@ -10,7 +10,7 @@ namespace Plugin.FromHttpBody
 
         public Task<string> GetHttpBody()
         {
-            return this.InvokeThisMethodOnHostService<Task<string>>();
+            return this.InvokeOnHostService<Task<string>>();
         }
     }
 }

@@ -6,8 +6,10 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyModel;
+using NuGet.Versioning;
 using Prise.Core;
 using Prise.Utils;
 
@@ -80,9 +82,9 @@ namespace Prise.AssemblyLoading
 
             foreach (var duplicateDependency in hostDependenciesThatExistInPlugin)
             {
-                Debug.WriteLine($"Plugin dependency {duplicateDependency.Plugin.DependencyNameWithoutExtension} {duplicateDependency.Plugin.Version} exists in the host");
-                if (duplicateDependency.Host.DependencyName.Version > duplicateDependency.Plugin.Version)
-                    Debug.WriteLine($"Host dependency {duplicateDependency.Host.DependencyName.Name} version {duplicateDependency.Host.DependencyName.Version} is newer than the plugin {duplicateDependency.Plugin.Version}");
+                Debug.WriteLine($"Plugin dependency {duplicateDependency.Plugin.DependencyNameWithoutExtension} {duplicateDependency.Plugin.SemVer} exists in the host");
+                if (duplicateDependency.Host.SemVer > duplicateDependency.Plugin.SemVer)
+                    Debug.WriteLine($"Host dependency {duplicateDependency.Host.DependencyName.Name} version {duplicateDependency.Host.SemVer} is newer than the plugin {duplicateDependency.Plugin.SemVer}");
             }
         }
 
@@ -217,7 +219,7 @@ namespace Prise.AssemblyLoading
                     dependencies.Add(new PluginDependency
                     {
                         DependencyNameWithoutExtension = Path.GetFileNameWithoutExtension(asset),
-                        Version = new Version(runtimeLibrary.Version),
+                        SemVer = SemanticVersion.Parse(runtimeLibrary.Version),
                         DependencyPath = path,
                         ProbingPath = Path.Combine(runtimeLibrary.Name.ToLowerInvariant(), runtimeLibrary.Version, path)
                     });
@@ -225,7 +227,6 @@ namespace Prise.AssemblyLoading
             }
             return dependencies;
         }
-
 
         private static IEnumerable<PluginDependency> GetPluginReferenceDependencies(DependencyContext pluginDependencyContext)
         {
@@ -237,7 +238,7 @@ namespace Prise.AssemblyLoading
                     dependencies.Add(new PluginDependency
                     {
                         DependencyNameWithoutExtension = Path.GetFileNameWithoutExtension(assembly),
-                        Version = new Version(referenceAssembly.Version),
+                        SemVer = SemanticVersion.Parse(referenceAssembly.Version),
                         DependencyPath = Path.Join("refs", assembly)
                     });
                 }
@@ -270,7 +271,7 @@ namespace Prise.AssemblyLoading
                     dependencies.Add(new PlatformDependency
                     {
                         DependencyNameWithoutExtension = Path.GetFileNameWithoutExtension(asset),
-                        Version = runtimeLibrary.Version,
+                        SemVer = SemanticVersion.Parse(runtimeLibrary.Version),
                         DependencyPath = asset
                     });
                 }
@@ -347,12 +348,12 @@ namespace Prise.AssemblyLoading
             builder.AppendLine($"");
             builder.AppendLine($"PlatformDependencies");
             foreach (var p in this.PlatformDependencies)
-                builder.AppendLine($"{p.DependencyPath} {p.DependencyNameWithoutExtension} {p.Version}");
+                builder.AppendLine($"{p.DependencyPath} {p.DependencyNameWithoutExtension} {p.SemVer}");
 
             builder.AppendLine($"");
             builder.AppendLine($"PluginDependencies");
             foreach (var p in this.PluginDependencies)
-                builder.AppendLine($"{p.DependencyPath} {p.DependencyNameWithoutExtension} {p.Version}");
+                builder.AppendLine($"{p.DependencyPath} {p.DependencyNameWithoutExtension} {p.SemVer}");
 
             builder.AppendLine($"");
             builder.AppendLine($"PluginResourceDependencies");

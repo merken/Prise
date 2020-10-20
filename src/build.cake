@@ -2,12 +2,13 @@ var target = Argument("target", "default");
 var configuration = Argument("configuration", "Release");
 var apikey = Argument("apikey", "");
 var outputDir = "../_dist";
-var betaVersion = "-beta1";
+var betaVersion = "-beta2";
 var priseVersion = "2.0.0";
 var proxyVersion = "2.0.0";
 var pluginVersion = "2.0.0";
 var pluginReverseProxyVersion = "2.0.0";
 var mvcVersion = "2.0.0";
+var testingVersion = "2.0.0";
 var nugetSource = "https://api.nuget.org/v3/index.json";
 
 Task("build").Does( () =>
@@ -39,6 +40,7 @@ Task("build").Does( () =>
     DotNetCoreBuild("Prise.Plugin/Prise.Plugin.csproj", netstandard2);
     DotNetCoreBuild("Prise.Proxy/Prise.Proxy.csproj", netstandard2);
     DotNetCoreBuild("Prise.ReverseProxy/Prise.ReverseProxy.csproj", netstandard2);
+    DotNetCoreBuild("Prise.Testing/Prise.Testing.csproj", netstandard2);
 
     DotNetCoreBuild("Prise.Mvc/Prise.Mvc.csproj", netcoreapp2);
     DotNetCoreBuild("Prise.Mvc/Prise.Mvc.csproj", netcoreapp3_1);
@@ -82,11 +84,14 @@ Task("publish")
     DotNetCorePack("Prise.ReverseProxy/Prise.ReverseProxy.csproj", GetPackSettings(pluginReverseProxyVersion, betaVersion));
     DotNetCorePack("Prise.Proxy/Prise.Proxy.csproj", GetPackSettings(proxyVersion, betaVersion));
     DotNetCorePack("Prise/Prise.csproj", GetPackSettings(priseVersion, betaVersion));
+    DotNetCorePack("Prise.Testing/Prise.Testing.csproj", GetPackSettings(priseVersion, betaVersion));
   });
 
-private string GetPushVersion(string version, string betaVersion){
+private string GetPushVersion(string version, string betaVersion)
+{
   return betaVersion !=null? version + betaVersion : version;
 }
+
 Task("push")
   .IsDependentOn("publish")
   .Does(() =>
@@ -96,6 +101,14 @@ Task("push")
         Source = nugetSource,
         ApiKey = apikey
     };
+    try
+    {
+      DotNetCoreNuGetPush(outputDir + "/Prise.Testing." + GetPushVersion(testingVersion, betaVersion) +  ".nupkg", settings); 
+    }
+    catch(Exception ex)
+    {
+      Console.WriteLine(ex.Message);
+    }
     try
     {
       DotNetCoreNuGetPush(outputDir + "/Prise.ReverseProxy." + GetPushVersion(pluginReverseProxyVersion, betaVersion) +  ".nupkg", settings); 
