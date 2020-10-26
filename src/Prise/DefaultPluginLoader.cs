@@ -67,13 +67,13 @@ namespace Prise
 
             var pluginAssembly = await this.assemblyLoader.Load(pluginLoadContext);
             var pluginTypes = this.pluginTypeSelector.SelectPluginTypes<T>(pluginAssembly);
-            var firstPlugin = pluginTypes.FirstOrDefault();
-            if (firstPlugin == null)
+            var pluginType = pluginTypes.FirstOrDefault(p => p.Name.Equals(scanResult.PluginType.Name));
+            if (pluginType == null)
                 throw new PluginLoadException($"Did not found any plugins to load from {nameof(AssemblyScanResult)} {scanResult.AssemblyPath} {scanResult.AssemblyName}");
 
             return await this.pluginActivator.ActivatePlugin<T>(new DefaultPluginActivationOptions
             {
-                PluginType = firstPlugin,
+                PluginType = pluginType,
                 PluginAssembly = pluginAssembly,
                 ParameterConverter = this.parameterConverter,
                 ResultConverter = this.resultConverter,
