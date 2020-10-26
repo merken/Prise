@@ -15,5 +15,15 @@ jobs:
       with:
         dotnet-version: 5.0.100-rc.2.20479.15
         
+    - name: Setup .NET 3.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.302
+
+    - name: Setup .NET 2.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 2.1.810
+  
     - name: Build Samples
       run: dotnet build samples/Plugins/Plugins.sln -f net5.0
