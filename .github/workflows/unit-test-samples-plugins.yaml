@@ -15,5 +15,5 @@ jobs:
       with:
         dotnet-version: 5.0.100-rc.2.20479.15
         
-    - name: Build Samples
+    - name: Test Samples
       run: dotnet test samples/Tests/Tests.sln -f net5.0
