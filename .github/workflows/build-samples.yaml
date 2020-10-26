@@ -1,0 +1,19 @@
+name: prise-build-samples
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+      
+    - name: Setup .NET 5
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.100-rc.2.20479.15
+        
+    - name: Build Samples
+      run: dotnet build src/Prise/samples/samples.sln -f net5.0
