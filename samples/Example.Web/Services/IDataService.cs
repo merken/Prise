@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Reflection;
 using System.IO;
-using Prise.Core;
+using Prise;
+
 
 namespace Example.Web.Services
 {
@@ -31,7 +32,7 @@ namespace Example.Web.Services
 
             foreach (var pluginResult in pluginResults)
             {
-                await foreach (var plugin in this.pluginLoader.LoadPlugins<IPlugin>(pluginResult, (context) =>
+                await foreach (var plugin in this.pluginLoader.LoadPluginsAsAsyncEnumerable<IPlugin>(pluginResult, configure: (context) =>
                     {
                         context.AddHostService<IHttpContextAccessorService>(this.httpContextAccessorService);
                         context.AddHostService<IConfigurationService>(this.configurationService);

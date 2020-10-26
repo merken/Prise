@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Prise;
-using Prise.Core;
+
 using Prise.AssemblyScanning;
 using Prise.Activation;
 using Prise.AssemblyLoading;
@@ -31,51 +31,27 @@ namespace Example.Console
             var pathToDist = GetPathToDist();
             var hostFramework = HostFrameworkUtils.GetHostframeworkFromType(typeof(Program));
 
-            var scanner = serviceProvider.GetRequiredService<IAssemblyScanner>();
-            var loader = serviceProvider.GetRequiredService<IAssemblyLoader>();
-            var activator = serviceProvider.GetRequiredService<IPluginActivator>();
-            var typeSelector = serviceProvider.GetRequiredService<IPluginTypeSelector>();
+            var loader = serviceProvider.GetRequiredService<IPluginLoader>();
             var configurationService = serviceProvider.GetRequiredService<IConfigurationService>();
 
-            var results = await scanner.Scan(new AssemblyScannerOptions
-            {
-                StartingPath = pathToDist,
-                PluginType = typeof(IPlugin)
-            });
+            var results = await loader.FindPlugins<IPlugin>(pathToDist);
 
             foreach (var result in results)
             {
-                var pathToAssembly = Path.Combine(result.AssemblyPath, result.AssemblyName);
-
-                var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(IPlugin), hostFramework);
-                // This allows the loading of netstandard plugins
-                pluginLoadContext.IgnorePlatformInconsistencies = true;
-
-                pluginLoadContext.AddHostServices(mainServiceCollection, new[] { typeof(IConfigurationService) });
-
-                var pluginAssembly = await loader.Load(pluginLoadContext);
-
-                var pluginTypes = typeSelector.SelectPluginTypes<IPlugin>(pluginAssembly);
-                foreach (var pluginType in pluginTypes)
+                try
                 {
-                    try
+                    var plugin = await loader.LoadPlugin<IPlugin>(result, configure: (context) =>
                     {
-                        var pluginInstance = await activator.ActivatePlugin<IPlugin>(new DefaultPluginActivationOptions
-                        {
-                            PluginType = pluginType,
-                            PluginAssembly = pluginAssembly,
-                            ParameterConverter = DefaultFactories.DefaultParameterConverter(),
-                            ResultConverter = DefaultFactories.DefaultResultConverter(),
-                            HostServices = pluginLoadContext.HostServices
-                        });
+                        context.IgnorePlatformInconsistencies = true;
+                        context.AddHostServices(mainServiceCollection, new[] { typeof(IConfigurationService) });
+                    });
 
-                        var pluginResults = await pluginInstance.GetAll();
+                    var pluginResults = await plugin.GetAll();
 
-                        foreach (var pluginResult in pluginResults)
-                            System.Console.WriteLine($"{pluginResult.Text}");
-                    }
-                    catch (PluginActivationException pex) { }
+                    foreach (var pluginResult in pluginResults)
+                        System.Console.WriteLine($"{pluginResult.Text}");
                 }
+                catch (PluginActivationException pex) { }
             }
         }
 

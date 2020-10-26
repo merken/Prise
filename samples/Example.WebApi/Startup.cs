@@ -32,7 +32,6 @@ namespace Example.WebApi
             services.AddHttpContextAccessor();
             services.AddTransient<IHttpContextAccessorService, HttpContextAccessorService>();
             services.AddTransient<IConfigurationService, AppSettingsConfigurationService>();
-            services.AddTransient<IPluginLoader, PluginLoader>();
             services.AddPrise();
         }
 

@@ -11,7 +11,7 @@ using Example.Contract;
 using Example.Mvc.Razor.Models;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Prise.Mvc;
-using Prise.Core;
+
 
 namespace Example.Mvc.Razor.Controllers
 {

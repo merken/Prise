@@ -10,8 +10,9 @@ using Microsoft.Extensions.Logging;
 using Example.Contract;
 using Example.Mvc.Controllers.Models;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Prise;
 using Prise.Mvc;
-using Prise.Core;
+
 
 namespace Example.Mvc.Controllers.Controllers
 {
@@ -63,7 +64,7 @@ namespace Example.Mvc.Controllers.Controllers
             if (pluginToEnable == null)
                 return NotFound();
 
-            var pluginAssembly = await this.mvcPluginLoader.LoadPluginAssembly<IMvcPlugin>(pluginToEnable, (context) =>
+            var pluginAssembly = await this.mvcPluginLoader.LoadPluginAssembly<IMvcPlugin>(pluginToEnable, configure: (context) =>
             {
                 context.AddHostService<IConfigurationService>(this.configurationService);
             });

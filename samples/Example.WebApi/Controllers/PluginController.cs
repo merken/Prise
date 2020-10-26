@@ -4,7 +4,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Example.Contract;
-using Prise.Core;
+using Prise;
+
 
 namespace Example.WebApi.Controllers
 {
@@ -31,8 +32,8 @@ namespace Example.WebApi.Controllers
 
             foreach (var pluginResult in pluginResults)
             {
-                await foreach (var plugin in this.pluginLoader.LoadPlugins<IPlugin>(pluginResult,
-                    (context) =>
+                await foreach (var plugin in this.pluginLoader.LoadPluginsAsAsyncEnumerable<IPlugin>(pluginResult,
+                    configure: (context) =>
                     {
                         context.AddHostService<IHttpContextAccessorService>(this.httpContextAccessorService);
                         context.AddHostService<IConfigurationService>(this.configurationService);

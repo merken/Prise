@@ -30,7 +30,6 @@ namespace Example.Web
             services.AddHttpContextAccessor();
             services.AddTransient<IConfigurationService, AppSettingsConfigurationService>();
             services.AddTransient<IHttpContextAccessorService, HttpContextAccessorService>();
-            services.AddTransient<IPluginLoader, PluginLoader>();
             services.AddTransient<IDataService, DataService>();
             services.AddPrise();
         }

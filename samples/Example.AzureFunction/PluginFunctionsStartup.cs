@@ -1,8 +1,5 @@
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
-using Prise.Activation;
-using Prise.AssemblyLoading;
-using Prise.AssemblyScanning;
 using Example.Contract;
 using Prise.DependencyInjection;
 
@@ -15,7 +12,6 @@ namespace Example.AzureFunction
         {
             builder.Services.AddTransient<IConfigurationService, EnvironmentConfigurationService>();
             builder.Services.AddPrise();
-            builder.Services.AddTransient<IPluginLoader, FunctionPluginLoader>();
         }
     }
 }

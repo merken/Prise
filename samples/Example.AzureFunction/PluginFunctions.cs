@@ -8,8 +8,8 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
-using Prise.Core;
+using Prise;
+
 
 namespace Example.AzureFunction
 {
@@ -36,10 +36,10 @@ namespace Example.AzureFunction
             if (pluginScanResult == null)
                 return (ActionResult)new BadRequestObjectResult($"Plugin not found: {pluginToLoad}");
 
-            var plugin = await this.pluginLoader.LoadPlugin<IPlugin>(pluginScanResult, (context) =>
-                    {
-                        context.AddHostService<IConfigurationService>(this.configurationService);
-                    });
+            var plugin = await this.pluginLoader.LoadPlugin<IPlugin>(pluginScanResult, configure: (context) =>
+                     {
+                         context.AddHostService<IConfigurationService>(this.configurationService);
+                     });
 
             var builder = new StringBuilder();
             foreach (var result in await plugin.GetAll())
