@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Prise.Core;
+
 using Prise.Utils;
 
 namespace Prise.AssemblyLoading

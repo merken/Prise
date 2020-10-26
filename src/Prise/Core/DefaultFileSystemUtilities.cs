@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Prise.Core
+namespace Prise
 {
     public class DefaultFileSystemUtilities : IFileSystemUtilities
     {

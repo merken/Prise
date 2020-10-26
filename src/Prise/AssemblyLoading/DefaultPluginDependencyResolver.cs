@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Prise.Core;
+
 using Prise.Utils;
 
 namespace Prise.AssemblyLoading

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Prise.Utils;
 
-namespace Prise.Core
+namespace Prise
 {
     public class PluginLoadContext : IPluginLoadContext
     {

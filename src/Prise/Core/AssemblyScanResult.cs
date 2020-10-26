@@ -1,6 +1,6 @@
 using System;
 
-namespace Prise.Core
+namespace Prise
 {
     public class AssemblyScanResult
     {

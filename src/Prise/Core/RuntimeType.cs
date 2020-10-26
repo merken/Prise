@@ -1,4 +1,4 @@
-namespace Prise.Core
+namespace Prise
 {
     public enum RuntimeType
     {

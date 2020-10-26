@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyModel;
 using NuGet.Versioning;
-using Prise.Core;
+
 using Prise.Utils;
 
 namespace Prise.AssemblyLoading

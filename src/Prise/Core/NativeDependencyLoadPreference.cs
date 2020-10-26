@@ -1,4 +1,4 @@
-namespace Prise.Core
+namespace Prise
 {
     /// <summary>
     /// Sets the preferred Native Library loading strategy

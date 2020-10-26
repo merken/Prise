@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Prise.AssemblyScanning;
-using Prise.Core;
+
 using Prise.Tests.Plugins;
 using System;
 using System.Collections.Generic;

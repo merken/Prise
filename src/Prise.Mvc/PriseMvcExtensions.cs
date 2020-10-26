@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Prise.DependencyInjection;
-using Prise.Core;
+
 using Prise.Activation;
 using Prise.AssemblyLoading;
 using Prise.AssemblyScanning;

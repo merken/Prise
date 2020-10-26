@@ -1,111 +1,72 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Prise.Activation;
 using Prise.AssemblyLoading;
 using Prise.AssemblyScanning;
-using Prise.Core;
 using Prise.Proxy;
-using Prise.Utils;
 
 namespace Prise.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-
         /// <summary>
         /// This bootstrapper adds the basic Prise services in order to do manual Plugin loading.
         /// </summary>
         /// <param name="serviceLifetime">The path to the directory to scan for plugins</param>
         /// <returns>A ServiceCollection that has the following types registered and ready for injection: 
-        /// <IAssemblyScanner>, <IPluginTypeSelector>, <IParameterConverter> ,<IResultConverter>, <IPluginActivator> and <IAssemblyLoader>
-        /// Get started writing your own Plugin Loader: [https://github.com/merken/Prise/blob/master/Writing-Your-Own-Loader.md]
+        /// <see cref="IAssemblyScanner"/>, <see cref="IPluginTypeSelector"/>, <see cref="IParameterConverter"/> ,<see cref="IResultConverter"/>, <see cref="IPluginActivator"/>, <see cref="IAssemblyLoader"/> and <see cref="IPluginLoader"/>
         /// </returns>
         public static IServiceCollection AddPrise(this IServiceCollection services,
                                                      ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
         {
             return services
+                    // Add all the factories
                     .AddFactory<IAssemblyScanner>(DefaultFactories.DefaultAssemblyScanner, serviceLifetime)
                     .AddFactory<IPluginTypeSelector>(DefaultFactories.DefaultPluginTypeSelector, serviceLifetime)
                     .AddFactory<IParameterConverter>(DefaultFactories.DefaultParameterConverter, serviceLifetime)
                     .AddFactory<IResultConverter>(DefaultFactories.DefaultResultConverter, serviceLifetime)
                     .AddFactory<IPluginActivator>(DefaultFactories.DefaultPluginActivator, serviceLifetime)
-                    .AddFactory<IAssemblyLoader>(DefaultFactories.DefaultAssemblyLoader, serviceLifetime);
+                    .AddFactory<IAssemblyLoader>(DefaultFactories.DefaultAssemblyLoader, serviceLifetime)
+                    // Add the loader
+                    .AddService(new ServiceDescriptor(typeof(IPluginLoader), typeof(DefaultPluginLoader), serviceLifetime))
+                ;
         }
 
         /// <summary>
-        /// This is the bootstrapper method to register a Plugin of <T> using Prise
+        /// This is the bootstrapper method to register a Plugin of <see cref="{T}"> using Prise
         /// </summary>
         /// <param name="pathToPlugin">The path to start scanning for plugins</param>
         /// <param name="hostFramework">The framework of the host, optional</param>
-        /// <param name="allowMultiple">If <true>, an IEnumerable<T> is registered, all plugins of this type will have the same configuration. If <false> only the first found Plugin is registered</param>
+        /// <param name="allowMultiple">If <true>, an <see cref="IEnumerable<{T}>"/> is registered, all plugins of this type will have the same configuration. If <false> only the first found Plugin is registered</param>
         /// <param name="configureContext">A builder function that you can use configure the load context</param>
-        /// <param name="hostServices">A builder function that you can use to add Host services to share with the Plugin, accumulates with includeHostServices</param>
         /// <typeparam name="T">The Plugin type</typeparam>
-        /// <returns>A full configured ServiceCollection that will resolve <T> or an IEnumerable<T> based on <allowMultiple></returns>
+        /// <returns>A full configured ServiceCollection that will resolve <see cref="{T}"/> or an <see cref="IEnumerable<{T}>"/> based on <allowMultiple></returns>
         public static IServiceCollection AddPrise<T>(this IServiceCollection services,
                                                             Func<IServiceProvider, string> pathToPlugin,
                                                             Func<IServiceProvider, string> hostFramework = null,
                                                             bool allowMultiple = false,
                                                             ServiceLifetime serviceLifetime = ServiceLifetime.Scoped,
-                                                            Action<PluginLoadContext> configureContext = null,
-                                                            Action<IServiceCollection> hostServices = null)
+                                                            Action<PluginLoadContext> configureContext = null)
                    where T : class
         {
             return services
                         .AddPrise(serviceLifetime) // Adds the default Prise Services
                         .AddService(new ServiceDescriptor(allowMultiple ? typeof(IEnumerable<T>) : typeof(T), (sp) =>
                         {
-                            var frameworkFromHost = hostFramework?.Invoke(sp) ?? HostFrameworkUtils.GetHostframeworkFromHost();
-                            var scanner = sp.GetRequiredService<IAssemblyScanner>();
-                            var loader = sp.GetRequiredService<IAssemblyLoader>();
-                            var selector = sp.GetRequiredService<IPluginTypeSelector>();
-                            var activator = sp.GetRequiredService<IPluginActivator>();
-                            var parameterConverter = sp.GetRequiredService<IParameterConverter>();
-                            var resultConverter = sp.GetRequiredService<IResultConverter>();
-
-                            var scanResults = scanner.Scan(new AssemblyScannerOptions
-                            {
-                                StartingPath = pathToPlugin.Invoke(sp),
-                                PluginType = typeof(T)
-                            }).Result;
-
+                            var loader = sp.GetRequiredService<IPluginLoader>();
+                            var scanResults = loader.FindPlugins<T>(pathToPlugin.Invoke(sp)).Result;
                             if (!scanResults.Any())
                                 throw new PriseDependencyInjectionException($"No plugin assembly was found for plugin type {typeof(T).Name}");
 
+                            if (!allowMultiple) // Only 1 plugin is requested
+                                return loader.LoadPlugin<T>(scanResults.First(), hostFramework?.Invoke(sp), configureContext).Result;
+
                             var plugins = new List<T>();
                             foreach (var scanResult in scanResults)
-                            {
-                                var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(
-                                    Path.Combine(scanResult.AssemblyPath, scanResult.AssemblyName), 
-                                    typeof(T), 
-                                    frameworkFromHost);
-                                    
-                                configureContext?.Invoke(pluginLoadContext);
-                                IServiceCollection hostServicesCollection = new ServiceCollection();
+                                plugins.AddRange(loader.LoadPlugins<T>(scanResult, hostFramework?.Invoke(sp), configureContext).Result);
 
-                                hostServices?.Invoke(hostServicesCollection);
-
-                                var pluginAssembly = loader.Load(pluginLoadContext).Result;
-                                var pluginTypes = selector.SelectPluginTypes<T>(pluginAssembly);
-
-                                if (!allowMultiple)
-                                    pluginTypes = pluginTypes.Take(1);
-
-                                foreach (var pluginType in pluginTypes)
-                                {
-                                    plugins.Add(activator.ActivatePlugin<T>(new Activation.DefaultPluginActivationOptions
-                                    {
-                                        PluginType = pluginType,
-                                        PluginAssembly = pluginAssembly,
-                                        ParameterConverter = parameterConverter,
-                                        ResultConverter = resultConverter,
-                                        HostServices = hostServicesCollection
-                                    }).Result);
-                                }
-                            }
                             return plugins;
                         }, serviceLifetime))
            ;

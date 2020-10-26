@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Prise.Core;
+
 using Prise.Caching;
 using Prise.AssemblyScanning;
 using Prise.AssemblyLoading;

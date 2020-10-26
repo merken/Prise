@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Prise.Activation;
 using Prise.AssemblyLoading;
 using Prise.AssemblyScanning;
-using Prise.Core;
+
 using Prise.Proxy;
 using Prise.Infrastructure;
 using Prise.Platform;

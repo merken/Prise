@@ -1,6 +1,6 @@
 using Moq;
 using Prise.AssemblyLoading;
-using Prise.Core;
+
 using Prise.Tests.Plugins;
 using System;
 using System.IO;

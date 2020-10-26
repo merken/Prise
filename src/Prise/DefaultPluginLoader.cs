@@ -1,25 +1,19 @@
-using System.IO;
-using System.Threading.Tasks;
+using System;
 using System.Collections.Generic;
-using Prise.Utils;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Prise.Activation;
+using Prise.AssemblyLoading;
 using Prise.AssemblyScanning;
 
-using Prise.AssemblyLoading;
 using Prise.Proxy;
-using Prise.Activation;
-using System;
-using System.Linq;
+using Prise.Utils;
 
-namespace Prise.IntegrationTestsHost.PluginLoaders
+namespace Prise
 {
-    public interface IPluginLoader
-    {
-        Task<IEnumerable<AssemblyScanResult>> FindPlugins<T>(string pathToPlugins);
-        Task<T> LoadPlugin<T>(AssemblyScanResult plugin, Action<PluginLoadContext> configureLoadContext = null);
-        IAsyncEnumerable<T> LoadPlugins<T>(AssemblyScanResult plugin, Action<PluginLoadContext> configureLoadContext = null);
-    }
-
-    public class PluginLoader : IPluginLoader
+    public class DefaultPluginLoader : IPluginLoader
     {
         private readonly IAssemblyScanner assemblyScanner;
         private readonly IPluginTypeSelector pluginTypeSelector;
@@ -27,16 +21,13 @@ namespace Prise.IntegrationTestsHost.PluginLoaders
         private readonly IParameterConverter parameterConverter;
         private readonly IResultConverter resultConverter;
         private readonly IPluginActivator pluginActivator;
-        private readonly IHostFrameworkProvider hostFrameworkProvider;
-        private readonly string pluginsDirectory;
-
-        public PluginLoader(IAssemblyScanner assemblyScanner,
+        public DefaultPluginLoader(
+                            IAssemblyScanner assemblyScanner,
                             IPluginTypeSelector pluginTypeSelector,
                             IAssemblyLoader assemblyLoader,
                             IParameterConverter parameterConverter,
                             IResultConverter resultConverter,
-                            IPluginActivator pluginActivator,
-                            IHostFrameworkProvider hostFrameworkProvider)
+                            IPluginActivator pluginActivator)
         {
             this.assemblyScanner = assemblyScanner;
             this.pluginTypeSelector = pluginTypeSelector;
@@ -44,37 +35,45 @@ namespace Prise.IntegrationTestsHost.PluginLoaders
             this.parameterConverter = parameterConverter;
             this.resultConverter = resultConverter;
             this.pluginActivator = pluginActivator;
-            this.hostFrameworkProvider = hostFrameworkProvider;
-            this.pluginsDirectory = Path.GetFullPath("../../../../dist", AppDomain.CurrentDomain.BaseDirectory);
         }
 
-        public async Task<IEnumerable<AssemblyScanResult>> FindPlugins<T>(string pathToPlugin)
+        public async Task<AssemblyScanResult> FindPlugin<T>(string pathToPlugins, string plugin)
         {
-            return (await this.assemblyScanner.Scan(new AssemblyScannerOptions
+            return
+                (await this.FindPlugins<T>(pathToPlugins))
+                .FirstOrDefault(p => p.AssemblyPath.Split(Path.DirectorySeparatorChar).Last().Equals(plugin));
+        }
+
+        public Task<IEnumerable<AssemblyScanResult>> FindPlugins<T>(string pathToPlugins)
+        {
+            return this.assemblyScanner.Scan(new AssemblyScannerOptions
             {
-                StartingPath = Path.Combine(this.pluginsDirectory, pathToPlugin),
+                StartingPath = pathToPlugins,
                 PluginType = typeof(T)
-            }));
+            });
         }
 
-        public async Task<T> LoadPlugin<T>(AssemblyScanResult plugin, Action<PluginLoadContext> configurePluginLoadContext = null)
+        public async Task<T> LoadPlugin<T>(AssemblyScanResult scanResult, string hostFramework = null, Action<PluginLoadContext> configureLoadContext = null)
         {
-            var hostFramework = this.hostFrameworkProvider.ProvideHostFramework();
-            var pathToAssembly = Path.Combine(plugin.AssemblyPath, plugin.AssemblyName);
+            hostFramework = hostFramework.ValueOrDefault(HostFrameworkUtils.GetHostframeworkFromHost());
+            var servicesForPlugin = new ServiceCollection();
+
+            var pathToAssembly = Path.Combine(scanResult.AssemblyPath, scanResult.AssemblyName);
             var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(T), hostFramework);
             // This allows the loading of netstandard plugins
             pluginLoadContext.IgnorePlatformInconsistencies = true;
 
-            configurePluginLoadContext?.Invoke(pluginLoadContext);
+            configureLoadContext?.Invoke(pluginLoadContext);
 
             var pluginAssembly = await this.assemblyLoader.Load(pluginLoadContext);
             var pluginTypes = this.pluginTypeSelector.SelectPluginTypes<T>(pluginAssembly);
-            var pluginType = pluginTypes.FirstOrDefault(p => p.Name == plugin.PluginType.Name);
-            if (pluginType == null)
-                throw new ArgumentNullException($"{plugin.PluginType.Name} Not found!");
+            var firstPlugin = pluginTypes.FirstOrDefault();
+            if (firstPlugin == null)
+                throw new PluginLoadException($"Did not found any plugins to load from {nameof(AssemblyScanResult)} {scanResult.AssemblyPath} {scanResult.AssemblyName}");
+
             return await this.pluginActivator.ActivatePlugin<T>(new DefaultPluginActivationOptions
             {
-                PluginType = pluginType,
+                PluginType = firstPlugin,
                 PluginAssembly = pluginAssembly,
                 ParameterConverter = this.parameterConverter,
                 ResultConverter = this.resultConverter,
@@ -82,15 +81,25 @@ namespace Prise.IntegrationTestsHost.PluginLoaders
             });
         }
 
-        public async IAsyncEnumerable<T> LoadPlugins<T>(AssemblyScanResult plugin, Action<PluginLoadContext> configurePluginLoadContext = null)
+        public async Task<IEnumerable<T>> LoadPlugins<T>(AssemblyScanResult scanResult, string hostFramework = null, Action<PluginLoadContext> configureLoadContext = null)
         {
-            var hostFramework = HostFrameworkUtils.GetHostframeworkFromHost();
-            var pathToAssembly = Path.Combine(plugin.AssemblyPath, plugin.AssemblyName);
+            var plugins = new List<T>();
+
+            await foreach (var plugin in this.LoadPluginsAsAsyncEnumerable<T>(scanResult, hostFramework, configureLoadContext))
+                plugins.Add(plugin);
+
+            return plugins;
+        }
+
+        public async IAsyncEnumerable<T> LoadPluginsAsAsyncEnumerable<T>(AssemblyScanResult scanResult, string hostFramework = null, Action<PluginLoadContext> configureLoadContext = null)
+        {
+            hostFramework = hostFramework.ValueOrDefault(HostFrameworkUtils.GetHostframeworkFromHost());
+            var pathToAssembly = Path.Combine(scanResult.AssemblyPath, scanResult.AssemblyName);
             var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(T), hostFramework);
             // This allows the loading of netstandard plugins
             pluginLoadContext.IgnorePlatformInconsistencies = true;
 
-            configurePluginLoadContext?.Invoke(pluginLoadContext);
+            configureLoadContext?.Invoke(pluginLoadContext);
 
             var pluginAssembly = await this.assemblyLoader.Load(pluginLoadContext);
             var pluginTypes = this.pluginTypeSelector.SelectPluginTypes<T>(pluginAssembly);

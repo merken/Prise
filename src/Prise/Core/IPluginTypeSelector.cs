@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Prise.Plugin;
 using Prise.Proxy;
 
-namespace Prise.Core
+namespace Prise
 {
     public interface IPluginTypeSelector
     {

@@ -2,7 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Prise.AssemblyScanning;
 using Prise.Caching;
-using Prise.Core;
+
 using Prise.Platform;
 using Prise.Tests.Plugins;
 using System;

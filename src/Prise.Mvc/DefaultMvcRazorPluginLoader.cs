@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Prise.Core;
+
 using Prise.Caching;
 using Prise.AssemblyScanning;
 using Prise.AssemblyLoading;

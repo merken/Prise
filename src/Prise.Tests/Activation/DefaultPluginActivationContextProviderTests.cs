@@ -4,7 +4,7 @@ using Moq;
 using Prise.Activation;
 using Prise.AssemblyLoading;
 using Prise.AssemblyScanning;
-using Prise.Core;
+
 using Prise.Plugin;
 using Prise.Tests.Plugins;
 using System;

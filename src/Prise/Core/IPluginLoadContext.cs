@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Prise.Core
+namespace Prise
 {
     public interface IPluginLoadContext
     {

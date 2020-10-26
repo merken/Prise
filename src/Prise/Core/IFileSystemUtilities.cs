@@ -1,7 +1,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Prise.Core
+namespace Prise
 {
     public interface IFileSystemUtilities
     {
