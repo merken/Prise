@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Prise.IntegrationTestsContract;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Linq;
 using System.IO;
 using System;
@@ -19,6 +20,7 @@ namespace Prise.IntegrationTestsHost.PluginLoaders
     {
         private readonly IPluginLoader pluginLoader;
         private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly string pluginBaseDir = Path.GetFullPath("../../../../dist", AppDomain.CurrentDomain.BaseDirectory);
 
         public CalculationPluginLoader(IPluginLoader pluginLoader, IHttpContextAccessor httpContextAccessor)
         {
@@ -29,7 +31,7 @@ namespace Prise.IntegrationTestsHost.PluginLoaders
         public async Task<ICalculationPlugin> GetPlugin()
         {
             var pluginType = this.httpContextAccessor.HttpContext.Request.Headers["PluginType"].First();
-            var plugins = await this.pluginLoader.FindPlugins<ICalculationPlugin>(pluginType);
+            var plugins = await this.pluginLoader.FindPlugins<ICalculationPlugin>(Path.Combine(this.pluginBaseDir, pluginType));
 
             var firstPlugin = plugins.First();
             return await this.pluginLoader.LoadPlugin<ICalculationPlugin>(firstPlugin, configure: (ctx) =>
@@ -41,15 +43,15 @@ namespace Prise.IntegrationTestsHost.PluginLoaders
         public async Task<IEnumerable<ICalculationPlugin>> GetPlugins()
         {
             var pluginType = this.httpContextAccessor.HttpContext.Request.Headers["PluginType"].First();
-            var plugins = await this.pluginLoader.FindPlugins<ICalculationPlugin>(pluginType);
+            var plugins = await this.pluginLoader.FindPlugins<ICalculationPlugin>(Path.Combine(this.pluginBaseDir, pluginType));
 
             var instances = new List<ICalculationPlugin>();
             foreach (var plugin in plugins)
             {
                 instances.Add(await this.pluginLoader.LoadPlugin<ICalculationPlugin>(plugin, configure: (ctx) =>
-               {
-                   // ctx.
-               }));
+                {
+                    // ctx.
+                }));
             }
             return instances;
         }
