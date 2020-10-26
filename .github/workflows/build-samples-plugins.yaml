@@ -16,4 +16,4 @@ jobs:
         dotnet-version: 5.0.100-rc.2.20479.15
         
     - name: Build Samples
-      run: dotnet build src/Prise/samples/Plugins/Plugins.sln -f net5.0
+      run: dotnet build src/samples/Plugins/Plugins.sln -f net5.0

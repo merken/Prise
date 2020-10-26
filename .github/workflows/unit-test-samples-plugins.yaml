@@ -16,4 +16,4 @@ jobs:
         dotnet-version: 5.0.100-rc.2.20479.15
         
     - name: Build Samples
-      run: dotnet test src/Prise/samples/Tests/Tests.sln -f net5.0
+      run: dotnet test src/samples/Tests/Tests.sln -f net5.0
