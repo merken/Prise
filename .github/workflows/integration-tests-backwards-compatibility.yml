@@ -1,4 +1,4 @@
-name: Prise backwards compatibility
+name: prise-backwards-compatability
 
 on: [push]
 

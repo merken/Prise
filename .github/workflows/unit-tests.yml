@@ -1,4 +1,4 @@
-name: Prise unit tests
+name: prise-unit-tests
 
 on: [push]
 

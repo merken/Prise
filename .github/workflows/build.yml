@@ -1,4 +1,4 @@
-name: Prise build
+name: prise-build
 
 on: [push]
 
