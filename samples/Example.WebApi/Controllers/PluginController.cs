@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Example.Contract;
 using Prise;
 
-
 namespace Example.WebApi.Controllers
 {
     [ApiController]
