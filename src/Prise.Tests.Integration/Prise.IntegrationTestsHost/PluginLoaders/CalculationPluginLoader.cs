@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System;
+using Prise;
 
 namespace Prise.IntegrationTestsHost.PluginLoaders
 {
@@ -31,7 +32,7 @@ namespace Prise.IntegrationTestsHost.PluginLoaders
             var plugins = await this.pluginLoader.FindPlugins<ICalculationPlugin>(pluginType);
 
             var firstPlugin = plugins.First();
-            return await this.pluginLoader.LoadPlugin<ICalculationPlugin>(firstPlugin, (ctx) =>
+            return await this.pluginLoader.LoadPlugin<ICalculationPlugin>(firstPlugin, configure: (ctx) =>
             {
                 // ctx.
             });
@@ -45,7 +46,7 @@ namespace Prise.IntegrationTestsHost.PluginLoaders
             var instances = new List<ICalculationPlugin>();
             foreach (var plugin in plugins)
             {
-                instances.Add(await this.pluginLoader.LoadPlugin<ICalculationPlugin>(plugin, (ctx) =>
+                instances.Add(await this.pluginLoader.LoadPlugin<ICalculationPlugin>(plugin, configure: (ctx) =>
                {
                    // ctx.
                }));
