@@ -8,7 +8,6 @@ publish
 **/MyHost/Plugins
 .vs
 *.cmd
-*.sln
 appsettings.Development.json
 !Monorepo.sln
 global.json
