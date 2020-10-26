@@ -35,7 +35,6 @@ namespace Prise.IntegrationTestsHost
             services.AddHttpClient();
             services.AddHttpContextAccessor();
             services.AddTransient<IHostFrameworkProvider, AppHostFrameworkProvider>();
-            services.AddTransient<IPluginLoader, PluginLoader>();
             services.AddPrise();
 
             AddPriseCalculationPlugins(services);
