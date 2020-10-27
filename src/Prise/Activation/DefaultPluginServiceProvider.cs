@@ -23,7 +23,6 @@ namespace Prise.Activation
         {
             var hostType = this.hostTypes.FirstOrDefault(t => t.Name == type.Name);
             if (hostType == null)
-                //TODO
                 throw new PluginActivationException($"An instance of type {type.Name} is required to activate this plugin, but it was not registered as a Host Type, please configure this type via the UseHostServices, ConfigureHostServices or ConfigureSharedServices builder method.");
 
             var instance = this.localProvider.GetService(hostType);
