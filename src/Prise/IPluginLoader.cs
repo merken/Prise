@@ -12,6 +12,16 @@ namespace Prise
         /// eg: "plugins/mypluginA" => mypluginA
         /// </summary>
         /// <param name="pathToPlugins">Directory to start looking for plugins</param>
+        /// <typeparam name="T">The plugin contract</typeparam>
+        /// <returns>A <see cref="AssemblyScanResult"/> that contains all the required information in order to load the plugin.</returns>
+        Task<AssemblyScanResult> FindPlugin<T>(string pathToPlugins);
+
+        /// <summary>
+        /// Looks for the first plugin of contract type <see cref="{T}"/> inside of the pathToPlugins directory recursively.
+        /// The comparison is done on the last part of the path of the plugins.
+        /// eg: "plugins/mypluginA" => mypluginA
+        /// </summary>
+        /// <param name="pathToPlugins">Directory to start looking for plugins</param>
         /// <param name="plugin">The name of the plugin to find. eg: mypluginA</param>
         /// <typeparam name="T">The plugin contract</typeparam>
         /// <returns>A <see cref="AssemblyScanResult"/> that contains all the required information in order to load the plugin.</returns>

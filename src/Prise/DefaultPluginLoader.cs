@@ -37,6 +37,13 @@ namespace Prise
             this.pluginActivator = pluginActivator;
         }
 
+        public async Task<AssemblyScanResult> FindPlugin<T>(string pathToPlugin)
+        {
+            return
+                (await this.FindPlugins<T>(pathToPlugin))
+                .FirstOrDefault();
+        }
+
         public async Task<AssemblyScanResult> FindPlugin<T>(string pathToPlugins, string plugin)
         {
             return
