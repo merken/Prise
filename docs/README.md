@@ -57,7 +57,7 @@ Main features:
 
 - Easy setup
 - Fully customizable loading of plugins
-- Loading plugins from Prise Plugin Packages (Nuget) (TODO What is a Prise Plugin Package)
+- Loading plugins from Prise Plugin Packages (Nuget)
 - Supporting backwards compatibility for older (previously written) plugins
 
 ## 🏁 Getting Started
@@ -71,7 +71,7 @@ A plugin system, of any kind, consists of the following components:
 ### 🌤️ The Weather Project
 <a name="the-weather-project"></a>
 
-[ASP.NET Core scaffolds](https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-3.1&tabs=visual-studio) a ```WeatherForecastController``` when a new ```webapi``` project is created, our example TODO LINK will extend this project with an [OpenWeatherMap](https://openweathermap.org) Plugin.
+[ASP.NET Core scaffolds](https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-3.1&tabs=visual-studio) a ```WeatherForecastController``` when a new ```webapi``` project is created, our example will extend this project with an [OpenWeatherMap](https://openweathermap.org) Plugin.
 
 Let's create the ```Weather.Api``` **Host** for our Weather project from scratch using the Weather webapi template from ASP.NET Core:
 
