@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Prise
 {
-    public interface IPluginLoader
+    public interface IPluginLoader : IDisposable
     {
         /// <summary>
         /// Looks for the first plugin of contract type <see cref="{T}"/> inside of the pathToPlugins directory recursively.

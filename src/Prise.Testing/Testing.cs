@@ -14,7 +14,7 @@ namespace Prise
             foreach (var service in services)
             {
                 var serviceType = service.FieldType;
-                var pluginService = pluginServices.FirstOrDefault(p => p.GetType().Name == serviceType.Name);
+                var pluginService = pluginServices.FirstOrDefault(p => serviceType.IsAssignableFrom(p.GetType()));
                 if (pluginService == null)
                     throw new ArgumentException($"A pluginService of type {serviceType.Name} is required for activating plugin {pluginType.Name}.");
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Prise.Activation;
 using Prise.AssemblyLoading;
 using Prise.AssemblyScanning;
-
 using Prise.Proxy;
 using Prise.Utils;
 
@@ -21,6 +21,7 @@ namespace Prise
         private readonly IParameterConverter parameterConverter;
         private readonly IResultConverter resultConverter;
         private readonly IPluginActivator pluginActivator;
+        protected readonly ConcurrentBag<IPluginLoadContext> pluginContexts;
         public DefaultPluginLoader(
                             IAssemblyScanner assemblyScanner,
                             IPluginTypeSelector pluginTypeSelector,
@@ -35,6 +36,7 @@ namespace Prise
             this.parameterConverter = parameterConverter;
             this.resultConverter = resultConverter;
             this.pluginActivator = pluginActivator;
+            this.pluginContexts = new ConcurrentBag<IPluginLoadContext>();
         }
 
         public async Task<AssemblyScanResult> FindPlugin<T>(string pathToPlugin)
@@ -109,6 +111,9 @@ namespace Prise
             configureLoadContext?.Invoke(pluginLoadContext);
 
             var pluginAssembly = await this.assemblyLoader.Load(pluginLoadContext);
+
+            this.pluginContexts.Add(pluginLoadContext);
+
             var pluginTypes = this.pluginTypeSelector.SelectPluginTypes<T>(pluginAssembly);
 
             foreach (var pluginType in pluginTypes)
@@ -120,6 +125,15 @@ namespace Prise
                     ResultConverter = this.resultConverter,
                     HostServices = pluginLoadContext.HostServices
                 });
+        }
+
+        protected bool disposed = false;
+        public void Dispose()
+        {
+            foreach (var context in this.pluginContexts)
+                this.assemblyLoader.Unload(context);
+
+            this.pluginContexts.Clear();
         }
     }
 }

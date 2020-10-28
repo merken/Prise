@@ -12,7 +12,7 @@ namespace Prise.DependencyInjection
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// This bootstrapper adds the basic Prise services in order to do manual Plugin loading.
+        /// This bootstrapper adds the basic Prise services as well as the IPluginLoader
         /// </summary>
         /// <param name="serviceLifetime">The path to the directory to scan for plugins</param>
         /// <returns>A ServiceCollection that has the following types registered and ready for injection: 
@@ -24,6 +24,29 @@ namespace Prise.DependencyInjection
             return services
                     // Add all the factories
                     .AddFactory<IAssemblyScanner>(DefaultFactories.DefaultAssemblyScanner, serviceLifetime)
+                    .AddFactory<IPluginTypeSelector>(DefaultFactories.DefaultPluginTypeSelector, serviceLifetime)
+                    .AddFactory<IParameterConverter>(DefaultFactories.DefaultParameterConverter, serviceLifetime)
+                    .AddFactory<IResultConverter>(DefaultFactories.DefaultResultConverter, serviceLifetime)
+                    .AddFactory<IPluginActivator>(DefaultFactories.DefaultPluginActivator, serviceLifetime)
+                    .AddFactory<IAssemblyLoader>(DefaultFactories.DefaultAssemblyLoader, serviceLifetime)
+                    // Add the loader
+                    .AddService(new ServiceDescriptor(typeof(IPluginLoader), typeof(DefaultPluginLoader), serviceLifetime))
+                ;
+        }
+
+        /// <summary>
+        /// This bootstrapper adds the basic Prise services, the IPluginLoader and support to load Prise NuGet Packages
+        /// </summary>
+        /// <param name="serviceLifetime">The path to the directory to scan for plugins</param>
+        /// <returns>A ServiceCollection that has the following types registered and ready for injection: 
+        /// <see cref="IAssemblyScanner"/>, <see cref="IPluginTypeSelector"/>, <see cref="IParameterConverter"/> ,<see cref="IResultConverter"/>, <see cref="IPluginActivator"/>, <see cref="IAssemblyLoader"/> and <see cref="IPluginLoader"/>
+        /// </returns>
+        public static IServiceCollection AddPriseNugetPackages(this IServiceCollection services,
+                                                     ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+        {
+            return services
+                    // Add all the factories
+                    .AddFactory<IAssemblyScanner>(DefaultFactories.DefaultNuGetAssemblyScanner, serviceLifetime)
                     .AddFactory<IPluginTypeSelector>(DefaultFactories.DefaultPluginTypeSelector, serviceLifetime)
                     .AddFactory<IParameterConverter>(DefaultFactories.DefaultParameterConverter, serviceLifetime)
                     .AddFactory<IResultConverter>(DefaultFactories.DefaultResultConverter, serviceLifetime)
