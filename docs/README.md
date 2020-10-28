@@ -185,7 +185,7 @@ public void ConfigureServices(IServiceCollection services)
 }
 </pre>
 
-You can now inject the [IPluginLoader](https://raw.githubusercontent.com/merken/Prise/v2/src/Prise/IPluginLoader.cs) into your ```WeatherForecastController```:
+You can now inject the [IPluginLoader](https://raw.githubusercontent.com/merken/Prise/master/src/Prise/IPluginLoader.cs) into your ```WeatherForecastController```:
 ```csharp
 using System;
 using System.Collections.Generic;
@@ -803,7 +803,7 @@ Lastly, we need to add the configuration values to our ```AppSettings.json``` of
 ```
 That's all the setup required for the **Host**, next we need to have this service injected into the **Plugin**.
 
-In order for the backwards compatability to work from the **Host** to the **Plugin**, **Prise** creates a [DispatchProxy](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.dispatchproxy?view=netcore-3.1) of the instantiated **Plugin**. All communication channels through this proxy. The [PriseProxy](https://github.com/merken/Prise/blob/v2/src/Prise.Proxy/PriseProxy.cs) is responsible for matching the methods invoked on the **Host** to the correct methods available on the **Plugin**.
+In order for the backwards compatability to work from the **Host** to the **Plugin**, **Prise** creates a [DispatchProxy](https://docs.microsoft.com/en-us/dotnet/api/system.reflection.dispatchproxy?view=netcore-3.1) of the instantiated **Plugin**. All communication channels through this proxy. The [PriseProxy](https://github.com/merken/Prise/blob/master/src/Prise.Proxy/PriseProxy.cs) is responsible for matching the methods invoked on the **Host** to the correct methods available on the **Plugin**.
 When the **Plugin** needs to interact with the **Host** (the other way around), the **exact reverse setup is required**, here we speak of a **ReverseProxy** (don't mind the name), because it does the exact reverse of what the **Prise.Proxy** does.
 
 Add the ```Prise.ReverseProxy``` package to the ```OpenWeather.Plugin``` project:
@@ -1166,12 +1166,12 @@ Prise comes with a toolset for VS Code and Visual Studio.
 <a name="examples"></a>
 
 - [🌤️ The Weather Project](https://github.com/merken/Weather/tree/getting-started)
-- [🖥️ Console app using Prise](https://github.com/merken/Prise/tree/v2/samples/Example.Console)
-- [⚡ Azure Function using Prise](https://github.com/merken/Prise/tree/v2/samples/Example.AzureFunction)
-- [🌐 Web project using Prise](https://github.com/merken/Prise/tree/v2/samples/Example.Web)
-- [🌐 WebApi project using Prise](https://github.com/merken/Prise/tree/v2/samples/Example.WebApi)
-- [🌐 MVC using Prise](https://github.com/merken/Prise/tree/v2/samples/Example.Mvc.Controllers)
-- [🌐 MVC Razor using Prise](https://github.com/merken/Prise/tree/v2/samples/Example.Mvc.Razor)
+- [🖥️ Console app using Prise](https://github.com/merken/Prise/tree/master/samples/Example.Console)
+- [⚡ Azure Function using Prise](https://github.com/merken/Prise/tree/master/samples/Example.AzureFunction)
+- [🌐 Web project using Prise](https://github.com/merken/Prise/tree/master/samples/Example.Web)
+- [🌐 WebApi project using Prise](https://github.com/merken/Prise/tree/master/samples/Example.WebApi)
+- [🌐 MVC using Prise](https://github.com/merken/Prise/tree/master/samples/Example.Mvc.Controllers)
+- [🌐 MVC Razor using Prise](https://github.com/merken/Prise/tree/master/samples/Example.Mvc.Razor)
 
 ## ✍️ Authors
 <a name="authors"></a>
