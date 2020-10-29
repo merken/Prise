@@ -2,12 +2,16 @@
 
 <img src="https://github.com/merken/Prise/blob/master/docs/prise.png?raw=true" 
 alt="Prise Logo" width="65" height="65" style="float:left; padding-right:15px;" />
+
+<br/>
+
 **Prise** is a plugin framework for .NET (Core) applications, written in .NET (Core). The goal of Prise, is enable you to write **decoupled pieces of code** using the least amount of effort, whilst **maximizing the customizability and backwards-compatability**. Prise helps you load plugins from foreign assemblies. It is built to decouple the local and remote dependencies, and strives to avoid assembly mismatches.
 ### 📜 [Check out the documentation](https://merken.github.io/Prise) 📜
 
 <br/>
 
 ## 🚀 Builds and Tests 🧪
+
 <br/>
 
 ![alt text](https://img.shields.io/github/workflow/status/merken/prise/prise-build?label=Prise%20Build&style=flat-square)</br>
