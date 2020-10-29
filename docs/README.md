@@ -1005,21 +1005,21 @@ The ```SetRuntimePlatformContext``` method allows you to specify the platform on
 ### 📦 Nuget Package support
 <a name="nuget-package-support"></a>
 
-Distributing published Plugins is difficult, typically the publish directory is compressed and copied over to Host or a central location, where they need to be decompressed.
+Distributing published Plugins is difficult, typically the publish directory is compressed and copied over to **Host** or a **central location**, where they need to be decompressed.
 With Prise, you can easily publish your Plugins as **NuGet packages** and load them from ```.nupkg``` files.
 
-Using the [Prise Publish Plugin Extension for VS Code](https://marketplace.visualstudio.com/items?itemName=MRKN.prise-publishpluginextension) you can easily create Prise NuGet Packages.
+Using the [Prise Publish Plugin Extension for VS Code](https://marketplace.visualstudio.com/items?itemName=MRKN.prise-publishpluginextension) you can easily create **Prise NuGet Packages**.
 
-First, we need a .nuspec file to define our package, a Prise Plugin Package is very specific, it should contain all the contents of the published Plugin.
-To generate such a .nuspec, right-click the Plugin .csproj file and select "Create Prise NuSpec File".
+First, we need a ```.nuspec``` file to define our package, a Prise Plugin Package is very specific, it should contain all the contents of the published **Plugin**.
+To generate such a ```.nuspec```, right-click the Plugin ```.csproj``` file and select "**Create Prise NuSpec File**".
 <img src="createnuspec.gif" alt="Create NuSpec"/>
 
 Once this file is created, you can change the metadata of the package, but most importantly, whenever a **Plugin** has changed, you must change the **Version** of the package!
 
-To create the .nupkg package file, you can, again, right-click the Plugin .csproj file and select "Publish Prise Plugin as NuGet package".
+To create the ```.nupkg``` package file, you can, again, right-click the Plugin ```.csproj``` file and select "**Publish Prise Plugin as NuGet package**".
 <img src="packageplugin.gif" alt="Package Plugin"/>
 
-To load Prise NuGet Packages instead of loading from disk, you'll need to change the Startup.cs file in the Host:
+To load Prise NuGet Packages instead of loading from disk, you'll need to change the ```Startup.cs``` file in the **Host**:
 ```csharp
 // This method gets called by the runtime. Use this method to add services to the container.
 public void ConfigureServices(IServiceCollection services)
@@ -1030,19 +1030,19 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-That's all that is required to load .nupkg files using Prise!
+That's all that is required to load ```.nupkg``` files using Prise!
 
-The NuGet Assembly Scanner will first scan for any .nupkg files on the specified location (_dist) and decompress the package.
-The version of the .nupkg file is compared against the already decompressed Plugin, if the version of the .nupkg is newer, the Plugin is replaced with the new version!
+The **NuGet Assembly Scanner** will first scan for any ```.nupkg``` files on the specified location (_dist) and decompress the package.
+The **version** of the ```.nupkg``` file is compared against the already decompressed **Plugin**, if the **version** of the ```.nupkg``` is **newer**, the **Plugin** is replaced with the new version!
 
-This means that, in order to deploy a new version of a Prise NuGet Package, you need to copy a .nupkg file of a newer version.
+This means that, **in order to deploy a new version** of a Prise NuGet Package, you need to copy a ```.nupkg``` file of a **newer version**.
 
 You can find a working example of this setup on [🌤️ The Weather Project Github](https://github.com/merken/Weather/tree/nuget-package)
 
 ### ☝️ Tips
 <a name="tips"></a>
 
-Here's a list of stuff to keep in mind when writing a Plugin.
+Here's a list of stuff to keep in mind when writing a **Plugin**.
 
 - Keep your Plugins small
 - Only use DTO's (Data Transfer Object) as part of the **Contract**
@@ -1057,12 +1057,12 @@ Here's a list of stuff to keep in mind when writing a Plugin.
 ## 🧪 Testing
 <a name="testing"></a>
 
-Prise contains about **27 integration tests**, these tests are repeated for a set of **prebuilt plugins** to ensure **backwards compatability**, along with **122 unit tests**.
+Prise contains about **27 integration tests**, these tests are repeated for a set of **prebuilt plugins** to ensure **backwards compatability**, along with **100+ unit tests**.
 
 ### 🎩 Testing Hosts
 <a name="testing-hosts"></a>
 
-Testing a **Host** is exactly the same as testing any other .NET class, the **Plugin** remains, after all, just an interface.
+Testing a **Host** is exactly the same as testing any other .NET class, the **Plugin** remains, after all, just an ```interface```.
 
 ### 🔌 Testing Plugins
 <a name="testing-plugins"></a>
