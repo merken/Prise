@@ -7,13 +7,16 @@
 
 <div align="center">
 
-  [![Status](https://img.shields.io/badge/status-active-success.svg)]() 
-  [![GitHub Issues](https://img.shields.io/github/issues/merken/prise?style=flat-square)](https://github.com/merken/prise/issues)
-  [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/merken/prise?style=flat-square)](https://github.com/merken/prise/pulls)
-  [![Prise Nuget Version](https://img.shields.io/nuget/v/prise?style=flat-square)](https://www.nuget.org/packages/Prise)
-  [![Prise Nuget Version Beta](https://img.shields.io/nuget/vpre/prise?style=flat-square)](https://www.nuget.org/packages/Prise)
-
-  [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/merken/Prise/LICENSE)
+  [![Status](https://img.shields.io/badge/status-active-success.svg?style=flat-square)]() </br>
+  [![GitHub Issues](https://img.shields.io/github/issues/merken/prise?style=flat-square)](https://github.com/merken/prise/issues) </br>
+  [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/merken/prise?style=flat-square)](https://github.com/merken/prise/pulls) </br>
+  [![NuGet Badge](https://img.shields.io/nuget/v/Prise?label=Prise&style=flat-square)](https://www.nuget.org/packages/Prise/) </br>
+  [![NuGet Badge](https://img.shields.io/nuget/v/Prise.Plugin?label=Prise.Plugin&style=flat-square)](https://www.nuget.org/packages/Prise.Plugin/) </br>
+  [![NuGet Badge](https://img.shields.io/nuget/v/Prise.Mvc?label=Prise.Mvc&style=flat-square)](https://www.nuget.org/packages/Prise.Mvc/) </br>
+[![NuGet Badge](https://img.shields.io/nuget/v/Prise.Proxy?label=Prise.Proxy&style=flat-square)](https://www.nuget.org/packages/Prise.Proxy/)  </br>
+    [![NuGet Badge](https://img.shields.io/nuget/v/Prise.ReverseProxy?label=Prise.ReverseProxy&style=flat-square)](https://www.nuget.org/packages/Prise.ReverseProxy/)  </br>
+[![NuGet Badge](https://img.shields.io/nuget/v/Prise.Testing?label=Prise.Testing&style=flat-square)](https://www.nuget.org/packages/Prise.Testing/) </br>
+  [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/merken/Prise/LICENSE)
 
 </div>
 
