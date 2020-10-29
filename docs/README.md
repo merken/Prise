@@ -16,7 +16,7 @@
 [![NuGet Badge](https://img.shields.io/nuget/v/Prise.Proxy?label=Prise.Proxy&style=flat-square)](https://www.nuget.org/packages/Prise.Proxy/)  </br>
     [![NuGet Badge](https://img.shields.io/nuget/v/Prise.ReverseProxy?label=Prise.ReverseProxy&style=flat-square)](https://www.nuget.org/packages/Prise.ReverseProxy/)  </br>
 [![NuGet Badge](https://img.shields.io/nuget/v/Prise.Testing?label=Prise.Testing&style=flat-square)](https://www.nuget.org/packages/Prise.Testing/) </br>
-  [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/merken/Prise/LICENSE)
+  [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/merken/Prise/blob/master/LICENSE)
 
 </div>
 

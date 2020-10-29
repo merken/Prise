@@ -9,7 +9,7 @@ alt="Prise Logo" width="65" height="65" style="float:left; padding-right:15px;" 
 
 [![GitHub Issues](https://img.shields.io/github/issues/merken/prise?style=flat-square)](https://github.com/merken/prise/issues)<br/>
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/merken/prise?style=flat-square)](https://github.com/merken/prise/pulls)<br/>
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/merken/Prise/LICENSE)<br/>
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/merken/Prise/blob/master/LICENSE)<br/>
 
 ### 📜 [Check out the documentation](https://merken.github.io/Prise) 📜
 
