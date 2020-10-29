@@ -1,6 +1,7 @@
 <p align="center">
   <a href="" rel="noopener">
- <img width=150px height=150px src="prise.png" alt="Project logo">
+    <img width=150px height=150px src="prise.png" alt="Project logo">
+  </a>
 </p>
 
 <h3 align="center">Prise</h3>
