@@ -32,6 +32,18 @@
       "problemMatcher": "$msCompile"
     },
     {
+      "label": "build-akka",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/Example.Akka/Example.Akka.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
       "label": "build-webapi",
       "command": "dotnet",
       "type": "process",

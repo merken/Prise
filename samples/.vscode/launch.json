@@ -39,6 +39,17 @@
       "stopAtEntry": false
     },
     {
+      "name": "Akka",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-akka",
+      "program": "${workspaceFolder}/Example.Akka/bin/Debug/net5.0/Example.Akka.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/Example.Akka",
+      "console": "externalTerminal",
+      "stopAtEntry": false
+    },
+    {
       "name": "WebApi",
       "type": "coreclr",
       "request": "launch",
