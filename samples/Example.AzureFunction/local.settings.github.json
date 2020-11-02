@@ -1,0 +1,12 @@
+{
+    "IsEncrypted": false,
+    "Values": {
+        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+        "SQL:ConnectionString": "",
+        "TableStorage:ConnectionString": "",
+        "TableStorage:TableName": "data",
+        "FileSystem:DataPath": "",
+        "FileSystem:DataFileName": "data.json"
+    }
+}
