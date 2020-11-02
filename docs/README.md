@@ -1172,6 +1172,7 @@ Prise comes with a toolset for VS Code and Visual Studio.
 - [🌤️ The Weather Project](https://github.com/merken/Weather/tree/getting-started)
 - [🖥️ Console app using Prise](https://github.com/merken/Prise/tree/master/samples/Example.Console)
 - [⚡ Azure Function using Prise](https://github.com/merken/Prise/tree/master/samples/Example.AzureFunction)
+- [🕸️ Akka.NET using Prise](https://github.com/merken/Prise/tree/master/samples/Example.Akka)
 - [🌐 Web project using Prise](https://github.com/merken/Prise/tree/master/samples/Example.Web)
 - [🌐 WebApi project using Prise](https://github.com/merken/Prise/tree/master/samples/Example.WebApi)
 - [🌐 MVC using Prise](https://github.com/merken/Prise/tree/master/samples/Example.Mvc.Controllers)
