@@ -37,21 +37,6 @@ namespace Prise.AssemblyScanning
             return Directory.Exists(extractedNugetDirectory);
         }
 
-        public Version GetCurrentVersionFromExtractedNuget(string extractedNugetDirectory)
-        {
-            var nuspec = Directory.GetFiles(extractedNugetDirectory, $"*.nuspec", SearchOption.AllDirectories).FirstOrDefault();
-            var currentVersionAsString = XDocument.Load(nuspec).Root
-                                .DescendantNodes().OfType<XElement>()
-                                .FirstOrDefault(x => x.Name.LocalName.Equals("version"))?.Value;
-
-            return !String.IsNullOrEmpty(currentVersionAsString) ? new Version(currentVersionAsString) : new Version("0.0.0");
-        }
-
-        public void DeleteNugetDirectory(string extractedNugetDirectory)
-        {
-            Directory.Delete(extractedNugetDirectory, true);
-        }
-
         private string GetVersionStringForPackageFile(string packageFile)
         {
             var matches = Regex.Match(packageFile, @"^(.*?)\.((?:\.?[0-9]+){3,}(?:[-a-z]+)?)\.nupkg$").Groups;
