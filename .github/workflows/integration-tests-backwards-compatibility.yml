@@ -1,6 +1,6 @@
 name: prise-backwards-compatability
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   run-integration-tests:

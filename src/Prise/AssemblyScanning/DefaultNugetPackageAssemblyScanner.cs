@@ -52,29 +52,13 @@ namespace Prise.AssemblyScanning
                 });
             }
 
-            // Only take the latest of each package version
-            foreach (var package in packages.GroupBy(p => p.PackageName, (key, g) => g.OrderByDescending(p => p.Version).First()))
+            // extract all nuget packages (if not already extracted)
+            foreach (var package in packages)
             {
-                var latestVersion = package.Version;
-                var extractedNugetDirectory = Path.Combine(startingPath, ExtractedDirectoryName, package.PackageName);
-                var hasMultipleVersions = packages.Count(p => p.PackageName == package.PackageName) > 1;
+                var extractedNugetDirectory = Path.Combine(startingPath, ExtractedDirectoryName, package.PackageName, package.Version.ToString());
                 var hasAlreadyBeenExtracted = this.nugetPackageUtilities.HasAlreadyBeenExtracted(extractedNugetDirectory);
-
-                if (hasAlreadyBeenExtracted && !hasMultipleVersions)
-                    continue;
-
-                if (hasAlreadyBeenExtracted) // At this point, there are multiple versions of the same nuget package present in the directory
-                {
-                    var currentVersion = this.nugetPackageUtilities.GetCurrentVersionFromExtractedNuget(extractedNugetDirectory);
-                    var hasNewerVersion = latestVersion > currentVersion;
-                    if (!hasNewerVersion)
-                        continue; // The latest version has already been extracted, nothing to do here
-
-                    // Newer version was detected, delete the current version
-                    this.nugetPackageUtilities.DeleteNugetDirectory(extractedNugetDirectory);
-                }
-
-                this.nugetPackageUtilities.UnCompressNugetPackage(package.FullPath, extractedNugetDirectory);
+                if(!hasAlreadyBeenExtracted)
+                    this.nugetPackageUtilities.UnCompressNugetPackage(package.FullPath, extractedNugetDirectory);
             }
 
             // Continue with default assembly scanning

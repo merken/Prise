@@ -10,7 +10,5 @@ namespace Prise.AssemblyScanning
         string GetPackageName(string packageFile);
         void UnCompressNugetPackage(string packageFile, string extractedNugetDirectory);
         bool HasAlreadyBeenExtracted(string extractedNugetDirectory);
-        Version GetCurrentVersionFromExtractedNuget(string extractedNugetDirectory);
-        void DeleteNugetDirectory(string extractedNugetDirectory);
     }
 }
