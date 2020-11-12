@@ -25,15 +25,7 @@ namespace Prise.AssemblyScanning
             // We know these assemblies are located in the Host, so don't bother loading them from the plugin location
             if (this.platformAssemblies.Contains(assemblyName.Name))
             {
-                try
-                {
-                    return context.LoadFromAssemblyPath(AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName).Location);
-                }
-                catch (FileNotFoundException) when (assemblyName?.Name == "System.Runtime")
-                {
-                    var hostRuntimeAssembly = typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly;
-                    throw new AssemblyScanningException($"System.Runtime {assemblyName.Version} failed to load. Are you trying to load a new plugin into an old host? Host Runtime Version: {hostRuntimeAssembly.GetName().Version} on {hostRuntimeAssembly.CodeBase}");
-                }
+                return LoadAssemblyForRuntime(context, assemblyName);
             }
 
             // Check if the file is found in the plugin location
@@ -42,7 +34,28 @@ namespace Prise.AssemblyScanning
                 return context.LoadFromAssemblyPath(candidateFile);
 
             // Fallback, load from Host AppDomain, this is mostly required for System.* assemblies
-            return context.LoadFromAssemblyPath(AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName).Location);
+            return LoadAssemblyForRuntime(context, assemblyName);
+        }
+
+        protected Assembly LoadAssemblyForRuntime(MetadataLoadContext context, AssemblyName assemblyName)
+        {
+            try
+            {
+                var candidate = AssemblyLoadContext.Default.Assemblies.FirstOrDefault(a => a.GetName().Name == assemblyName.Name);
+                var candidateName = candidate != null ? candidate.GetName() : null;
+
+                if (candidateName != null && candidateName.Version != assemblyName.Version)
+                {
+                    return context.LoadFromAssemblyPath(AssemblyLoadContext.Default.LoadFromAssemblyName(candidateName).Location);
+                }
+
+                return context.LoadFromAssemblyPath(AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName).Location);
+            }
+            catch (FileNotFoundException) when (assemblyName?.Name == "System.Runtime")
+            {
+                var hostRuntimeAssembly = typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly;
+                throw new AssemblyScanningException($"System.Runtime {assemblyName.Version} failed to load. Are you trying to load a new plugin into an old host? Host Runtime Version: {hostRuntimeAssembly.GetName().Version} on {hostRuntimeAssembly.CodeBase}");
+            }
         }
     }
 }

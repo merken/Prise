@@ -25,6 +25,7 @@
     <DefineConstants>HAS_NATIVE_RESOLVER</DefineConstants>
     <DefineConstants>SUPPORTS_UNLOADING</DefineConstants>
     <DefineConstants>SUPPORTS_NATIVE_UNLOADING</DefineConstants>
+    <DefineConstants>SUPPORTS_NATIVE_PLATFORM_ABSTRACTIONS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
@@ -43,11 +44,10 @@
     <PackageReference Include="System.Reflection.Metadata" Version="1.8.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-		<PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0-rc.1.20451.14" />
-		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="5.0.0-rc.1.20451.14" />
-		<PackageReference Include="Microsoft.DotNet.PlatformAbstractions" Version="5.0.0-preview.5.20278.1" />
-    <PackageReference Include="System.Reflection.MetadataLoadContext" Version="5.0.0-rc.1.20451.14" />
-    <PackageReference Include="System.Reflection.Metadata" Version="5.0.0-rc.1.20451.14" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="5.0.0" />
+    <PackageReference Include="System.Reflection.MetadataLoadContext" Version="5.0.0" />
+    <PackageReference Include="System.Reflection.Metadata" Version="5.0.0" />
 	</ItemGroup>
 
   <PropertyGroup>
@@ -65,7 +65,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
-    <PackageReference Include="NuGet.Versioning" Version="5.7.0" />
+    <PackageReference Include="NuGet.Versioning" Version="5.8.0" />
   </ItemGroup>
 
   <ItemGroup>

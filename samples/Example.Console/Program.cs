@@ -20,10 +20,11 @@ namespace Example.Console
         static async Task Main(string[] args)
         {
             var mainServiceCollection = new ServiceCollection()
-                                .AddPrise()
                                 .AddSingleton<IConfiguration>(new ConfigurationBuilder()
                                                                 .AddJsonFile("appsettings.json")
+                                                                .AddUserSecrets(typeof(Program).Assembly)
                                                                 .Build())
+                                .AddPrise()
                                 .AddScoped<IConfigurationService, AppSettingsConfigurationService>();
 
             var serviceProvider = mainServiceCollection.BuildServiceProvider();
@@ -51,7 +52,7 @@ namespace Example.Console
                     foreach (var pluginResult in pluginResults)
                         System.Console.WriteLine($"{pluginResult.Text}");
                 }
-                catch (PluginActivationException pex) { }
+                catch (Exception pex) { }
             }
         }
 

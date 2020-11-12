@@ -1,4 +1,6 @@
 using System.Reflection;
+using System.Runtime.Loader;
+using System.Linq;
 
 namespace Prise.AssemblyLoading
 {
@@ -6,7 +8,15 @@ namespace Prise.AssemblyLoading
     {
         public Assembly LoadFromDefaultContext(AssemblyName assemblyName)
         {
-            return System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
+            var candidate = AssemblyLoadContext.Default.Assemblies.FirstOrDefault(a => a.GetName().Name == assemblyName.Name);
+            var candidateName = candidate != null ? candidate.GetName() : null;
+
+            if (candidateName != null && candidateName.Version != assemblyName.Version)
+            {
+                return System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyName(candidateName);
+            }
+
+            return AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
         }
     }
 }

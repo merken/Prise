@@ -21,7 +21,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/Example.Console/bin/Debug/net5.0/Example.Console.dll",
+      "program": "${workspaceFolder}/Example.Console/bin/Debug/netcoreapp3.1/Example.Console.dll",
       "args": [],
       "cwd": "${workspaceFolder}/Example.Console",
       "console": "externalTerminal",
