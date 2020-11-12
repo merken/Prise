@@ -51,7 +51,7 @@ namespace Example.WebApi.Controllers
             var pathToThisProgram = Assembly.GetExecutingAssembly() // this assembly location (/bin/Debug/netcoreapp3.1)
                                         .Location;
             var pathToExecutingDir = Path.GetDirectoryName(pathToThisProgram);
-            return Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Plugins/dist"));
+            return Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Plugins/_dist"));
         }
     }
 }

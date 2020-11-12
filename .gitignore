@@ -1,7 +1,6 @@
 bin
 obj
 _dist
-dist
 publish
 **/PluginApp/Plugins
 **/PluginServer/Plugins

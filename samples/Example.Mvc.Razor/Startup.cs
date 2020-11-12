@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Example.Contract;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -32,6 +33,7 @@ namespace Example.Mvc.Razor
             services.AddControllersWithViews();
             services.AddRazorPages().AddRazorRuntimeCompilation();
 
+            services.AddTransient<IConfigurationService, AppSettingsConfigurationService>();
             services.AddPriseRazorPlugins(Environment.WebRootPath, GetPathToDist());
         }
 
@@ -69,7 +71,7 @@ namespace Example.Mvc.Razor
             var pathToThisProgram = Assembly.GetExecutingAssembly() // this assembly location (/bin/Debug/netcoreapp3.1)
                                         .Location;
             var pathToExecutingDir = Path.GetDirectoryName(pathToThisProgram);
-            return Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Plugins/dist"));
+            return Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Plugins/_dist"));
         }
     }
 }
