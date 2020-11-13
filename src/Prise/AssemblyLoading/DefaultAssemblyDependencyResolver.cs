@@ -1,4 +1,8 @@
 using System.Reflection;
+#if HAS_NATIVE_RESOLVER
+using System.Runtime.Loader;
+using System.IO;
+#endif
 
 namespace Prise.AssemblyLoading
 {
@@ -17,7 +21,7 @@ namespace Prise.AssemblyLoading
             }
             catch (System.ArgumentException ex)
             {
-                throw new AssemblyLoadingException($"{nameof(AssemblyDependencyResolver)} could not be instantiated, possible issue with {this.initialPluginLoadDirectory}{Path.GetFileNameWithoutExtension(fullPathToPluginAssembly)}.deps.json file?", ex);
+                throw new AssemblyLoadingException($"{nameof(AssemblyDependencyResolver)} could not be instantiated, possible issue with {fullPathToPluginAssembly} {Path.GetFileNameWithoutExtension(fullPathToPluginAssembly)}.deps.json file?", ex);
             }
 #endif
         }
