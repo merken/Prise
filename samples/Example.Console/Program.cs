@@ -52,7 +52,7 @@ namespace Example.Console
                     foreach (var pluginResult in pluginResults)
                         System.Console.WriteLine($"{pluginResult.Text}");
                 }
-                catch (Exception pex) { }
+                catch (PluginActivationException pex) { System.Console.WriteLine($"{pex.Message}"); }
             }
         }
 
