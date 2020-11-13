@@ -40,7 +40,7 @@ namespace Prise.Tests.AssemblyLoading
             var pluginDependencyContext = this.mockRepository.Create<IPluginDependencyContext>();
             var loadFromDependencyContext = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.Proceed());
             var loadFromRemote = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.Proceed());
-            var loadFromAppDomain = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.Proceed());
+            var loadFromAppDomain = CreateLookupFunction((c, a) => ValueOrProceed<RuntimeAssemblyShim>.Proceed());
             var initialPluginLoadDirectory = GetPathToAssemblies();
 
             pluginDependencyContext
@@ -62,7 +62,7 @@ namespace Prise.Tests.AssemblyLoading
             var someAssemblyName = someAssembly.GetName();
             var loadFromDependencyContext = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.Proceed());
             var loadFromRemote = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.Proceed());
-            var loadFromAppDomain = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(someAssembly), false));
+            var loadFromAppDomain = CreateLookupFunction((c, a) => ValueOrProceed<RuntimeAssemblyShim>.FromValue(new RuntimeAssemblyShim(someAssembly, RuntimeLoadFlag.FromRequestedVersion), false));
 
             // Mock the fact that it was setup as a host assembly that should be loaded from the host.
             pluginDependencyContext
@@ -75,6 +75,28 @@ namespace Prise.Tests.AssemblyLoading
         }
 
         [TestMethod]
+        public async Task LoadAssembly_Returns_NotNull_From_AppDomain_When_IsHostAssembly_And_Not_RemoteAssembly_FromRuntimeVersion()
+        {
+            var sut = new DefaultAssemblyLoadStrategy();
+            var pluginDependencyContext = this.mockRepository.Create<IPluginDependencyContext>();
+            var initialPluginLoadDirectory = GetPathToAssemblies();
+            var someAssembly = Assembly.LoadFile(Path.Combine(initialPluginLoadDirectory, "Newtonsoft.Json.dll"));
+            var someAssemblyName = someAssembly.GetName();
+            var loadFromDependencyContext = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.Proceed());
+            var loadFromRemote = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.Proceed());
+            var loadFromAppDomain = CreateLookupFunction((c, a) => ValueOrProceed<RuntimeAssemblyShim>.FromValue(new RuntimeAssemblyShim(someAssembly, RuntimeLoadFlag.FromRuntimeVersion), false));
+
+            // Mock the fact that it was setup as a host assembly that should be loaded from the host.
+            pluginDependencyContext
+                .Setup(p => p.HostDependencies).Returns(new List<HostDependency> { new HostDependency { DependencyName = someAssemblyName } });
+
+            pluginDependencyContext
+                .Setup(p => p.RemoteDependencies).Returns(Enumerable.Empty<RemoteDependency>());
+
+            Assert.AreEqual(someAssembly, sut.LoadAssembly(initialPluginLoadDirectory, someAssemblyName, pluginDependencyContext.Object, loadFromDependencyContext, loadFromRemote, loadFromAppDomain)?.Assembly);
+        }
+
+        [TestMethod]
         public async Task LoadAssembly_Returns_Null_From_AppDomain_When_NOT_IsHostAssembly_And_RemoteAssembly()
         {
             var sut = new DefaultAssemblyLoadStrategy();
@@ -84,7 +106,7 @@ namespace Prise.Tests.AssemblyLoading
             var someAssemblyName = someAssembly.GetName();
             var loadFromDependencyContext = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.Proceed());
             var loadFromRemote = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.Proceed());
-            var loadFromAppDomain = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.Proceed());
+            var loadFromAppDomain = CreateLookupFunction((c, a) => ValueOrProceed<RuntimeAssemblyShim>.Proceed());
 
             // Mock the fact that it was setup as a host assembly that should be loaded from the host.
             pluginDependencyContext
@@ -107,7 +129,7 @@ namespace Prise.Tests.AssemblyLoading
             var someAssemblyName = someAssembly.GetName();
             var loadFromDependencyContext = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(someAssembly), false));
             var loadFromRemote = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.Proceed());
-            var loadFromAppDomain = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.Proceed());
+            var loadFromAppDomain = CreateLookupFunction((c, a) => ValueOrProceed<RuntimeAssemblyShim>.Proceed());
 
             pluginDependencyContext
                 .Setup(p => p.HostDependencies).Returns(Enumerable.Empty<HostDependency>());
@@ -128,7 +150,7 @@ namespace Prise.Tests.AssemblyLoading
             var someAssemblyName = someAssembly.GetName();
             var loadFromDependencyContext = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.Proceed());
             var loadFromRemote = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.Releasable(someAssembly), false));
-            var loadFromAppDomain = CreateLookupFunction((c, a) => ValueOrProceed<AssemblyFromStrategy>.Proceed());
+            var loadFromAppDomain = CreateLookupFunction((c, a) => ValueOrProceed<RuntimeAssemblyShim>.Proceed());
 
             pluginDependencyContext
                 .Setup(p => p.HostDependencies).Returns(Enumerable.Empty<HostDependency>());
@@ -194,6 +216,7 @@ namespace Prise.Tests.AssemblyLoading
         }
 
         protected Func<string, AssemblyName, ValueOrProceed<AssemblyFromStrategy>> CreateLookupFunction(Func<string, AssemblyName, ValueOrProceed<AssemblyFromStrategy>> func) => func;
+        protected Func<string, AssemblyName, ValueOrProceed<RuntimeAssemblyShim>> CreateLookupFunction(Func<string, AssemblyName, ValueOrProceed<RuntimeAssemblyShim>> func) => func;
         protected Func<string, T1, ValueOrProceed<T2>> CreateLookupFunction<T1, T2>(Func<string, T1, ValueOrProceed<T2>> func) => func;
     }
 }
