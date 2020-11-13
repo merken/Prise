@@ -21,10 +21,10 @@ jobs:
       - run: dotnet publish src/Prise.Tests.Integration/IntegrationTestsPlugins/PluginC/PluginC.csproj -o ~/publish/PluginC
 
       # Copies all published plugins to integration test directory
-      - run: mkdir -p src/Prise.Tests.Integration/dist
-      - run: cp -r ~/publish/PluginA src/Prise.Tests.Integration/dist
-      - run: cp -r ~/publish/PluginB src/Prise.Tests.Integration/dist
-      - run: cp -r ~/publish/PluginC src/Prise.Tests.Integration/dist
+      - run: mkdir -p src/Prise.Tests.Integration/_dist
+      - run: cp -r ~/publish/PluginA src/Prise.Tests.Integration/_dist
+      - run: cp -r ~/publish/PluginB src/Prise.Tests.Integration/_dist
+      - run: cp -r ~/publish/PluginC src/Prise.Tests.Integration/_dist
 
       - name: Restore IntegrationTestsHost
         run: dotnet restore src/Prise.Tests.Integration/Prise.IntegrationTestsHost/Prise.IntegrationTestsHost.csproj

@@ -9,9 +9,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcPlugin.Twitter", "MvcPlu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.AzureTableStorage", "Plugin.AzureTableStorage\Plugin.AzureTableStorage.csproj", "{1D55F18F-E615-4342-B81F-44AE20AC720E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.FileSystem", "Plugin.FileSystem\Plugin.FileSystem.csproj", "{20629693-63B5-46E0-86C7-67CFF7538067}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.FromHttpBody", "Plugin.FromHttpBody\Plugin.FromHttpBody.csproj", "{10629693-63B5-46E0-86C7-67CFF7538067}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.Sql", "Plugin.Sql\Plugin.Sql.csproj", "{63B2950D-C25E-4871-8A38-2925C416CE02}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.SqlClient", "Plugin.SqlClient\Plugin.SqlClient.csproj", "{93B2950D-C25E-4871-8A38-2925C416CE02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

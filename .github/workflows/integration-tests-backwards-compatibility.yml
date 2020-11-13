@@ -16,10 +16,10 @@ jobs:
           dotnet-version: 5.0.100
 
       # Copies all compatability plugins to integration test directory
-      - run: mkdir -p src/Prise.Tests.Integration/dist
-      - run: cp -r src/Prise.Tests.Integration/compatibility/netstandard2.1/PluginA src/Prise.Tests.Integration/dist
-      - run: cp -r src/Prise.Tests.Integration/compatibility/netstandard2.1/PluginB src/Prise.Tests.Integration/dist
-      - run: cp -r src/Prise.Tests.Integration/compatibility/netstandard2.0/PluginC src/Prise.Tests.Integration/dist
+      - run: mkdir -p src/Prise.Tests.Integration/_dist
+      - run: cp -r src/Prise.Tests.Integration/compatibility/netstandard2.1/PluginA src/Prise.Tests.Integration/_dist
+      - run: cp -r src/Prise.Tests.Integration/compatibility/netstandard2.1/PluginB src/Prise.Tests.Integration/_dist
+      - run: cp -r src/Prise.Tests.Integration/compatibility/netstandard2.0/PluginC src/Prise.Tests.Integration/_dist
       
       - name: Restore IntegrationTestsHost
         run: dotnet restore src/Prise.Tests.Integration/Prise.IntegrationTestsHost/Prise.IntegrationTestsHost.csproj
