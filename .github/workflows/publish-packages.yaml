@@ -1,34 +1,34 @@
-name: Publish Pacakges
-  on: 
-    workflow_dispatch:
-      inputs:
-        priseversion:
-          description: Prise Version
-          default: 2.0.0
-          required: true
-        proxyversion:
-          description: Prise.Proxy Version
-          default: 2.0.0
-          required: true
-        pluginversion:
-          description: Prise.Plugin Version
-          default: 2.0.0
-          required: true
-        reverseproxyversion:
-          description: Prise.ReverseProxy Version
-          default: 2.0.0
-          required: true
-        mvcversion:
-          description: Prise.Mvc Version
-          default: 2.0.0
-          required: true
-        testingversion:
-          description: Prise.Testing Version
-          default: 2.0.0
-          required: true
-        nugetKey:
-          description: Nuget Api Key
-          required: true
+name: Publish Packages
+on: 
+  workflow_dispatch:
+    inputs:
+      priseversion:
+        description: Prise Version
+        default: 2.0.0
+        required: true
+      proxyversion:
+        description: Prise.Proxy Version
+        default: 2.0.0
+        required: true
+      pluginversion:
+        description: Prise.Plugin Version
+        default: 2.0.0
+        required: true
+      reverseproxyversion:
+        description: Prise.ReverseProxy Version
+        default: 2.0.0
+        required: true
+      mvcversion:
+        description: Prise.Mvc Version
+        default: 2.0.0
+        required: true
+      testingversion:
+        description: Prise.Testing Version
+        default: 2.0.0
+        required: true
+      nugetKey:
+        description: Nuget Api Key
+        required: true
 jobs:
   build:
 
