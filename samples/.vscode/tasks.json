@@ -80,6 +80,30 @@
       "problemMatcher": "$msCompile"
     },
     {
+      "label": "build-legacy",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/Example.Mvc.Legacy/Example.Mvc.Legacy.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "build-legacy-web",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/Example.Web.Legacy/Example.Web.Legacy.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
       "label": "build-mvc-razor",
       "command": "dotnet",
       "type": "process",

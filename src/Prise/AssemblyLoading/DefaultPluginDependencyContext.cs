@@ -4,13 +4,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyModel;
 using NuGet.Versioning;
-
+using Prise.Platform;
 using Prise.Utils;
 
 namespace Prise.AssemblyLoading
@@ -22,9 +23,11 @@ namespace Prise.AssemblyLoading
 
     public class DefaultPluginDependencyContextProvider : IPluginDependencyContextProvider
     {
+        private readonly IPlatformAbstraction platformAbstraction;
         private readonly IRuntimePlatformContext runtimePlatformContext;
-        public DefaultPluginDependencyContextProvider(Func<IRuntimePlatformContext> runtimePlatformContextFactory)
+        public DefaultPluginDependencyContextProvider(Func<IPlatformAbstraction> platformAbstractionFactory, Func<IRuntimePlatformContext> runtimePlatformContextFactory)
         {
+            this.platformAbstraction = platformAbstractionFactory.ThrowIfNull(nameof(platformAbstractionFactory))();
             this.runtimePlatformContext = runtimePlatformContextFactory.ThrowIfNull(nameof(runtimePlatformContextFactory))();
         }
 
@@ -84,7 +87,9 @@ namespace Prise.AssemblyLoading
             {
                 Debug.WriteLine($"Plugin dependency {duplicateDependency.Plugin.DependencyNameWithoutExtension} {duplicateDependency.Plugin.SemVer} exists in the host");
                 if (duplicateDependency.Host.SemVer > duplicateDependency.Plugin.SemVer)
-                    Debug.WriteLine($"Host dependency {duplicateDependency.Host.DependencyName.Name} version {duplicateDependency.Host.SemVer} is newer than the plugin {duplicateDependency.Plugin.SemVer}");
+                    Debug.WriteLine($"Host dependency {duplicateDependency.Host.DependencyName.Name} version {duplicateDependency.Host.SemVer} is newer than the Plugin {duplicateDependency.Plugin.SemVer}");
+                if (duplicateDependency.Host.SemVer < duplicateDependency.Plugin.SemVer)
+                    Debug.WriteLine($"Plugin dependency {duplicateDependency.Plugin.DependencyNameWithoutExtension} version {duplicateDependency.Plugin.SemVer} is newer than the Host {duplicateDependency.Host.SemVer}");
             }
         }
 
@@ -114,7 +119,7 @@ namespace Prise.AssemblyLoading
 
                 if (pluginFrameworkVersionMajor > hostFrameworkVersionMajor || // If the major version of the plugin is higher
                     (pluginFrameworkVersionMajor == hostFrameworkVersionMajor && pluginFrameworkVersionMinor > hostFrameworkVersionMinor)) // Or the major version is the same but the minor version is higher
-                    throw new AssemblyLoadingException($"Plugin framework version {pluginFramework} is newer than the host {hostFramework}. Please upgrade the host to load this plugin.");
+                    throw new AssemblyLoadingException($"Plugin framework version {pluginFramework} is newer than the Host {hostFramework}. Please upgrade the Host to load this Plugin.");
             }
         }
 
@@ -171,26 +176,31 @@ namespace Prise.AssemblyLoading
             }
         }
 
-        private static string GetCorrectRuntimeIdentifier()
+#if SUPPORTS_NATIVE_PLATFORM_ABSTRACTIONS
+        private string GetCorrectRuntimeIdentifier()
         {
-            var platform = Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment.OperatingSystemPlatform;
-            var runtimeIdentifier = Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment.GetRuntimeIdentifier();
-            switch (platform)
-            {
-                case Microsoft.DotNet.PlatformAbstractions.Platform.Darwin: // OSX
-                case Microsoft.DotNet.PlatformAbstractions.Platform.Windows: // Win
-                    return runtimeIdentifier;
-                // Linux
-                case Microsoft.DotNet.PlatformAbstractions.Platform.Unknown:
-                case Microsoft.DotNet.PlatformAbstractions.Platform.FreeBSD:
-                case Microsoft.DotNet.PlatformAbstractions.Platform.Linux:
-                    return $"{Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment.OperatingSystemPlatform.ToString().ToLower()}-{Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment.RuntimeArchitecture}";
-            }
 
-            throw new PlatformNotSupportedException($"Prise: RuntimeIdentifier could not be parsed for {runtimeIdentifier}");
+            var runtimeIdentifier = RuntimeInformation.RuntimeIdentifier;
+
+            if (this.platformAbstraction.IsOSX() || this.platformAbstraction.IsWindows())
+                return runtimeIdentifier;
+
+            // Other: Linux, FreeBSD, ...
+            return $"linux-{RuntimeInformation.ProcessArchitecture.ToString().ToLower()}";
         }
+#else
+        private string GetCorrectRuntimeIdentifier()
+        {
 
-        private static IEnumerable<PluginDependency> GetPluginDependencies(DependencyContext pluginDependencyContext)
+            var runtimeIdentifier = Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment.GetRuntimeIdentifier();
+            if (this.platformAbstraction.IsOSX() || this.platformAbstraction.IsWindows())
+                return runtimeIdentifier;
+
+            return $"{Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment.OperatingSystemPlatform.ToString().ToLower()}-{Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment.RuntimeArchitecture}";
+        }
+#endif
+
+        private IEnumerable<PluginDependency> GetPluginDependencies(DependencyContext pluginDependencyContext)
         {
             var dependencies = new List<PluginDependency>();
             var runtimeId = GetCorrectRuntimeIdentifier();
@@ -219,13 +229,25 @@ namespace Prise.AssemblyLoading
                     dependencies.Add(new PluginDependency
                     {
                         DependencyNameWithoutExtension = Path.GetFileNameWithoutExtension(asset),
-                        SemVer = SemanticVersion.Parse(runtimeLibrary.Version),
+                        SemVer = ParseSemVer(runtimeLibrary.Version),
                         DependencyPath = path,
                         ProbingPath = Path.Combine(runtimeLibrary.Name.ToLowerInvariant(), runtimeLibrary.Version, path)
                     });
                 }
             }
             return dependencies;
+        }
+
+        private SemanticVersion ParseSemVer(string version)
+        {
+            if (SemanticVersion.TryParse(version, out var semVer))
+                return semVer;
+
+            var versions = version.Split('.');
+            if (versions.Length > 3)
+                return new SemanticVersion(int.Parse(versions[0]), int.Parse(versions[1]), int.Parse(versions[2]), versions[3]);
+
+            return new SemanticVersion(int.Parse(versions[0]), int.Parse(versions[1]), int.Parse(versions[2]));
         }
 
         private static IEnumerable<PluginDependency> GetPluginReferenceDependencies(DependencyContext pluginDependencyContext)
@@ -246,7 +268,7 @@ namespace Prise.AssemblyLoading
             return dependencies;
         }
 
-        private static IEnumerable<PlatformDependency> GetPlatformDependencies(DependencyContext pluginDependencyContext, IEnumerable<string> platformExtensions)
+        private IEnumerable<PlatformDependency> GetPlatformDependencies(DependencyContext pluginDependencyContext, IEnumerable<string> platformExtensions)
         {
             var dependencies = new List<PlatformDependency>();
             var runtimeId = GetCorrectRuntimeIdentifier();

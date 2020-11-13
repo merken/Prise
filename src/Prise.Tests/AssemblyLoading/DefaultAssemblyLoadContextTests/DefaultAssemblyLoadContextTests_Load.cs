@@ -46,11 +46,12 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
             assemblyLoadStrategy.Setup(a => a.LoadAssembly(initialPluginLoadDirectory, newtonsoftAssemblyName, pluginDependencyContext.Object,
                 It.IsAny<Func<string, AssemblyName, ValueOrProceed<AssemblyFromStrategy>>>(),
                 It.IsAny<Func<string, AssemblyName, ValueOrProceed<AssemblyFromStrategy>>>(),
-                It.IsAny<Func<string, AssemblyName, ValueOrProceed<AssemblyFromStrategy>>>())).Returns(new AssemblyFromStrategy
-                {
-                    Assembly = newtonsoftAssembly,
-                    CanBeReleased = true
-                });
+                It.IsAny<Func<string, AssemblyName, ValueOrProceed<RuntimeAssemblyShim>>>()))
+            .Returns(new AssemblyFromStrategy
+            {
+                Assembly = newtonsoftAssembly,
+                CanBeReleased = true
+            });
 
             var result = InvokeProtectedMethodOnLoadContextAndGetResult<Assembly>(
                 loadContext,

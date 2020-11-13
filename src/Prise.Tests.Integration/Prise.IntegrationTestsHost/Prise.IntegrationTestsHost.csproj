@@ -22,9 +22,7 @@
     <ProjectReference Include="../../Prise/Prise.csproj" />
     <ProjectReference Include="../../Prise.Plugin/Prise.Plugin.csproj" />
     <ProjectReference Include="../../Prise.Proxy/Prise.Proxy.csproj" />
-    <ProjectReference Include="..\IntegrationTestsPlugins\ExternalServiceForPluginD\ExternalServiceForPluginD.csproj" />
-    <ProjectReference Include="..\IntegrationTestsPlugins\Legacy.Contract\Legacy.Contract.csproj" />
-    <ProjectReference Include="..\Prise.IntegrationTestsContract\Prise.IntegrationTestsContract.csproj" />
+    <ProjectReference Include="../Prise.IntegrationTestsContract/Prise.IntegrationTestsContract.csproj" />
   </ItemGroup>
 
   <ItemGroup>

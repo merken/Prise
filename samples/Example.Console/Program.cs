@@ -20,10 +20,11 @@ namespace Example.Console
         static async Task Main(string[] args)
         {
             var mainServiceCollection = new ServiceCollection()
-                                .AddPrise()
                                 .AddSingleton<IConfiguration>(new ConfigurationBuilder()
                                                                 .AddJsonFile("appsettings.json")
+                                                                .AddUserSecrets(typeof(Program).Assembly)
                                                                 .Build())
+                                .AddPrise()
                                 .AddScoped<IConfigurationService, AppSettingsConfigurationService>();
 
             var serviceProvider = mainServiceCollection.BuildServiceProvider();
@@ -51,7 +52,8 @@ namespace Example.Console
                     foreach (var pluginResult in pluginResults)
                         System.Console.WriteLine($"{pluginResult.Text}");
                 }
-                catch (PluginActivationException pex) { }
+                catch (PluginActivationException pex) { System.Console.WriteLine($"{pex.Message}"); }
+                catch (ReflectionTypeLoadException tex) { System.Console.WriteLine($"{tex.Message}"); }
             }
         }
 
@@ -60,7 +62,7 @@ namespace Example.Console
             var pathToThisProgram = Assembly.GetExecutingAssembly() // this assembly location (/bin/Debug/netcoreapp3.1)
                                         .Location;
             var pathToExecutingDir = Path.GetDirectoryName(pathToThisProgram);
-            return Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Plugins/dist"));
+            return Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Plugins/_dist"));
         }
     }
 }

@@ -11,35 +11,7 @@
       "processId": "${command:pickProcess}"
     },
     {
-      "name": "AzureFunctions",
-      "type": "coreclr",
-      "request": "attach",
-      "processId": "${command:azureFunctions.pickProcess}"
-    },
-    {
-      "name": "Console",
-      "type": "coreclr",
-      "request": "launch",
-      "preLaunchTask": "build",
-      "program": "${workspaceFolder}/Example.Console/bin/Debug/net5.0/Example.Console.dll",
-      "args": [],
-      "cwd": "${workspaceFolder}/Example.Console",
-      "console": "externalTerminal",
-      "stopAtEntry": false
-    },
-    {
-      "name": "Web",
-      "type": "coreclr",
-      "request": "launch",
-      "preLaunchTask": "build-web",
-      "program": "${workspaceFolder}/Example.Web/bin/Debug/net5.0/Example.Web.dll",
-      "args": [],
-      "cwd": "${workspaceFolder}/Example.Web",
-      "console": "externalTerminal",
-      "stopAtEntry": false
-    },
-    {
-      "name": "Akka",
+      "name": "Akka 5.0",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-akka",
@@ -50,18 +22,46 @@
       "stopAtEntry": false
     },
     {
-      "name": "WebApi",
+      "name": "Azure Functions 3.1",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": "${command:azureFunctions.pickProcess}"
+    },
+    {
+      "name": "Console 3.1",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "build-webapi",
-      "program": "${workspaceFolder}/Example.WebApi/bin/Debug/net5.0/Example.WebApi.dll",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/Example.Console/bin/Debug/netcoreapp3.1/Example.Console.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/Example.WebApi",
+      "cwd": "${workspaceFolder}/Example.Console",
       "console": "externalTerminal",
       "stopAtEntry": false
     },
     {
-      "name": "MvcRazor",
+      "name": "Mvc Controllers 5.0",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-mvc",
+      "program": "${workspaceFolder}/Example.Mvc.Controllers/bin/Debug/net5.0/Example.Mvc.Controllers.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/Example.Mvc.Controllers",
+      "console": "externalTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Mvc Legacy 2.1",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-legacy",
+      "program": "${workspaceFolder}/Example.Mvc.Legacy/bin/Debug/netcoreapp2.1/Example.Mvc.Legacy.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/Example.Mvc.Legacy",
+      "console": "externalTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Mvc Razor 5.0",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-mvc-razor",
@@ -72,13 +72,24 @@
       "stopAtEntry": false
     },
     {
-      "name": "Mvc",
+      "name": "Web 5.0",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "build-mvc",
-      "program": "${workspaceFolder}/Example.Mvc.Controllers/bin/Debug/net5.0/Example.Mvc.Controllers.dll",
+      "preLaunchTask": "build-web",
+      "program": "${workspaceFolder}/Example.Web/bin/Debug/net5.0/Example.Web.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/Example.Mvc.Controllers",
+      "cwd": "${workspaceFolder}/Example.Web",
+      "console": "externalTerminal",
+      "stopAtEntry": false
+    },
+    {
+      "name": "Web Legacy 2.1",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-legacy-web",
+      "program": "${workspaceFolder}/Example.Web.Legacy/bin/Debug/netcoreapp2.1/Example.Web.Legacy.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/Example.Web.Legacy",
       "console": "externalTerminal",
       "stopAtEntry": false
     }

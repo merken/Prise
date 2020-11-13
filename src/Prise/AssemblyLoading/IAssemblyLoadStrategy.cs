@@ -21,7 +21,7 @@ namespace Prise.AssemblyLoading
             IPluginDependencyContext pluginDependencyContext,
             Func<string, AssemblyName, ValueOrProceed<AssemblyFromStrategy>> loadFromDependencyContext,
             Func<string, AssemblyName, ValueOrProceed<AssemblyFromStrategy>> loadFromRemote,
-            Func<string, AssemblyName, ValueOrProceed<AssemblyFromStrategy>> loadFromAppDomain);
+            Func<string, AssemblyName, ValueOrProceed<RuntimeAssemblyShim>> loadFromAppDomain);
 
         /// <summary>
         /// Loads a native assembly

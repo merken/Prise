@@ -4,6 +4,6 @@ namespace Prise.AssemblyLoading
 {
     public interface IRuntimeDefaultAssemblyContext
     {
-        Assembly LoadFromDefaultContext(AssemblyName assemblyName);
+        RuntimeAssemblyShim LoadFromDefaultContext(AssemblyName assemblyName);
     }
 }

@@ -28,16 +28,41 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
             var newtonsoftAssemblyName = testContext.NewtonsoftAssemblyName;
             var newtonsoftAssembly = testContext.NewtonsoftAssembly;
 
-            runtimeDefaultAssemblyLoadContext.Setup(r => r.LoadFromDefaultContext(newtonsoftAssemblyName)).Returns(newtonsoftAssembly);
+            runtimeDefaultAssemblyLoadContext.Setup(r => r.LoadFromDefaultContext(newtonsoftAssemblyName)).Returns(new RuntimeAssemblyShim(newtonsoftAssembly, RuntimeLoadFlag.FromRequestedVersion));
 
-            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<RuntimeAssemblyShim>>(
                 loadContext,
                 "LoadFromDefaultContext",
                 new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName });
 
             Assert.IsNotNull(result);
             Assert.IsFalse(result.CanProceed);
-            Assert.IsFalse(result.Value.CanBeReleased);
+            Assert.AreEqual(RuntimeLoadFlag.FromRequestedVersion, result.Value.RuntimeLoadFlag);
+            Assert.AreEqual(newtonsoftAssemblyName.Name, result.Value.Assembly.GetName().Name);
+        }
+
+        [TestMethod]
+        public async Task LoadFromDefaultContext_Returns_Assembly_FromRuntimeVersion()
+        {
+            var testContext = await SetupLoadedPluginTextContext();
+            var loadContext = testContext.Sut();
+            var fileSystemUtility = testContext.GetMock<IFileSystemUtilities>();
+            var runtimeDefaultAssemblyLoadContext = testContext.GetMock<IRuntimeDefaultAssemblyContext>();
+            var initialPluginLoadDirectory = testContext.InitialPluginLoadDirectory;
+            var pluginLoadContext = testContext.PluginLoadContext;
+            var newtonsoftAssemblyName = testContext.NewtonsoftAssemblyName;
+            var newtonsoftAssembly = testContext.NewtonsoftAssembly;
+
+            runtimeDefaultAssemblyLoadContext.Setup(r => r.LoadFromDefaultContext(newtonsoftAssemblyName)).Returns(new RuntimeAssemblyShim(newtonsoftAssembly, RuntimeLoadFlag.FromRuntimeVersion));
+
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<RuntimeAssemblyShim>>(
+                loadContext,
+                "LoadFromDefaultContext",
+                new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName });
+
+            Assert.IsNotNull(result);
+            Assert.IsFalse(result.CanProceed);
+            Assert.AreEqual(RuntimeLoadFlag.FromRuntimeVersion, result.Value.RuntimeLoadFlag);
             Assert.AreEqual(newtonsoftAssemblyName.Name, result.Value.Assembly.GetName().Name);
         }
 
@@ -66,7 +91,7 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
 
             var exception = Assert
                 .ThrowsException<TargetInvocationException>(() =>
-                    InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
+                    InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<RuntimeAssemblyShim>>(
                         loadContext,
                         "LoadFromDefaultContext",
                         new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName })
@@ -87,7 +112,7 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
             var newtonsoftAssemblyName = testContext.NewtonsoftAssemblyName;
             var newtonsoftAssembly = testContext.NewtonsoftAssembly;
 
-            runtimeDefaultAssemblyLoadContext.Setup(r => r.LoadFromDefaultContext(newtonsoftAssemblyName)).Returns((Assembly)null);
+            runtimeDefaultAssemblyLoadContext.Setup(r => r.LoadFromDefaultContext(newtonsoftAssemblyName)).Returns((RuntimeAssemblyShim)null);
 
             pluginDependencyContext.SetupGet(p => p.HostDependencies).Returns(new[]{
                 new HostDependency
@@ -97,7 +122,7 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
                 }
             });
 
-            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<RuntimeAssemblyShim>>(
                 loadContext,
                 "LoadFromDefaultContext",
                 new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName });
@@ -119,10 +144,10 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
             var newtonsoftAssemblyName = testContext.NewtonsoftAssemblyName;
             var newtonsoftAssembly = testContext.NewtonsoftAssembly;
 
-            runtimeDefaultAssemblyLoadContext.Setup(r => r.LoadFromDefaultContext(newtonsoftAssemblyName)).Returns((Assembly)null);
+            runtimeDefaultAssemblyLoadContext.Setup(r => r.LoadFromDefaultContext(newtonsoftAssemblyName)).Returns((RuntimeAssemblyShim)null);
             pluginDependencyContext.SetupGet(p => p.HostDependencies).Returns(Enumerable.Empty<HostDependency>());
 
-            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<RuntimeAssemblyShim>>(
                 loadContext,
                 "LoadFromDefaultContext",
                 new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName });
@@ -144,7 +169,7 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
             var newtonsoftAssemblyName = testContext.NewtonsoftAssemblyName;
             var newtonsoftAssembly = testContext.NewtonsoftAssembly;
 
-            runtimeDefaultAssemblyLoadContext.Setup(r => r.LoadFromDefaultContext(newtonsoftAssemblyName)).Returns((Assembly)null);
+            runtimeDefaultAssemblyLoadContext.Setup(r => r.LoadFromDefaultContext(newtonsoftAssemblyName)).Returns((RuntimeAssemblyShim)null);
 
             pluginDependencyContext.SetupGet(p => p.HostDependencies).Returns(new[]{
                 new HostDependency
@@ -153,7 +178,7 @@ namespace Prise.Tests.AssemblyLoading.DefaultAssemblyLoadContextTests
                 }
             });
 
-            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<AssemblyFromStrategy>>(
+            var result = InvokeProtectedMethodOnLoadContextAndGetResult<ValueOrProceed<RuntimeAssemblyShim>>(
                 loadContext,
                 "LoadFromDefaultContext",
                 new object[] { initialPluginLoadDirectory, newtonsoftAssemblyName });

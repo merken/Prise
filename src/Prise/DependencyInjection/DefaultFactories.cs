@@ -33,7 +33,7 @@ namespace Prise.DependencyInjection
         public static Func<INativeAssemblyUnloader> DefaultNativeAssemblyUnloaderFactory = () => new DefaultNativeAssemblyUnloader();
         public static Func<string, IAssemblyDependencyResolver> DefaultAssemblyDependencyResolver = (p) => new DefaultAssemblyDependencyResolver(p);
         public static Func<IFileSystemUtilities> DefaultFileSystemUtilities = () => new DefaultFileSystemUtilities();
-        public static Func<IPluginDependencyContextProvider> DefaultPluginDependencyContextProvider = () => new DefaultPluginDependencyContextProvider(DefaultRuntimePlatformContextFactory);
+        public static Func<IPluginDependencyContextProvider> DefaultPluginDependencyContextProvider = () => new DefaultPluginDependencyContextProvider(DefaultPlatformAbstraction, DefaultRuntimePlatformContextFactory);
         public static Func<IAssemblyLoadContext> DefaultAssemblyLoadContextFactory = () => new DefaultAssemblyLoadContext(
                     DefaultNativeAssemblyUnloaderFactory,
                     DefaultPluginDependencyResolverFactory,

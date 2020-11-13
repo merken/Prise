@@ -11,7 +11,7 @@ using Example.Contract;
 using Example.Mvc.Razor.Models;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Prise.Mvc;
-
+using Prise;
 
 namespace Example.Mvc.Razor.Controllers
 {
@@ -20,16 +20,19 @@ namespace Example.Mvc.Razor.Controllers
         private readonly ILogger<HomeController> logger;
         private readonly ApplicationPartManager applicationPartManager;
         private readonly IMvcPluginLoader mvcPluginLoader;
+        private readonly IConfigurationService configurationService;
         private readonly IPriseMvcActionDescriptorChangeProvider pluginChangeProvider;
         public HomeController(
             ILogger<HomeController> logger,
             ApplicationPartManager applicationPartManager,
             IMvcPluginLoader mvcPluginLoader,
+            IConfigurationService configurationService,
             IPriseMvcActionDescriptorChangeProvider pluginChangeProvider)
         {
             this.logger = logger;
             this.applicationPartManager = applicationPartManager;
             this.mvcPluginLoader = mvcPluginLoader;
+            this.configurationService = configurationService;
             this.pluginChangeProvider = pluginChangeProvider;
         }
 
@@ -60,10 +63,13 @@ namespace Example.Mvc.Razor.Controllers
             if (pluginToEnable == null)
                 return NotFound();
 
-            var pluginAssembly = await this.mvcPluginLoader.LoadPluginAssembly<IMvcPlugin>(pluginToEnable);
+            var pluginAssembly = await this.mvcPluginLoader.LoadPluginAssembly<IMvcPlugin>(pluginToEnable, configure: (context) =>
+            {
+                context.AddHostService<IConfigurationService>(this.configurationService);
+            });
 
             this.applicationPartManager.ApplicationParts.Add(new PluginAssemblyPart(pluginAssembly.Assembly));
-            
+
             this.pluginChangeProvider.TriggerPluginChanged();
 
             return Redirect("/");
@@ -119,7 +125,7 @@ namespace Example.Mvc.Razor.Controllers
             var pathToThisProgram = Assembly.GetExecutingAssembly() // this assembly location (/bin/Debug/netcoreapp3.1)
                                         .Location;
             var pathToExecutingDir = Path.GetDirectoryName(pathToThisProgram);
-            return Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Plugins/dist"));
+            return Path.GetFullPath(Path.Combine(pathToExecutingDir, "../../../../Plugins/_dist"));
         }
     }
 }

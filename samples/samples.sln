@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.AzureFunction", "Example.AzureFunction\Example.AzureFunction.csproj", "{0651D32C-2238-448A-A23B-ACCA79A7A91A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Akka", "Example.Akka\Example.Akka.csproj", "{2651D32C-2238-448A-A23B-ACCA79A7A91A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Web", "Example.Web\Example.Web.csproj", "{5C51B898-1ECF-425E-B271-9D3E07B4F709}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.AzureFunction", "Example.AzureFunction\Example.AzureFunction.csproj", "{0651D32C-2238-448A-A23B-ACCA79A7A91A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Console", "Example.Console\Example.Console.csproj", "{28C9C6AE-5E89-4CF8-AD23-EFB0249187EB}"
 EndProject
@@ -13,9 +13,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Contract", "Example
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Mvc.Controllers", "Example.Mvc.Controllers\Example.Mvc.Controllers.csproj", "{608F9636-ADA1-4B2A-B774-A43D4C07135B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Mvc.Legacy", "Example.Mvc.Legacy\Example.Mvc.Legacy.csproj", "{3A405252-771E-48C1-808F-51D6DBBA8A9F}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Mvc.Razor", "Example.Mvc.Razor\Example.Mvc.Razor.csproj", "{4A405252-771E-48C1-808F-51D6DBBA8A9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.WebApi", "Example.WebApi\Example.WebApi.csproj", "{4A66AF30-80F7-46B4-A603-2FBA8B1B0596}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Web", "Example.Web\Example.Web.csproj", "{4A66AF30-80F7-46B4-A603-2FBA8B1B0596}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Web.Legacy", "Example.Web.Legacy\ExExample.Web.Legacy.csproj", "{6A66AF30-80F7-46B4-A603-2FBA8B1B0596}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{20DD66D5-D2B9-484A-B927-0DE86E35A03B}"
 EndProject

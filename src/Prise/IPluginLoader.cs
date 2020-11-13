@@ -55,7 +55,8 @@ namespace Prise
         /// <typeparam name="T">The plugin contract</typeparam>
         /// <returns>A list of fully loaded and usable plugins of type <see cref="{T}"/></returns>
         Task<IEnumerable<T>> LoadPlugins<T>(AssemblyScanResult scanResult, string hostFramework = null, Action<PluginLoadContext> configure = null);
-
+        
+#if SUPPORTS_ASYNC_STREAMS
         /// <summary>
         /// See <see cref="{FindPlugins}"/>
         /// This method returns an IAsyncEnumerable for you to use inside of an async foreach
@@ -66,5 +67,6 @@ namespace Prise
         /// <typeparam name="T">The plugin contract</typeparam>
         /// <returns>An IAsyncEnumerable of fully loaded and usable plugins of type <see cref="{T}"/></returns>
         IAsyncEnumerable<T> LoadPluginsAsAsyncEnumerable<T>(AssemblyScanResult scanResult, string hostFramework = null, Action<PluginLoadContext> configure = null);
+#endif
     }
 }

@@ -94,15 +94,25 @@ namespace Prise
         {
             var plugins = new List<T>();
 
+#if SUPPORTS_ASYNC_STREAMS
             await foreach (var plugin in this.LoadPluginsAsAsyncEnumerable<T>(scanResult, hostFramework, configureLoadContext))
+#else
+            foreach(var plugin in await this.LoadPluginsAsAsyncEnumerable<T>(scanResult, hostFramework, configureLoadContext))
+#endif
                 plugins.Add(plugin);
 
             return plugins;
         }
 
+#if SUPPORTS_ASYNC_STREAMS
         public async IAsyncEnumerable<T> LoadPluginsAsAsyncEnumerable<T>(AssemblyScanResult scanResult, string hostFramework = null, Action<PluginLoadContext> configureLoadContext = null)
         {
+#else
+        public async Task<IEnumerable<T>> LoadPluginsAsAsyncEnumerable<T>(AssemblyScanResult scanResult, string hostFramework = null, Action<PluginLoadContext> configureLoadContext = null)
+        {
+#endif
             hostFramework = hostFramework.ValueOrDefault(HostFrameworkUtils.GetHostframeworkFromHost());
+
             var pathToAssembly = Path.Combine(scanResult.AssemblyPath, scanResult.AssemblyName);
             var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(T), hostFramework);
             // This allows the loading of netstandard plugins
@@ -116,6 +126,7 @@ namespace Prise
 
             var pluginTypes = this.pluginTypeSelector.SelectPluginTypes<T>(pluginAssembly);
 
+#if SUPPORTS_ASYNC_STREAMS
             foreach (var pluginType in pluginTypes)
                 yield return await this.pluginActivator.ActivatePlugin<T>(new DefaultPluginActivationOptions
                 {
@@ -125,6 +136,19 @@ namespace Prise
                     ResultConverter = this.resultConverter,
                     HostServices = pluginLoadContext.HostServices
                 });
+#else
+            var plugins = new List<T>();
+            foreach (var pluginType in pluginTypes)
+                plugins.Add( await this.pluginActivator.ActivatePlugin<T>(new DefaultPluginActivationOptions
+                        {
+                            PluginType = pluginType,
+                            PluginAssembly = pluginAssembly,
+                            ParameterConverter = this.parameterConverter,
+                            ResultConverter = this.resultConverter,
+                            HostServices = pluginLoadContext.HostServices
+                        }));
+            return plugins;
+#endif
         }
 
         protected bool disposed = false;
