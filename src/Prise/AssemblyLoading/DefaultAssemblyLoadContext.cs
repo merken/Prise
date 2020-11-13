@@ -171,13 +171,13 @@ namespace Prise.AssemblyLoading
             return ValueOrProceed<AssemblyFromStrategy>.Proceed();
         }
 
-        protected virtual ValueOrProceed<AssemblyFromStrategy> LoadFromDefaultContext(string initialPluginLoadDirectory, AssemblyName assemblyName)
+        protected virtual ValueOrProceed<RuntimeAssemblyShim> LoadFromDefaultContext(string initialPluginLoadDirectory, AssemblyName assemblyName)
         {
             try
             {
-                var assembly = this.runtimeDefaultAssemblyLoadContext.LoadFromDefaultContext(assemblyName);
-                if (assembly != null)
-                    return ValueOrProceed<AssemblyFromStrategy>.FromValue(AssemblyFromStrategy.NotReleasable(assembly), false);
+                var assemblyShim = this.runtimeDefaultAssemblyLoadContext.LoadFromDefaultContext(assemblyName);
+                if (assemblyShim != null)
+                    return ValueOrProceed<RuntimeAssemblyShim>.FromValue(assemblyShim, false);
             }
             catch (FileNotFoundException) { } // This can happen if the plugin uses a newer version of a package referenced in the host
 
@@ -188,7 +188,7 @@ namespace Prise.AssemblyLoading
                     throw new AssemblyLoadingException($"Plugin Assembly reference {assemblyName.Name} with version {assemblyName.Version} was requested but not found in the host. The version from the host is {hostAssembly.DependencyName.Version}. Possible version mismatch. Please downgrade your plugin or add {assemblyName.Name} to downgradableHostAssemblies.");
             }
 
-            return ValueOrProceed<AssemblyFromStrategy>.Proceed();
+            return ValueOrProceed<RuntimeAssemblyShim>.Proceed();
         }
 
         protected virtual ValueOrProceed<AssemblyFromStrategy> LoadDependencyFromLocalDisk(string directory, string assemblyFileName)

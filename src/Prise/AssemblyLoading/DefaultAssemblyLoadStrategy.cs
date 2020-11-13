@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -12,9 +13,10 @@ namespace Prise.AssemblyLoading
             IPluginDependencyContext pluginDependencyContext,
             Func<string, AssemblyName, ValueOrProceed<AssemblyFromStrategy>> loadFromDependencyContext,
             Func<string, AssemblyName, ValueOrProceed<AssemblyFromStrategy>> loadFromRemote,
-            Func<string, AssemblyName, ValueOrProceed<AssemblyFromStrategy>> loadFromAppDomain)
+            Func<string, AssemblyName, ValueOrProceed<RuntimeAssemblyShim>> loadFromAppDomain)
         {
             if (assemblyName.Name == null) return null;
+            Debug.WriteLine($"{initialPluginLoadDirectory} Loading {assemblyName.Name} {assemblyName.Version}");
             ValueOrProceed<AssemblyFromStrategy> valueOrProceed = ValueOrProceed<AssemblyFromStrategy>.FromValue(null, true);
 
             var isHostAssembly = IsHostAssembly(assemblyName, pluginDependencyContext);
@@ -22,16 +24,27 @@ namespace Prise.AssemblyLoading
 
             if (isHostAssembly && !isRemoteAssembly) // Load from Default App Domain (host)
             {
-                valueOrProceed = loadFromAppDomain(initialPluginLoadDirectory, assemblyName);
-                if (valueOrProceed.Value != null)
-                    return null; // fallback to default loading mechanism
+                Debug.WriteLine($"{initialPluginLoadDirectory} Loading {assemblyName.Name} {assemblyName.Version} from appDomain");
+                var assemblyShim = loadFromAppDomain(initialPluginLoadDirectory, assemblyName);
+                if (assemblyShim.Value != null)
+                    switch (assemblyShim.Value.RuntimeLoadFlag)
+                    {
+                        case RuntimeLoadFlag.FromRequestedVersion:
+                            return null; // fallback to default loading mechanism
+                        case RuntimeLoadFlag.FromRuntimeVersion:
+                            return AssemblyFromStrategy.NotReleasable(assemblyShim.Value.Assembly);
+                    }
             }
 
             if (valueOrProceed.CanProceed)
                 valueOrProceed = loadFromDependencyContext(initialPluginLoadDirectory, assemblyName);
+            Debug.WriteLineIf(!valueOrProceed.CanProceed, $"{initialPluginLoadDirectory} Loaded {assemblyName.Name} {assemblyName.Version} from dependency context");
 
             if (valueOrProceed.CanProceed)
+            {
                 valueOrProceed = loadFromRemote(initialPluginLoadDirectory, assemblyName);
+                Debug.WriteLineIf(!valueOrProceed.CanProceed, $"{initialPluginLoadDirectory} Loaded {assemblyName.Name} {assemblyName.Version} from remote");
+            }
 
             return valueOrProceed.Value;
         }
@@ -58,7 +71,14 @@ namespace Prise.AssemblyLoading
             return NativeAssembly.Create(valueOrProceed.Value, ptrValueOrProceed.Value);
         }
 
-        protected virtual bool IsHostAssembly(AssemblyName assemblyName, IPluginDependencyContext pluginDependencyContext) => pluginDependencyContext.HostDependencies.Any(h => h.DependencyName.Name == assemblyName.Name);
-        protected virtual bool IsRemoteAssembly(AssemblyName assemblyName, IPluginDependencyContext pluginDependencyContext) => pluginDependencyContext.RemoteDependencies.Any(r => r.DependencyName.Name == assemblyName.Name);
+        protected virtual bool IsHostAssembly(AssemblyName assemblyName, IPluginDependencyContext pluginDependencyContext) =>
+            pluginDependencyContext.HostDependencies.Any(h =>
+                h.DependencyName.Name == assemblyName.Name
+            );
+
+        protected virtual bool IsRemoteAssembly(AssemblyName assemblyName, IPluginDependencyContext pluginDependencyContext) =>
+            pluginDependencyContext.RemoteDependencies.Any(r =>
+                r.DependencyName.Name == assemblyName.Name
+            );
     }
 }

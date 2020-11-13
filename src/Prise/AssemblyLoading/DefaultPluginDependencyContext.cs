@@ -87,7 +87,9 @@ namespace Prise.AssemblyLoading
             {
                 Debug.WriteLine($"Plugin dependency {duplicateDependency.Plugin.DependencyNameWithoutExtension} {duplicateDependency.Plugin.SemVer} exists in the host");
                 if (duplicateDependency.Host.SemVer > duplicateDependency.Plugin.SemVer)
-                    Debug.WriteLine($"Host dependency {duplicateDependency.Host.DependencyName.Name} version {duplicateDependency.Host.SemVer} is newer than the plugin {duplicateDependency.Plugin.SemVer}");
+                    Debug.WriteLine($"Host dependency {duplicateDependency.Host.DependencyName.Name} version {duplicateDependency.Host.SemVer} is newer than the Plugin {duplicateDependency.Plugin.SemVer}");
+                if (duplicateDependency.Host.SemVer < duplicateDependency.Plugin.SemVer)
+                    Debug.WriteLine($"Plugin dependency {duplicateDependency.Plugin.DependencyNameWithoutExtension} version {duplicateDependency.Plugin.SemVer} is newer than the Host {duplicateDependency.Host.SemVer}");
             }
         }
 
@@ -117,7 +119,7 @@ namespace Prise.AssemblyLoading
 
                 if (pluginFrameworkVersionMajor > hostFrameworkVersionMajor || // If the major version of the plugin is higher
                     (pluginFrameworkVersionMajor == hostFrameworkVersionMajor && pluginFrameworkVersionMinor > hostFrameworkVersionMinor)) // Or the major version is the same but the minor version is higher
-                    throw new AssemblyLoadingException($"Plugin framework version {pluginFramework} is newer than the host {hostFramework}. Please upgrade the host to load this plugin.");
+                    throw new AssemblyLoadingException($"Plugin framework version {pluginFramework} is newer than the Host {hostFramework}. Please upgrade the Host to load this Plugin.");
             }
         }
 
