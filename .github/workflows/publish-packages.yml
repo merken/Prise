@@ -82,5 +82,20 @@ jobs:
       run: dotnet pack src/Prise.Testing/Prise.Testing.csproj --configuration Release --output ./_dist /p:Version=${{github.event.inputs.testingversion}}
     
     - name: Push Prise
-      run: dotnet nuget push _dist/Prise.${{github.event.inputs.priseversion}}.nupkg --api-key ${{github.event.inputs.nugetKey}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+      run: dotnet nuget push ./_dist/Prise.${{github.event.inputs.priseversion}}.nupkg --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        
+    - name: Push Prise.Mvc
+      run: dotnet nuget push ./_dist/Prise.Mvc.${{github.event.inputs.mvcversion}}.nupkg --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        
+    - name: Push Prise.Plugin
+      run: dotnet nuget push ./_dist/Prise.Plugin.${{github.event.inputs.pluginversion}}.nupkg --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        
+    - name: Push Prise.ReverseProxy
+      run: dotnet nuget push ./_dist/Prise.ReverseProxy.${{github.event.inputs.reverseproxyversion}}.nupkg --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        
+    - name: Push Prise.Proxy
+      run: dotnet nuget push ./_dist/Prise.Proxy.${{github.event.inputs.proxyversion}}.nupkg --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+        
+    - name: Push Prise.Testing
+      run: dotnet nuget push ./_dist/Prise.Testing.${{github.event.inputs.testingversion}}.nupkg --api-key ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
     
