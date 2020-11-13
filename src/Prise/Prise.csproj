@@ -17,15 +17,19 @@
     </ItemGroup>
   </Target>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <DefineConstants>HAS_NATIVE_RESOLVER</DefineConstants>
-    <DefineConstants>SUPPORTS_UNLOADING</DefineConstants>
-    <DefineConstants>SUPPORTS_NATIVE_UNLOADING</DefineConstants>
+    <DefineConstants>$(DefineConstants);HAS_NATIVE_RESOLVER</DefineConstants>
+    <DefineConstants>$(DefineConstants);SUPPORTS_UNLOADING</DefineConstants>
+    <DefineConstants>$(DefineConstants);SUPPORTS_NATIVE_UNLOADING</DefineConstants>
+    <DefineConstants>$(DefineConstants);SUPPORTS_LOADED_ASSEMBLIES</DefineConstants>
+    <DefineConstants>$(DefineConstants);SUPPORTS_ASYNC_STREAMS</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <DefineConstants>HAS_NATIVE_RESOLVER</DefineConstants>
-    <DefineConstants>SUPPORTS_UNLOADING</DefineConstants>
-    <DefineConstants>SUPPORTS_NATIVE_UNLOADING</DefineConstants>
-    <DefineConstants>SUPPORTS_NATIVE_PLATFORM_ABSTRACTIONS</DefineConstants>
+    <DefineConstants>$(DefineConstants);SUPPORTS_UNLOADING</DefineConstants>
+    <DefineConstants>$(DefineConstants);HAS_NATIVE_RESOLVER</DefineConstants>
+    <DefineConstants>$(DefineConstants);SUPPORTS_NATIVE_UNLOADING</DefineConstants>
+    <DefineConstants>$(DefineConstants);SUPPORTS_LOADED_ASSEMBLIES</DefineConstants>
+    <DefineConstants>$(DefineConstants);SUPPORTS_ASYNC_STREAMS</DefineConstants>
+    <DefineConstants>$(DefineConstants);SUPPORTS_NATIVE_PLATFORM_ABSTRACTIONS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
