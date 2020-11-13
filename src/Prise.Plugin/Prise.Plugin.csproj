@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Title>Prise.Plugin</Title>
     <PackageId>Prise.Plugin</PackageId>
-    <PackageDescription>Prise, A .NET Core plugin framework!</PackageDescription>
+    <PackageDescription>Prise, A .NET Plugin Framework!</PackageDescription>
     <Authors>Maarten Merken</Authors>
     <Company>MRKN</Company>
     <PackageTags>plugin;framework;prise;decoupling;assembly;dispatchproxy;proxy</PackageTags>

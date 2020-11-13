@@ -63,9 +63,24 @@ jobs:
     - name: Build Prise.ReverseProxy with netstandard2.0
       run: dotnet build src/Prise.ReverseProxy/Prise.ReverseProxy.csproj --configuration Release -f netstandard2.0
     
+    - name: Pack Prise
+      run: dotnet pack src/Prise/Prise.csproj --configuration Release --output ./_dist /p:Version=${{github.event.inputs.priseversion}}
+    
+    - name: Pack Prise.Mvc
+      run: dotnet pack src/Prise.Mvc/Prise.Mvc.csproj --configuration Release --output ./_dist /p:Version=${{github.event.inputs.mvcversion}}
+  
+    - name: Pack Prise.Plugin
+      run: dotnet pack src/Prise.Plugin/Prise.Plugin.csproj --configuration Release --output ./_dist /p:Version=${{github.event.inputs.pluginversion}}
+
+    - name: Pack Prise.ReverseProxy
+      run: dotnet pack src/Prise.ReverseProxy/Prise.ReverseProxy.csproj --configuration Release --output ./_dist /p:Version=${{github.event.inputs.priseversion}}
+  
+    - name: Pack Prise.Proxy
+      run: dotnet pack src/Prise.Proxy/Prise.Proxy.csproj --configuration Release --output ./_dist /p:Version=${{github.event.inputs.proxyversion}}
+  
+    - name: Pack Prise.Testing
+      run: dotnet pack src/Prise.Testing/Prise.Testing.csproj --configuration Release --output ./_dist /p:Version=${{github.event.inputs.testingversion}}
+    
     - name: Push Prise
-      uses: rohith/publish-nuget@v2
-      with:
-        PROJECT_FILE_PATH: src/Prise/Prise.csproj
-        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
-        VERSION_STATIC: ${{github.event.inputs.priseversion}}    
+      run: dotnet nuget push _dist/Prise.${{github.event.inputs.priseversion}}.nupkg --api-key ${{github.event.inputs.nugetKey}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+    
