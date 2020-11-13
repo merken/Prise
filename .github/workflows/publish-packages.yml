@@ -1,0 +1,89 @@
+name: publish-packages
+
+on: 
+  workflow_dispatch:
+    inputs:
+      priseversion:
+        description: 'Prise Version'
+        default: '2.0.0'
+        required: true
+      proxyversion:
+        description: 'Prise.Proxy Version'
+        default: '2.0.0'
+        required: true
+      pluginversion:
+        description: 'Prise.Plugin Version'
+        default: '2.0.0'
+        required: true
+      reverseproxyversion:
+        description: 'Prise.ReverseProxy Version'
+        default: '2.0.0'
+        required: true
+      mvcversion:
+        description: 'Prise.Mvc Version'
+        default: '2.0.0'
+        required: true
+      testingversion:
+        description: 'Prise.Testing Version'
+        default: '2.0.0'
+        required: true
+      nugetKey:
+        description: 'Nuget Api Key'
+        required: true
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+      
+    - name: Setup .NET 5
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.100
+        
+    - name: Build Prise
+      run: dotnet build src/Prise/Prise.csproj --configuration Release -f net5.0
+    - name: Build Prise with netcoreapp2.1
+      run: dotnet build src/Prise/Prise.csproj --configuration Release -f netcoreapp2.1
+    - name: Build Prise with netcoreapp3.1
+      run: dotnet build src/Prise/Prise.csproj --configuration Release -f netcoreapp3.1
+
+    - name: Build Prise.Mvc
+      run: dotnet build src/Prise.Mvc/Prise.Mvc.csproj --configuration Release -f net5.0
+    - name: Build Prise.Mvc with netcoreapp2.1
+      run: dotnet build src/Prise.Mvc/Prise.Mvc.csproj --configuration Release -f netcoreapp2.1
+    - name: Build Prise.Mvc with netcoreapp3.1
+      run: dotnet build src/Prise.Mvc/Prise.Mvc.csproj --configuration Release -f netcoreapp3.1
+        
+    - name: Build Prise.Plugin with netstandard2.0
+      run: dotnet build src/Prise.Plugin/Prise.Plugin.csproj --configuration Release -f netstandard2.0
+      
+    - name: Build Prise.Proxy with netstandard2.0
+      run: dotnet build src/Prise.Proxy/Prise.Proxy.csproj --configuration Release -f netstandard2.0
+      
+    - name: Build Prise.ReverseProxy with netstandard2.0
+      run: dotnet build src/Prise.ReverseProxy/Prise.ReverseProxy.csproj --configuration Release -f netstandard2.0
+    
+    - name: Pack Prise
+      run: dotnet pack src/Prise/Prise.csproj --no-build --configuration Release -f net5.0 --output ../_dist /p:Version=${{github.event.inputs.priseversion}} /p:AssemblyVersion=${{github.event.inputs.priseversion}} /p:FileVersion=${{github.event.inputs.priseversion}} /p:AssemblyInformationalVersion=${{github.event.inputs.priseversion}}
+    
+    - name: Pack Prise.Mvc
+      run: dotnet pack src/Prise.Mvc/Prise.Mvc.csproj --no-build --configuration Release -f net5.0 --output ../_dist /p:Version=${{github.event.inputs.mvcversion}} /p:AssemblyVersion=${{github.event.inputs.mvcversion}} /p:FileVersion=${{github.event.inputs.mvcversion}} /p:AssemblyInformationalVersion=${{github.event.inputs.mvcversion}}
+  
+    - name: Pack Prise.Plugin
+      run: dotnet pack src/Prise.Plugin/Prise.Plugin.csproj --no-build --configuration Release -f net5.0 --output ../_dist /p:Version=${{github.event.inputs.pluginversion}} /p:AssemblyVersion=${{github.event.inputs.pluginversion}} /p:FileVersion=${{github.event.inputs.pluginversion}} /p:AssemblyInformationalVersion=${{github.event.inputs.pluginversion}}
+
+    - name: Pack Prise.ReverseProxy
+      run: dotnet pack src/Prise.ReverseProxy/Prise.ReverseProxy.csproj --no-build --configuration Release -f net5.0 --output ../_dist /p:Version=${{github.event.inputs.priseversion}} /p:AssemblyVersion=${{github.event.inputs.priseversion}} /p:FileVersion=${{github.event.inputs.priseversion}} /p:AssemblyInformationalVersion=${{github.event.inputs.priseversion}}
+  
+    - name: Pack Prise.Proxy
+      run: dotnet pack src/Prise.Proxy/Prise.Proxy.csproj --no-build --configuration Release -f net5.0 --output ../_dist /p:Version=${{github.event.inputs.proxyversion}} /p:AssemblyVersion=${{github.event.inputs.priseversion}} /p:FileVersion=${{github.event.inputs.proxyversion}} /p:AssemblyInformationalVersion=${{github.event.inputs.proxyversion}}
+  
+    - name: Pack Prise.Testing
+      run: dotnet pack src/Prise.Testing/Prise.Testing.csproj --no-build --configuration Release -f net5.0 --output ../_dist /p:Version=${{github.event.inputs.testingversion}} /p:AssemblyVersion=${{github.event.inputs.testingversion}} /p:FileVersion=${{github.event.inputs.testingversion}} /p:AssemblyInformationalVersion=${{github.event.inputs.testingversion}}
+    
+    - name: Push Prise
+      run: dotnet nuget push _dist/Prise.${{github.event.inputs.priseversion}}.nupkg --api-key ${{github.event.inputs.nugetKey}} -s https://api.nuget.org/v3/index.json --skip-duplicate
+    
