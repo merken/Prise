@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -41,7 +42,7 @@ namespace Prise.AssemblyScanning
         {
             try
             {
-                var candidate = AssemblyLoadContext.Default.Assemblies.FirstOrDefault(a => a.GetName().Name == assemblyName.Name);
+                var candidate = GetLoadedAssemblies().FirstOrDefault(a => a.GetName().Name == assemblyName.Name);
                 var candidateName = candidate != null ? candidate.GetName() : null;
 
                 if (candidateName != null && candidateName.Version != assemblyName.Version)
@@ -57,5 +58,11 @@ namespace Prise.AssemblyScanning
                 throw new AssemblyScanningException($"System.Runtime {assemblyName.Version} failed to load. Are you trying to load a new plugin into an old host? Host Runtime Version: {hostRuntimeAssembly.GetName().Version} on {hostRuntimeAssembly.CodeBase}");
             }
         }
+
+#if SUPPORTS_LOADED_ASSEMBLIES
+        protected IEnumerable<Assembly> GetLoadedAssemblies() => AssemblyLoadContext.Default.Assemblies;
+#else
+        protected IEnumerable<Assembly> GetLoadedAssemblies() => AppDomain.CurrentDomain.GetAssemblies();
+#endif
     }
 }
