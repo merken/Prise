@@ -53,6 +53,7 @@ namespace Example.Console
                         System.Console.WriteLine($"{pluginResult.Text}");
                 }
                 catch (PluginActivationException pex) { System.Console.WriteLine($"{pex.Message}"); }
+                catch (ReflectionTypeLoadException tex) { System.Console.WriteLine($"{tex.Message}"); }
             }
         }
 

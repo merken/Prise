@@ -11,7 +11,7 @@
       "processId": "${command:pickProcess}"
     },
     {
-      "name": "Akka",
+      "name": "Akka 5.0",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-akka",
@@ -22,13 +22,13 @@
       "stopAtEntry": false
     },
     {
-      "name": "AzureFunctions",
+      "name": "Azure Functions 3.1",
       "type": "coreclr",
       "request": "attach",
       "processId": "${command:azureFunctions.pickProcess}"
     },
     {
-      "name": "Console",
+      "name": "Console 3.1",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
@@ -39,7 +39,7 @@
       "stopAtEntry": false
     },
     {
-      "name": "Mvc Controllers",
+      "name": "Mvc Controllers 5.0",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-mvc",
@@ -50,7 +50,7 @@
       "stopAtEntry": false
     },
     {
-      "name": "Mvc Legacy",
+      "name": "Mvc Legacy 2.1",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-legacy",
@@ -61,7 +61,7 @@
       "stopAtEntry": false
     },
     {
-      "name": "Mvc Razor",
+      "name": "Mvc Razor 5.0",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-mvc-razor",
@@ -72,7 +72,7 @@
       "stopAtEntry": false
     },
     {
-      "name": "Web",
+      "name": "Web 5.0",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-web",
@@ -83,7 +83,7 @@
       "stopAtEntry": false
     },
     {
-      "name": "Web Legacy",
+      "name": "Web Legacy 2.1",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-legacy-web",
