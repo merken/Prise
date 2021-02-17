@@ -1177,6 +1177,7 @@ Prise comes with a toolset for VS Code and Visual Studio.
 - [🌐 WebApi project using Prise](https://github.com/merken/Prise/tree/master/samples/Example.WebApi)
 - [🌐 MVC using Prise](https://github.com/merken/Prise/tree/master/samples/Example.Mvc.Controllers)
 - [🌐 MVC Razor using Prise](https://github.com/merken/Prise/tree/master/samples/Example.Mvc.Razor)
+- [🪟 Avalonia App using Prise](https://github.com/merken/Prise/tree/master/samples/Example.Avalonia)
 
 ## ✍️ Authors
 <a name="authors"></a>
