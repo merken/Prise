@@ -290,10 +290,15 @@ namespace Prise.AssemblyLoading
                 }
                 foreach (var asset in assets.Where(a => platformExtensions.Contains(Path.GetExtension(a)))) // Only load assemblies and not debug files
                 {
+                    SemanticVersion semVer;
+                    if (!SemanticVersion.TryParse(runtimeLibrary.Version, out semVer))
+                        // Take first 3 digits
+                        semVer = SemanticVersion.Parse(String.Join('.',runtimeLibrary.Version.Split(".").Take(3).ToArray()));
+                   
                     dependencies.Add(new PlatformDependency
                     {
                         DependencyNameWithoutExtension = Path.GetFileNameWithoutExtension(asset),
-                        SemVer = SemanticVersion.Parse(runtimeLibrary.Version),
+                        SemVer = semVer,
                         DependencyPath = asset
                     });
                 }
