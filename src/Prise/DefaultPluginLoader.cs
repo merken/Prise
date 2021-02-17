@@ -65,7 +65,6 @@ namespace Prise
         public async Task<T> LoadPlugin<T>(AssemblyScanResult scanResult, string hostFramework = null, Action<PluginLoadContext> configureLoadContext = null)
         {
             hostFramework = hostFramework.ValueOrDefault(HostFrameworkUtils.GetHostframeworkFromHost());
-            var servicesForPlugin = new ServiceCollection();
 
             var pathToAssembly = Path.Combine(scanResult.AssemblyPath, scanResult.AssemblyName);
             var pluginLoadContext = PluginLoadContext.DefaultPluginLoadContext(pathToAssembly, typeof(T), hostFramework);
@@ -73,6 +72,8 @@ namespace Prise
             pluginLoadContext.IgnorePlatformInconsistencies = true;
 
             configureLoadContext?.Invoke(pluginLoadContext);
+
+            this.pluginContexts.Add(pluginLoadContext);
 
             var pluginAssembly = await this.assemblyLoader.Load(pluginLoadContext);
             var pluginTypes = this.pluginTypeSelector.SelectPluginTypes<T>(pluginAssembly);
@@ -151,13 +152,27 @@ namespace Prise
 #endif
         }
 
-        protected bool disposed = false;
-        public void Dispose()
+        public void UnloadAll()
         {
             foreach (var context in this.pluginContexts)
                 this.assemblyLoader.Unload(context);
-
+            
             this.pluginContexts.Clear();
+        }
+        
+        protected bool disposed = false;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed && disposing)
+                UnloadAll();
+            
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -1,0 +1,27 @@
+<Window xmlns="https://github.com/avaloniaui" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:local="clr-namespace:AppHost" mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" x:Class="AppHost.Views.MainWindow" 
+    xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity" 
+    xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions" Icon="/Assets/avalonia-logo.ico" Title="AppHost" Name="MainWindow">
+    <StackPanel>
+        <Button Command="{Binding LoadAllComponentsCommand}" Width="160">
+            Load Components
+        </Button>
+         <Button Command="{Binding UnLoadAllComponentsCommand}" Width="160">
+            Unload Components
+        </Button>
+        <ListBox Items="{Binding Components}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Button Command="{Binding $parent[Window].DataContext.LoadComponentCommand}" CommandParameter="{Binding}">
+                        <TextBlock Text="{Binding}"/>
+                    </Button>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <ContentControl Content="{Binding CurrentControl}">
+        </ContentControl>
+    </StackPanel>
+</Window>

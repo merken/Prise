@@ -68,5 +68,11 @@ namespace Prise
         /// <returns>An IAsyncEnumerable of fully loaded and usable plugins of type <see cref="{T}"/></returns>
         IAsyncEnumerable<T> LoadPluginsAsAsyncEnumerable<T>(AssemblyScanResult scanResult, string hostFramework = null, Action<PluginLoadContext> configure = null);
 #endif
+
+        /// <summary>
+        /// This method unloads all previously loaded plugins from this IPluginLoader
+        /// </summary>
+        /// <returns>Void</returns>
+        void UnloadAll();
     }
 }

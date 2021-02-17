@@ -12,3 +12,4 @@ appsettings.Development.json
 global.json
 *.user
 .DS_Store
+\.idea
