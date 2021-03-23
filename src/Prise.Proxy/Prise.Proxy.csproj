@@ -11,6 +11,10 @@
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
     <Nullable>enable</Nullable>
     <LangVersion>8</LangVersion>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/merken/Prise/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/merken/Prise</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/merken/Prise.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <Target DependsOnTargets="ResolveReferences" Name="CopyProjectReferencesToPackage">

@@ -8,6 +8,10 @@
     <Authors>Maarten Merken</Authors>
     <Company>MRKN</Company>
     <PackageTags>mvc;controllers;plugin</PackageTags>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/merken/Prise/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/merken/Prise</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/merken/Prise.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
 
