@@ -13,7 +13,8 @@ namespace Plugin.Sql
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<MyDto>().HasKey(p => p.Number); // No need to alter the Contract, I will annotate the PK myself using EF Core
+            modelBuilder.Entity<MyDto>()
+                .HasKey(p => p.Number); // No need to alter the Contract, I will annotate the PK myself using EF Core
         }
     }
 }

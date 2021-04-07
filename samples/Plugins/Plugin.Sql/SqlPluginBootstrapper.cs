@@ -1,14 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Abstractions;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using Example.Contract;
 using Prise.Plugin;
-using System.Data;
-using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
+using Microsoft.Data.SqlClient;
 
 namespace Plugin.Sql
 {
