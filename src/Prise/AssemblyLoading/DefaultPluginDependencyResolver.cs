@@ -107,20 +107,17 @@ namespace Prise.AssemblyLoading
             return null;
         }
 
-        protected bool disposed = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed && disposing)
-            {
-                this.runtimePlatformContext = null;
-            }
-            this.disposed = true;
-        }
+        protected volatile bool disposed;
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (disposed)
+            {
+                return;
+            }
+
+            disposed = true;
+            runtimePlatformContext = null;
         }
     }
 }

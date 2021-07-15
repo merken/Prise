@@ -44,21 +44,16 @@ namespace Prise.Activation
             return instance;
         }
 
-        protected override void Dispose(bool disposing)
+        public override void Dispose()
         {
-            if (!this.disposed && disposing)
+            if (disposed)
             {
-                foreach (var instance in this.instances)
-                    (instance as IDisposable)?.Dispose();
-
-                this.instances.Clear();
-
-                this.instances = null;
-                this.localProvider = null;
-                this.hostTypes = null;
-                this.pluginTypes = null;
+                return;
             }
-            this.disposed = true;
+
+            base.Dispose();
+
+            pluginTypes = null;
         }
     }
 }

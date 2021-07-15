@@ -1,6 +1,6 @@
+using Prise.Proxy;
 using System;
 using System.Text.Json;
-using Prise.Proxy;
 
 namespace Prise.Infrastructure
 {
@@ -12,20 +12,8 @@ namespace Prise.Infrastructure
             return JsonSerializer.Deserialize(json, localType);
         }
 
-        protected bool disposed = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed && disposing)
-            {
-                // Nothing to do here
-            }
-            this.disposed = true;
-        }
-
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
     }
 }

@@ -66,26 +66,23 @@ namespace Prise.AssemblyLoading
             return builder.ToString();
         }
 
-        private bool disposed = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed && disposing)
-            {
-                this.FullPathToPluginAssembly = null;
-                this.HostDependencies = null;
-                this.RemoteDependencies = null;
-                this.PluginDependencies = null;
-                this.PluginResourceDependencies = null;
-                this.PlatformDependencies = null;
-                this.AdditionalProbingPaths = null;
-            }
-            this.disposed = true;
-        }
+        private volatile bool _disposed;
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+            FullPathToPluginAssembly = null;
+            HostDependencies = null;
+            RemoteDependencies = null;
+            PluginDependencies = null;
+            PluginResourceDependencies = null;
+            PlatformDependencies = null;
+            AdditionalProbingPaths = null;
         }
     }
 }

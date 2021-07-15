@@ -33,26 +33,27 @@ namespace Prise.Activation
             return instance;
         }
 
-        protected bool disposed = false;
-        protected virtual void Dispose(bool disposing)
+        protected volatile bool disposed;
+
+        public virtual void Dispose()
         {
-            if (!this.disposed && disposing)
+            if (disposed)
             {
-                foreach (var instance in this.instances)
-                    (instance as IDisposable)?.Dispose();
-
-                this.instances.Clear();
-
-                this.instances = null;
-                this.localProvider = null;
-                this.hostTypes = null;
+                return;
             }
-            this.disposed = true;
-        }
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+
+            disposed = true;
+
+            foreach (object instance in instances)
+            {
+                (instance as IDisposable)?.Dispose();
+            }
+
+            instances?.Clear();
+
+            instances = null;
+            localProvider = null;
+            hostTypes = null;
         }
     }
 }

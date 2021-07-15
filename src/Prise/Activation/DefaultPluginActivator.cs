@@ -1,8 +1,8 @@
+using Prise.Plugin;
+using Prise.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using Prise.Plugin;
-using Prise.Utils;
 
 namespace Prise.Activation
 {
@@ -14,8 +14,8 @@ namespace Prise.Activation
         protected IPluginProxyCreator proxyCreator;
 
         public DefaultPluginActivator(
-            Func<IPluginActivationContextProvider> pluginActivationContextProviderFactory, 
-            Func<IRemotePluginActivator> remotePluginActivatorFactory, 
+            Func<IPluginActivationContextProvider> pluginActivationContextProviderFactory,
+            Func<IRemotePluginActivator> remotePluginActivatorFactory,
             Func<IPluginProxyCreator> proxyCreatorFactory)
         {
             this.disposables = new ConcurrentBag<IDisposable>();
@@ -63,28 +63,28 @@ namespace Prise.Activation
             return Task.FromResult(pluginProxy);
         }
 
-        private bool disposed = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed && disposing)
-            {
-                this.remotePluginActivator?.Dispose();
-                this.proxyCreator?.Dispose();
-
-                foreach (var disposable in this.disposables)
-                    disposable.Dispose();
-
-                this.remotePluginActivator = null;
-                this.proxyCreator = null;
-                this.disposables = null;
-            }
-            this.disposed = true;
-        }
+        private volatile bool _disposed;
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+
+            remotePluginActivator?.Dispose();
+            proxyCreator?.Dispose();
+
+            foreach (IDisposable disposable in disposables)
+            {
+                disposable?.Dispose();
+            }
+
+            remotePluginActivator = null;
+            proxyCreator = null;
+            disposables = null;
         }
     }
 }
