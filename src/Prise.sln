@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31424.327
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Prise", "Prise\Prise.csproj", "{3CD6A510-9A00-429E-BB5E-8AD7AB38A513}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Prise.Plugin", "Prise.Plugin\Prise.Plugin.csproj", "{E67D32F3-33D1-44C0-86A5-7AA57A1998DE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Prise.Proxy", "Prise.Proxy\Prise.Proxy.csproj", "{90114571-7C1F-4EBA-951F-3974A77DF6D1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3CD6A510-9A00-429E-BB5E-8AD7AB38A513}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CD6A510-9A00-429E-BB5E-8AD7AB38A513}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CD6A510-9A00-429E-BB5E-8AD7AB38A513}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CD6A510-9A00-429E-BB5E-8AD7AB38A513}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E67D32F3-33D1-44C0-86A5-7AA57A1998DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E67D32F3-33D1-44C0-86A5-7AA57A1998DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E67D32F3-33D1-44C0-86A5-7AA57A1998DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E67D32F3-33D1-44C0-86A5-7AA57A1998DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90114571-7C1F-4EBA-951F-3974A77DF6D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90114571-7C1F-4EBA-951F-3974A77DF6D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90114571-7C1F-4EBA-951F-3974A77DF6D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90114571-7C1F-4EBA-951F-3974A77DF6D1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EE8CA163-8178-403F-98D3-80FA466CD543}
+	EndGlobalSection
+EndGlobal

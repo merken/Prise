@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Prise.Utils;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-
-using Prise.Utils;
 
 namespace Prise.AssemblyLoading
 {
@@ -62,26 +62,35 @@ namespace Prise.AssemblyLoading
 
         protected virtual void UnloadAndCleanup(string fullPathToAssembly = null)
         {
-            if (this.loadContexts != null)
+            if (loadContexts != null)
             {
-                var loadContexts = String.IsNullOrEmpty(fullPathToAssembly) ?
-                                            this.loadContexts.Where(c => c.Key == fullPathToAssembly).Select(c => c.Key) :
-                                            this.loadContexts.Select(c => c.Key);
-                foreach (var key in loadContexts)
+                IEnumerable<string> loadContextsList = loadContexts.Select(c => c.Key);
+
+                if (string.IsNullOrEmpty(fullPathToAssembly))
                 {
-                    this.loadContexts[key].Unload();
-                    this.loadContexts.TryRemove(key, out _);
+                    loadContextsList = loadContextsList.Where(c => c == fullPathToAssembly);
+                }
+
+                foreach (string key in loadContextsList)
+                {
+                    loadContexts[key].Unload();
+                    loadContexts.TryRemove(key, out _);
                 }
             }
 
-            if (this.loadContextReferences != null)
+            if (loadContextReferences != null)
             {
-                var loadContextReferences = String.IsNullOrEmpty(fullPathToAssembly) ?
-                                            this.loadContextReferences.Where(c => c.Key == fullPathToAssembly).Select(c => c.Key) :
-                                            this.loadContextReferences.Select(c => c).Select(c => c.Key);
-                foreach (var key in loadContextReferences)
+                IEnumerable<string> loadContextReferencesList = loadContextReferences.Select(c => c).Select(c => c.Key); ;
+
+                if (string.IsNullOrEmpty(fullPathToAssembly))
                 {
-                    var reference = this.loadContextReferences[key];
+                    loadContextReferencesList = loadContextReferencesList.Where(c => c == fullPathToAssembly);
+                }
+
+                foreach (string key in loadContextReferencesList)
+                {
+                    WeakReference reference = loadContextReferences[key];
+
                     for (int i = 0; reference.IsAlive && (i < 10); i++)
                     {
                         GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
@@ -93,34 +102,27 @@ namespace Prise.AssemblyLoading
 
         protected virtual void DisposeAndUnloadContexts()
         {
-            // Clean up all
-            this.UnloadAndCleanup();
+            UnloadAndCleanup();
 
-            this.loadContexts?.Clear();
-            this.loadContexts = null;
+            loadContexts?.Clear();
+            loadContexts = null;
 
-            this.loadContextReferences?.Clear();
-            this.loadContextReferences = null;
-
-            GC.Collect(); // collects all unused memory
-            GC.WaitForPendingFinalizers(); // wait until GC has finished its work
-            GC.Collect();
+            loadContextReferences?.Clear();
+            loadContextReferences = null;
         }
 
-        protected bool disposed = false;
+        protected volatile bool disposed;
+
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed && disposing)
+            if (disposed)
             {
-                DisposeAndUnloadContexts();
+                return;
             }
-            this.disposed = true;
+
+            disposed = true;
+
+            DisposeAndUnloadContexts();
         }
     }
 }

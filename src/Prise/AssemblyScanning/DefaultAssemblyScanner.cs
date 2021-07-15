@@ -1,11 +1,9 @@
+using Prise.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-
-using Prise.Utils;
 
 namespace Prise.AssemblyScanning
 {
@@ -74,24 +72,24 @@ namespace Prise.AssemblyScanning
                         .ToList();
         }
 
-        protected bool disposed = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed && disposing)
-            {
-                if (this.disposables != null && this.disposables.Any())
-                    foreach (var disposable in this.disposables)
-                        disposable.Dispose();
-                GC.Collect(); // collects all unused memory
-                GC.WaitForPendingFinalizers(); // wait until GC has finished its work
-            }
-            this.disposed = true;
-        }
+        protected volatile bool disposed;
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (disposed)
+            {
+                return;
+            }
+
+            disposed = true;
+
+            if (disposables?.Any() == true)
+            {
+                foreach (IDisposable disposable in disposables)
+                {
+                    disposable?.Dispose();
+                }
+            }
         }
     }
 }

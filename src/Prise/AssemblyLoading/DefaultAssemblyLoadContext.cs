@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 
 using Prise.Utils;
+using System.Collections.Generic;
 
 namespace Prise.AssemblyLoading
 {
@@ -320,61 +321,61 @@ namespace Prise.AssemblyLoading
             return assembly;
         }
 
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed && disposing)
-            {
-                this.disposing = true;
-
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-
-                if (this.assemblyReferences != null)
-                    foreach (var reference in this.assemblyReferences)
-                        // https://docs.microsoft.com/en-us/dotnet/standard/assembly/unloadability#use-collectible-assemblyloadcontext
-                        for (int i = 0; reference.IsAlive && (i < 10); i++)
-                        {
-                            GC.Collect();
-                            GC.WaitForPendingFinalizers();
-                        }
-
-
-                // Unload any loaded native assemblies
-                foreach (var nativeAssembly in this.loadedNativeLibraries)
-                    this.nativeAssemblyUnloader.UnloadNativeAssembly(nativeAssembly.Key, nativeAssembly.Value);
-
-                this.loadedPlugins.Clear();
-                this.assemblyReferences.Clear();
-                this.loadedNativeLibraries.Clear();
-                this.pluginDependencyContext?.Dispose();
-                this.pluginDependencyResolver?.Dispose();
-                this.resolver?.Dispose();
-                this.resolver = null;
-                this.loadedNativeLibraries = null;
-                this.loadedPlugins = null;
-                this.assemblyReferences = null;
-                this.assemblyLoadStrategy = null;
-                this.pluginDependencyContext = null;
-                this.pluginDependencyResolver = null;
-                this.fullPathToPluginAssembly = null;
-                this.initialPluginLoadDirectory = null;
-                this.pluginPlatformVersion = null;
-                this.nativeAssemblyUnloader = null;
-                this.pluginDependencyResolverFactory = null;
-                this.assemblyLoadStrategyFactory = null;
-                this.assemblyDependencyResolverFactory = null;
-                this.fileSystemUtilities = null;
-                this.runtimeDefaultAssemblyLoadContext = null;
-                this.pluginDependencyContextProvider = null;
-            }
-            this.disposed = true;
-        }
-
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (disposed || !disposing)
+            {
+                return;
+            }
+
+            disposing = true;
+
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            if (assemblyReferences != null)
+            {
+                foreach (WeakReference reference in this.assemblyReferences)
+                    // https://docs.microsoft.com/en-us/dotnet/standard/assembly/unloadability#use-collectible-assemblyloadcontext
+                    for (int i = 0; reference.IsAlive && (i < 10); i++)
+                    {
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+                    }
+            }
+
+
+            // Unload any loaded native assemblies
+            foreach (var nativeAssembly in loadedNativeLibraries)
+            {
+                nativeAssemblyUnloader?.UnloadNativeAssembly(nativeAssembly.Key, nativeAssembly.Value);
+            }
+
+            loadedPlugins?.Clear();
+            assemblyReferences?.Clear();
+            loadedNativeLibraries?.Clear();
+            pluginDependencyContext?.Dispose();
+            pluginDependencyResolver?.Dispose();
+            resolver?.Dispose();
+            resolver = null;
+            loadedNativeLibraries = null;
+            loadedPlugins = null;
+            assemblyReferences = null;
+            assemblyLoadStrategy = null;
+            pluginDependencyContext = null;
+            pluginDependencyResolver = null;
+            fullPathToPluginAssembly = null;
+            initialPluginLoadDirectory = null;
+            pluginPlatformVersion = null;
+            nativeAssemblyUnloader = null;
+            pluginDependencyResolverFactory = null;
+            assemblyLoadStrategyFactory = null;
+            assemblyDependencyResolverFactory = null;
+            fileSystemUtilities = null;
+            runtimeDefaultAssemblyLoadContext = null;
+            pluginDependencyContextProvider = null;
+
+            disposed = true;
         }
     }
 }

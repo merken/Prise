@@ -98,7 +98,7 @@ namespace Prise
 #if SUPPORTS_ASYNC_STREAMS
             await foreach (var plugin in this.LoadPluginsAsAsyncEnumerable<T>(scanResult, hostFramework, configureLoadContext))
 #else
-            foreach(var plugin in await this.LoadPluginsAsAsyncEnumerable<T>(scanResult, hostFramework, configureLoadContext))
+            foreach (var plugin in await this.LoadPluginsAsAsyncEnumerable<T>(scanResult, hostFramework, configureLoadContext))
 #endif
                 plugins.Add(plugin);
 
@@ -140,39 +140,40 @@ namespace Prise
 #else
             var plugins = new List<T>();
             foreach (var pluginType in pluginTypes)
-                plugins.Add( await this.pluginActivator.ActivatePlugin<T>(new DefaultPluginActivationOptions
-                        {
-                            PluginType = pluginType,
-                            PluginAssembly = pluginAssembly,
-                            ParameterConverter = this.parameterConverter,
-                            ResultConverter = this.resultConverter,
-                            HostServices = pluginLoadContext.HostServices
-                        }));
+                plugins.Add(await this.pluginActivator.ActivatePlugin<T>(new DefaultPluginActivationOptions
+                {
+                    PluginType = pluginType,
+                    PluginAssembly = pluginAssembly,
+                    ParameterConverter = this.parameterConverter,
+                    ResultConverter = this.resultConverter,
+                    HostServices = pluginLoadContext.HostServices
+                }));
             return plugins;
 #endif
         }
 
         public void UnloadAll()
         {
-            foreach (var context in this.pluginContexts)
-                this.assemblyLoader.Unload(context);
-            
-            this.pluginContexts.Clear();
+            foreach (IPluginLoadContext context in pluginContexts)
+            {
+                assemblyLoader?.Unload(context);
+            }
+
+            pluginContexts?.Clear();
         }
-        
-        protected bool disposed = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed && disposing)
-                UnloadAll();
-            
-            this.disposed = true;
-        }
+
+        protected volatile bool disposed;
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (disposed)
+            {
+                return;
+            }
+
+            disposed = true;
+
+            UnloadAll();
         }
     }
 }

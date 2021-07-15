@@ -10,8 +10,8 @@ namespace Prise.AssemblyLoading
     /// </summary>
     public abstract class InMemoryAssemblyLoadContext : AssemblyLoadContext
     {
-        protected bool disposed = false;
-        protected bool disposing = false;
+        protected volatile bool disposed = false;
+        protected volatile bool disposing = false;
         protected bool isCollectible = false;
         protected InMemoryAssemblyLoadContext() { }
 

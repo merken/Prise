@@ -107,7 +107,7 @@ namespace Prise.Activation
                 if (bootstrapperService.ProxyType == null)
                     throw new PluginActivationException($"Field {fieldName} requires a ProxyType (BridgeType).");
 
-                 var reverseProxyCtor = GetReverseProxyConstructor(bootstrapperService.ProxyType);
+                var reverseProxyCtor = GetReverseProxyConstructor(bootstrapperService.ProxyType);
                 if (reverseProxyCtor == null)
                     throw new PluginActivationException($"ReverseProxy {bootstrapperService.ProxyType.Name} must have a single public constructor with one parameter of type object.");
 
@@ -216,27 +216,25 @@ namespace Prise.Activation
         }
 
 
-        private bool disposed = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed && disposing)
-            {
-                foreach (var disposable in this.instances)
-                {
-                    if (disposable as IDisposable != null)
-                        (disposable as IDisposable)?.Dispose();
-                }
-                instances.Clear();
-
-                this.instances = null;
-            }
-            this.disposed = true;
-        }
+        private volatile bool _disposed;
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+
+            foreach (object disposable in instances)
+            {
+                (disposable as IDisposable)?.Dispose();
+            }
+
+            instances?.Clear();
+
+            instances = null;
         }
     }
 }
