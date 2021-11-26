@@ -10,10 +10,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
         
-      - name: Setup .NET 5
+      - name: Setup .NET 6
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 5.0.100
+          dotnet-version: 6.0.100
 
       # Publishes all plugins to publish directory
       - run: dotnet publish src/Prise.Tests.Integration/IntegrationTestsPlugins/PluginA/PluginA.csproj -o ~/publish/PluginA

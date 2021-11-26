@@ -223,7 +223,8 @@ namespace Prise.Tests.Platform
             var versions = new[]{
                 $"2.1.0",
                 $"3.1.0",
-                $"5.0.0"
+                $"5.0.0",
+                $"6.0.0"
             };
             var platformAbstraction = this.mockRepository.Create<IPlatformAbstraction>();
             var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
@@ -238,13 +239,14 @@ namespace Prise.Tests.Platform
             var context = new DefaultRuntimePlatformContext(() => platformAbstraction.Object, () => directoryTraverser.Object);
             var result = context.GetRuntimeInfo();
 
-            Assert.AreEqual(9, result.Runtimes.Count());
+            Assert.AreEqual(12, result.Runtimes.Count());
             Assert.AreEqual("2.1.0", result.Runtimes.ElementAt(0).Version);
             Assert.AreEqual("3.1.0", result.Runtimes.ElementAt(1).Version);
             Assert.AreEqual("5.0.0", result.Runtimes.ElementAt(2).Version);
+            Assert.AreEqual("6.0.0", result.Runtimes.ElementAt(3).Version);
             Assert.AreEqual(RuntimeType.AspNetCoreAll, result.Runtimes.ElementAt(0).RuntimeType);
-            Assert.AreEqual(RuntimeType.AspNetCoreApp, result.Runtimes.ElementAt(3).RuntimeType);
-            Assert.AreEqual(RuntimeType.NetCoreApp, result.Runtimes.ElementAt(6).RuntimeType);
+            Assert.AreEqual(RuntimeType.AspNetCoreApp, result.Runtimes.ElementAt(4).RuntimeType);
+            Assert.AreEqual(RuntimeType.NetCoreApp, result.Runtimes.ElementAt(8).RuntimeType);
         }
 
         [TestMethod]
@@ -260,7 +262,8 @@ namespace Prise.Tests.Platform
             var versions = new[]{
                 $"2.1.0",
                 $"3.1.0",
-                $"5.0.0"
+                $"5.0.0",
+                $"6.0.0"
             };
             var platformAbstraction = this.mockRepository.Create<IPlatformAbstraction>();
             var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
@@ -275,14 +278,15 @@ namespace Prise.Tests.Platform
             var context = new DefaultRuntimePlatformContext(() => platformAbstraction.Object, () => directoryTraverser.Object);
             var result = context.GetRuntimeInfo();
 
-            Assert.AreEqual(12, result.Runtimes.Count());
+            Assert.AreEqual(16, result.Runtimes.Count());
             Assert.AreEqual("2.1.0", result.Runtimes.ElementAt(0).Version);
             Assert.AreEqual("3.1.0", result.Runtimes.ElementAt(1).Version);
             Assert.AreEqual("5.0.0", result.Runtimes.ElementAt(2).Version);
+            Assert.AreEqual("6.0.0", result.Runtimes.ElementAt(3).Version);
             Assert.AreEqual(RuntimeType.AspNetCoreAll, result.Runtimes.ElementAt(0).RuntimeType);
-            Assert.AreEqual(RuntimeType.AspNetCoreApp, result.Runtimes.ElementAt(3).RuntimeType);
-            Assert.AreEqual(RuntimeType.NetCoreApp, result.Runtimes.ElementAt(6).RuntimeType);
-            Assert.AreEqual(RuntimeType.WindowsDesktopApp, result.Runtimes.ElementAt(9).RuntimeType);
+            Assert.AreEqual(RuntimeType.AspNetCoreApp, result.Runtimes.ElementAt(4).RuntimeType);
+            Assert.AreEqual(RuntimeType.NetCoreApp, result.Runtimes.ElementAt(8).RuntimeType);
+            Assert.AreEqual(RuntimeType.WindowsDesktopApp, result.Runtimes.ElementAt(12).RuntimeType);
         }
 
         [TestMethod]
@@ -297,7 +301,8 @@ namespace Prise.Tests.Platform
             var versions = new[]{
                 $"2.1.0",
                 $"3.1.0",
-                $"5.0.0"
+                $"5.0.0",
+                $"6.0.0"
             };
             var platformAbstraction = this.mockRepository.Create<IPlatformAbstraction>();
             var directoryTraverser = this.mockRepository.Create<IDirectoryTraverser>();
@@ -313,13 +318,14 @@ namespace Prise.Tests.Platform
             var context = new DefaultRuntimePlatformContext(() => platformAbstraction.Object, () => directoryTraverser.Object);
             var result = context.GetRuntimeInfo();
 
-            Assert.AreEqual(9, result.Runtimes.Count());
+            Assert.AreEqual(12, result.Runtimes.Count());
             Assert.AreEqual("2.1.0", result.Runtimes.ElementAt(0).Version);
             Assert.AreEqual("3.1.0", result.Runtimes.ElementAt(1).Version);
             Assert.AreEqual("5.0.0", result.Runtimes.ElementAt(2).Version);
+            Assert.AreEqual("6.0.0", result.Runtimes.ElementAt(3).Version);
             Assert.AreEqual(RuntimeType.AspNetCoreAll, result.Runtimes.ElementAt(0).RuntimeType);
-            Assert.AreEqual(RuntimeType.AspNetCoreApp, result.Runtimes.ElementAt(3).RuntimeType);
-            Assert.AreEqual(RuntimeType.NetCoreApp, result.Runtimes.ElementAt(6).RuntimeType);
+            Assert.AreEqual(RuntimeType.AspNetCoreApp, result.Runtimes.ElementAt(4).RuntimeType);
+            Assert.AreEqual(RuntimeType.NetCoreApp, result.Runtimes.ElementAt(8).RuntimeType);
         }
     }
 }

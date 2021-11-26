@@ -13,6 +13,12 @@ var nugetSource = "https://api.nuget.org/v3/index.json";
 
 Task("build").Does( () =>
 { 
+    var net6 = new DotNetCoreBuildSettings
+    {
+        Configuration = "Release",
+        Framework = "net6.0"
+    };
+
     var net5 = new DotNetCoreBuildSettings
     {
         Configuration = "Release",
