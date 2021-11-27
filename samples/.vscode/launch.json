@@ -11,11 +11,11 @@
       "processId": "${command:pickProcess}"
     },
     {
-      "name": "Akka 5.0",
+      "name": "Akka 6.0",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-akka",
-      "program": "${workspaceFolder}/Example.Akka/bin/Debug/net5.0/Example.Akka.dll",
+      "program": "${workspaceFolder}/Example.Akka/bin/Debug/net6.0/Example.Akka.dll",
       "args": [],
       "cwd": "${workspaceFolder}/Example.Akka",
       "console": "externalTerminal",
@@ -28,22 +28,22 @@
       "processId": "${command:azureFunctions.pickProcess}"
     },
     {
-      "name": "Console 5.0",
+      "name": "Console 6.0",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/Example.Console/bin/Debug/net5.0/Example.Console.dll",
+      "program": "${workspaceFolder}/Example.Console/bin/Debug/net6.0/Example.Console.dll",
       "args": [],
       "cwd": "${workspaceFolder}/Example.Console",
       "console": "externalTerminal",
       "stopAtEntry": false
     },
     {
-      "name": "Mvc Controllers 5.0",
+      "name": "Mvc Controllers 6.0",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-mvc",
-      "program": "${workspaceFolder}/Example.Mvc.Controllers/bin/Debug/net5.0/Example.Mvc.Controllers.dll",
+      "program": "${workspaceFolder}/Example.Mvc.Controllers/bin/Debug/net6.0/Example.Mvc.Controllers.dll",
       "args": [],
       "cwd": "${workspaceFolder}/Example.Mvc.Controllers",
       "console": "externalTerminal",
@@ -61,22 +61,22 @@
       "stopAtEntry": false
     },
     {
-      "name": "Mvc Razor 5.0",
+      "name": "Mvc Razor 6.0",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-mvc-razor",
-      "program": "${workspaceFolder}/Example.Mvc.Razor/bin/Debug/net5.0/Example.Mvc.Razor.dll",
+      "program": "${workspaceFolder}/Example.Mvc.Razor/bin/Debug/net6.0/Example.Mvc.Razor.dll",
       "args": [],
       "cwd": "${workspaceFolder}/Example.Mvc.Razor",
       "console": "externalTerminal",
       "stopAtEntry": false
     },
     {
-      "name": "Web 5.0",
+      "name": "Web 6.0",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build-web",
-      "program": "${workspaceFolder}/Example.Web/bin/Debug/net5.0/Example.Web.dll",
+      "program": "${workspaceFolder}/Example.Web/bin/Debug/net6.0/Example.Web.dll",
       "args": [],
       "cwd": "${workspaceFolder}/Example.Web",
       "console": "externalTerminal",

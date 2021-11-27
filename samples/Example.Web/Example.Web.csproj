@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>abd62e5b-be9f-4f1d-9e95-8774de56a884</UserSecretsId>
   </PropertyGroup>
 
@@ -10,7 +10,7 @@
     <ProjectReference Include="../../src/Prise.Proxy/Prise.Proxy.csproj" />
     <ProjectReference Include="../../src/Prise.Plugin/Prise.Plugin.csproj" />
     <ProjectReference Include="../Example.Contract/Example.Contract.csproj" />
-    <PackageReference Include="System.Text.Json" Version="5.0.0" />
+    <PackageReference Include="System.Text.Json" Version="6.0.0" />
   </ItemGroup>
 
 </Project>

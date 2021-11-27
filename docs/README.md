@@ -112,7 +112,7 @@ dotnet new classlib -f netcoreapp3.1
 
 <img src="createopenweatherplugin.gif" alt="Create OpenWeather Plugin Project">
 
-While you **can** create ```netstandard``` plugins, it is best to choose a specific framework for your **Plugin**, like ```netcoreapp2.1```, ```netcoreapp3.1``` or ```net5.0```.
+While you **can** create ```netstandard``` plugins, it is best to choose a specific framework for your **Plugin**, like ```netcoreapp2.1```, ```netcoreapp3.1```, ```net5.0``` or ```net6.0```.
 
 When we open the ```Weather``` directory in VS Code, we can see that projects are ready:
 
@@ -1148,6 +1148,7 @@ Prise supports the following frameworks (*):
 - .NET Core 2.1
 - .NET Core 3.1
 - .NET 5.0
+- .NET 6.0
 
 Prise runs on the following platforms (*):
 - Windows
@@ -1157,7 +1158,8 @@ Prise runs on the following platforms (*):
 (*)
 [2.1 support](https://github.com/dotnet/core/blob/master/release-notes/2.1/2.1-supported-os.md) | 
 [3.1 support](https://github.com/dotnet/core/blob/master/release-notes/3.1/3.1-supported-os.md) | 
-[5.0 support](https://github.com/dotnet/core/blob/master/release-notes/5.0/5.0-supported-os.md)
+[5.0 support](https://github.com/dotnet/core/blob/master/release-notes/5.0/5.0-supported-os.md) |
+[6.0 support](https://github.com/dotnet/core/blob/master/release-notes/6.0/6.0-supported-os.md) |
 
 ## 🚀 Toolset
 <a name="toolset"></a>
