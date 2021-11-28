@@ -1156,10 +1156,10 @@ Prise runs on the following platforms (*):
 - Linux
 
 (*)
-[2.1 support](https://github.com/dotnet/core/blob/master/release-notes/2.1/2.1-supported-os.md) | 
-[3.1 support](https://github.com/dotnet/core/blob/master/release-notes/3.1/3.1-supported-os.md) | 
-[5.0 support](https://github.com/dotnet/core/blob/master/release-notes/5.0/5.0-supported-os.md) |
-[6.0 support](https://github.com/dotnet/core/blob/master/release-notes/6.0/6.0-supported-os.md) |
+[2.1 support](https://github.com/dotnet/core/blob/main/release-notes/2.1/2.1-supported-os.md) | 
+[3.1 support](https://github.com/dotnet/core/blob/main/release-notes/3.1/3.1-supported-os.md) | 
+[5.0 support](https://github.com/dotnet/core/blob/main/release-notes/5.0/5.0-supported-os.md) |
+[6.0 support](https://github.com/dotnet/core/blob/main/release-notes/6.0/supported-os.md) |
 
 ## 🚀 Toolset
 <a name="toolset"></a>
