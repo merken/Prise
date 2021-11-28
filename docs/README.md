@@ -51,6 +51,7 @@
 - [🚀 Toolset](#-toolset)
 - [📜 Examples](#-examples)
 - [✍️ Authors](#️-authors)
+- [🔧 Contributors](#️-contributors)
 
 ## 🧐 About
 <a name="about"></a>
@@ -1185,3 +1186,8 @@ Prise comes with a toolset for VS Code and Visual Studio.
 <a name="authors"></a>
 
 - [@merken](https://github.com/merken) - Idea & Initial work
+
+## 🔧 Contributors
+<a name="contributors"></a>
+
+- [@TartanLeGrand](https://github.com/TartanLeGrand) - Upgrade to .NET 6, thanks for your contribution!
