@@ -51,9 +51,11 @@ Task("build").Does( () =>
     DotNetCoreBuild("Prise.Mvc/Prise.Mvc.csproj", netcoreapp2);
     DotNetCoreBuild("Prise.Mvc/Prise.Mvc.csproj", netcoreapp3_1);
     DotNetCoreBuild("Prise.Mvc/Prise.Mvc.csproj", net5);
+    DotNetCoreBuild("Prise.Mvc/Prise.Mvc.csproj", net6);
     DotNetCoreBuild("Prise/Prise.csproj", netcoreapp2);
     DotNetCoreBuild("Prise/Prise.csproj", netcoreapp3_1);
     DotNetCoreBuild("Prise/Prise.csproj", net5);
+    DotNetCoreBuild("Prise/Prise.csproj", net6);
 });
 
 private DotNetCorePackSettings GetPackSettings(string version, string betaVersion = null){  
