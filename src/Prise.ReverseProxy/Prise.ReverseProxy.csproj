@@ -38,6 +38,9 @@
     <Compile Include="../Prise.Proxy/PassthroughParameterConverter.cs" Link="PassthroughParameterConverter.cs" />
     <Compile Include="../Prise.Proxy/PassthroughResultConverter.cs" Link="PassthroughResultConverter.cs" />
     <Compile Include="../Prise.Proxy/PriseProxy.cs" Link="PriseProxy.cs" />
+    <Compile Include="../Prise.Proxy/Method.cs" Link="Method.cs" />
+    <Compile Include="../Prise.Proxy/Parameter.cs" Link="Parameter.cs" />
+    <Compile Include="../Prise.Proxy/MethodFindingStrategy.cs" Link="MethodFindingStrategy.cs" />
     <Compile Include="../Prise.Proxy/ResultConverter.cs" Link="ResultConverter.cs" />
     <Compile Include="../Prise.Proxy/TaskCompletionSource.cs" Link="TaskCompletionSource.cs" />
     <Compile Include="../Prise/Infrastructure/JsonSerializerParameterConverter.cs" Link="JsonSerializerParameterConverter.cs" />
