@@ -1,42 +1,42 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <Title>Prise.Proxy</Title>
-    <PackageId>Prise.Proxy</PackageId>
-    <PackageDescription>Prise, A .NET Plugin Framework!</PackageDescription>
-    <Authors>Maarten Merken</Authors>
-    <Company>MRKN</Company>
-    <PackageTags>plugin;framework;prise;decoupling;assembly;dispatchproxy;proxy</PackageTags>
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
-    <Nullable>enable</Nullable>
-    <LangVersion>8</LangVersion>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/merken/Prise/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/merken/Prise</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/merken/Prise.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Title>Prise.Proxy</Title>
+        <PackageId>Prise.Proxy</PackageId>
+        <PackageDescription>Prise, A .NET Plugin Framework!</PackageDescription>
+        <Authors>Maarten Merken</Authors>
+        <Company>MRKN</Company>
+        <PackageTags>plugin;framework;prise;decoupling;assembly;dispatchproxy;proxy</PackageTags>
+        <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+        <Nullable>enable</Nullable>
+        <LangVersion>8</LangVersion>
+        <PackageLicenseUrl>https://raw.githubusercontent.com/merken/Prise/master/LICENSE</PackageLicenseUrl>
+        <PackageProjectUrl>https://github.com/merken/Prise</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/merken/Prise.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
 
-  <Target DependsOnTargets="ResolveReferences" Name="CopyProjectReferencesToPackage">
+    <Target DependsOnTargets="ResolveReferences" Name="CopyProjectReferencesToPackage">
+        <ItemGroup>
+            <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
+        </ItemGroup>
+    </Target>
+
     <ItemGroup>
-      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
+        <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
     </ItemGroup>
-  </Target>
 
-  <ItemGroup>
-    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
-  </ItemGroup>
+    <PropertyGroup>
+        <PackageIcon>icon.png</PackageIcon>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    </PropertyGroup>
 
-  <PropertyGroup>
-    <PackageIcon>icon.png</PackageIcon>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="../icon.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <None Include="../icon.png">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
 
 </Project>

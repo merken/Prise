@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
@@ -14,16 +15,19 @@ namespace Prise.Proxy
     public static class PriseProxy
     {
         public static object Invoke(object remoteObject, MethodInfo targetMethod, object[] args)
-            => Invoke(remoteObject, targetMethod, args, new PassthroughParameterConverter(), new PassthroughResultConverter());
+            => Invoke(remoteObject, targetMethod, args, new PassthroughParameterConverter(),
+                new PassthroughResultConverter());
 
-        public static object Invoke(object remoteObject, MethodInfo targetMethod, object[] args, IParameterConverter parameterConverter, IResultConverter resultConverter)
+        public static object Invoke(object remoteObject, MethodInfo targetMethod, object[] args,
+            IParameterConverter parameterConverter, IResultConverter resultConverter)
         {
             try
             {
                 var localType = targetMethod.ReturnType;
                 var remoteMethod = FindMethodOnObject(targetMethod, remoteObject);
                 if (remoteMethod == null)
-                    throw new PriseProxyException($"Target method {targetMethod.Name} is not found on Proxy Type {remoteObject.GetType().Name}.");
+                    throw new PriseProxyException(
+                        $"Target method {targetMethod.Name} is not found on Proxy Type {remoteObject.GetType().Name}.");
 
                 object result = null;
                 if (remoteMethod.IsGenericMethod)
@@ -32,14 +36,17 @@ namespace Prise.Proxy
                     result = generic.Invoke(remoteObject, SerializeParameters(parameterConverter, remoteMethod, args));
                 }
                 else
-                    result = remoteMethod.Invoke(remoteObject, SerializeParameters(parameterConverter, remoteMethod, args));
+                    result = remoteMethod.Invoke(remoteObject,
+                        SerializeParameters(parameterConverter, remoteMethod, args));
 
                 var remoteType = remoteMethod.ReturnType;
                 if (remoteType.BaseType == typeof(System.Threading.Tasks.Task))
-                    return resultConverter.ConvertToLocalTypeAsync(localType, remoteType, result as System.Threading.Tasks.Task);
+                    return resultConverter.ConvertToLocalTypeAsync(localType, remoteType,
+                        result as System.Threading.Tasks.Task);
 
                 if (remoteType == typeof(System.Threading.Tasks.Task))
-                    return resultConverter.ConvertToLocalTypeAsync(localType, remoteType, result as System.Threading.Tasks.Task);
+                    return resultConverter.ConvertToLocalTypeAsync(localType, remoteType,
+                        result as System.Threading.Tasks.Task);
 
 
                 if (remoteType == typeof(void))
@@ -54,53 +61,101 @@ namespace Prise.Proxy
         }
 
         public static MethodInfo FindMethodOnObject(MethodInfo callingMethod, object targetObject)
+            => FindMethodOnObject(
+                targetObject,
+                new Method(callingMethod.Name, callingMethod.ReturnType),
+                callingMethod.GetParameters().Select(p => new Parameter(p.Name, p.ParameterType)).ToArray(),
+                throwOnError: true)!; // Throws error when null
+
+        public static MethodInfo? TryFindMethodOnObject(MethodInfo callingMethod, object targetObject)
+            => FindMethodOnObject(
+                targetObject,
+                new Method(callingMethod.Name, callingMethod.ReturnType),
+                callingMethod.GetParameters().Select(p => new Parameter(p.Name, p.ParameterType)).ToArray());
+
+        public static MethodInfo? FindMethodOnObject(
+            object targetObject,
+            Method method,
+            Parameter[] parameters,
+            MethodFindingStrategy strategy = MethodFindingStrategy.MethodNameMustMatch |
+                                             MethodFindingStrategy.MethodReturnTypeMustMatch |
+                                             MethodFindingStrategy.ParameterCountMustMatch |
+                                             MethodFindingStrategy.ParameterTypeMustMatch,
+            bool throwOnError = false)
         {
-            bool isNameCorrect(MethodInfo targetMethod) => targetMethod.Name == callingMethod.Name;
+            bool isNameCorrect(MethodInfo targetMethod) => targetMethod.Name == method.Name;
 
             // First, find by method name
-            var targetMethods = targetObject.GetType().GetMethods().Where(isNameCorrect);
+            var targetMethods = targetObject.GetType().GetMethods().AsEnumerable();
+            if (strategy.HasFlag(MethodFindingStrategy.MethodNameMustMatch))
+                targetMethods = targetMethods.Where(isNameCorrect);
+
             if (!targetMethods.Any())
-                throw new PriseProxyException($"Target method {callingMethod.Name} is not found on Proxy Type {targetObject.GetType().Name}.");
+                if (throwOnError)
+                    throw new PriseProxyException(
+                        $"Target method {method.Name} is not found on Proxy Type {targetObject.GetType().Name}.");
+                else
+                    return null;
 
             if (targetMethods.Count() == 1)
                 return targetMethods.First();
 
-            bool isReturnTypeCorrect(MethodInfo targetMethod) => targetMethod.ReturnType == callingMethod.ReturnType;
+            bool isReturnTypeCorrect(MethodInfo targetMethod) => targetMethod.ReturnType == method.ReturnType;
 
-            // Second, find by method name AND return type
-            targetMethods = targetMethods.Where(isReturnTypeCorrect);
+            if (strategy.HasFlag(MethodFindingStrategy.MethodReturnTypeMustMatch))
+                // Second, find by method name AND return type
+                targetMethods = targetMethods.Where(isReturnTypeCorrect);
+
             if (targetMethods.Count() == 1)
                 return targetMethods.First();
 
-            bool isParameterCountCorrect(MethodInfo targetMethod) => targetMethod.GetParameters().Count() == callingMethod.GetParameters().Count();
+            bool isParameterCountCorrect(MethodInfo targetMethod) =>
+                targetMethod.GetParameters().Count() == parameters.Length;
 
             bool doAllParametersMatch(MethodInfo targetMethod)
             {
-                var callingMethodParameters = callingMethod.GetParameters();
+                var callingMethodParameters = parameters;
                 var targetMethodParameters = targetMethod.GetParameters();
                 for (var index = 0; index < callingMethodParameters.Count(); index++)
                 {
                     var callingParam = callingMethodParameters[index];
+                    if (callingParam.Type is null)
+                        throw new PriseProxyException(
+                            $"When using {nameof(MethodFindingStrategy.ParameterTypeMustMatch)}, Parameter.Type must be provided");
                     var targetParam = targetMethodParameters[index];
                     if (!(targetParam.Name == callingParam.Name &&
-                        targetParam.ParameterType.Name == callingParam.ParameterType.Name))
+                          targetParam.ParameterType.Name == callingParam.Type.Name))
                         return false;
                 }
+
                 return true;
             }
 
             targetMethods = targetMethods.Where(targetMethod =>
-                isParameterCountCorrect(targetMethod) &&
-                doAllParametersMatch(targetMethod)
+                (!strategy.HasFlag(MethodFindingStrategy.ParameterCountMustMatch) ||
+                 isParameterCountCorrect(targetMethod)) &&
+                (!strategy.HasFlag(MethodFindingStrategy.ParameterTypeMustMatch) || doAllParametersMatch(targetMethod))
             );
 
+            if (!targetMethods.Any())
+                if (throwOnError)
+                    throw new PriseProxyException(
+                        $"Target method {method.Name} is not found on Proxy Type {targetObject.GetType().Name}.");
+                else
+                    return null;
+
             if (targetMethods.Count() > 1)
-                throw new PriseProxyException($"Target method {callingMethod.Name} could not be determined on object {targetObject.GetType().Name}.");
+                if (throwOnError)
+                    throw new PriseProxyException(
+                        $"Target method {method.Name} could not be determined on object {targetObject.GetType().Name}.");
+                else
+                    return null;
 
             return targetMethods.First();
         }
 
-        internal static object[] SerializeParameters(IParameterConverter parameterConverter, MethodInfo targetMethod, object[] args)
+        internal static object[] SerializeParameters(IParameterConverter parameterConverter, MethodInfo targetMethod,
+            object[] args)
         {
             var parameters = targetMethod.GetParameters();
             var results = new List<object>();
@@ -147,7 +202,8 @@ namespace Prise.Proxy
         private object remoteObject;
         protected bool disposed = false;
 
-        protected override object Invoke(MethodInfo targetMethod, object[] args) => PriseProxy.Invoke(this.remoteObject, targetMethod, args, this.parameterConverter, this.resultConverter);
+        protected override object Invoke(MethodInfo targetMethod, object[] args) => PriseProxy.Invoke(this.remoteObject,
+            targetMethod, args, this.parameterConverter, this.resultConverter);
 
         public static object Create() => Create<T, PriseProxy<T>>();
 
@@ -186,6 +242,7 @@ namespace Prise.Proxy
                 this.resultConverter = null;
                 this.remoteObject = null;
             }
+
             this.disposed = true;
         }
 
