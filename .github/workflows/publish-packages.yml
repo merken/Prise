@@ -77,7 +77,7 @@ jobs:
       run: dotnet pack src/Prise.Plugin/Prise.Plugin.csproj --configuration Release --output ./_dist /p:Version=${{github.event.inputs.pluginversion}}
 
     - name: Pack Prise.ReverseProxy
-      run: dotnet pack src/Prise.ReverseProxy/Prise.ReverseProxy.csproj --configuration Release --output ./_dist /p:Version=${{github.event.inputs.priseversion}}
+      run: dotnet pack src/Prise.ReverseProxy/Prise.ReverseProxy.csproj --configuration Release --output ./_dist /p:Version=${{github.event.inputs.reverseproxyversion}}
   
     - name: Pack Prise.Proxy
       run: dotnet pack src/Prise.Proxy/Prise.Proxy.csproj --configuration Release --output ./_dist /p:Version=${{github.event.inputs.proxyversion}}
