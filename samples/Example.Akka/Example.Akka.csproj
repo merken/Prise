@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Akka" Version="1.4.10" />
+    <PackageReference Include="Akka" Version="1.4.46" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.1" />
     <ProjectReference Include="../Example.Contract/Example.Contract.csproj" />
     <ProjectReference Include="../../src/Prise/Prise.csproj" />
